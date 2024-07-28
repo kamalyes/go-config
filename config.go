@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-07-28 09:32:38
+ * @LastEditTime: 2024-07-28 22:40:17
  * @FilePath: \go-config\config.go
  * @Description:
  *
@@ -18,6 +18,7 @@ import (
 	"github.com/kamalyes/go-config/email"
 	"github.com/kamalyes/go-config/ftp"
 	"github.com/kamalyes/go-config/jwt"
+	"github.com/kamalyes/go-config/minio"
 	"github.com/kamalyes/go-config/mqtt"
 	"github.com/kamalyes/go-config/pay"
 	"github.com/kamalyes/go-config/redis"
@@ -58,6 +59,9 @@ type Config struct {
 
 	/** jwt token 相关配置 */
 	JWT jwt.JWT `mapstructure:"jwt"                json:"jwt"               yaml:"jwt"`
+
+	/** minio 相关配置 */
+	Minio minio.Minio `mapstructure:"minio"               json:"minio"              yaml:"minio"`
 
 	/** mqtt 代理服务器相关配置 */
 	Mqtt mqtt.Mqtt `mapstructure:"mqtt"               json:"mqtt"              yaml:"mqtt"`
