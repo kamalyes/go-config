@@ -63,6 +63,8 @@ configs
 ├
 ├── jwt(jwt token生成和校验配置)
 ├
+├── minio(minio配置)
+├
 ├── mqtt(mqtt物联网配置)
 ├
 ├── pay(支付相关配置 支付宝和微信)
