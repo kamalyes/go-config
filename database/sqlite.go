@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-07-28 09:24:50
- * @FilePath: \go-config\captcha\captcha.go
+ * @LastEditTime: 2024-07-28 22:29:01
+ * @FilePath: \go-config\database\sqlite.go
  * @Description:
  *
  * Copyright (c) 2024 by kamalyes, All Rights Reserved.

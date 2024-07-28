@@ -137,6 +137,13 @@ jwt:
   # 多地登录拦截 true 拦截 fasle 不拦截
   use-multipoint: true
 
+#minio配置
+minio:
+  url: "127.0.0.1"
+  port: 9000
+  access-key: minioadmin
+  secret-key: minioadmin
+
 #mqtt配置
 mqtt:
   # MQTT-服务器连接地址，如果有多个，用逗号隔开，如：tcp://127.0.0.1:1883，tcp://192.168.2.133:1883

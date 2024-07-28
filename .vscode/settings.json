@@ -129,6 +129,8 @@
       "goconfig",
       "kamalyes",
       "mapstructure",
+      "minio",
+      "minioadmin",
       "Mqtt",
       "postgre",
       "Wechat"
