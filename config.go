@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-07-28 22:40:17
+ * @LastEditTime: 2024-08-01 14:19:51
  * @FilePath: \go-config\config.go
  * @Description:
  *
@@ -14,6 +14,7 @@ package goconfig
 import (
 	"github.com/kamalyes/go-config/captcha"
 	"github.com/kamalyes/go-config/consul"
+	"github.com/kamalyes/go-config/cors"
 	"github.com/kamalyes/go-config/database"
 	"github.com/kamalyes/go-config/email"
 	"github.com/kamalyes/go-config/ftp"
@@ -32,6 +33,9 @@ type Config struct {
 
 	/** 服务实例配置 */
 	Server server.Server `mapstructure:"server"             json:"server"            yaml:"server"`
+
+	/** Cors 配置 */
+	Cors cors.Cors `mapstructure:"cors" json:"cors" yaml:"cors"`
 
 	/** 注册中心配置 */
 	Consul consul.Consul `mapstructure:"consul"             json:"consul"            yaml:"consul"`

@@ -18,6 +18,21 @@ consul:
   # 间隔 单位秒
   register-interval: 30
 
+# cors 配置
+cors:
+  # 允许的来源
+  allowed-origins: "example.com"
+  # 允许的方法
+  allowed-methods: "POST, GET, OPTIONS, PUT, DELETE,UPDATE"
+  # 允许的头部
+  allowed-headers: "Authorization, Content-Length, X-CSRF-Token, Token,session"
+  # 暴露的头部
+  exposed-headers: "Content-Type, Authorization, Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers"
+  # 最大缓存时间
+  max-age: "172800"
+  # 允许凭证
+  allow-credentials: true
+
 # mysql 配置
 mysql:
   # 数据服务器ip
@@ -38,9 +53,9 @@ mysql:
   max-idle-conns: 10
   # 最大连接数
   max-open-conns: 100
-  # 连接最大空闲时间  单位：秒
+  #连接最大空闲时间  单位：秒
   conn-max-idle-time: 60
-  # 连接最大生命周期  单位：秒
+  #连接最大生命周期  单位：秒
   conn-max-life-time: 600
 
 #sqlite数据库配置
@@ -55,9 +70,9 @@ sqlite:
   log-level: 'error'
   # 是否执行清除命令
   vacuum: true
-  # 连接最大空闲时间  单位：秒
+  #连接最大空闲时间  单位：秒
   conn-max-idle-time: 60
-  # 连接最大生命周期  单位：秒
+  #连接最大生命周期  单位：秒
   conn-max-life-time: 600
 
 # postgresql 配置
@@ -80,9 +95,9 @@ postgre:
   max-idle-conns: 10
   # 最大连接数
   max-open-conns: 100
-  # 连接最大空闲时间  单位：秒
+  #连接最大空闲时间  单位：秒
   conn-max-idle-time: 60
-  # 连接最大生命周期  单位：秒
+  #连接最大生命周期  单位：秒
   conn-max-life-time: 600
 
 # redis 相关配置
@@ -137,14 +152,14 @@ jwt:
   # 多地登录拦截 true 拦截 fasle 不拦截
   use-multipoint: true
 
-#minio配置
+# minio配置
 minio:
   url: "127.0.0.1"
   port: 9000
   access-key: minioadmin
   secret-key: minioadmin
 
-#mqtt配置
+# mqtt配置
 mqtt:
   # MQTT-服务器连接地址，如果有多个，用逗号隔开，如：tcp://127.0.0.1:1883，tcp://192.168.2.133:1883
   url: tcp://127.0.0.1:1882
@@ -188,7 +203,7 @@ alipay:
   # 回调地址
   notify-url:
 
-#微信支付参数配置
+# 微信支付参数配置
 wechat:
   # 应用id
   app-id: 'wx04xxxxxx'

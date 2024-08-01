@@ -1,0 +1,13 @@
+cors:
+  # 允许的来源
+  allowed-origins: "example.com"
+  # 允许的方法
+  allowed-methods: "POST, GET, OPTIONS, PUT, DELETE,UPDATE"
+  # 允许的头部
+  allowed-headers: "Authorization, Content-Length, X-CSRF-Token, Token,session"
+  # 暴露的头部
+  exposed-headers: "Content-Type, Authorization, Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers"
+  # 最大缓存时间
+  max-age: "172800"
+  # 允许凭证
+  allow-credentials: true

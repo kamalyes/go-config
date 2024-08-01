@@ -123,15 +123,19 @@
     },
     "cSpell.words": [
       "casbin",
+      "CSBEF",
       "Datetime",
+      "DB",
       "Dont",
       "fsnotify",
       "goconfig",
+      "gorm",
       "kamalyes",
       "mapstructure",
       "minio",
       "minioadmin",
       "Mqtt",
+      "paho",
       "postgre",
       "Wechat"
     ]
