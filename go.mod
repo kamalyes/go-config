@@ -32,7 +32,7 @@ require (
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/casbin/casbin/v2 v2.11.0
 	github.com/eclipse/paho.mqtt.golang v1.5.0
-	github.com/go-redis/redis/v8 v8.11.0
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
