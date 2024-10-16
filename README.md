@@ -55,11 +55,17 @@ configs
 ├
 ├── consul(注册中心配置)
 ├
+├── cors(跨域配置)
+├
 ├── database(数据库配置)
 ├
 ├── email(邮件配置)
 ├
+├── env(环境变量配置)
+├
 ├── ftp(文件服务器配置)
+├
+├── global(全局配置)
 ├
 ├── jwt(jwt token生成和校验配置)
 ├

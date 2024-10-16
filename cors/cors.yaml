@@ -1,13 +1,39 @@
 cors:
+  # 是否允许所有源
+  allowed-all-origins: false
+  # 是否允许所有方法
+  allowed-all-methods: false
   # 允许的来源
-  allowed-origins: "example.com"
+  allowed-origins:
+    - "example.com"
   # 允许的方法
-  allowed-methods: "POST, GET, OPTIONS, PUT, DELETE,UPDATE"
+  allowed-methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "UPDATE"
+    - "PATCH"
+    - "HEAD"
+    - "OPTIONS"
   # 允许的头部
-  allowed-headers: "Authorization, Content-Length, X-CSRF-Token, Token,session"
+  allowed-headers:
+    - "Authorization"
+    - "Content-Length"
+    - "Content-Type"
+    - "X-CSRF-Token"
+    - "Token"
+    - "session"
   # 暴露的头部
-  exposed-headers: "Content-Type, Authorization, Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers"
+  exposed-headers:
+    - "Content-Type"
+    - "Authorization"
+    - "Content-Length"
+    - "Access-Control-Allow-Origin"
+    - "Access-Control-Allow-Headers"
   # 最大缓存时间
   max-age: "172800"
   # 允许凭证
   allow-credentials: true
+  # 响应Code
+  options-response-code: 403

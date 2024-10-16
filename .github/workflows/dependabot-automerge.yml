@@ -18,7 +18,7 @@ jobs:
              ref: ${{ github.event.pull_request.head.sha || github.sha }}
              running-workflow-name: wait_for_checks
              check-regexp: Tests
-             repo-token: ${{ secrets.ACCESS_TOKEN }}
+             repo-token: ${{ secrets.GH_GPA_TOKEN }}
              wait-interval: 10
   dependabot:
     needs: [wait_for_checks]
@@ -30,7 +30,7 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@v2.2.0
         with:
-          github-token: "${{ secrets.ACCESS_TOKEN }}"
+          github-token: "${{ secrets.GH_GPA_TOKEN }}"
       - name: Enable auto-merge for Dependabot PRs
         if: ${{steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch'}}
         run: |
@@ -38,4 +38,4 @@ jobs:
             gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.ACCESS_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GH_GPA_TOKEN}}
