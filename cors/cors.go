@@ -21,5 +21,5 @@ type Cors struct {
 	MaxAge              string   `mapstructure:"max-age" json:"maxAge" yaml:"max-age"`                                          // 最大缓存时间
 	ExposedHeaders      []string `mapstructure:"exposed-headers" json:"exposedHeaders" yaml:"exposed-headers"`                  // 暴露的头部
 	AllowCredentials    bool     `mapstructure:"allow-credentials" json:"allowCredentials" yaml:"allow-credentials"`            // 允许凭证
-	OptionsResponseCode int      `mapstructure:"options-response-code" json:"optionsResponseCode" yaml:"options-response-code"` // 响应Code
+	OptionsResponseCode int      `mapstructure:"options-response-code" json:"optionsResponseCode" yaml:"options-response-code"` // Options响应Code
 }

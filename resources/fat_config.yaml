@@ -36,6 +36,8 @@ cors:
     - "UPDATE"
     - "PATCH"
     - "HEAD"
+    - "CONNECT"
+    - "TRACE"
     - "OPTIONS"
   # 允许的头部
   allowed-headers:
@@ -56,8 +58,8 @@ cors:
   max-age: "172800"
   # 允许凭证
   allow-credentials: true
-  # 响应Code
-  options-response-code: 403
+  # Options响应Code
+  options-response-code: 204
 
 # mysql 配置
 mysql:
