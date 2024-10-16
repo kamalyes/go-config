@@ -18,4 +18,4 @@ jobs:
                 id: labeler
                 uses: fuxingloh/multi-labeler@v4
                 with:
-                    github-token: ${{secrets.ACCESS_TOKEN}}
+                    github-token: ${{secrets.GH_GPA_TOKEN}}

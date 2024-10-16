@@ -20,6 +20,12 @@ consul:
 
 # cors 配置
 cors:
+  # 是否允许所有源
+  allowed-all-origins: true
+  # 是否允许所有方法
+  allowed-all-methods: true
+  # 是否允许所有头部
+  allowed-all-headers: true
   # 允许的来源
   allowed-origins: "example.com"
   # 允许的方法
@@ -32,6 +38,8 @@ cors:
   max-age: "172800"
   # 允许凭证
   allow-credentials: true
+  # 响应Code
+  options-response-code: 403
 
 # mysql 配置
 mysql:
