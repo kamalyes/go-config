@@ -123,6 +123,8 @@
     },
     "cSpell.words": [
       "Aliyun",
+      "aliyunsms",
+      "aliyunsts",
       "allowall",
       "casbin",
       "clientidv",
@@ -137,9 +139,12 @@
       "mapstructure",
       "minio",
       "minioadmin",
+      "modulename",
       "Mqtt",
       "paho",
       "postgre",
-      "Wechat"
+      "stretchr",
+      "Wechat",
+      "YOUZAN"
     ]
 }
