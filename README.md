@@ -51,49 +51,31 @@ func main {
 ### 目录结构
 
 ```shell
-configs
-├
-├── captcha(验证码图片尺寸配置)
-├
-├── consul(注册中心配置)
-├
-├── cors(跨域配置)
-├
-├── database(数据库配置)
-├
-├── email(邮件配置)
-├
-├── env(环境变量配置)
-├
-├── ftp(文件服务器配置)
-├
-├── global(全局配置)
-├
-├── jwt(jwt token生成和校验配置)
-├
-├── mqtt(mqtt物联网配置)
-├
-├── oss(oss配置)
-├
-├── pay(支付相关配置 支付宝和微信)
-├
-├── profile(多配置文件相关配置)
-├
-├── redis(redis缓存数据库相关配置)
-├
-├── resources(项目整合配置文件示例)
-│   └── dev_config.yaml  开发环境配置文件
-│   └── fat_config.yaml  功能验收测试环境配置文件
-│   └── pro_config.yaml  生产环境配置文件
-│   └── uat_config.yaml  用户验收测试环境配置文件
-├
-├── server(服务端口等相关配置)
-├
-├── sms(短信配置)
-├
-├── sts(sts配置)
-├
-├── youzan(有赞配置)
-├
-├── zap(日志相关配置)
+├── internal/     # 仅供本项目使用的库代码
+├── tests/         # 测试文件
+├── go.mod        # Go Modules 文件
+└── pkg/          # 可供其他项目使用的库代码
+    ├── captcha/  # 验证码图片尺寸配置
+    ├── consul/   # 注册中心配置
+    ├── cors/     # 跨域配置
+    ├── database/  # 数据库配置
+    ├── email/    # 邮件配置
+    ├── env/      # 环境变量配置
+    ├── ftp/      # 文件服务器配置
+    ├── global/   # 全局配置
+    ├── jwt/      # JWT token 生成和校验配置
+    ├── mqtt/     # MQTT 物联网配置
+    ├── oss/      # OSS 配置
+    ├── pay/      # 支付相关配置（支付宝和微信）
+    ├── redis/      # redis(redis缓存数据库相关配置)
+    ├── resources/   # 多配置文件相关配置
+    │   ├── dev_config.yaml   # 开发环境配置文件
+    │   ├── fat_config.yaml    # 功能验收测试环境配置文件
+    │   ├── pro_config.yaml    # 生产环境配置文件
+    │   └── uat_config.yaml    # 用户验收测试环境配置文件
+    ├── server/   # 服务端口等相关配置
+    ├── sms/      # 短信配置
+    ├── sts/      # STS 配置
+    ├── youzan/   # 有赞配置
+    └── zap/      # 日志相关配置
 ```
