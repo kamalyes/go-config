@@ -14,6 +14,9 @@ package email
 // Email 邮件配置
 type Email struct {
 
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"              json:"moduleName"             yaml:"modulename"`
+
 	/** 收件人:多个以英文逗号分隔 */
 	To string `mapstructure:"to"         json:"to"           yaml:"to"`
 
@@ -31,4 +34,9 @@ type Email struct {
 
 	/** 密钥 */
 	Secret string `mapstructure:"secret"     json:"secret"       yaml:"secret"`
+}
+
+// 实现 Configurable 接口
+func (e Email) GetModuleName() string {
+	return "email"
 }

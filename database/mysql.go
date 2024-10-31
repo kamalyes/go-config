@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-07-28 22:28:34
+ * @LastEditTime: 2024-10-31 10:59:24
  * @FilePath: \go-config\database\mysql.go
  * @Description:
  *
@@ -13,6 +13,9 @@ package database
 
 // MySQL 配置
 type MySQL struct {
+
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"              json:"moduleName"             yaml:"modulename"`
 
 	/** 数据库IP地址 */
 	Host string `mapstructure:"host"                     json:"host"                     yaml:"host"`
@@ -46,4 +49,9 @@ type MySQL struct {
 
 	/** 连接最大生命周期  单位：秒 */
 	ConnMaxLifetime int `mapstructure:"conn-max-life-time"       json:"connMaxLifetime"          yaml:"conn-max-life-time"`
+}
+
+// 实现 Configurable 接口
+func (m MySQL) GetModuleName() string {
+	return "mysql"
 }

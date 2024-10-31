@@ -1,5 +1,7 @@
 # ftp configuration
 ftp:
+  # 模块名称
+  modulename: "common"
   #ftp 服务器Ip和端口
   addr: '127.0.0.1:6379'
   #用户

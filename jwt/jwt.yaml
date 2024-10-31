@@ -1,4 +1,6 @@
 jwt:
+  # 模块名称
+  modulename: "common"
   # 缓冲时间
   buffer-time: 86400
   # 过期时间

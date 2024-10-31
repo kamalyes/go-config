@@ -13,6 +13,9 @@ package redis
 
 type Redis struct {
 
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"              json:"moduleName"             yaml:"modulename"`
+
 	/** redis 数据服务器ip和端口 */
 	Addr string `mapstructure:"addr"              json:"addr"             yaml:"addr"`
 
@@ -30,4 +33,9 @@ type Redis struct {
 
 	/** 连接池大小 */
 	PoolSize int `mapstructure:"pool-size"         json:"poolSize"         yaml:"pool-size"`
+}
+
+// 实现 Configurable 接口
+func (r Redis) GetModuleName() string {
+	return "redis"
 }

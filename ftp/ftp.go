@@ -12,6 +12,9 @@ package ftp
 
 type Ftp struct {
 
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"              json:"moduleName"             yaml:"modulename"`
+
 	/** ftp 服务器Ip和端口 */
 	Addr string `mapstructure:"addr"                json:"addr"              yaml:"addr"`
 
@@ -23,4 +26,9 @@ type Ftp struct {
 
 	/** 指定目录 */
 	Cwd string `mapstructure:"cwd"                 json:"cwd"               yaml:"cwd"`
+}
+
+// 实现 Configurable 接口
+func (f Ftp) GetModuleName() string {
+	return "ftp"
 }

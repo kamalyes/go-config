@@ -1,0 +1,16 @@
+# YouZan 配置
+youzan:
+  # 模块名称
+  modulename: "common"
+  # Host地址
+  host: "127.0.0.1"
+  # 无容器的客户端ID
+  client-id: "b07ad91e13fcef526a"
+  # 无容器的客户端密钥
+  client-secret: "c1cb888866ad91e13fcef5e7a1"
+  # 授权类型，通常用于无用户交互的授权
+  authorize-type: "silent"
+  # 授权ID，用于标识特定的授权请求
+  grant-id: "1208902"
+  # 是否启用刷新令牌功能
+  refresh: true

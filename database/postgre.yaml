@@ -1,5 +1,7 @@
 # postgre connect configuration
 postgre:
+  # 模块名称
+  modulename: "common"
   # 数据服务器ip
   host: '127.0.0.1'
   # 数据库端口

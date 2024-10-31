@@ -14,6 +14,9 @@ package pay
 // Alipay 支付宝 支付相关参数配置
 type Alipay struct {
 
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"              json:"moduleName"             yaml:"modulename"`
+
 	/** 商户pid 即商户的账号id，在某些业务场景下要用到*/
 	Pid string `mapstructure:"pid"               json:"pid"             yaml:"pid"`
 
@@ -34,4 +37,9 @@ type Alipay struct {
 
 	/** 默认订单标题 */
 	Subject string `mapstructure:"subject"           json:"subject"         yaml:"subject"`
+}
+
+// 实现 Configurable 接口
+func (a Alipay) GetModuleName() string {
+	return "alipay"
 }

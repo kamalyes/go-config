@@ -13,8 +13,14 @@ package server
 
 type Server struct {
 
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"              json:"moduleName"             yaml:"modulename"`
+
+	/** 地址 */
+	Host string `mapstructure:"host"                     json:"host"                     yaml:"host"`
+
 	/** 端口 */
-	Addr int `mapstructure:"addr"                        json:"addr"                     yaml:"addr"`
+	Port string `mapstructure:"port"                     json:"port"                     yaml:"port"`
 
 	/** 服务名称 */
 	ServerName string `mapstructure:"server-name"                 json:"serverName"               yaml:"server-name"`
@@ -30,4 +36,9 @@ type Server struct {
 
 	/** 语言    */
 	Language string `mapstructure:"language"                    json:"language"                 yaml:"language"`
+}
+
+// 实现 Configurable 接口
+func (s Server) GetModuleName() string {
+	return "server"
 }

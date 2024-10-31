@@ -1,5 +1,7 @@
 # zap 日志配置
 zap:
+  # 模块名称
+  modulename: "common"
   # 日志级别 debug、info、warn、error
   level: 'info'
   # 日志输出格式 json、console

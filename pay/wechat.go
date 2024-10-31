@@ -14,6 +14,9 @@ package pay
 // Wechat 微信支付配置
 type Wechat struct {
 
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"              json:"moduleName"             yaml:"modulename"`
+
 	/** 应用id */
 	AppId string `mapstructure:"app-id"            json:"appId"           yaml:"app-id"`
 
@@ -28,4 +31,9 @@ type Wechat struct {
 
 	/** 微信p12密钥文件存放位置 */
 	CertP12Path string `mapstructure:"cert-p12-path"     json:"certP12Path"     yaml:"cert-p12-path"`
+}
+
+// 实现 Configurable 接口
+func (w Wechat) GetModuleName() string {
+	return "wechat"
 }

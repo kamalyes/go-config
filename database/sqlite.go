@@ -14,6 +14,9 @@ package database
 // SQLite 数据配置
 type SQLite struct {
 
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"              json:"moduleName"             yaml:"modulename"`
+
 	/** sqlite 文件存放位置 */
 	DbPath string `mapstructure:"db-path"                  json:"dbpath"                   yaml:"db-path"`
 
@@ -34,4 +37,9 @@ type SQLite struct {
 
 	/** 连接最大生命周期  单位：秒 */
 	ConnMaxLifetime int `mapstructure:"conn-max-life-time"       json:"connMaxLifetime"          yaml:"conn-max-life-time"`
+}
+
+// 实现 Configurable 接口
+func (s SQLite) GetModuleName() string {
+	return "sqlite"
 }

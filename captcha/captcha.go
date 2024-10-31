@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-07-28 09:24:50
+ * @LastEditTime: 2024-10-31 13:16:57
  * @FilePath: \go-config\captcha\captcha.go
  * @Description:
  *
@@ -13,6 +13,8 @@ package captcha
 
 // Captcha 验证码格式配置
 type Captcha struct {
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"   json:"moduleName"    yaml:"modulename"`
 
 	/** 数字或字符串长度 */
 	KeyLen int `mapstructure:"key-len"           json:"keyLen"         yaml:"key-len"`
@@ -28,4 +30,9 @@ type Captcha struct {
 
 	/** 分布的点的数量  推荐设置 100左右 */
 	DotCount int `mapstructure:"dot-count"         json:"dotCount"       yaml:"dot-count"`
+}
+
+// 实现 Configurable 接口
+func (c Captcha) GetModuleName() string {
+	return "captcha"
 }

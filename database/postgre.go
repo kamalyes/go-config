@@ -14,6 +14,9 @@ package database
 // PostgreSQL 配置
 type PostgreSQL struct {
 
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"              json:"moduleName"             yaml:"modulename"`
+
 	/** 数据库IP地址 */
 	Host string `mapstructure:"host"                     json:"host"                     yaml:"host"`
 
@@ -46,4 +49,9 @@ type PostgreSQL struct {
 
 	/** 连接最大生命周期  单位：秒 */
 	ConnMaxLifetime int `mapstructure:"conn-max-life-time"       json:"connMaxLifetime"          yaml:"conn-max-life-time"`
+}
+
+// 实现 Configurable 接口
+func (p PostgreSQL) GetModuleName() string {
+	return "postgresql"
 }

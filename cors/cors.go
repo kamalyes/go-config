@@ -13,6 +13,7 @@ package cors
 
 // Cors 跨域配置结构体
 type Cors struct {
+	ModuleName          string   `mapstructure:"modulename"   json:"moduleName"    yaml:"modulename"`                           // 模块名称
 	AllowedAllOrigins   bool     `mapstructure:"allowed-all-origins" json:"allowedAllOrigins" yaml:"allowed-all-origins"`       // 是否允许所有来源
 	AllowedAllMethods   bool     `mapstructure:"allowed-all-methods" json:"allowedAllMethods" yaml:"allowed-all-methods"`       // 是否允许所有方法
 	AllowedOrigins      []string `mapstructure:"allowed-origins" json:"allowedOrigins" yaml:"allowed-origins"`                  // 允许的来源
@@ -22,4 +23,9 @@ type Cors struct {
 	ExposedHeaders      []string `mapstructure:"exposed-headers" json:"exposedHeaders" yaml:"exposed-headers"`                  // 暴露的头部
 	AllowCredentials    bool     `mapstructure:"allow-credentials" json:"allowCredentials" yaml:"allow-credentials"`            // 允许凭证
 	OptionsResponseCode int      `mapstructure:"options-response-code" json:"optionsResponseCode" yaml:"options-response-code"` // Options响应Code
+}
+
+// 实现 Configurable 接口
+func (c Cors) GetModuleName() string {
+	return "cors"
 }

@@ -13,6 +13,8 @@ package mqtt
 
 // Mqtt 配置文件
 type Mqtt struct {
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"              json:"moduleName"             yaml:"modulename"`
 
 	/** Mqtt代理服务器的Ip和端口 */
 	Url string `mapstructure:"url"                      json:"url"                       yaml:"url"`
@@ -49,4 +51,9 @@ type Mqtt struct {
 
 	/** 遗言发送的topic */
 	WillTopic string `mapstructure:"will-topic"               json:"willTopic"                 yaml:"will-topic"`
+}
+
+// 实现 Configurable 接口
+func (m Mqtt) GetModuleName() string {
+	return "mqtt"
 }

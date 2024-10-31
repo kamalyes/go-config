@@ -13,10 +13,17 @@ package consul
 
 // Consul 注册中心配置
 type Consul struct {
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"   json:"moduleName"    yaml:"modulename"`
 
 	/** 注册中心地址 */
 	Addr string `mapstructure:"addr"                 json:"addr"                 yaml:"addr"`
 
 	/** 间隔 单位秒 */
 	RegisterInterval int `mapstructure:"register-interval"    json:"registerInterval"     yaml:"register-interval"`
+}
+
+// 实现 Configurable 接口
+func (c Consul) GetModuleName() string {
+	return "consul"
 }

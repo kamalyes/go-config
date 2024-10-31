@@ -21,8 +21,8 @@
         // 可以设置多条自定义信息 设置个性签名、留下QQ、微信联系方式、输入空行等
         "custom_string_obkoro1": "", 
         // 版权声明 保留文件所有权利 自动替换年份 获取git配置的用户名和邮箱
-        // 版权声明获取git配置, 与Author字段一致: ${git_name} ${git_email}
-        "custom_string_obkoro1_copyright": "Copyright (c) ${now_year} by ${git_name}, All Rights Reserved. "
+        // 版权声明获取git配置, 与Author字段一致: kamalyes ${git_email}
+        "custom_string_obkoro1_copyright": "Copyright (c) ${now_year} by kamalyes, All Rights Reserved. "
         // "custom_string_obkoro1_copyright": "Copyright (c) ${now_year} by 写死的公司名/用户名, All Rights Reserved. "
     },
     // 函数注释
@@ -122,8 +122,10 @@
         },
     },
     "cSpell.words": [
+      "Aliyun",
       "allowall",
       "casbin",
+      "clientidv",
       "CSBEF",
       "Datetime",
       "DB",

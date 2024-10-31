@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-07-28 09:30:27
+ * @LastEditTime: 2024-10-31 11:35:54
  * @FilePath: \go-config\resolver.go
  * @Description:
  *
@@ -45,7 +45,7 @@ func (c *Config) SubItem(subKey string, v interface{}) {
 	defer glcMutex.Unlock()
 	if globalConfig == nil || globalConfig.Viper == nil {
 		active := env.Active()
-		filename := active.Value() + ConfigSuffix
+		filename := active.String() + ConfigSuffix
 		v := viper.New()
 		v.SetConfigName(filename)
 		v.SetConfigType(ConfigType)
@@ -83,7 +83,6 @@ func (c *Config) SubItem(subKey string, v interface{}) {
 	if err != nil {
 		log.Println("读取子配置项异常:", err)
 	}
-	return
 }
 
 // GlobalConfig 获取全局配置
@@ -97,7 +96,7 @@ func GlobalConfig(envArr ...string) *Config {
 	filename := ""
 	if len(envArr) == 0 {
 		active := env.Active()
-		filename = active.Value() + ConfigSuffix
+		filename = active.String() + ConfigSuffix
 	} else {
 		filename = envArr[0] + ConfigSuffix
 	}

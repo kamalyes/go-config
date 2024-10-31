@@ -1,5 +1,7 @@
 # sqlite connect configuration
 sqlite:
+  # 模块名称
+  modulename: "common"
   # db文件存放地址
   db-path:
   # 最大空闲连接数

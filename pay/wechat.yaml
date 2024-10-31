@@ -1,5 +1,7 @@
 #微信支付参数配置
 wechat:
+  # 模块名称
+  modulename: "common"
   # 应用id
   app-id: 'wx04xxxxxx'
   # 微信分配的商户号

@@ -12,6 +12,8 @@
 package jwt
 
 type JWT struct {
+	/** 模块名称 */
+	ModuleName string `mapstructure:"modulename"              json:"moduleName"             yaml:"modulename"`
 
 	/** jwt签名 */
 	SigningKey string `mapstructure:"signing-key"         json:"signingKey"        yaml:"signing-key"`
@@ -24,4 +26,9 @@ type JWT struct {
 
 	/** 多地登录拦截 true 拦截 fasle 不拦截 */
 	UseMultipoint bool `mapstructure:"use-multipoint"      json:"useMultipoint"     yaml:"use-multipoint"`
+}
+
+// 实现 Configurable 接口
+func (j JWT) GetModuleName() string {
+	return "jwt"
 }
