@@ -1,0 +1,21 @@
+# RPC 服务器配置
+zero-rpc-server:
+  modulename: go-service             # 模块名称
+  listen-on: 127.0.0.1:9090          # 监听地址
+  auth: true                         # 是否启用认证
+  strict-control: false              # 是否启用严格控制
+  timeout: 2000                      # 超时时间（毫秒）
+  cpu-threshold: 900                 # CPU 使用率阈值
+  etcd:                              # Etcd 配置
+    hosts:                           # Etcd 主机列表
+      - localhost:2379
+    key: go.rpc                      # 注册的键
+
+# RPC 客户端配置
+zero-rpc-client:
+  modulename: go-client             # 模块名称
+  target: 127.0.0.1:9090            # 目标地址
+  app: go-client                     # 应用名称
+  token: my-secret-token             # 认证令牌
+  non-block: false                   # 是否非阻塞
+  timeout: 2000                      # 超时时间（毫秒）

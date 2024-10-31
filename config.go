@@ -31,6 +31,7 @@ import (
 	"github.com/kamalyes/go-config/sts"
 	"github.com/kamalyes/go-config/youzan"
 	"github.com/kamalyes/go-config/zap"
+	"github.com/kamalyes/go-config/zero"
 	"github.com/spf13/viper"
 )
 
@@ -41,26 +42,28 @@ type Configurable interface {
 
 // Config 项目统一配置
 type Config struct {
-	Server     []server.Server       `mapstructure:"server" json:"server" yaml:"server"`
-	Cors       []cors.Cors           `mapstructure:"cors" json:"cors" yaml:"cors"`
-	Consul     []consul.Consul       `mapstructure:"consul" json:"consul" yaml:"consul"`
-	Captcha    []captcha.Captcha     `mapstructure:"captcha" json:"captcha" yaml:"captcha"`
-	MySQL      []database.MySQL      `mapstructure:"mysql" json:"mysql" yaml:"mysql"`
-	PostgreSQL []database.PostgreSQL `mapstructure:"postgre" json:"postgre" yaml:"postgre"`
-	SQLite     []database.SQLite     `mapstructure:"sqlite" json:"sqlite" yaml:"sqlite"`
-	Redis      []redis.Redis         `mapstructure:"redis" json:"redis" yaml:"redis"`
-	Email      []email.Email         `mapstructure:"email" json:"email" yaml:"email"`
-	Ftp        []ftp.Ftp             `mapstructure:"ftp" json:"ftp" yaml:"ftp"`
-	JWT        []jwt.JWT             `mapstructure:"jwt" json:"jwt" yaml:"jwt"`
-	Minio      []oss.Minio           `mapstructure:"minio" json:"minio" yaml:"minio"`
-	Mqtt       []mqtt.Mqtt           `mapstructure:"mqtt" json:"mqtt" yaml:"mqtt"`
-	Zap        []zap.Zap             `mapstructure:"zap" json:"zap" yaml:"zap"`
-	AliPay     []pay.Alipay          `mapstructure:"alipay" json:"alipay" yaml:"alipay"`
-	Wechat     []pay.Wechat          `mapstructure:"wechat" json:"wechat" yaml:"wechat"`
-	AliyunSms  []sms.AliyunSms       `mapstructure:"aliyunsms" json:"aliyunsms" yaml:"aliyunsms"`
-	AliyunSts  []sts.AliyunSts       `mapstructure:"aliyunsts" json:"aliyunsts" yaml:"aliyunsts"`
-	Youzan     []youzan.YouZan       `mapstructure:"youzan" json:"youzan" yaml:"youzan"`
-	Viper      *viper.Viper          `mapstructure:"-" json:"-" yaml:"-"`
+	Server        []server.Server       `mapstructure:"server" json:"server" yaml:"server"`
+	Cors          []cors.Cors           `mapstructure:"cors" json:"cors" yaml:"cors"`
+	Consul        []consul.Consul       `mapstructure:"consul" json:"consul" yaml:"consul"`
+	Captcha       []captcha.Captcha     `mapstructure:"captcha" json:"captcha" yaml:"captcha"`
+	MySQL         []database.MySQL      `mapstructure:"mysql" json:"mysql" yaml:"mysql"`
+	PostgreSQL    []database.PostgreSQL `mapstructure:"postgre" json:"postgre" yaml:"postgre"`
+	SQLite        []database.SQLite     `mapstructure:"sqlite" json:"sqlite" yaml:"sqlite"`
+	Redis         []redis.Redis         `mapstructure:"redis" json:"redis" yaml:"redis"`
+	Email         []email.Email         `mapstructure:"email" json:"email" yaml:"email"`
+	Ftp           []ftp.Ftp             `mapstructure:"ftp" json:"ftp" yaml:"ftp"`
+	JWT           []jwt.JWT             `mapstructure:"jwt" json:"jwt" yaml:"jwt"`
+	Minio         []oss.Minio           `mapstructure:"minio" json:"minio" yaml:"minio"`
+	Mqtt          []mqtt.Mqtt           `mapstructure:"mqtt" json:"mqtt" yaml:"mqtt"`
+	Zap           []zap.Zap             `mapstructure:"zap" json:"zap" yaml:"zap"`
+	AliPay        []pay.Alipay          `mapstructure:"alipay" json:"alipay" yaml:"alipay"`
+	Wechat        []pay.Wechat          `mapstructure:"wechat" json:"wechat" yaml:"wechat"`
+	AliyunSms     []sms.AliyunSms       `mapstructure:"aliyunsms" json:"aliyunSms" yaml:"aliyunsms"`
+	AliyunSts     []sts.AliyunSts       `mapstructure:"aliyunsts" json:"aliyunSts" yaml:"aliyunsts"`
+	Youzan        []youzan.YouZan       `mapstructure:"youzan" json:"youzan" yaml:"youzan"`
+	ZeroRpcServer []zero.RpcServer      `mapstructure:"zero-rpc-server" json:"zeroRpcServer" yaml:"zero-rpc-server"`
+	ZeroRpcClient []zero.RpcClient      `mapstructure:"zero-rpc-client" json:"zeroRpcClient" yaml:"zero-rpc-client"`
+	Viper         *viper.Viper          `mapstructure:"-" json:"-" yaml:"-"`
 }
 
 // GetModules 返回指定模块的所有实例
