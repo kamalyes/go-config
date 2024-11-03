@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-01 20:19:53
+ * @LastEditTime: 2024-11-03 21:52:32
  * @FilePath: \go-config\resolver.go
  * @Description:
  *
@@ -36,7 +36,7 @@ type ConfigOptions struct {
 
 // ConfigManager 负责加载和管理配置
 type ConfigManager struct {
-	config  *Config
+	config  *MultiConfig
 	options ConfigOptions
 }
 
@@ -76,7 +76,7 @@ func NewConfigManager(ctx context.Context, options *ConfigOptions) (*ConfigManag
 }
 
 // loadConfig 加载配置文件并返回 Config 对象
-func (cm *ConfigManager) loadConfig(ctx context.Context) (*Config, error) {
+func (cm *ConfigManager) loadConfig(ctx context.Context) (*MultiConfig, error) {
 	// 从上下文获取当前环境
 	contextEnv := env.FromContext(ctx)
 
@@ -93,7 +93,7 @@ func (cm *ConfigManager) loadConfig(ctx context.Context) (*Config, error) {
 		return nil, fmt.Errorf("读取配置文件异常: %w", err)
 	}
 
-	globalConfig := &Config{Viper: v}
+	globalConfig := &MultiConfig{Viper: v}
 
 	if err := v.Unmarshal(globalConfig); err != nil {
 		return nil, fmt.Errorf("读取配置文件异常: %w", err)
@@ -123,6 +123,6 @@ func (cm *ConfigManager) SubItem(ctx context.Context, subKey string, v interface
 }
 
 // GetConfig 获取全局配置
-func (cm *ConfigManager) GetConfig() *Config {
+func (cm *ConfigManager) GetConfig() *MultiConfig {
 	return cm.config
 }

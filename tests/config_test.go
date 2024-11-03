@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-10-31 12:19:51
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-02 23:12:37
+ * @LastEditTime: 2024-11-03 21:26:37
  * @FilePath: \go-config\tests\config_test.go
  * @Description:
  *
@@ -23,7 +23,7 @@ import (
 
 func TestGetConfigByModuleName(t *testing.T) {
 	// 创建一个示例配置
-	testConfig := &goconfig.Config{
+	testConfig := &goconfig.MultiConfig{
 		AliyunSms: []sms.AliyunSms{
 			{ModuleName: "sms_module_1"},
 			{ModuleName: "sms_module_2"},
