@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:30:25
+ * @LastEditTime: 2024-11-03 21:01:59
  * @FilePath: \go-config\pkg\database\sqlite.go
  * @Description:
  *
@@ -73,4 +73,16 @@ func (s *SQLite) Set(data interface{}) {
 // Validate 检查 SQLite 配置的有效性
 func (s *SQLite) Validate() error {
 	return internal.ValidateStruct(s)
+}
+
+func (s SQLite) GetCommonConfig() *DBConfig {
+	return &DBConfig{
+		DbPath:          s.DbPath,
+		MaxIdleConns:    s.MaxIdleConns,
+		MaxOpenConns:    s.MaxOpenConns,
+		ConnMaxIdleTime: s.ConnMaxIdleTime,
+		ConnMaxLifeTime: s.ConnMaxLifeTime,
+		LogLevel:        s.LogLevel,
+		Vacuum:          s.Vacuum,
+	}
 }

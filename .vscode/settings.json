@@ -131,6 +131,7 @@
       "CSBEF",
       "Datetime",
       "DB",
+      "Dbname",
       "Dont",
       "fsnotify",
       "goconfig",

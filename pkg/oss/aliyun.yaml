@@ -1,0 +1,16 @@
+# AliyunOss 配置示例
+aliyun-oss:
+  # 模块名称
+  modulename: "example_module"
+  # 签名用的 key
+  access-key: "your_access_key"
+  # 签名用的钥匙
+  secret-key: "your_secret_key"
+  # 地区
+  endpoint: "https://oss-your-region.aliyuncs.com"
+  # 桶
+  bucket: "your_bucket_name"
+  # 替换的原始主机
+  replace-original-host: "original.example.com"
+  # 替换后的主机
+  replace-later-host: "new.example.com"

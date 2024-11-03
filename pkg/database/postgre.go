@@ -86,3 +86,19 @@ func (p *PostgreSQL) Set(data interface{}) {
 func (p *PostgreSQL) Validate() error {
 	return internal.ValidateStruct(p)
 }
+
+func (p PostgreSQL) GetCommonConfig() *DBConfig {
+	return &DBConfig{
+		Host:            p.Host,
+		Username:        p.Username,
+		Password:        p.Password,
+		Dbname:          p.Dbname,
+		Port:            p.Port,
+		Config:          p.Config,
+		MaxIdleConns:    p.MaxIdleConns,
+		MaxOpenConns:    p.MaxOpenConns,
+		ConnMaxIdleTime: p.ConnMaxIdleTime,
+		ConnMaxLifeTime: p.ConnMaxLifeTime,
+		LogLevel:        p.LogLevel,
+	}
+}

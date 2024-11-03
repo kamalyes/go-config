@@ -49,6 +49,7 @@ type MultiConfig struct {
 	Ftp           []ftp.Ftp             `mapstructure:"ftp"          yaml:"ftp"          json:"ftp"`
 	JWT           []jwt.JWT             `mapstructure:"jwt"          yaml:"jwt"          json:"jwt"`
 	Minio         []oss.Minio           `mapstructure:"minio"        yaml:"minio"        json:"minio"`
+	AliyunOss     []oss.AliyunOss       `mapstructure:"aliyun-oss"   yaml:"aliyun-oss"   json:"aliyun_oss"`
 	Mqtt          []queue.Mqtt          `mapstructure:"mqtt"         yaml:"mqtt"         json:"mqtt"`
 	Zap           []zap.Zap             `mapstructure:"zap"          yaml:"zap"          json:"zap"`
 	AliPay        []pay.Alipay          `mapstructure:"alipay"       yaml:"alipay"       json:"alipay"`
@@ -75,6 +76,7 @@ type SingleConfig struct {
 	Ftp           ftp.Ftp             `mapstructure:"ftp"          yaml:"ftp"          json:"ftp"`
 	JWT           jwt.JWT             `mapstructure:"jwt"          yaml:"jwt"          json:"jwt"`
 	Minio         oss.Minio           `mapstructure:"minio"        yaml:"minio"        json:"minio"`
+	AliyunOss     oss.AliyunOss       `mapstructure:"aliyun-oss"   yaml:"aliyun-oss"   json:"aliyun_oss"`
 	Mqtt          queue.Mqtt          `mapstructure:"mqtt"         yaml:"mqtt"         json:"mqtt"`
 	Zap           zap.Zap             `mapstructure:"zap"          yaml:"zap"          json:"zap"`
 	AliPay        pay.Alipay          `mapstructure:"alipay"       yaml:"alipay"       json:"alipay"`
