@@ -58,6 +58,5 @@ func TestGlobalConfig(t *testing.T) {
 		fmt.Printf("Found module: %+v\n", module)
 	}
 	serverModel := resultModel.(*goconfig.SingleConfig)
-	assert.Equal(t, serverModel.Server.Host, module.Host)
-	assert.Equal(t, serverModel.Server.Port, module.Port)
+	assert.Equal(t, serverModel.Server.Addr, module.Addr)
 }

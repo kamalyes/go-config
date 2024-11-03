@@ -2,10 +2,8 @@
 server:
   # 模块名称
   - modulename: "common"
-    # 服务绑定的IP
-    host: "0.0.0.0"
     # 端口
-    port: '8880'
+    addr: '0.0.0.0:8880'
     # 服务名称
     service-name: xxxx-server
     # 服务根路径

@@ -23,13 +23,12 @@ import (
 func generateServerTestParams() *register.Server {
 	return &register.Server{
 		ModuleName:             random.RandString(10, random.CAPITAL),
-		Host:                   random.RandString(5, random.CAPITAL) + ".example.com", // 随机生成主机名
-		Port:                   random.RandString(4, random.NUMBER),                   // 随机生成端口
-		ServerName:             random.RandString(8, random.CAPITAL),                  // 随机生成服务名称
-		ContextPath:            random.RandString(5, random.CAPITAL),                  // 随机生成请求根路径
-		DataDriver:             random.RandString(5, random.CAPITAL),                  // 随机生成数据库类型
-		HandleMethodNotAllowed: random.FRandBool(),                                    // 随机生成是否开启请求方式检测
-		Language:               random.RandString(2, random.CAPITAL),                  // 随机生成语言
+		Addr:                   "0.0.0.0:8080",                       // Addr
+		ServerName:             random.RandString(8, random.CAPITAL), // 随机生成服务名称
+		ContextPath:            random.RandString(5, random.CAPITAL), // 随机生成请求根路径
+		DataDriver:             random.RandString(5, random.CAPITAL), // 随机生成数据库类型
+		HandleMethodNotAllowed: random.FRandBool(),                   // 随机生成是否开启请求方式检测
+		Language:               random.RandString(2, random.CAPITAL), // 随机生成语言
 	}
 }
 
@@ -52,8 +51,7 @@ func TestServerSet(t *testing.T) {
 	serverInstance.Set(newConfig)
 
 	assert.Equal(t, newParams.ModuleName, serverInstance.ModuleName)
-	assert.Equal(t, newParams.Host, serverInstance.Host)
-	assert.Equal(t, newParams.Port, serverInstance.Port)
+	assert.Equal(t, newParams.Addr, serverInstance.Addr)
 	assert.Equal(t, newParams.ServerName, serverInstance.ServerName)
 	assert.Equal(t, newParams.ContextPath, serverInstance.ContextPath)
 	assert.Equal(t, newParams.DataDriver, serverInstance.DataDriver)
