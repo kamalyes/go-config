@@ -3,7 +3,7 @@ module github.com/kamalyes/go-config
 go 1.20
 
 require (
-	github.com/fsnotify/fsnotify v1.7.0
+	github.com/fsnotify/fsnotify v1.8.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 )
