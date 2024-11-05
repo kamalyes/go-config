@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 23:50:19
+ * @LastEditTime: 2024-11-05 09:49:36
  * @FilePath: \go-config\tests\resolver_test.go
  * @Description:
  *
@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	goconfig "github.com/kamalyes/go-config"
@@ -40,9 +41,11 @@ func TestGlobalConfig(t *testing.T) {
 	// 测试获取全局配置
 	ctx := context.Background()
 	// 使用自定义值创建 ConfigManager
-	model := &goconfig.SingleConfig{}
+	model := &goconfig.MultiConfig{}
 
 	resultModel, resultJson, _ := random.GenerateRandomModel(model)
+	resultJson = strings.ReplaceAll(resultJson, "module_name", "modulename")
+	resultJson = strings.ReplaceAll(resultJson, "_", "-")
 
 	createConfigFile("./resources/dev_config.yaml", resultJson)
 
@@ -51,12 +54,17 @@ func TestGlobalConfig(t *testing.T) {
 	assert.NotNil(t, customManager)
 	config := customManager.GetConfig()
 	// 获取模块
-	module, err := goconfig.GetModuleByName(config.Server, "")
-	if err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		fmt.Printf("Found module: %+v\n", module)
+	modelx := resultModel.(*goconfig.MultiConfig)
+	searchKey := modelx.Server[0].ModuleName
+	searchValue := modelx.Server[0].Addr
+
+	if modelx.Server != nil {
+		module, err := goconfig.GetSingleConfigByModuleName(*config, searchKey)
+		if err != nil {
+			fmt.Println("Error:", err)
+		} else {
+			assert.Equal(t, searchValue, module.Server.Addr)
+			fmt.Printf("Found module: %+v\n", module)
+		}
 	}
-	serverModel := resultModel.(*goconfig.SingleConfig)
-	assert.Equal(t, serverModel.Server.Addr, module.Addr)
 }

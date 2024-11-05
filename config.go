@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-11-01 08:58:09
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 22:11:22
+ * @LastEditTime: 2024-11-05 10:08:55
  * @FilePath: \go-config\config.go
  * @Description:
  *
@@ -89,56 +89,49 @@ type SingleConfig struct {
 	Viper         *viper.Viper        `mapstructure:"-"            yaml:"-"            json:"-"`
 }
 
-// GetModules 返回指定模块的所有实例
-func GetModules[T any](config *MultiConfig) ([]T, error) {
-	moduleType := reflect.TypeOf((*T)(nil)).Elem()
-	configValue := reflect.ValueOf(config).Elem()
+// GetSingleConfigByModuleName 根据提供的模块名称从 MultiConfig 中获取对应的 SingleConfig
+func GetSingleConfigByModuleName(multiConfig MultiConfig, moduleName string) (*SingleConfig, error) {
+	var singleConfig SingleConfig
+	var found bool
 
-	for i := 0; i < configValue.NumField(); i++ {
-		field := configValue.Type().Field(i)
-		fieldValue := configValue.Field(i)
+	// 获取 MultiConfig 的反射值
+	val := reflect.ValueOf(multiConfig)
 
-		if fieldValue.Kind() == reflect.Slice && field.Type.Elem() == moduleType {
-			modules := fieldValue.Interface().([]T)
-			return modules, nil
-		}
-	}
+	// 遍历 MultiConfig 的所有字段
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
 
-	return nil, fmt.Errorf("no modules of type %T found", new(T))
-}
+		// 只处理切片类型的字段
+		if field.Kind() == reflect.Slice {
+			for j := 0; j < field.Len(); j++ {
+				item := field.Index(j)
 
-// GetConfigByModuleName 根据模块名称返回包含该模块的配置
-func GetConfigByModuleName(config *MultiConfig, moduleName string) (*MultiConfig, error) {
-	result := &MultiConfig{}
-	configValue := reflect.ValueOf(config).Elem()
+				// 获取每个切片元素的 ModuleName 字段
+				moduleNameField := item.FieldByName("ModuleName")
+				if moduleNameField.IsValid() && moduleNameField.String() == moduleName {
+					// 获取类型名称
+					typeName := field.Type().Elem().Name()
 
-	for i := 0; i < configValue.NumField(); i++ {
-		fieldValue := configValue.Field(i)
+					// 获取 SingleConfig 的反射值
+					singleConfigVal := reflect.ValueOf(&singleConfig).Elem()
 
-		if fieldValue.Kind() == reflect.Slice {
-			matchingModules := reflect.MakeSlice(fieldValue.Type(), 0, 0)
-
-			for j := 0; j < fieldValue.Len(); j++ {
-				module := fieldValue.Index(j)
-				moduleNameValue := module.FieldByName("ModuleName").String()
-
-				if moduleNameValue == moduleName {
-					matchingModules = reflect.Append(matchingModules, module)
+					// 根据类型名称找到对应的字段并赋值
+					configField := singleConfigVal.FieldByName(typeName)
+					if configField.IsValid() && configField.CanSet() {
+						configField.Set(item)
+						found = true
+						break
+					}
 				}
 			}
-
-			if matchingModules.Len() > 0 {
-				resultValue := reflect.ValueOf(result).Elem()
-				resultValue.Field(i).Set(matchingModules)
-			}
 		}
 	}
 
-	if reflect.DeepEqual(result, &MultiConfig{}) {
-		return nil, fmt.Errorf("no modules found with name %s", moduleName)
+	if !found {
+		return nil, fmt.Errorf("未找到模块名称: %s", moduleName)
 	}
 
-	return result, nil
+	return &singleConfig, nil
 }
 
 // GetModuleByName 使用泛型来获取模块

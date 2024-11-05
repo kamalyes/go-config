@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-10-31 12:19:51
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 21:26:37
+ * @LastEditTime: 2024-11-05 10:09:55
  * @FilePath: \go-config\tests\config_test.go
  * @Description:
  *
@@ -16,33 +16,119 @@ import (
 
 	goconfig "github.com/kamalyes/go-config"
 	"github.com/kamalyes/go-config/pkg/captcha"
-	"github.com/kamalyes/go-config/pkg/database"
-	"github.com/kamalyes/go-config/pkg/sms"
-	"github.com/stretchr/testify/assert"
+	"github.com/kamalyes/go-config/pkg/cors"
+	"github.com/kamalyes/go-config/pkg/register"
 )
 
-func TestGetConfigByModuleName(t *testing.T) {
-	// 创建一个示例配置
-	testConfig := &goconfig.MultiConfig{
-		AliyunSms: []sms.AliyunSms{
-			{ModuleName: "sms_module_1"},
-			{ModuleName: "sms_module_2"},
+func TestGetSingleConfigByModuleName(t *testing.T) {
+	// 创建一个示例 MultiConfig
+	multiConfig := goconfig.MultiConfig{
+		Server: []register.Server{
+			{ModuleName: "server1", Addr: "localhost:8080"},
+			{ModuleName: "server2", Addr: "localhost:9000"},
 		},
-		MySQL: []database.MySQL{
-			{ModuleName: "mysql_module_1"},
-			{ModuleName: "mysql_module_2"},
+		Cors: []cors.Cors{
+			{ModuleName: "cors1", AllowedOrigins: []string{"*"}},
+			{ModuleName: "cors2", AllowedOrigins: []string{"http://example.com"}},
+		},
+		Consul: []register.Consul{
+			{ModuleName: "consul1", Addr: "127.0.0.1:8080"},
+			{ModuleName: "consul2", Addr: "127.0.0.1:7777"},
+		},
+		Captcha: []captcha.Captcha{
+			{ModuleName: "captcha1", KeyLen: 55},
+			{ModuleName: "captcha2", KeyLen: 66},
 		},
 	}
 
-	// 测试获取指定模块名称的配置
-	resultConfig, err := goconfig.GetConfigByModuleName(testConfig, "mysql_module_1")
-	assert.NoError(t, err)
-	assert.Len(t, resultConfig.MySQL, 1)                                // 确保返回的 MySQL 切片长度为 1
-	assert.Equal(t, "mysql_module_1", resultConfig.MySQL[0].ModuleName) // 验证模块名称
+	tests := []struct {
+		moduleName  string
+		expected    goconfig.SingleConfig
+		expectError bool
+	}{
+		// 正向测试用例
+		{
+			moduleName: "cors1",
+			expected: goconfig.SingleConfig{
+				Cors: cors.Cors{ModuleName: "cors1", AllowedOrigins: []string{"*"}},
+			},
+			expectError: false,
+		},
+		{
+			moduleName: "server2",
+			expected: goconfig.SingleConfig{
+				Server: register.Server{ModuleName: "server2", Addr: "localhost:9000"},
+			},
+			expectError: false,
+		},
+		{
+			moduleName: "consul1",
+			expected: goconfig.SingleConfig{
+				Consul: register.Consul{ModuleName: "consul1", Addr: "127.0.0.1:8080"},
+			},
+			expectError: false,
+		},
+		{
+			moduleName: "captcha2",
+			expected: goconfig.SingleConfig{
+				Captcha: captcha.Captcha{ModuleName: "captcha2", KeyLen: 66},
+			},
+			expectError: false,
+		},
+		// 逆向测试用例
+		{
+			moduleName:  "nonexistent",
+			expected:    goconfig.SingleConfig{},
+			expectError: true,
+		},
+	}
 
-	// 测试获取不存在的模块名称
-	_, err = goconfig.GetConfigByModuleName(testConfig, "non_existent_module")
-	assert.Error(t, err) // 应该返回错误
+	for _, test := range tests {
+		t.Run(test.moduleName, func(t *testing.T) {
+			singleConfig, err := goconfig.GetSingleConfigByModuleName(multiConfig, test.moduleName)
+
+			if (err != nil) != test.expectError {
+				t.Errorf("expected error: %v, got: %v", test.expectError, err != nil)
+			}
+
+			if !test.expectError {
+				// 手动比较每个字段
+				if !compareSingleConfig(*singleConfig, test.expected) {
+					t.Errorf("expected: %+v, got: %+v", test.expected, singleConfig)
+				}
+			}
+		})
+	}
+}
+
+// compareSingleConfig 手动比较 SingleConfig 结构体
+func compareSingleConfig(a, b goconfig.SingleConfig) bool {
+	if a.Server.ModuleName != b.Server.ModuleName || a.Server.Addr != b.Server.Addr {
+		return false
+	}
+	if a.Cors.ModuleName != b.Cors.ModuleName || !equalStringSlices(a.Cors.AllowedOrigins, b.Cors.AllowedOrigins) {
+		return false
+	}
+	if a.Consul.ModuleName != b.Consul.ModuleName || a.Consul.Addr != b.Consul.Addr {
+		return false
+	}
+	if a.Captcha.ModuleName != b.Captcha.ModuleName || a.Captcha.KeyLen != b.Captcha.KeyLen {
+		return false
+	}
+	return true
+}
+
+// equalStringSlices 比较两个字符串切片
+func equalStringSlices(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 // 测试 GetModuleByName 函数
