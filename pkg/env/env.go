@@ -2,20 +2,18 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-05 17:55:56
+ * @LastEditTime: 2024-11-07 16:11:10
  * @FilePath: \go-config\pkg\env\env.go
  * @Description:
  *
  * Copyright (c) 2024 by kamalyes, All Rights Reserved.
  */
-
 package env
 
 import (
-	"context"
+	"fmt"
 	"log"
 	"os"
-	"strings"
 	"sync"
 	"time"
 )
@@ -29,132 +27,209 @@ const (
 	Sit        EnvironmentType = "sit"
 	Fat        EnvironmentType = "fat"
 	Uat        EnvironmentType = "uat"
-	Pro        EnvironmentType = "pro"
+	Prod       EnvironmentType = "prod"
 	DefaultEnv EnvironmentType = Dev
-	AppEnvKey  string          = "APP_ENV"
 )
+
+// 定义上下文键类型
+type ContextKey string
+
+var (
+	envContextKey   ContextKey = "APP_ENV" // 默认上下文键
+	contextKeyMutex sync.Mutex             // 互斥锁，用于保护 envContextKey
+)
+
+// ContextKeyOptions 定义上下文键的选项
+type ContextKeyOptions struct {
+	Key   ContextKey
+	Value EnvironmentType
+}
 
 // 环境配置
 type Environment struct {
-	value EnvironmentType
-	mu    sync.RWMutex
-	quit  chan struct{}
+	CheckFrequency time.Duration   // 检查频率
+	mu             sync.RWMutex    // 读写互斥锁
+	quit           chan struct{}   // 用于停止监控的信道
+	Value          EnvironmentType // 当前环境值
 }
 
-// 自定义上下文键类型
-type EnvContextKey struct{}
-
-// 使用自定义上下文键
-var envKey = EnvContextKey{}
-
-// 环境映射
-var environments = map[EnvironmentType]*Environment{
-	Dev: {value: Dev, quit: make(chan struct{})},
-	Sit: {value: Sit, quit: make(chan struct{})},
-	Fat: {value: Fat, quit: make(chan struct{})},
-	Uat: {value: Uat, quit: make(chan struct{})},
-	Pro: {value: Pro, quit: make(chan struct{})},
-}
-
-// NewEnvironment 创建一个新的 Environment 实例
-func NewEnvironment(value EnvironmentType) *Environment {
-	setEnv(AppEnvKey, string(value))
+// NewEnvironment 创建一个新的 Environment 实例，并将环境变量写入上下文
+func NewEnvironment() *Environment {
 	envInstance := &Environment{
-		value: value,
-		quit:  make(chan struct{}),
+		Value:          GetEnvironment(),
+		CheckFrequency: 2 * time.Second, // 默认检查频率
+		quit:           make(chan struct{}),
 	}
+	if err := setEnv(envContextKey, envInstance.Value); err != nil {
+		log.Fatalf("初始化环境失败: %v", err)
+	}
+
 	go envInstance.watchEnv() // 启动监控环境变量的 goroutine
+
 	return envInstance
 }
 
-// setEnv 设置环境变量并记录日志
-func setEnv(key, value string) {
-	if err := os.Setenv(key, value); err != nil {
-		log.Printf("设置环境变量 %s 失败: %v", key, err)
+// SetContextKey 设置上下文键
+// options: 指定的上下文键选项，如果为 nil，将使用默认值
+func SetContextKey(options *ContextKeyOptions) {
+	contextKeyMutex.Lock()         // 获取锁
+	defer contextKeyMutex.Unlock() // 确保在函数结束时释放锁
+
+	// 如果没有提供 options，则创建一个默认的 ContextKeyOptions
+	if options == nil {
+		options = &ContextKeyOptions{}
 	}
-	log.Printf("环境变量 %s 设置为 %s", key, value)
-}
 
-// Switch 方法用于切换环境变量
-func (e *Environment) Switch(newEnv EnvironmentType) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
-
-	setEnv(AppEnvKey, string(newEnv))
-	e.value = newEnv
-}
-
-// ClearEnv 清除环境变量
-func ClearEnv() {
-	os.Unsetenv(AppEnvKey)
-}
-
-// FromContext 从上下文获取当前配置的环境
-func FromContext(ctx context.Context) *Environment {
-	if env, ok := ctx.Value(envKey).(*Environment); ok {
-		return env
+	// 如果没有提供 Key，则使用默认值
+	if options.Key == "" {
+		options.Key = envContextKey // 使用当前的全局上下文键
 	}
-	return Active()
-}
 
-// Active 获取当前配置的环境
-func Active() *Environment {
-	env := os.Getenv(AppEnvKey)
-	if env == "" {
-		log.Printf("未设置 APP_ENV 环境变量，使用默认环境 %v", DefaultEnv)
-		return environments[DefaultEnv]
+	// 如果没有提供 Value 则使用默认环境值
+	if options.Value == "" {
+		options.Value = DefaultEnv // 使用默认环境值
 	}
-	return &Environment{value: EnvironmentType(strings.ToLower(strings.TrimSpace(env))), quit: make(chan struct{})}
+
+	envContextKey = options.Key
+
+	// 设置环境变量
+	if err := setEnv(envContextKey, options.Value); err != nil {
+		log.Printf("设置环境变量失败: %v", err)
+	}
 }
 
-// NewEnv 创建新的环境并返回包含该环境的上下文
-func NewEnv(ctx context.Context, env EnvironmentType) context.Context {
-	newEnv := NewEnvironment(env)
-	return context.WithValue(ctx, envKey, newEnv)
+// GetContextKey 获取当前的上下文键
+func GetContextKey() ContextKey {
+	contextKeyMutex.Lock()         // 获取锁
+	defer contextKeyMutex.Unlock() // 确保在函数结束时释放锁
+
+	return envContextKey // 返回当前的上下文键
 }
 
-// Value 返回当前环境的值
-func (e *Environment) Value() EnvironmentType {
-	e.mu.RLock()
-	defer e.mu.RUnlock()
-	return e.value
+// SetEnvironment 设置环境变量
+func (e *Environment) SetEnvironment(value EnvironmentType) *Environment {
+	e.mu.Lock()         // 获取写锁
+	defer e.mu.Unlock() // 确保在函数结束时释放锁
+
+	if err := setEnv(envContextKey, value); err != nil {
+		log.Printf("设置环境 %s 失败: %v", value, err)
+	}
+	return e // 返回当前环境实例以支持链式调用
 }
 
-// IsEnvironment 检查当前环境是否与给定的环境匹配
-func (e *Environment) IsEnvironment(env EnvironmentType) bool {
-	e.mu.RLock()
-	defer e.mu.RUnlock()
-	return e.value == env
-}
+// CheckAndUpdateEnv 检查并更新环境变量
+func (e *Environment) CheckAndUpdateEnv() {
+	e.mu.RLock() // 获取读锁
+	currentOsEnv := os.Getenv(envContextKey.String())
+	e.mu.RUnlock() // 释放读锁
 
-// String 返回环境的字符串表示
-func (e *Environment) String() string {
-	e.mu.RLock()
-	defer e.mu.RUnlock()
-	return string(e.value)
+	if currentOsEnv == "" {
+		log.Printf("环境变量 %s 当前为空", envContextKey)
+		return
+	}
+
+	newEnv := EnvironmentType(currentOsEnv)
+	if newEnv != e.Value {
+		e.SetEnvironment(newEnv) // 更新环境
+		log.Printf("环境变量 %s 已更新为 %s", envContextKey, newEnv)
+	}
 }
 
 // watchEnv 监控环境变量的变化
 func (e *Environment) watchEnv() {
-	lastEnv := e.Value()
 	for {
+		e.mu.RLock()                         // 获取读锁
+		currentFrequency := e.CheckFrequency // 读取当前频率
+		e.mu.RUnlock()                       // 释放读锁
+
+		ticker := time.NewTicker(currentFrequency) // 使用当前的检查频率
+		defer ticker.Stop()
+
 		select {
-		case <-time.After(1 * time.Second):
-			currentEnv := os.Getenv(AppEnvKey)
-			if strings.ToLower(strings.TrimSpace(currentEnv)) != string(lastEnv) {
-				e.mu.Lock()
-				e.value = EnvironmentType(strings.ToLower(strings.TrimSpace(currentEnv)))
-				e.mu.Unlock()
-				lastEnv = e.Value()
-				log.Printf("环境变量 %s 已更新为 %s", AppEnvKey, lastEnv)
-			}
+		case <-ticker.C:
+			e.CheckAndUpdateEnv() // 检查并更新环境变量
 		case <-e.quit:
+			log.Println("手动终止取消监控环境变量")
 			return // 退出监控
 		}
 	}
 }
 
-// Stop 停止监控环境变量
-func (e *Environment) Stop() {
-	close(e.quit)
+// SetCheckFrequency 设置检查频率并支持链式调用
+func (e *Environment) SetCheckFrequency(frequency time.Duration) *Environment {
+	e.mu.Lock()         // 获取写锁
+	defer e.mu.Unlock() // 确保在函数结束时释放锁
+
+	e.CheckFrequency = frequency // 更新检查频率
+	return e                     // 返回当前环境实例以支持链式调用
 }
+
+// StopWatch 停止监控环境变量
+func (e *Environment) StopWatch() {
+	close(e.quit) // 关闭 quit 信道以停止监控
+}
+
+// GetEnvironment 从上下文中获取环境变量
+func GetEnvironment() EnvironmentType {
+	// 尝试获取环境变量
+	currentOsEnv, err := getEnv(envContextKey) // 使用普通赋值而非短变量声明
+	if err != nil {
+		log.Printf("获取环境变量 %s 失败: %v", envContextKey, err)
+		return DefaultEnv
+	}
+	return currentOsEnv // 确保返回获取到的环境变量值
+}
+
+// String ContextKey 转 String 方法
+func (c ContextKey) String() string {
+	return string(c)
+}
+
+// String EnvironmentType 转 String 方法
+func (e EnvironmentType) String() string {
+	return string(e)
+}
+
+// setEnv 设置环境变量并记录日志
+func setEnv(key ContextKey, value EnvironmentType) error {
+	if err := os.Setenv(key.String(), value.String()); err != nil {
+		return err // 返回错误
+	}
+	log.Printf("环境变量 %s 设置为 %s", key, value)
+	return nil
+}
+
+// getEnv 获取环境变量并记录日志
+func getEnv(key ContextKey) (EnvironmentType, error) {
+	value := os.Getenv(key.String())
+	if value == "" {
+		log.Printf("环境变量 %s 未设置", key)
+		return "", fmt.Errorf("环境变量 %s 未设置", key)
+	}
+	log.Printf("环境变量 %s 的值为 %s", key, value)
+	return EnvironmentType(value), nil
+}
+
+// ClearEnv 清除环境变量并等待锁
+func (e *Environment) ClearEnv() {
+	e.mu.Lock()         // 获取写锁
+	defer e.mu.Unlock() // 确保在函数结束时释放锁
+
+	if err := os.Unsetenv(envContextKey.String()); err != nil {
+		log.Printf("清除环境变量 %s 失败: %v", envContextKey.String(), err)
+	} else {
+		log.Printf("环境变量 %s 已清除", envContextKey.String())
+	}
+}
+
+// 定义一个内部接口，隐藏实现细节
+type EnvironmentInterface interface {
+	SetEnvironment(value EnvironmentType) *Environment
+	CheckAndUpdateEnv()
+	SetCheckFrequency(frequency time.Duration) *Environment
+	StopWatch()
+	ClearEnv()
+}
+
+// Ensure Environment 实现了 EnvironmentInterface
+var _ EnvironmentInterface = (*Environment)(nil)

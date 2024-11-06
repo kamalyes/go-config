@@ -38,46 +38,27 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	goconfig "github.com/kamalyes/go-config"
-
 	"github.com/kamalyes/go-config/pkg/env"
 )
 
-// createConfigFile 创建配置文件并写入内容
-func createConfigFile(filename string, content string) error {
-	// 确保目录存在
-	dir := filepath.Dir(filename)
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return err
-	}
-
-	// 写入内容到文件
-	return os.WriteFile(filename, []byte(content), 0644)
-}
-
 // generateRandomConfigContent 生成随机配置内容
 func generateRandomConfigContent(moduleName string) string {
-	// 随机生成 IP 地址
-	ip := fmt.Sprintf("192.168.1.%d", rand.Intn(256))
-	// 随机生成端口号
-	port := rand.Intn(10000) + 1000 // 随机端口范围 1000-10999
-	// 随机生成服务名称
-	serviceName := fmt.Sprintf("%s-server", moduleName)
-	// 随机生成服务根路径
-	contextPath := fmt.Sprintf("/%s", moduleName)
+	ip := fmt.Sprintf("192.168.1.%d", rand.Intn(256))   // 随机生成 IP 地址
+	port := rand.Intn(10000) + 1000                     // 随机端口范围 1000-10999
+	serviceName := fmt.Sprintf("%s-server", moduleName) // 服务名称
+	contextPath := fmt.Sprintf("/%s", moduleName)       // 服务根路径
 
 	return fmt.Sprintf(`# 服务实例配置
 server:
-  # 模块名称
-  - modulename: "%s"
     # 服务绑定的IP
     host: "%s"
     # 端口
@@ -93,143 +74,95 @@ server:
 
 # consul 注册中心
 consul:
-  # 模块名称
-  - modulename: "%s01"
     # 注册中心地址
     addr: 127.0.0.1:8500
     # 间隔 单位秒
     register-interval: 30
-  - modulename: "%s02"
-    # 注册中心地址
-    addr: 127.0.0.1:8501
-    # 间隔 单位秒
-    register-interval: 30
 
 # 其他配置...
-`, moduleName, ip, port, serviceName, contextPath, moduleName, moduleName)
+`, ip, port, serviceName, contextPath)
 }
 
-// printConfigAsJSON 打印配置为 JSON 格式，并包含调用者信息
-func printConfigAsJSON(config interface{}, caller string) {
-	jsonData, err := json.MarshalIndent(config, "", "  ")
-	if err != nil {
-		log.Printf("Error marshaling config to JSON: %v", err)
-		return
+// createConfigFile 创建配置文件并写入内容
+func createConfigFile(configOptions *goconfig.ConfigOptions) error {
+	content := generateRandomConfigContent(configOptions.EnvValue.String()) // 生成随机配置内容
+	// 确保目录存在
+	filename := fmt.Sprintf("%s/%s%s.%s", configOptions.ConfigPath, configOptions.EnvValue, configOptions.ConfigSuffix, configOptions.ConfigType)
+	dir := filepath.Dir(filename)                         // 获取文件目录
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil { // 创建目录
+		return err
 	}
-	log.Printf("Config in JSON format from %s: %s", caller, jsonData)
+
+	// 写入内容到文件
+	return os.WriteFile(filename, []byte(content), 0644) // 写入配置文件
+}
+
+// printConfig 打印配置为 JSON 格式，并包含调用者信息
+func printConfig(config interface{}, caller string) {
+	log.Printf("Config in format from %s: %#v", caller, config) // 打印配置内容
 }
 
 // getCallerName 获取调用者的函数名称
 func getCallerName() string {
-	pc, _, _, ok := runtime.Caller(1)
+	pc, _, _, ok := runtime.Caller(1) // 获取调用者信息
 	if !ok {
-		return "unknown"
+		return "unknown" // 如果获取失败，返回 unknown
 	}
-	fn := runtime.FuncForPC(pc)
+	fn := runtime.FuncForPC(pc) // 获取函数信息
 	if fn == nil {
-		return "unknown"
+		return "unknown" // 如果函数信息为空，返回 unknown
 	}
-	return fn.Name()
+	return fn.Name() // 返回函数名称
 }
 
-// envUse 使用环境变量读取配置
-func envUse() *goconfig.MultiConfig {
-	currentAppEnv := env.Active().String()
-	content := generateRandomConfigContent(currentAppEnv)
-	envFile := fmt.Sprintf("./resources/%s_config.yaml", currentAppEnv)
-	err := createConfigFile(envFile, content)
+// simpleUse 简单例子
+func simpleUse() *goconfig.SingleConfig {
+	ctx := context.Background()                                     // 创建上下文
+	customManager, err := goconfig.NewSingleConfigManager(ctx, nil) // 创建单个配置管理器
 	if err != nil {
-		log.Fatalf("envUse Error creating %s: %#v", envFile, err)
+		log.Fatalf("simpleUse NewSingleConfigManager  err %s", err) // 错误处理
 	}
-	ctx := context.Background()
-	customManager, _ := goconfig.NewConfigManager(ctx, nil)
-	config := customManager.GetConfig()
-	printConfigAsJSON(config, getCallerName())
+	err = createConfigFile(&customManager.Options) // 创建配置文件
+	if err != nil {
+		log.Fatalf("simpleUse Error creating file %#v", err) // 错误处理
+	}
+	config := customManager.GetConfig()  // 获取配置
+	printConfig(config, getCallerName()) // 打印配置
 	return config
 }
 
-// envUse 使用上下文读取配置
-func ctxUse(ctx context.Context) *goconfig.MultiConfig {
-	currentAppEnv := env.Active().String()
-	content := generateRandomConfigContent(currentAppEnv)
-	envFile := fmt.Sprintf("./resources/%s_config.yaml", currentAppEnv)
-	err := createConfigFile(envFile, content)
-	if err != nil {
-		log.Fatalf("ctxUse Error creating %s: %#v", envFile, err)
-	}
-	customManager, _ := goconfig.NewConfigManager(ctx, nil)
-	config := customManager.GetConfig()
-	printConfigAsJSON(config, getCallerName())
-	return config
-}
+// customUse 自定义环境变量、读取配置
+func customUse() *goconfig.SingleConfig {
+	customEnv := env.EnvironmentType("custom_single")        // 定义自定义环境类型
+	customContextKey := env.ContextKey("TEST_SINGLE_CONFIG") // 定义自定义上下文键
+	env.NewEnvironment().
+		SetCheckFrequency(1 * time.Second) // 初始化检测时间
 
-// envCtxUse 使用环境变量+上下文读取配置
-func envCtxUse(ctx context.Context) *goconfig.MultiConfig {
-	currentAppEnv := env.FromContext(ctx).String()
-	content := generateRandomConfigContent(currentAppEnv)
-	envFile := fmt.Sprintf("./resources/%s_config.yaml", currentAppEnv)
-	err := createConfigFile(envFile, content)
-	if err != nil {
-		log.Fatalf("envCtxUse Error creating %s: %#v", envFile, err)
+	configOptions := &goconfig.ConfigOptions{
+		ConfigSuffix:  "_config",            // 配置后缀
+		ConfigPath:    "./custom_resources", // 配置路径
+		ConfigType:    "yaml",               // 配置类型
+		EnvValue:      customEnv,            // 环境变量值
+		EnvContextKey: customContextKey,     // 环境变量Key
 	}
-	customManager, _ := goconfig.NewConfigManager(ctx, nil)
-	config := customManager.GetConfig()
-	printConfigAsJSON(config, getCallerName())
-	return config
-}
 
-// customManagerUse 使用自定义参数+上下文读取配置
-func customManagerUse(ctx context.Context, options *goconfig.ConfigOptions) *goconfig.MultiConfig {
-	currentAppEnv := env.FromContext(ctx).String()
-	content := generateRandomConfigContent(currentAppEnv)
-	envFile := fmt.Sprintf("./%s/%s%s.%s", options.ConfigPath, currentAppEnv, options.ConfigSuffix, options.ConfigType)
-	err := createConfigFile(envFile, content)
+	err := createConfigFile(configOptions) // 创建配置文件
 	if err != nil {
-		log.Fatalf("envCtxUse Error creating %s: %#v", envFile, err)
+		log.Fatalf("customUse Error creating file %#v", err) // 错误处理
 	}
-	customManager, _ := goconfig.NewConfigManager(ctx, options)
-	config := customManager.GetConfig()
-	printConfigAsJSON(config, getCallerName())
+	ctx := context.Background()                                               // 创建上下文
+	customManager, err := goconfig.NewSingleConfigManager(ctx, configOptions) // 创建单个配置管理器
+	if err != nil {
+		log.Fatalf("customUse NewSingleConfigManager err %s", err) // 错误处理
+	}
+	config := customManager.GetConfig()  // 获取配置
+	printConfig(config, getCallerName()) // 打印配置
 	return config
-}
-
-// getSingleAssignModel 当定义为数组时 可以获取指定Model
-func getSingleAssignModel() {
-	config := envUse()
-	currentAppEnv := env.Active().String()
-	modelName := fmt.Sprintf("%s01", currentAppEnv)
-	consulConfig, err := goconfig.GetModuleByName(config.Consul, modelName)
-	if err != nil {
-		log.Fatalf("getSingleAssignModel %s: %#v", modelName, err)
-	}
-	printConfigAsJSON(consulConfig, fmt.Sprintf(getCallerName(), modelName))
-	modelName = fmt.Sprintf("%s02", currentAppEnv)
-	consulConfig, err = goconfig.GetModuleByName(config.Consul, modelName)
-	if err != nil {
-		log.Fatalf("getSingleAssignModel %s: %#v", modelName, err)
-	}
-	printConfigAsJSON(consulConfig, getCallerName())
 }
 
 func main() {
-	envUse()
-
-	singCtx := context.Background()
-	ctxUse(singCtx)
-
-	// 创建一个上下文并设置环境为 UA
-	envCtx := env.NewEnv(context.Background(), env.Uat)
-	envCtxUse(envCtx)
-
-	// 创建一个上下文并设置环境变量为自定义
-	customManagerCtx := env.NewEnv(envCtx, env.EnvironmentType("custom"))
-	newConfigOptions := &goconfig.ConfigOptions{
-		ConfigSuffix: "_env",
-		ConfigPath:   "custom_resources",
-		ConfigType:   "yaml",
-	}
-	customManagerUse(customManagerCtx, newConfigOptions)
-	getSingleAssignModel()
+	simpleUse() // 调用简单使用示例
+	customUse() // 调用自定义使用示例
 }
 
 ```
@@ -241,10 +174,12 @@ func main() {
 ├── tests/       # 测试文件
 ├── go.mod       # Go Modules 文件
 ├── resources/   # 多配置文件相关配置(建议命名如下,目前提供了一个example_config.yaml可参考)
-│   ├── dev_config.yaml   # 开发环境配置文件
-│   ├── fat_config.yaml    # 功能验收测试环境配置文件
-│   ├── pro_config.yaml    # 生产环境配置文件
-│   └── uat_config.yaml    # 用户验收测试环境配置文件
+│   ├── dev_config.yaml    # 开发环境配置文件
+│   ├── sit_config.yaml    # 功能测试环境配置文件
+│   └── uat_config.yaml    # 产品验收测试环境配置文件
+│   └── fat_config.yaml    # 预留环境配置文件
+│   └── pro_config.yaml    # 生产环境配置文件
+│   └── env_custom.yaml    # 当然还通过了个性化配置文件需要结合ConfigManager一起使用
 └── pkg/          # 可供其他项目使用的库代码
     ├── captcha/  # 验证码图片尺寸配置
     ├── register/ # 注册中心、服务端口等相关配置

@@ -140,6 +140,7 @@
       "gorm",
       "kamalyes",
       "mapstructure",
+      "millis",
       "minio",
       "minioadmin",
       "modulename",

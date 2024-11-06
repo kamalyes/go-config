@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 13:52:32
+ * @LastEditTime: 2024-11-07 16:08:11
  * @FilePath: \go-config\resolver.go
  * @Description:
  *
@@ -27,11 +27,24 @@ const (
 	defaultConfigPath   = "./resources" // 默认配置文件路径
 )
 
-// ConfigOptions 配置选项结构体
+// ConfigOptions 定义配置选项结构体
 type ConfigOptions struct {
-	ConfigSuffix string
-	ConfigType   string
-	ConfigPath   string
+	ConfigType    string              // 配置文件类型
+	ConfigPath    string              // 配置文件路径
+	ConfigSuffix  string              // 配置文件后缀
+	EnvValue      env.EnvironmentType // 初始化环境
+	EnvContextKey env.ContextKey      // 环境上下文Key
+}
+
+// GetDefaultConfigOptions 返回 ConfigOptions 的默认值
+func GetDefaultConfigOptions() *ConfigOptions {
+	return &ConfigOptions{
+		ConfigSuffix:  defaultConfigSuffix,
+		ConfigType:    defaultConfigType,
+		ConfigPath:    defaultConfigPath,
+		EnvValue:      env.DefaultEnv,
+		EnvContextKey: env.GetContextKey(),
+	}
 }
 
 // MultiConfigManager 负责加载和管理 MultiConfig
@@ -88,22 +101,30 @@ func (m *SingleConfigManager) initialize(ctx context.Context, options *ConfigOpt
 // initializeConfigOptions 使用默认值替换空字段
 func initializeConfigOptions(options *ConfigOptions) ConfigOptions {
 	if options == nil {
-		options = &ConfigOptions{
-			ConfigSuffix: defaultConfigSuffix,
-			ConfigType:   defaultConfigType,
-			ConfigPath:   defaultConfigPath,
-		}
+		options = GetDefaultConfigOptions()
 	}
 
 	if options.ConfigType == "" {
 		options.ConfigType = defaultConfigType
 	}
+
 	if options.ConfigPath == "" {
 		options.ConfigPath = defaultConfigPath
 	}
+
 	if options.ConfigSuffix == "" {
 		options.ConfigSuffix = defaultConfigSuffix
 	}
+
+	if options.EnvValue == "" {
+		options.EnvValue = env.DefaultEnv
+	}
+
+	if options.EnvContextKey == "" {
+		options.EnvContextKey = env.GetContextKey()
+	}
+
+	env.SetContextKey(&env.ContextKeyOptions{Key: options.EnvContextKey, Value: options.EnvValue})
 
 	return *options
 }
@@ -111,10 +132,10 @@ func initializeConfigOptions(options *ConfigOptions) ConfigOptions {
 // loadConfig 加载配置文件并返回相应的配置对象
 func loadConfig(ctx context.Context, config interface{}, options ConfigOptions) (interface{}, error) {
 	// 从上下文获取当前环境
-	contextEnv := env.FromContext(ctx)
+	contextEnv := options.EnvValue.String()
 
 	// 确定使用的环境
-	filename := contextEnv.String() + options.ConfigSuffix
+	filename := contextEnv + options.ConfigSuffix
 
 	v := viper.New()
 	v.SetConfigName(filename)
