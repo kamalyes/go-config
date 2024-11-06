@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-10-31 12:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:55:27
+ * @LastEditTime: 2024-11-06 15:19:15
  * @FilePath: \go-config\pkg\zero\server.go
  * @Description:
  *
@@ -23,6 +23,9 @@ type RpcServer struct {
 	Etcd          *EtcdConfig `mapstructure:"etcd"                     yaml:"etcd"             json:"etcd"             validate:"required"` // Etcd 配置
 	Auth          bool        `mapstructure:"auth"                     yaml:"auth"             json:"auth"`                                 // 是否启用认证
 	StrictControl bool        `mapstructure:"strict-control"           yaml:"strict-control"   json:"strict_control"`                       // 是否启用严格控制
+	LogConf       *LogConf    `mapstructure:"log-conf"                 yaml:"log-conf"         json:"log_conf"`                             // Log 配置
+	Name          string      `mapstructure:"name"                     yaml:"name"             json:"name"`                                 // 服务器名称
+	Mode          string      `mapstructure:"mode"                     yaml:"mode"             json:"mode"`                                 // 运行模式
 }
 
 // NewRpcServer 创建一个新的 RpcServer 实例
@@ -37,6 +40,17 @@ func NewRpcServer(opt *RpcServer) *RpcServer {
 
 // Clone 返回 RpcServer 配置的副本
 func (r *RpcServer) Clone() internal.Configurable {
+	var (
+		logConfClone    *LogConf
+		etcdConfigClone *EtcdConfig
+	)
+	if r.LogConf != nil {
+		logConfClone = r.LogConf.Clone().(*LogConf) // 确保克隆 LogConf
+	}
+
+	if r.Etcd != nil {
+		etcdConfigClone = r.Etcd.Clone().(*EtcdConfig) // 确保克隆 EtcdConfig
+	}
 	return &RpcServer{
 		ModuleName:    r.ModuleName,
 		ListenOn:      r.ListenOn,
@@ -44,7 +58,10 @@ func (r *RpcServer) Clone() internal.Configurable {
 		StrictControl: r.StrictControl,
 		Timeout:       r.Timeout,
 		CpuThreshold:  r.CpuThreshold,
-		Etcd:          r.Etcd,
+		Etcd:          etcdConfigClone,
+		LogConf:       logConfClone,
+		Name:          r.Name,
+		Mode:          r.Mode,
 	}
 }
 
@@ -63,6 +80,9 @@ func (r *RpcServer) Set(data interface{}) {
 		r.Timeout = configData.Timeout
 		r.CpuThreshold = configData.CpuThreshold
 		r.Etcd = configData.Etcd
+		r.LogConf = configData.LogConf
+		r.Name = configData.Name
+		r.Mode = configData.Mode
 	}
 }
 

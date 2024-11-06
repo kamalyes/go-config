@@ -1,5 +1,15 @@
 /*
  * @Author: kamalyes 501893067@qq.com
+ * @Date: 2024-11-06 13:55:54
+ * @LastEditors: kamalyes 501893067@qq.com
+ * @LastEditTime: 2024-11-06 14:38:06
+ * @FilePath: \go-config\pkg\zero\etcd.go
+ * @Description:
+ *
+ * Copyright (c) 2024 by kamalyes, All Rights Reserved.
+ */
+/*
+ * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-10-31 12:50:58
  * @LastEditors: kamalyes 501893067@qq.com
  * @LastEditTime: 2024-11-03 20:38:27

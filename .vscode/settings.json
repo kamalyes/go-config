@@ -123,11 +123,13 @@
     },
     "cSpell.words": [
       "Aliyun",
+      "aliyunoss",
       "aliyunsms",
       "aliyunsts",
       "allowall",
       "casbin",
       "clientidv",
+      "cooldown",
       "CSBEF",
       "Datetime",
       "DB",
@@ -146,6 +148,9 @@
       "postgre",
       "stretchr",
       "Wechat",
-      "YOUZAN"
+      "wechatpay",
+      "YOUZAN",
+      "zeroclient",
+      "zeroserver"
     ]
 }

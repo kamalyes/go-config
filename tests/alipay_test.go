@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:39:54
+ * @LastEditTime: 2024-11-06 13:59:31
  * @FilePath: \go-config\tests\alipay_test.go
  * @Description:
  *
@@ -18,9 +18,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 生成随机的 Alipay 配置参数
-func generateAlipayTestParams() *pay.Alipay {
-	return &pay.Alipay{
+// 生成随机的 AliPay 配置参数
+func generateAliPayTestParams() *pay.AliPay {
+	return &pay.AliPay{
 		ModuleName: random.RandString(10, random.CAPITAL),
 		Pid:        random.RandString(10, random.CAPITAL),
 		AppId:      random.RandString(10, random.CAPITAL),
@@ -32,21 +32,21 @@ func generateAlipayTestParams() *pay.Alipay {
 	}
 }
 
-func TestAlipayClone(t *testing.T) {
-	params := generateAlipayTestParams()
-	original := pay.NewAlipay(params)
-	cloned := original.Clone().(*pay.Alipay)
+func TestAliPayClone(t *testing.T) {
+	params := generateAliPayTestParams()
+	original := pay.NewAliPay(params)
+	cloned := original.Clone().(*pay.AliPay)
 
 	assert.Equal(t, original, cloned)
 	assert.NotSame(t, original, cloned) // 确保是不同的实例
 }
 
-func TestAlipaySet(t *testing.T) {
-	oldParams := generateAlipayTestParams()
-	newParams := generateAlipayTestParams()
+func TestAliPaySet(t *testing.T) {
+	oldParams := generateAliPayTestParams()
+	newParams := generateAliPayTestParams()
 
-	alipay := pay.NewAlipay(oldParams)
-	newConfig := pay.NewAlipay(newParams)
+	alipay := pay.NewAliPay(oldParams)
+	newConfig := pay.NewAliPay(newParams)
 
 	alipay.Set(newConfig)
 

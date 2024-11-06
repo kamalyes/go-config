@@ -20,8 +20,8 @@ import (
 )
 
 // 生成随机的 Wechat 配置参数
-func generateWechatTestParams() *pay.Wechat {
-	return &pay.Wechat{
+func generateWechatTestParams() *pay.WechatPay {
+	return &pay.WechatPay{
 		ModuleName:  random.RandString(10, random.CAPITAL),
 		AppId:       random.RandString(18, random.CAPITAL),                                                // 随机生成应用 ID
 		MchId:       random.RandString(10, random.NUMBER),                                                 // 随机生成商户号
@@ -33,8 +33,8 @@ func generateWechatTestParams() *pay.Wechat {
 
 func TestWechatClone(t *testing.T) {
 	params := generateWechatTestParams()
-	original := pay.NewWechat(params)
-	cloned := original.Clone().(*pay.Wechat)
+	original := pay.NewWechatPay(params)
+	cloned := original.Clone().(*pay.WechatPay)
 
 	assert.Equal(t, original, cloned)
 	assert.NotSame(t, original, cloned) // 确保是不同的实例
@@ -44,8 +44,8 @@ func TestWechatSet(t *testing.T) {
 	oldParams := generateWechatTestParams()
 	newParams := generateWechatTestParams()
 
-	wechatInstance := pay.NewWechat(oldParams)
-	newConfig := pay.NewWechat(newParams)
+	wechatInstance := pay.NewWechatPay(oldParams)
+	newConfig := pay.NewWechatPay(newParams)
 
 	wechatInstance.Set(newConfig)
 

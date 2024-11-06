@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 21:52:32
+ * @LastEditTime: 2024-11-03 13:52:32
  * @FilePath: \go-config\resolver.go
  * @Description:
  *
@@ -34,15 +34,59 @@ type ConfigOptions struct {
 	ConfigPath   string
 }
 
-// ConfigManager 负责加载和管理配置
-type ConfigManager struct {
-	config  *MultiConfig
-	options ConfigOptions
+// MultiConfigManager 负责加载和管理 MultiConfig
+type MultiConfigManager struct {
+	MultiConfig *MultiConfig
+	Options     ConfigOptions
 }
 
-// NewConfigManager 创建一个新的 ConfigManager
-func NewConfigManager(ctx context.Context, options *ConfigOptions) (*ConfigManager, error) {
-	// 如果没有传入 options，则使用默认值
+// NewMultiConfigManager 创建一个新的 MultiConfigManager
+func NewMultiConfigManager(ctx context.Context, options *ConfigOptions) (*MultiConfigManager, error) {
+	mcm := &MultiConfigManager{}
+	if err := mcm.initialize(ctx, options, &MultiConfig{}); err != nil {
+		return nil, err
+	}
+	return mcm, nil
+}
+
+// SingleConfigManager 负责加载和管理 SingleConfig
+type SingleConfigManager struct {
+	SingleConfig *SingleConfig
+	Options      ConfigOptions
+}
+
+// NewSingleConfigManager 创建一个新的 SingleConfigManager
+func NewSingleConfigManager(ctx context.Context, options *ConfigOptions) (*SingleConfigManager, error) {
+	scm := &SingleConfigManager{}
+	if err := scm.initialize(ctx, options, &SingleConfig{}); err != nil {
+		return nil, err
+	}
+	return scm, nil
+}
+
+// initialize 初始化配置选项并加载配置
+func (m *MultiConfigManager) initialize(ctx context.Context, options *ConfigOptions, config interface{}) error {
+	m.Options = initializeConfigOptions(options)
+	multiConfig, err := loadConfig(ctx, config, m.Options)
+	if err != nil {
+		return err
+	}
+	m.MultiConfig = multiConfig.(*MultiConfig) // 类型断言
+	return nil
+}
+
+func (m *SingleConfigManager) initialize(ctx context.Context, options *ConfigOptions, config interface{}) error {
+	m.Options = initializeConfigOptions(options)
+	singleConfig, err := loadConfig(ctx, config, m.Options)
+	if err != nil {
+		return err
+	}
+	m.SingleConfig = singleConfig.(*SingleConfig) // 类型断言
+	return nil
+}
+
+// initializeConfigOptions 使用默认值替换空字段
+func initializeConfigOptions(options *ConfigOptions) ConfigOptions {
 	if options == nil {
 		options = &ConfigOptions{
 			ConfigSuffix: defaultConfigSuffix,
@@ -51,7 +95,6 @@ func NewConfigManager(ctx context.Context, options *ConfigOptions) (*ConfigManag
 		}
 	}
 
-	// 使用默认值替换空字段
 	if options.ConfigType == "" {
 		options.ConfigType = defaultConfigType
 	}
@@ -62,40 +105,28 @@ func NewConfigManager(ctx context.Context, options *ConfigOptions) (*ConfigManag
 		options.ConfigSuffix = defaultConfigSuffix
 	}
 
-	cm := &ConfigManager{
-		options: *options,
-	}
-
-	// 直接使用 cm 调用 loadConfig
-	config, err := cm.loadConfig(ctx)
-	if err != nil {
-		return nil, err
-	}
-	cm.config = config
-	return cm, nil
+	return *options
 }
 
-// loadConfig 加载配置文件并返回 Config 对象
-func (cm *ConfigManager) loadConfig(ctx context.Context) (*MultiConfig, error) {
+// loadConfig 加载配置文件并返回相应的配置对象
+func loadConfig(ctx context.Context, config interface{}, options ConfigOptions) (interface{}, error) {
 	// 从上下文获取当前环境
 	contextEnv := env.FromContext(ctx)
 
 	// 确定使用的环境
-	filename := contextEnv.String() + cm.options.ConfigSuffix
+	filename := contextEnv.String() + options.ConfigSuffix
 
 	v := viper.New()
 	v.SetConfigName(filename)
-	v.SetConfigType(cm.options.ConfigType)
-	v.AddConfigPath(cm.options.ConfigPath)
+	v.SetConfigType(options.ConfigType)
+	v.AddConfigPath(options.ConfigPath)
 	log.Printf("读取配置文件: %s", filename)
 
 	if err := v.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("读取配置文件异常: %w", err)
 	}
 
-	globalConfig := &MultiConfig{Viper: v}
-
-	if err := v.Unmarshal(globalConfig); err != nil {
+	if err := v.Unmarshal(config); err != nil {
 		return nil, fmt.Errorf("读取配置文件异常: %w", err)
 	}
 
@@ -103,18 +134,23 @@ func (cm *ConfigManager) loadConfig(ctx context.Context) (*MultiConfig, error) {
 	v.WatchConfig()
 	v.OnConfigChange(func(e fsnotify.Event) {
 		log.Printf("配置文件内容发生改变: %s", e.Name)
-		if err := v.Unmarshal(globalConfig); err != nil {
-			log.Fatalf("读取配置文件异常: %s", err)
+		if err := v.Unmarshal(config); err != nil {
+			log.Printf("读取配置文件异常: %s", err)
 		}
 	})
 
-	return globalConfig, nil
+	return config, nil
 }
 
 // SubItem 从配置中获取指定的配置子项
-func (cm *ConfigManager) SubItem(ctx context.Context, subKey string, v interface{}) {
-	value := cm.config.Viper.Sub(subKey)
+func (m *MultiConfigManager) SubItem(ctx context.Context, subKey string, v interface{}) {
+	if m.MultiConfig == nil {
+		log.Println("MultiConfig is nil")
+		return
+	}
+	value := m.MultiConfig.Viper.Sub(subKey)
 	if value == nil {
+		log.Printf("子配置项 %s 不存在", subKey)
 		return
 	}
 	if err := value.Unmarshal(v); err != nil {
@@ -122,7 +158,12 @@ func (cm *ConfigManager) SubItem(ctx context.Context, subKey string, v interface
 	}
 }
 
-// GetConfig 获取全局配置
-func (cm *ConfigManager) GetConfig() *MultiConfig {
-	return cm.config
+// GetConfig 获取 MultiConfig 配置
+func (m *MultiConfigManager) GetConfig() *MultiConfig {
+	return m.MultiConfig
+}
+
+// GetConfig 获取 SingleConfig 配置
+func (m *SingleConfigManager) GetConfig() *SingleConfig {
+	return m.SingleConfig
 }
