@@ -1,0 +1,352 @@
+{
+  "server": {
+    "modulename": "M83QXuwfqz",
+    "addr": "neSREtt9K4",
+    "server-name": "dNB495tao1",
+    "data-driver": "8sv3H3mPXB",
+    "handle-method-not-allowed": true,
+    "context-path": "e8Ytm0IfVi",
+    "language": "ZTwTl1IU8g"
+  },
+  "cors": {
+    "modulename": "id1mG3Jmvw",
+    "allowed-origins": [
+      "pwMsZ",
+      "osxRJ",
+      "6Wei8"
+    ],
+    "allowed-methods": [
+      "gxglq",
+      "etpip"
+    ],
+    "allowed-headers": [
+      "1Xm5O",
+      "Qd0Yf",
+      "YAtad",
+      "REtN5"
+    ],
+    "max-age": "NOpeiDCv12",
+    "allowed-all-origins": true,
+    "allowed-all-methods": true,
+    "exposed-headers": [
+      "fRQ7B"
+    ],
+    "allow-credentials": true,
+    "options-response-code": 37
+  },
+  "consul": {
+    "modulename": "EzIgBdY7KB",
+    "addr": "1FWwULoILV",
+    "register-interval": 43
+  },
+  "captcha": {
+    "modulename": "cqOdbzfwPB",
+    "key-len": 55,
+    "img-width": 60,
+    "img-height": 53,
+    "max-skew": 45,
+    "dot-count": 36
+  },
+  "mysql": {
+    "modulename": "k52CsUKwrq",
+    "host": "wUw9oOz3qP",
+    "port": "Y4bOFsHpjx",
+    "config": "PrNrE8SRWc",
+    "log-level": "RpxVgIdmqZ",
+    "db-name": "SOSNNGjTia",
+    "username": "goPR11pwVT",
+    "password": "8mwfqm6xWt",
+    "max-idle-conns": 45,
+    "max-open-conns": 41,
+    "conn-max-idle-time": 38,
+    "conn-max-life-time": 58
+  },
+  "postgre": {
+    "modulename": "vOY7elsFt9",
+    "host": "Rcy0kjidpj",
+    "port": "mYP14OmlI0",
+    "config": "lfZy6zWMja",
+    "log-level": "PvBE5WHe4r",
+    "db-name": "dy4LT30b2Q",
+    "username": "fYMyFBfsCg",
+    "password": "cuL1hUUDPm",
+    "max-idle-conns": 28,
+    "max-open-conns": 61,
+    "conn-max-idle-time": 45,
+    "conn-max-life-time": 34
+  },
+  "sqlite": {
+    "modulename": "23Lws2vWBH",
+    "db-path": "OcHRYnRUNa",
+    "max-idle-conns": 43,
+    "max-open-conns": 42,
+    "log-level": "7YjV1zMohm",
+    "conn-max-idle-time": 23,
+    "conn-max-life-time": 27,
+    "vacuum": true
+  },
+  "redis": {
+    "modulename": "xcryy4Ncpc",
+    "addr": "AFXlRrUIaq",
+    "db": 56,
+    "max-retries": 20,
+    "min-idle-conns": 23,
+    "pool-size": 32,
+    "password": "StMV4WVGXz"
+  },
+  "email": {
+    "modulename": "ylFyGZ8itG",
+    "to": "wKYl5x3D9u",
+    "from": "Vens6aKkKS",
+    "host": "Ug6pxj7oR0",
+    "port": 51,
+    "secret": "afAv4a5pBv",
+    "is-ssl": true
+  },
+  "ftp": {
+    "modulename": "m0LZ1iDu3B",
+    "addr": "udkagKg1sq",
+    "username": "8n3MVRZGwH",
+    "password": "q7oz53eFfe",
+    "cwd": "BlOlgu5DEl"
+  },
+  "jwt": {
+    "modulename": "qLXbacYTxk",
+    "signing-key": "rHgpizCL9R",
+    "expires-time": 0,
+    "buffer-time": 0,
+    "use-multipoint": true
+  },
+  "minio": {
+    "modulename": "8XmIpxfSFK",
+    "host": "tESBhUMM9u",
+    "port": 44,
+    "access-key": "AU8x79THIe",
+    "secret-key": "A9iJHccdLF"
+  },
+  "aliyunoss": {
+    "modulename": "2GOCGFmEPo",
+    "access-key": "j6Fdo4dKwF",
+    "secret-key": "grKABWkb6H",
+    "endpoint": "6HDkRwL9ou",
+    "bucket": "xoATYgvv5V",
+    "replace-original-host": "qwxSXfevl0",
+    "replace-later-host": "YQFWpzfr6a"
+  },
+  "mqtt": {
+    "modulename": "f3vUWeHNhK",
+    "url": "AD71lhSv47",
+    "protocol-version": 0,
+    "keep-alive": 56,
+    "max-reconnect-interval": 64,
+    "ping-timeout": 34,
+    "write-timeout": 32,
+    "connect-timeout": 23,
+    "username": "RV67bRxQq0",
+    "password": "2AvoGAR7x7",
+    "clean-session": true,
+    "auto-reconnect": true,
+    "will-topic": "fMCfyYNMKB"
+  },
+  "zap": {
+    "modulename": "ihc3MifrhS",
+    "level": "xuFsaUn8wp",
+    "format": "7iCnyjvLlA",
+    "prefix": "TI5C9NRMRP",
+    "director": "7O8maMZTnv",
+    "max-size": 42,
+    "max-age": 58,
+    "max-backups": 19,
+    "compress": true,
+    "link-name": "kb4xk6807b",
+    "show-line": true,
+    "encode-level": "yKWVgX6uyv",
+    "stacktrace-key": "Yr4RSwHRyA",
+    "log-in-console": true
+  },
+  "alipay": {
+    "modulename": "0YSl73NwQI",
+    "pid": "h1It8vC72t",
+    "app-id": "edmkw9GIlE",
+    "pri-key": "HOYTeBUUxE",
+    "pub-key": "f1GHd3lBil",
+    "sign-type": "Px7P3Juo4M",
+    "notify-url": "HFnyWjuTf8",
+    "subject": "WRHbi7rZ64"
+  },
+  "wechatpay": {
+    "modulename": "aOooC75YI4",
+    "app-id": "1LTRSTPssy",
+    "mch-id": "NQiWWQJQT2",
+    "notify-url": "HXkkUROCBy",
+    "api-key": "hkX4i9eFdI",
+    "cert-p12-path": "zC3p4TM9lk"
+  },
+  "aliyunsms": {
+    "modulename": "nA74EMYCg6",
+    "secret-id": "zVaPu4xEVO",
+    "secret-key": "x8pmfALS0j",
+    "sign": "7QxBYdj5SE",
+    "resource-owner-account": "hyaB63dmwV",
+    "resource-owner-id": 0,
+    "template-code-verify": "QCWu5aZtbB",
+    "endpoint": "rkOIIgPne9"
+  },
+  "aliyunsts": {
+    "modulename": "ZUTwMeWsim",
+    "region-id": "zWgU9Z4vfx",
+    "access-key-id": "ttHC5xTcZB",
+    "access-key-secret": "8DHz5praa7",
+    "role-arn": "b9AsAQxt8z",
+    "role-session-name": "JcKrc0ba7J"
+  },
+  "youzan": {
+    "modulename": "0oLL9ZvXev",
+    "host": "Jue7PteQvr",
+    "client-id": "RMl8lvXY5j",
+    "client-secret": "nPkiN1uVuI",
+    "authorize-type": "lsCXV89hg1",
+    "grant-id": "SmlEIVw4Gf",
+    "refresh": true
+  },
+  "zeroserver": {
+    "modulename": "cQzEcULl3i",
+    "listen-on": "VvHCKMqXTW",
+    "timeout": 0,
+    "cpu-threshold": 0,
+    "etcd": {
+      "hosts": [
+        "4CW2V",
+        "UlZok",
+        "3tuJp",
+        "vPGe6"
+      ],
+      "key": "cOMtY1cP0U"
+    },
+    "auth": true,
+    "strict-control": true,
+    "log-conf": {
+      "service-name": "M1qi7Stt92",
+      "mode": "WlhuWOSabd",
+      "encoding": "suUpL6y5VI",
+      "time-format": "TnZCMpO5FB",
+      "path": "sakAfOp6K1",
+      "level": "k739nlUwUX",
+      "max-content-length": 0,
+      "compress": true,
+      "stat": true,
+      "keep-days": 54,
+      "stack-cooldown-millis": 56,
+      "max-backups": 47,
+      "max-size": 28,
+      "rotation": "hmQolBnQs2",
+      "file-time-format": "OyboDMbQ0N"
+    },
+    "name": "3LdOGDE0h2",
+    "mode": "EkIP96f8eu",
+    "metrics-url": "38p0VPqpYw",
+    "prometheus": {
+      "enabled": true
+    },
+    "telemetry": {
+      "enabled": true
+    }
+  },
+  "zeroclient": {
+    "modulename": "4fJxPH9fBy",
+    "host": "mWcoi2LRHW",
+    "port": 56,
+    "app": "yRosJASeRN",
+    "token": "e0Zbhb9xPC",
+    "timeout": 0,
+    "non-block": true,
+    "log-conf": {
+      "service-name": "VQLx5LLsHI",
+      "mode": "PSBXCV0O6y",
+      "encoding": "AhfFbs6POp",
+      "time-format": "WpI3G21AOV",
+      "path": "rNODRLwk1L",
+      "level": "7oEzb4SK1d",
+      "max-content-length": 0,
+      "compress": true,
+      "stat": true,
+      "keep-days": 24,
+      "stack-cooldown-millis": 60,
+      "max-backups": 58,
+      "max-size": 56,
+      "rotation": "DsYA2iADMl",
+      "file-time-format": "gHTIsIjstT"
+    }
+  },
+  "zerorestful": {
+    "rpc-server": {
+      "modulename": "sCTsW2a0rY",
+      "listen-on": "0POMjDeis2",
+      "timeout": 0,
+      "cpu-threshold": 0,
+      "etcd": {
+        "hosts": [
+          "iMFDh"
+        ],
+        "key": "FxHpZco5cy"
+      },
+      "auth": true,
+      "strict-control": true,
+      "log-conf": {
+        "service-name": "bM1xGA3ioU",
+        "mode": "KoTNWTfRrX",
+        "encoding": "YYFZLPKPla",
+        "time-format": "P2YDUtDx25",
+        "path": "6mt7iKiz3L",
+        "level": "emWJHhVhmJ",
+        "max-content-length": 0,
+        "compress": true,
+        "stat": true,
+        "keep-days": 21,
+        "stack-cooldown-millis": 39,
+        "max-backups": 21,
+        "max-size": 47,
+        "rotation": "MaabE5Uwgt",
+        "file-time-format": "WfPW4FHivl"
+      },
+      "name": "2CqewPvK2F",
+      "mode": "OKloIhlWVE",
+      "metrics-url": "uicwkFP5Z9",
+      "prometheus": {
+        "enabled": true
+      },
+      "telemetry": {
+        "enabled": true
+      }
+    },
+    "host": "WZlKv41kfz",
+    "port": 37,
+    "cert-file": "n539QGHweC",
+    "key-file": "a84OxfDqrX",
+    "verbose": true,
+    "max-conns": 50,
+    "max-bytes": 0,
+    "timeout": 0,
+    "cpu-threshold": 0,
+    "signature": {
+      "algorithm": {
+        "strict": true,
+        "expiry": 0,
+        "private-keys": [
+          {
+            "fingerprint": "w1K2XyI2UR",
+            "key-file": "tWDUTZYRNj"
+          },
+          {
+            "fingerprint": "KRpnPGcAX9",
+            "key-file": "sSOQzSbWhh"
+          },
+          {
+            "fingerprint": "8DaMGFp28Y",
+            "key-file": "qDWwO3RJ0Y"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-10-31 12:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 17:56:56
+ * @LastEditTime: 2024-11-07 18:15:39
  * @FilePath: \go-config\pkg\zero\client.go
  * @Description:
  *
@@ -19,7 +19,7 @@ import (
 type RpcClient struct {
 	ModuleName string   `mapstructure:"modulename"                yaml:"modulename"           json:"module_name"           validate:"required"`       // 模块名称
 	Host       string   `mapstructure:"host"                      yaml:"host"                 json:"host"                  validate:"required"`       // 地址
-	Port       int64    `mapstructure:"port"                      yaml:"port"                 json:"port"                  validate:"required"`       // 端口
+	Port       int      `mapstructure:"port"                      yaml:"port"                 json:"port"                  validate:"required"`       // 端口
 	App        string   `mapstructure:"app"                       yaml:"app"                  json:"app"                   validate:"required"`       // 应用名称
 	Token      string   `mapstructure:"token"                     yaml:"token"                json:"token"                 validate:"required"`       // 认证令牌
 	Timeout    int64    `mapstructure:"timeout"                   yaml:"timeout"              json:"timeout"               validate:"required,min=1"` // 超时时间，单位毫秒，必须大于0

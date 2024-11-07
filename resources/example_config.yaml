@@ -428,4 +428,10 @@ zerorestful:
   max-bytes: 10485760
   timeout: 5000
   cpu-threshold: 70
-  signature: mySignature123
+  signature:
+    algorithm:
+      strict: true
+      expiry: 0
+      private-keys:
+        - fingerprint: "m2IVFc1LJl"
+          key-file: "gTf1kch7W0"
