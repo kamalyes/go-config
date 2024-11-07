@@ -23,8 +23,7 @@ import (
 func generateRpcClientTestParams() *zero.RpcClient {
 	return &zero.RpcClient{
 		ModuleName: random.RandString(10, random.CAPITAL),                                      // 随机生成模块名称
-		Host:       fmt.Sprintf("http://%s.example.com", random.RandString(5, random.CAPITAL)), // 随机生成目标地址
-		Port:       random.RandInt(100, 5000),                                                  // 随机生成目标端口
+		Target:     fmt.Sprintf("http://%s.example.com", random.RandString(5, random.CAPITAL)), // 随机生成目标地址
 		App:        random.RandString(10, random.CAPITAL),                                      // 随机生成应用名称
 		Token:      random.RandString(32, random.CAPITAL),                                      // 随机生成认证令牌
 		NonBlock:   random.FRandBool(),                                                         // 随机生成是否非阻塞
@@ -51,8 +50,7 @@ func TestRpcClientSet(t *testing.T) {
 	rpcClientInstance.Set(newConfig)
 
 	assert.Equal(t, newParams.ModuleName, rpcClientInstance.ModuleName)
-	assert.Equal(t, newParams.Host, rpcClientInstance.Host)
-	assert.Equal(t, newParams.Port, rpcClientInstance.Port)
+	assert.Equal(t, newParams.Target, rpcClientInstance.Target)
 	assert.Equal(t, newParams.App, rpcClientInstance.App)
 	assert.Equal(t, newParams.Token, rpcClientInstance.Token)
 	assert.Equal(t, newParams.NonBlock, rpcClientInstance.NonBlock)

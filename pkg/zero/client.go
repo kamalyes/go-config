@@ -18,8 +18,7 @@ import (
 // RpcClient 结构体表示 RPC 客户端的配置
 type RpcClient struct {
 	ModuleName string   `mapstructure:"modulename"                yaml:"modulename"           json:"module_name"           validate:"required"`       // 模块名称
-	Host       string   `mapstructure:"host"                      yaml:"host"                 json:"host"                  validate:"required"`       // 地址
-	Port       int      `mapstructure:"port"                      yaml:"port"                 json:"port"                  validate:"required"`       // 端口
+	Target     string   `mapstructure:"target"                      yaml:"target"                 json:"target"                  validate:"required"` // 地址
 	App        string   `mapstructure:"app"                       yaml:"app"                  json:"app"                   validate:"required"`       // 应用名称
 	Token      string   `mapstructure:"token"                     yaml:"token"                json:"token"                 validate:"required"`       // 认证令牌
 	Timeout    int64    `mapstructure:"timeout"                   yaml:"timeout"              json:"timeout"               validate:"required,min=1"` // 超时时间，单位毫秒，必须大于0
@@ -45,8 +44,7 @@ func (r *RpcClient) Clone() internal.Configurable {
 	}
 	return &RpcClient{
 		ModuleName: r.ModuleName,
-		Host:       r.Host,
-		Port:       r.Port,
+		Target:     r.Target,
 		App:        r.App,
 		Token:      r.Token,
 		NonBlock:   r.NonBlock,
@@ -64,8 +62,7 @@ func (r *RpcClient) Get() interface{} {
 func (r *RpcClient) Set(data interface{}) {
 	if configData, ok := data.(*RpcClient); ok {
 		r.ModuleName = configData.ModuleName
-		r.Host = configData.Host
-		r.Port = configData.Port
+		r.Target = configData.Target
 		r.App = configData.App
 		r.Token = configData.Token
 		r.NonBlock = configData.NonBlock

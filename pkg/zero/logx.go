@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-10-31 12:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:38:27
+ * @LastEditTime: 2024-11-07 18:28:31
  * @FilePath: \go-config\pkg\zero\logx.go
  * @Description:
  *
@@ -16,21 +16,21 @@ import (
 
 // LogConf 结构体表示日志配置
 type LogConf struct {
-	ServiceName         string `mapstructure:"service-name" yaml:"service-name" json:"service_name"`                                          // 服务名称
-	Mode                string `mapstructure:"mode" yaml:"mode" json:"mode" default:"console" options:"[console,file,volume]"`                // 日志模式
-	Encoding            string `mapstructure:"encoding" yaml:"encoding" json:"encoding" default:"json" options:"[json,plain]"`                // 编码类型
-	TimeFormat          string `mapstructure:"time-format" yaml:"time-format" json:"time_format"`                                             // 时间格式
-	Path                string `mapstructure:"path" yaml:"path" json:"path" default:"logs"`                                                   // 日志文件路径
-	Level               string `mapstructure:"level" yaml:"level" json:"level" default:"info" options:"[debug,info,error,severe]"`            // 日志级别
-	MaxContentLength    uint32 `mapstructure:"max-content-length" yaml:"max-content-length" json:"max_content_length"`                        // 最大内容长度
-	Compress            bool   `mapstructure:"compress" yaml:"compress" json:"compress"`                                                      // 是否压缩
-	Stat                bool   `mapstructure:"stat" yaml:"stat" json:"stat" default:"true"`                                                   // 记录统计信息
-	KeepDays            int    `mapstructure:"keep-days" yaml:"keep-days" json:"keep_days"`                                                   // 保留天数
-	StackCooldownMillis int    `mapstructure:"stack-cooldown-millis" yaml:"stack-cooldown-millis" json:"stack_cooldown_millis" default:"100"` // 堆栈冷却时间
-	MaxBackups          int    `mapstructure:"max-backups" yaml:"max-backups" json:"max_backups" default:"0"`                                 // 最大备份数
-	MaxSize             int    `mapstructure:"max-size" yaml:"max-size" json:"max-size" default:"0"`                                          // 最大文件大小
-	Rotation            string `mapstructure:"rotation" yaml:"rotation" json:"rotation" default:"daily" options:"[daily,size]"`               // 轮换规则
-	FileTimeFormat      string `mapstructure:"file-time-format" yaml:"file-time-format" json:"file_time_format"`                              // 文件时间格式
+	ServiceName         string `mapstructure:"service-name"       yaml:"service-name"       json:"service_name"`                                             // 服务名称
+	Mode                string `mapstructure:"mode"               yaml:"mode"               json:"mode" default:"console" options:"[console,file,volume]"`   // 日志模式
+	Encoding            string `mapstructure:"encoding"           yaml:"encoding"           json:"encoding" default:"json" options:"[json,plain]"`           // 编码类型
+	TimeFormat          string `mapstructure:"time-format"        yaml:"time-format"        json:"time_format"`                                              // 时间格式
+	Path                string `mapstructure:"path"               yaml:"path"               json:"path" default:"logs"`                                      // 日志文件路径
+	Level               string `mapstructure:"level"              yaml:"level"              json:"level" default:"info" options:"[debug,info,error,severe]"` // 日志级别
+	MaxContentLength    uint32 `mapstructure:"max-content-length"  yaml:"max-content-length" json:"max_content_length"`                                      // 最大内容长度
+	Compress            bool   `mapstructure:"compress"           yaml:"compress"           json:"compress"`                                                 // 是否压缩
+	Stat                bool   `mapstructure:"stat"               yaml:"stat"               json:"stat" default:"true"`                                      // 记录统计信息
+	KeepDays            int    `mapstructure:"keep-days"          yaml:"keep-days"          json:"keep_days"`                                                // 保留天数
+	StackCooldownMillis int    `mapstructure:"stack-cooldown-millis" yaml:"stack-cooldown-millis" json:"stack_cooldown_millis" default:"100"`                // 堆栈冷却时间
+	MaxBackups          int    `mapstructure:"max-backups"       yaml:"max-backups"       json:"max_backups" default:"0"`                                    // 最大备份数
+	MaxSize             int    `mapstructure:"max-size"          yaml:"max-size"          json:"max-size" default:"0"`                                       // 最大文件大小
+	Rotation            string `mapstructure:"rotation"          yaml:"rotation"          json:"rotation" default:"daily" options:"[daily,size]"`            // 轮换规则
+	FileTimeFormat      string `mapstructure:"file-time-format"   yaml:"file-time-format"   json:"file_time_format"`                                         // 文件时间格式
 }
 
 // NewLogConf 创建一个新的 LogConf 实例
