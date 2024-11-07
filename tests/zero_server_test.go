@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-11-01 09:55:52
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:58:32
+ * @LastEditTime: 2024-11-07 19:55:15
  * @FilePath: \go-config\tests\zero_server_test.go
  * @Description:
  *
@@ -21,8 +21,8 @@ import (
 )
 
 // 生成随机的 EtcdConfig 配置参数
-func generateEtcdConfig() *zero.EtcdConfig {
-	return &zero.EtcdConfig{
+func generateEtcdConfig() *zero.Etcd {
+	return &zero.Etcd{
 		Hosts: []string{fmt.Sprintf("http://%s:2379", random.RandString(5, random.CAPITAL))}, // 随机生成 Etcd 地址
 		Key:   random.RandString(10, random.CAPITAL),                                         // 随机生成用户名
 	}

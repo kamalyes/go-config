@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-10-31 12:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 18:15:39
+ * @LastEditTime: 2024-11-07 19:55:26
  * @FilePath: \go-config\pkg\zero\client.go
  * @Description:
  *
@@ -17,13 +17,15 @@ import (
 
 // RpcClient 结构体表示 RPC 客户端的配置
 type RpcClient struct {
-	ModuleName string   `mapstructure:"modulename"                yaml:"modulename"           json:"module_name"           validate:"required"`       // 模块名称
-	Target     string   `mapstructure:"target"                      yaml:"target"                 json:"target"                  validate:"required"` // 地址
-	App        string   `mapstructure:"app"                       yaml:"app"                  json:"app"                   validate:"required"`       // 应用名称
-	Token      string   `mapstructure:"token"                     yaml:"token"                json:"token"                 validate:"required"`       // 认证令牌
-	Timeout    int64    `mapstructure:"timeout"                   yaml:"timeout"              json:"timeout"               validate:"required,min=1"` // 超时时间，单位毫秒，必须大于0
-	NonBlock   bool     `mapstructure:"non-block"                 yaml:"non-block"            json:"non_block"`                                       // 是否非阻塞
-	LogConf    *LogConf `mapstructure:"log-conf"                  yaml:"log-conf"             json:"log_conf"`                                        // Log 配置
+	ModuleName    string   `mapstructure:"modulename"              yaml:"modulename"            json:"module_name"           validate:"required"` // 模块名称
+	Etcd          *Etcd    `mapstructure:"etcd"                    yaml:"etcd"                  json:"etcd"`                                      // Etcd 配置
+	Endpoints     []string `mapstructure:"endpoints"               yaml:"endpoints"             json:"endpoints"`                                 // 端点列表
+	Target        string   `mapstructure:"target"                  yaml:"target"                json:"target"`                                    // 目标服务器地址
+	App           string   `mapstructure:"app"                     yaml:"app"                   json:"app"`                                       // 应用名称
+	Token         string   `mapstructure:"token"                   yaml:"token"                 json:"token"`                                     // 认证 token
+	NonBlock      bool     `mapstructure:"non-block"               yaml:"non-block"             json:"non_block"`                                 // 是否非阻塞
+	Timeout       int64    `mapstructure:"timeout"                 yaml:"timeout"               json:"timeout"`                                   // 超时时间，单位毫秒，必须大于0
+	KeepaliveTime int64    `mapstructure:"keepalive-time"          yaml:"keepalive-time"        json:"keepalive_time"`
 }
 
 // NewRpcClient 创建一个新的 RpcClient 实例
@@ -38,18 +40,20 @@ func NewRpcClient(opt *RpcClient) *RpcClient {
 
 // Clone 返回 RpcClient 配置的副本
 func (r *RpcClient) Clone() internal.Configurable {
-	var logConfClone *LogConf
-	if r.LogConf != nil {
-		logConfClone = r.LogConf.Clone().(*LogConf) // 确保克隆 LogConf
+	var etcdClone *Etcd
+	if r.Etcd != nil {
+		etcdClone = r.Etcd.Clone().(*Etcd) // 确保克隆 Etcd
 	}
 	return &RpcClient{
-		ModuleName: r.ModuleName,
-		Target:     r.Target,
-		App:        r.App,
-		Token:      r.Token,
-		NonBlock:   r.NonBlock,
-		Timeout:    r.Timeout,
-		LogConf:    logConfClone,
+		ModuleName:    r.ModuleName,
+		Target:        r.Target,
+		App:           r.App,
+		Token:         r.Token,
+		NonBlock:      r.NonBlock,
+		Timeout:       r.Timeout,
+		Etcd:          etcdClone,
+		Endpoints:     r.Endpoints,
+		KeepaliveTime: r.KeepaliveTime,
 	}
 }
 
@@ -67,7 +71,9 @@ func (r *RpcClient) Set(data interface{}) {
 		r.Token = configData.Token
 		r.NonBlock = configData.NonBlock
 		r.Timeout = configData.Timeout
-		r.LogConf = configData.LogConf
+		r.Etcd = configData.Etcd
+		r.Endpoints = configData.Endpoints
+		r.KeepaliveTime = configData.KeepaliveTime
 	}
 }
 

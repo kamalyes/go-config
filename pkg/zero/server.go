@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-10-31 12:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 17:32:18
+ * @LastEditTime: 2024-11-07 17:55:18
  * @FilePath: \go-config\pkg\zero\server.go
  * @Description:
  *
@@ -20,7 +20,7 @@ type RpcServer struct {
 	ListenOn      string      `mapstructure:"listen-on"                yaml:"listen-on"        json:"listen_on"        validate:"required"` // 监听地址
 	Timeout       int64       `mapstructure:"timeout"                  yaml:"timeout"          json:"timeout"          validate:"gte=0"`    // 超时时间，单位毫秒
 	CpuThreshold  int64       `mapstructure:"cpu-threshold"            yaml:"cpu-threshold"    json:"cpu_threshold"    validate:"gte=0"`    // CPU 使用率阈值
-	Etcd          *EtcdConfig `mapstructure:"etcd"                     yaml:"etcd"             json:"etcd"             validate:"required"` // Etcd 配置
+	Etcd          *Etcd       `mapstructure:"etcd"                     yaml:"etcd"             json:"etcd"             validate:"required"` // Etcd 配置
 	Auth          bool        `mapstructure:"auth"                     yaml:"auth"             json:"auth"`                                 // 是否启用认证
 	StrictControl bool        `mapstructure:"strict-control"           yaml:"strict-control"   json:"strict_control"`                       // 是否启用严格控制
 	LogConf       *LogConf    `mapstructure:"log-conf"                 yaml:"log-conf"         json:"log_conf"`                             // Log 配置
@@ -45,7 +45,7 @@ func NewRpcServer(opt *RpcServer) *RpcServer {
 func (r *RpcServer) Clone() internal.Configurable {
 	var (
 		logConfClone    *LogConf
-		etcdConfigClone *EtcdConfig
+		etcdConfigClone *Etcd
 		prometheusClone *Prometheus
 		telemetry       *Telemetry
 	)
@@ -54,7 +54,7 @@ func (r *RpcServer) Clone() internal.Configurable {
 	}
 
 	if r.Etcd != nil {
-		etcdConfigClone = r.Etcd.Clone().(*EtcdConfig) // 确保克隆 EtcdConfig
+		etcdConfigClone = r.Etcd.Clone().(*Etcd) // 确保克隆 EtcdConfig
 	}
 
 	if r.Prometheus != nil {
