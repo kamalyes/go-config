@@ -1,0 +1,5 @@
+kafka:
+  brokers: "GUdqtNOL20"
+  try-times: 54
+  sync-es-topic: "6M2YbVxp77"
+  modulename: "eJw7d3Yz1i"

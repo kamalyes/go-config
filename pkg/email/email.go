@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:35:55
+ * @LastEditTime: 2024-11-07 23:47:34
  * @FilePath: \go-config\pkg\email\email.go
  * @Description:
  *
@@ -17,13 +17,13 @@ import (
 
 // Email 邮件配置结构体
 type Email struct {
-	ModuleName string `mapstructure:"modulename"             yaml:"modulename"          json:"module_name"      validate:"required"`                 // 模块名称
-	To         string `mapstructure:"to"                      yaml:"to"                  json:"to"              validate:"required,email"`           // 收件人:多个以英文逗号分隔
-	From       string `mapstructure:"from"                    yaml:"from"                json:"from"            validate:"required,email"`           // 发件人
-	Host       string `mapstructure:"host"                    yaml:"host"                json:"host"            validate:"required"`                 // 邮件服务器地址
-	Port       int    `mapstructure:"port"                    yaml:"port"                json:"port"            validate:"required,min=1,max=65535"` // 端口
-	Secret     string `mapstructure:"secret"                  yaml:"secret"              json:"secret"          validate:"required"`                 // 密钥
-	IsSSL      bool   `mapstructure:"is-ssl"                  yaml:"is-ssl"             json:"is_ssl"`                                               // 是否SSL
+	To         string `mapstructure:"to"              yaml:"to"              json:"to"              validate:"required,email"`           // 收件人:多个以英文逗号分隔
+	From       string `mapstructure:"from"            yaml:"from"            json:"from"            validate:"required,email"`           // 发件人
+	Host       string `mapstructure:"host"            yaml:"host"            json:"host"            validate:"required"`                 // 邮件服务器地址
+	Port       int    `mapstructure:"port"            yaml:"port"            json:"port"            validate:"required,min=1,max=65535"` // 端口
+	Secret     string `mapstructure:"secret"          yaml:"secret"          json:"secret"          validate:"required"`                 // 密钥
+	IsSSL      bool   `mapstructure:"is-ssl"          yaml:"is-ssl"          json:"is_ssl"`                                              // 是否SSL
+	ModuleName string `mapstructure:"modulename"      yaml:"modulename"      json:"module_name"`                                         // 模块名称
 }
 
 // NewEmail 创建一个新的 Email 实例

@@ -17,13 +17,13 @@ import (
 
 // AliyunOss 结构体用于配置 AliyunOss 服务器的相关参数
 type AliyunOss struct {
-	ModuleName          string `mapstructure:"modulename"         yaml:"modulename"      json:"module_name"      validate:"required"` // 模块名称
 	AccessKey           string `mapstructure:"access-key"         yaml:"access-key"      json:"access_key"       validate:"required"` // 签名用的 key
 	SecretKey           string `mapstructure:"secret-key"         yaml:"secret-key"      json:"secret_key"       validate:"required"` // 签名用的钥匙
 	Endpoint            string `mapstructure:"endpoint"           yaml:"endpoint"        json:"endpoint"`                             // 地区
 	Bucket              string `mapstructure:"bucket"             yaml:"bucket"          json:"bucket"`                               // 桶
 	ReplaceOriginalHost string `mapstructure:"replace-original-host" yaml:"replace-original-host" json:"replace_original_host"`       // 替换的原始主机
-	ReplaceLaterHost    string `mapstructure:"replace-later-host"   yaml:"replace-later-host"   json:"replace_later_host"`            // 替换后的主机
+	ReplaceLaterHost    string `mapstructure:"replace-later-host" yaml:"replace-later-host"   json:"replace_later_host"`              // 替换后的主机
+	ModuleName          string `mapstructure:"modulename"         yaml:"modulename" json:"module_name"`                               // 模块名称
 }
 
 // NewMinio 创建一个新的 AliyunOss 实例

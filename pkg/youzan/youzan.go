@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-10-31 12:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:37:55
+ * @LastEditTime: 2024-11-07 23:54:29
  * @FilePath: \go-config\pkg\youzan\youzan.go
  * @Description:
  *
@@ -17,13 +17,13 @@ import (
 
 // YouZan 结构体表示 YouZan 配置
 type YouZan struct {
-	ModuleName    string `mapstructure:"modulename"              yaml:"modulename"          json:"module_name"           validate:"required"`      // 模块名称
 	Host          string `mapstructure:"host"                     yaml:"host"                json:"host"                  validate:"required,url"` // Host，必须是有效的 URL
 	ClientID      string `mapstructure:"client-id"                yaml:"client-id"           json:"client_id"             validate:"required"`     // 客户端 ID
 	ClientSecret  string `mapstructure:"client-secret"            yaml:"client-secret"       json:"client_secret"         validate:"required"`     // 客户端密钥
 	AuthorizeType string `mapstructure:"authorize-type"           yaml:"authorize-type"      json:"authorize_type"        validate:"required"`     // 授权类型
 	GrantID       string `mapstructure:"grant-id"                 yaml:"grant-id"            json:"grant_id"              validate:"required"`     // 授权 ID
 	Refresh       bool   `mapstructure:"refresh"                  yaml:"refresh"             json:"refresh"`                                       // 是否刷新
+	ModuleName    string `mapstructure:"modulename"               yaml:"modulename"          json:"module_name"`                                   // 模块名称
 }
 
 // NewYouZan 创建一个新的 YouZan 实例

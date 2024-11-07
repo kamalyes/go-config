@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:39:39
+ * @LastEditTime: 2024-11-07 23:50:29
  * @FilePath: \go-config\pkg\pay\alipay.go
  * @Description:
  *
@@ -17,7 +17,6 @@ import (
 
 // AliPay 结构体用于配置支付宝支付相关参数
 type AliPay struct {
-	ModuleName string `mapstructure:"modulename"        yaml:"modulename"     json:"module_name"     validate:"required"`                 // 模块名称
 	Pid        string `mapstructure:"pid"                yaml:"pid"            json:"pid"             validate:"required"`                // 商户 PID，即商户的账号 ID
 	AppId      string `mapstructure:"app-id"             yaml:"app-id"         json:"app_id"          validate:"required"`                // 应用 ID
 	PriKey     string `mapstructure:"pri-key"            yaml:"pri-key"        json:"pri_key"         validate:"required"`                // 私钥
@@ -25,6 +24,7 @@ type AliPay struct {
 	SignType   string `mapstructure:"sign-type"          yaml:"sign-type"      json:"sign_type"       validate:"required,oneof=RSA2 RSA"` // 签名方式，支持 RSA2 和 RSA
 	NotifyUrl  string `mapstructure:"notify-url"         yaml:"notify-url"     json:"notify_url"      validate:"required,url"`            // 支付宝回调的 URL
 	Subject    string `mapstructure:"subject"            yaml:"subject"        json:"subject"`                                            // 默认订单标题
+	ModuleName string `mapstructure:"modulename"         yaml:"modulename"     json:"module_name"`                                        // 模块名称
 }
 
 // NewAliPay 创建一个新的 AliPay 实例

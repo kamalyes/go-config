@@ -17,7 +17,6 @@ import (
 
 // Zap 结构体表示 Zap 日志配置
 type Zap struct {
-	ModuleName    string `mapstructure:"modulename"               yaml:"modulename"          json:"module_name"           validate:"required"`                                   // 模块名称
 	Level         string `mapstructure:"level"                    yaml:"level"               json:"level"                 validate:"required,oneof=debug info warn error fatal"` // 日志级别
 	Format        string `mapstructure:"format"                   yaml:"format"              json:"format"                validate:"required,oneof=json console"`                // 日志格式
 	Prefix        string `mapstructure:"prefix"                   yaml:"prefix"              json:"prefix"`                                                                      // 日志前缀
@@ -31,6 +30,7 @@ type Zap struct {
 	EncodeLevel   string `mapstructure:"encode-level"             yaml:"encode-level"        json:"encode_level"`                                                                // 日志编码等级，指定不通过等级可以有不同颜色
 	StacktraceKey string `mapstructure:"stacktrace-key"           yaml:"stacktrace-key"      json:"stacktrace_key"`                                                              // 堆栈捕捉标识
 	LogInConsole  bool   `mapstructure:"log-in-console"           yaml:"log-in-console"      json:"log_in_console"`                                                              // 是否在控制台打印日志
+	ModuleName    string `mapstructure:"modulename"               yaml:"modulename"          json:"module_name"`                                                                 // 模块名称
 }
 
 // NewZap 创建一个新的 Zap 实例

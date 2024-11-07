@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:31:58
+ * @LastEditTime: 2024-11-07 23:50:03
  * @FilePath: \go-config\pkg\oss\minio.go
  * @Description:
  *
@@ -17,11 +17,11 @@ import (
 
 // Minio 结构体用于配置 Minio 服务器的相关参数
 type Minio struct {
-	ModuleName string `mapstructure:"modulename"        yaml:"modulename"      json:"module_name"      validate:"required"`                  // 模块名称
 	Host       string `mapstructure:"host"               yaml:"host"            json:"host"             validate:"required"`                 // 主机
 	Port       int    `mapstructure:"port"               yaml:"port"            json:"port"             validate:"required,min=1,max=65535"` // 端口，范围 1-65535
 	AccessKey  string `mapstructure:"access-key"         yaml:"access-key"      json:"access_key"       validate:"required"`                 // 签名用的 key
 	SecretKey  string `mapstructure:"secret-key"         yaml:"secret-key"      json:"secret_key"       validate:"required"`                 // 签名用的钥匙
+	ModuleName string `mapstructure:"modulename"         yaml:"modulename"      json:"module_name"`                                          // 模块名称
 }
 
 // NewMinio 创建一个新的 Minio 实例

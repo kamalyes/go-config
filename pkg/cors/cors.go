@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:53:07
+ * @LastEditTime: 2024-11-07 23:55:58
  * @FilePath: \go-config\pkg\cors\cors.go
  * @Description:
  *
@@ -17,7 +17,6 @@ import (
 
 // Cors 跨域资源共享配置
 type Cors struct {
-	ModuleName          string   `mapstructure:"modulename"            yaml:"modulename"            json:"module_name"           validate:"required"`      // 模块名称
 	AllowedOrigins      []string `mapstructure:"allowed-origins"       yaml:"allowed-origins"       json:"allowed_origins"       validate:"dive,required"` // 允许的来源
 	AllowedMethods      []string `mapstructure:"allowed-methods"       yaml:"allowed-methods"       json:"allowed_methods"       validate:"dive,required"` // 允许的方法
 	AllowedHeaders      []string `mapstructure:"allowed-headers"       yaml:"allowed-headers"       json:"allowed_headers"       validate:"dive,required"` // 允许的头部
@@ -27,6 +26,7 @@ type Cors struct {
 	ExposedHeaders      []string `mapstructure:"exposed-headers"       yaml:"exposed-headers"       json:"exposed_headers"`                                // 暴露的头部
 	AllowCredentials    bool     `mapstructure:"allow-credentials"     yaml:"allow-credentials"     json:"allow_credentials"`                              // 允许凭证
 	OptionsResponseCode int      `mapstructure:"options-response-code"  yaml:"options-response-code" json:"options_response_code"`                         // Options响应Code
+	ModuleName          string   `mapstructure:"modulename"            yaml:"modulename"            json:"module_name"`                                    // 模块名称
 }
 
 // NewCors 创建一个新的 Cors 实例

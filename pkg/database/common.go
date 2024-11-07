@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-11-03 20:55:05
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 21:15:56
+ * @LastEditTime: 2024-11-07 23:50:15
  * @FilePath: \go-config\pkg\database\common.go
  * @Description:
  *
@@ -21,7 +21,6 @@ const (
 
 // DBConfig 数据库配置结构体
 type DBConfig struct {
-	ModuleName      string `mapstructure:"modulename"          yaml:"modulename"          json:"module_name"     validate:"required"`  // 模块名称
 	Host            string `mapstructure:"host"                yaml:"host"                json:"host"            validate:"required"`  // 数据库 IP 地址
 	Port            string `mapstructure:"port"                yaml:"port"                json:"port"            validate:"required"`  // 端口
 	Config          string `mapstructure:"config"              yaml:"config"              json:"config"          validate:"required"`  // 后缀配置 默认配置 charset=utf8mb4&parseTime=True&loc=Local
@@ -35,6 +34,7 @@ type DBConfig struct {
 	ConnMaxLifeTime int    `mapstructure:"conn-max-life-time"  yaml:"conn-max-life-time"  json:"conn_max_life_time" validate:"min=0"`  // 连接最大生命周期 单位：秒
 	DbPath          string `mapstructure:"db-path"             yaml:"db-path"             json:"db_path"          validate:"required"` // SQLite 文件存放位置
 	Vacuum          bool   `mapstructure:"vacuum"              yaml:"vacuum"              json:"vacuum"`                               // 是否执行清除命令
+	ModuleName      string `mapstructure:"modulename"          yaml:"modulename"          json:"module_name"`                          // 模块名称
 }
 
 // DBConfigInterface 定义一个接口以统一不同数据库的配置

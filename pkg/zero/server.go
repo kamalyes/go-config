@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-10-31 12:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 17:55:18
+ * @LastEditTime: 2024-11-07 23:56:26
  * @FilePath: \go-config\pkg\zero\server.go
  * @Description:
  *
@@ -16,7 +16,6 @@ import (
 
 // RpcServer 结构体表示 RPC 服务器的配置
 type RpcServer struct {
-	ModuleName    string      `mapstructure:"modulename"               yaml:"modulename"       json:"module_name"      validate:"required"` // 模块名称
 	ListenOn      string      `mapstructure:"listen-on"                yaml:"listen-on"        json:"listen_on"        validate:"required"` // 监听地址
 	Timeout       int64       `mapstructure:"timeout"                  yaml:"timeout"          json:"timeout"          validate:"gte=0"`    // 超时时间，单位毫秒
 	CpuThreshold  int64       `mapstructure:"cpu-threshold"            yaml:"cpu-threshold"    json:"cpu_threshold"    validate:"gte=0"`    // CPU 使用率阈值
@@ -29,6 +28,7 @@ type RpcServer struct {
 	MetricsUrl    string      `mapstructure:"metrics-url"              yaml:"metrics-url"      json:"metrics_url"`                          // 指标 URL
 	Prometheus    *Prometheus `mapstructure:"prometheus"               yaml:"prometheus"       json:"prometheus"`                           // Prometheus 配置
 	Telemetry     *Telemetry  `mapstructure:"telemetry"                yaml:"telemetry"        json:"telemetry"`                            // 追踪配置
+	ModuleName    string      `mapstructure:"modulename"               yaml:"modulename"       json:"module_name"`                          // 模块名称
 }
 
 // NewRpcServer 创建一个新的 RpcServer 实例

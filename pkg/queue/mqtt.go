@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 10:11:00
+ * @LastEditTime: 2024-11-07 23:51:09
  * @FilePath: \go-config\pkg\queue\mqtt.go
  * @Description:
  *
@@ -17,7 +17,6 @@ import (
 
 // Mqtt 结构体用于配置 MQTT 相关参数
 type Mqtt struct {
-	ModuleName           string `mapstructure:"modulename"              yaml:"modulename"      json:"module_name"      validate:"required"`            // 模块名称
 	Url                  string `mapstructure:"url"                      yaml:"url"             json:"url"             validate:"required,url"`        // Mqtt 代理服务器的 IP 和端口
 	ProtocolVersion      uint   `mapstructure:"protocol-version"         yaml:"protocol-ver"    json:"protocol_version" validate:"required"`           // Mqtt 协议版本号，4 是 3.1.1，3 是 3.1
 	KeepAlive            int    `mapstructure:"keep-alive"               yaml:"keep-alive"      json:"keep_alive"      validate:"required,min=1"`      // 保活时间间隔，最小值为 1 秒
@@ -30,6 +29,7 @@ type Mqtt struct {
 	CleanSession         bool   `mapstructure:"clean-session"            yaml:"clean-session"   json:"clean_session"`                                  // 设置客户端掉线服务端是否清除 session
 	AutoReconnect        bool   `mapstructure:"auto-reconnect"           yaml:"auto-reconnect"  json:"auto_reconnect"`                                 // 断开后是否重新连接
 	WillTopic            string `mapstructure:"will-topic"               yaml:"will-topic"      json:"will_topic"`                                     // 遗言发送的 topic
+	ModuleName           string `mapstructure:"modulename"               yaml:"modulename"      json:"module_name"`                                    // 模块名称
 }
 
 // NewMqtt 创建一个新的 Mqtt 实例

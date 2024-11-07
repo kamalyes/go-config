@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 22:33:07
+ * @LastEditTime: 2024-11-07 23:55:15
  * @FilePath: \go-config\internal\common.go
  * @Description:
  *

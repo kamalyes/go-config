@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 11:36:21
+ * @LastEditTime: 2024-11-07 23:50:51
  * @FilePath: \go-config\pkg\pay\wechat.go
  * @Description:
  *
@@ -17,12 +17,12 @@ import (
 
 // WechatPay 结构体用于配置微信支付相关参数
 type WechatPay struct {
-	ModuleName  string `mapstructure:"modulename"        yaml:"modulename"      json:"module_name"      validate:"required"`    // 模块名称
 	AppId       string `mapstructure:"app-id"             yaml:"app-id"         json:"app_id"          validate:"required"`     // 应用 ID
 	MchId       string `mapstructure:"mch-id"             yaml:"mch-id"         json:"mch_id"          validate:"required"`     // 微信商户号
 	NotifyUrl   string `mapstructure:"notify-url"         yaml:"notify-url"     json:"notify_url"      validate:"required,url"` // 微信回调的 URL
 	ApiKey      string `mapstructure:"api-key"            yaml:"api-key"        json:"api_key"         validate:"required"`     // 签名用的 key
 	CertP12Path string `mapstructure:"cert-p12-path"      yaml:"cert-p12-path"  json:"cert_p12_path"   validate:"required"`     // 微信 P12 密钥文件存放位置
+	ModuleName  string `mapstructure:"modulename"         yaml:"modulename"     json:"module_name"`                             // 模块名称
 }
 
 // NewWechatPay 创建一个新的 Wechat 实例

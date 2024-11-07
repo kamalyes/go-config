@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:57:46
+ * @LastEditTime: 2024-11-07 23:56:59
  * @FilePath: \go-config\pkg\database\mysql.go
  * @Description:
  *
@@ -17,7 +17,6 @@ import (
 
 // MySQL 数据库配置
 type MySQL struct {
-	ModuleName      string `mapstructure:"modulename"          yaml:"modulename"          json:"module_name"     validate:"required"` // 模块名称
 	Host            string `mapstructure:"host"                yaml:"host"                json:"host"            validate:"required"` // 数据库 IP 地址
 	Port            string `mapstructure:"port"                yaml:"port"                json:"port"            validate:"required"` // 端口
 	Config          string `mapstructure:"config"              yaml:"config"              json:"config"          validate:"required"` // 后缀配置 默认配置 charset=utf8mb4&parseTime=True&loc=Local
@@ -29,6 +28,7 @@ type MySQL struct {
 	MaxOpenConns    int    `mapstructure:"max-open-conns"      yaml:"max-open-conns"      json:"max_open_conns"  validate:"min=0"`    // 最大连接数
 	ConnMaxIdleTime int    `mapstructure:"conn-max-idle-time"  yaml:"conn-max-idle-time"  json:"conn_max_idle_time" validate:"min=0"` // 连接最大空闲时间 单位：秒
 	ConnMaxLifeTime int    `mapstructure:"conn-max-life-time"  yaml:"conn-max-life-time"  json:"conn_max_life_time" validate:"min=0"` // 连接最大生命周期 单位：秒
+	ModuleName      string `mapstructure:"modulename"          yaml:"modulename"          json:"module_name"`                         // 模块名称
 }
 
 // NewMySQL 创建一个新的 MySQL 实例

@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 17:20:57
+ * @LastEditTime: 2024-11-07 23:30:50
  * @FilePath: \go-config\pkg\database\postgre.go
  * @Description:
  *
@@ -17,7 +17,6 @@ import (
 
 // PostgreSQL 数据库配置结构体
 type PostgreSQL struct {
-	ModuleName      string `mapstructure:"modulename"              yaml:"modulename"          json:"module_name"      validate:"required"` // 模块名称
 	Host            string `mapstructure:"host"                     yaml:"host"                json:"host"            validate:"required"` // 数据库IP地址
 	Port            string `mapstructure:"port"                     yaml:"port"                json:"port"            validate:"required"` // 端口
 	Config          string `mapstructure:"config"                   yaml:"config"              json:"config"          validate:"required"` // 后缀配置
@@ -29,6 +28,7 @@ type PostgreSQL struct {
 	MaxOpenConns    int    `mapstructure:"max-open-conns"           yaml:"max-open-conns"      json:"max_open_conns"  validate:"min=0"`    // 最大连接数
 	ConnMaxIdleTime int    `mapstructure:"conn-max-idle-time"       yaml:"conn-max-idle-time"  json:"conn_max_idle_time" validate:"min=0"` // 连接最大空闲时间（秒）
 	ConnMaxLifeTime int    `mapstructure:"conn-max-life-time"       yaml:"conn-max-life-time"  json:"conn_max_life_time" validate:"min=0"` // 连接最大生命周期（秒）
+	ModuleName      string `mapstructure:"modulename"               yaml:"modulename"          json:"module_name"`                         // 模块名称
 }
 
 // NewPostgreSQL 创建一个新的 PostgreSQL 实例

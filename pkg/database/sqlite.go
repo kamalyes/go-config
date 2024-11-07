@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 21:01:59
+ * @LastEditTime: 2024-11-07 23:20:10
  * @FilePath: \go-config\pkg\database\sqlite.go
  * @Description:
  *
@@ -17,7 +17,6 @@ import (
 
 // SQLite 数据库配置结构体
 type SQLite struct {
-	ModuleName      string `mapstructure:"modulename"              yaml:"modulename"          json:"module_name"      validate:"required"`  // 模块名称
 	DbPath          string `mapstructure:"db-path"                  yaml:"db-path"             json:"db_path"          validate:"required"` // SQLite 文件存放位置
 	MaxIdleConns    int    `mapstructure:"max-idle-conns"           yaml:"max-idle-conns"      json:"max_idle_conns"   validate:"min=0"`    // 最大空闲连接数
 	MaxOpenConns    int    `mapstructure:"max-open-conns"           yaml:"max-open-conns"      json:"max_open_conns"   validate:"min=0"`    // 最大连接数
@@ -25,6 +24,7 @@ type SQLite struct {
 	ConnMaxIdleTime int    `mapstructure:"conn-max-idle-time"       yaml:"conn-max-idle-time"  json:"conn_max_idle_time" validate:"min=0"`  // 连接最大空闲时间（秒）
 	ConnMaxLifeTime int    `mapstructure:"conn-max-life-time"       yaml:"conn-max-life-time"  json:"conn_max_life_time" validate:"min=0"`  // 连接最大生命周期（秒）
 	Vacuum          bool   `mapstructure:"vacuum"                   yaml:"vacuum"              json:"vacuum"`                               // 是否执行清除命令
+	ModuleName      string `mapstructure:"modulename"               yaml:"modulename"          json:"module_name"`                          // 模块名称
 }
 
 // NewSQLite 创建一个新的 SQLite 实例

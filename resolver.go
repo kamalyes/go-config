@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 17:05:59
+ * @LastEditTime: 2024-11-07 23:18:37
  * @FilePath: \go-config\resolver.go
  * @Description:
  *
@@ -72,7 +72,7 @@ func GetDefaultConfigOptions() *ConfigOptions {
 // NewMultiConfigManager 创建一个新的 MultiConfigManager
 func NewMultiConfigManager(ctx context.Context, options *ConfigOptions) (*MultiConfigManager, error) {
 	mcm := &MultiConfigManager{}
-	if err := mcm.initialize(ctx, options, &MultiConfig{}); err != nil {
+	if err := mcm.initialize(options, &MultiConfig{}); err != nil {
 		return nil, err
 	}
 	return mcm, nil
@@ -81,16 +81,16 @@ func NewMultiConfigManager(ctx context.Context, options *ConfigOptions) (*MultiC
 // NewSingleConfigManager 创建一个新的 SingleConfigManager
 func NewSingleConfigManager(ctx context.Context, options *ConfigOptions) (*SingleConfigManager, error) {
 	scm := &SingleConfigManager{}
-	if err := scm.initialize(ctx, options, &SingleConfig{}); err != nil {
+	if err := scm.initialize(options, &SingleConfig{}); err != nil {
 		return nil, err
 	}
 	return scm, nil
 }
 
 // initialize 初始化配置选项并加载配置
-func (m *MultiConfigManager) initialize(ctx context.Context, options *ConfigOptions, config interface{}) error {
+func (m *MultiConfigManager) initialize(options *ConfigOptions, config interface{}) error {
 	m.Options = initializeConfigOptions(options)
-	multiConfig, newOptions, err := loadConfig(ctx, config, m.Options)
+	multiConfig, newOptions, err := loadConfig(config, m.Options)
 	if err != nil {
 		return err
 	}
@@ -99,9 +99,9 @@ func (m *MultiConfigManager) initialize(ctx context.Context, options *ConfigOpti
 	return nil
 }
 
-func (m *SingleConfigManager) initialize(ctx context.Context, options *ConfigOptions, config interface{}) error {
+func (m *SingleConfigManager) initialize(options *ConfigOptions, config interface{}) error {
 	m.Options = initializeConfigOptions(options)
-	singleConfig, newOptions, err := loadConfig(ctx, config, m.Options)
+	singleConfig, newOptions, err := loadConfig(config, m.Options)
 	if err != nil {
 		return err
 	}
@@ -146,7 +146,7 @@ func initializeConfigOptions(options *ConfigOptions) ConfigOptions {
 }
 
 // loadConfig 加载配置文件并返回相应的配置对象
-func loadConfig(ctx context.Context, config interface{}, options ConfigOptions) (interface{}, ConfigOptions, error) {
+func loadConfig(config interface{}, options ConfigOptions) (interface{}, ConfigOptions, error) {
 	// 获取OS环境变量中的值
 	osEnv := env.GetEnvironment()
 	// 使用变量将Os值存起来为当前

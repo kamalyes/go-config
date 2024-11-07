@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-11-07 15:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 18:18:50
+ * @LastEditTime: 2024-11-08 00:03:22
  * @FilePath: \go-config\pkg\zero\restful.go
  * @Description:
  *
@@ -25,6 +25,7 @@ type Restful struct {
 	Timeout      int64      `mapstructure:"timeout"    yaml:"timeout"    json:"timeout"`             // 超时时间
 	CpuThreshold int64      `mapstructure:"cpu_threshold" yaml:"cpu_threshold" json:"cpu_threshold"` // CPU 阈值
 	Signature    *Signature `mapstructure:"signature"  yaml:"signature"  json:"signature"`           // 签名配置
+	ModuleName   string     `mapstructure:"modulename" yaml:"modulename" json:"module_name"`         // 模块名称
 }
 
 // NewRestful 创建一个新的 Restful 实例

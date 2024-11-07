@@ -434,3 +434,25 @@ zerorestful:
     private-keys:
       - fingerprint: "Ohbqo770x7"
         key-file: "MqJrsscC16"
+
+kafka:
+  brokers: "GUdqtNOL20"
+  try-times: 54
+  sync-es-topic: "6M2YbVxp77"
+  modulename: "eJw7d3Yz1i"
+
+elasticsearch:
+  url: "lWNNDuT8eD"
+  health-check: 18
+  sniff: true
+  gzip: true
+  timeout: "k0NPkGPU6E"
+  modulename: "CHIzrdR0ZR"
+
+jaeger:
+  type: "3A5Odsz35V"
+  param: 46
+  log-spans: true
+  local-agent-host-port: "kK9VFekR4m"
+  service: "fqIBNKiiiR"
+  modulename: "wa51ULK6ub"
