@@ -1,5 +1,5 @@
 # AliyunOss 配置示例
-aliyun-oss:
+aliyunoss:
   # 模块名称
   modulename: "example_module"
   # 签名用的 key

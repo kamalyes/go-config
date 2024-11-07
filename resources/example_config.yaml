@@ -322,52 +322,110 @@ aliyunsms:
 
 # RPC 服务器配置
 zeroserver:
-  listen-on: 127.0.0.1:9090          # 监听地址
-  auth: true                         # 是否启用认证
-  strict-control: false              # 是否启用严格控制
-  timeout: 2000                      # 超时时间（毫秒）
-  cpu-threshold: 900                 # CPU 使用率阈值
-  etcd:                              # Etcd 配置
-    hosts:                           # Etcd 主机列表
-      - localhost:2379
-    key: go.rpc                      # 注册的键
+  modulename: a1b2c3d4e5
+  listen-on: localhost:8080
+  timeout: 5000
+  cpu-threshold: 75
+  etcd:
+    hosts:
+      - etcd1.example.com
+      - etcd2.example.com
+      - etcd3.example.com
+    key: myEtcdKey123
+  auth: true
+  strict-control: false
   log-conf:
-    service-name: "base"                 # 服务名称
-    mode: "console"                      # 日志模式，默认是 console
-    encoding: "json"                     # 编码类型，默认是 json
-    time-format: "2006-01-02T15:04:05.000Z07:00"  # 时间格式，默认值
-    path: "logs"                         # 日志文件路径，默认是 logs
-    level: "info"                        # 日志级别，默认是 info
-    max-content-length: 0                # 最大内容字节数，默认无限制
-    compress: false                      # 是否压缩日志文件，默认是 false
-    stat: true                           # 是否记录统计信息，默认是 true
-    keep-days: 0                         # 日志文件保留天数，默认保留所有文件
-    stack-cooldown-millis: 100           # 堆栈日志冷却时间，默认是 100ms
-    max-backups: 0                       # 备份日志文件数量，0 表示所有文件永久保留
-    max-size: 0                          # 写入日志文件的最大空间，0 表示无限制，单位是 MB
-    rotation: "daily"                    # 日志轮换规则类型，默认是 daily
-    file-time-format: "2006-01-02T15:04:05.000Z07:00"  # 文件名的时间格式，默认值
+    service-name: MyService
+    mode: production
+    encoding: json
+    time-format: RFC3339
+    path: /var/log/myservice.log
+    level: info
+    max-content-length: 1048576
+    compress: true
+    stat: true
+    keep-days: 30
+    stack-cooldown-millis: 1000
+    max-backups: 10
+    max-size: 10
+    rotation: daily
+    file-time-format: "2006-01-02"
+  name: MyZeroServer
+  mode: development
+  metrics-url: http://localhost:9090/metrics
+  prometheus:
+    enabled: true
+  telemetry:
+    enabled: true
 
 # RPC 客户端配置
 zeroclient:
-  target: 127.0.0.1:9090             # 目标地址
-  app: go-client                     # 应用名称
-  token: my-secret-token             # 认证令牌
-  non-block: false                   # 是否非阻塞
-  timeout: 2000                      # 超时时间（毫秒）
+  modulename: clientModule123
+  target: http://api.example.com
+  app: MyApp
+  token: secureToken123
+  timeout: 3000
+  non-block: false
   log-conf:
-    service-name: "base"                 # 服务名称
-    mode: "console"                      # 日志模式，默认是 console
-    encoding: "json"                     # 编码类型，默认是 json
-    time-format: "2006-01-02T15:04:05.000Z07:00"  # 时间格式，默认值
-    path: "logs"                         # 日志文件路径，默认是 logs
-    level: "info"                        # 日志级别，默认是 info
-    max-content-length: 0                # 最大内容字节数，默认无限制
-    compress: false                      # 是否压缩日志文件，默认是 false
-    stat: true                           # 是否记录统计信息，默认是 true
-    keep-days: 0                         # 日志文件保留天数，默认保留所有文件
-    stack-cooldown-millis: 100           # 堆栈日志冷却时间，默认是 100ms
-    max-backups: 0                       # 备份日志文件数量，0 表示所有文件永久保留
-    max-size: 0                          # 写入日志文件的最大空间，0 表示无限制，单位是 MB
-    rotation: "daily"                    # 日志轮换规则类型，默认是 daily
-    file-time-format: "2006-01-02T15:04:05.000Z07:00"  # 文件名的时间格式，默认值
+    service-name: ClientService
+    mode: development
+    encoding: text
+    time-format: "2006-01-02 15:04:05"
+    path: /var/log/clientservice.log
+    level: debug
+    max-content-length: 524288
+    compress: false
+    stat: false
+    keep-days: 14
+    stack-cooldown-millis: 500
+    max-backups: 5
+    max-size: 5
+    rotation: hourly
+    file-time-format: "2006-01-02 15"
+
+# RESTFUL
+zerorestful:
+  rpc-server:
+    modulename: rpcModule456
+    listen-on: 0.0.0.0:9000
+    timeout: 10000
+    cpu-threshold: 80
+    etcd:
+      hosts:
+        - etcd.example.com
+      key: rpcEtcdKey456
+    auth: true
+    strict-control: true
+    log-conf:
+      service-name: RestfulService
+      mode: production
+      encoding: json
+      time-format: RFC3339
+      path: /var/log/restfulservice.log
+      level: warn
+      max-content-length: 1048576
+      compress: true
+      stat: true
+      keep-days: 30
+      stack-cooldown-millis: 2000
+      max-backups: 15
+      max-size: 20
+      rotation: weekly
+      file-time-format: "2006-01-02"
+    name: MyRPCServer
+    mode: production
+    metrics-url: http://localhost:9090/metrics
+    prometheus:
+      enabled: true
+    telemetry:
+      enabled: true
+  host: 127.0.0.1
+  port: 8081
+  cert-file: /etc/ssl/certs/mycert.pem
+  key-file: /etc/ssl/private/mykey.pem
+  verbose: false
+  max-conns: 100
+  max-bytes: 10485760
+  timeout: 5000
+  cpu-threshold: 70
+  signature: mySignature123

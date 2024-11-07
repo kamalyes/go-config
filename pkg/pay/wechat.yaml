@@ -1,5 +1,5 @@
 #微信支付参数配置
-wechat:
+wechatpay:
   # 模块名称
   modulename: "common"
   # 应用id

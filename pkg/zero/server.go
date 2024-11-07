@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-10-31 12:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-06 15:19:15
+ * @LastEditTime: 2024-11-07 17:32:18
  * @FilePath: \go-config\pkg\zero\server.go
  * @Description:
  *
@@ -26,6 +26,9 @@ type RpcServer struct {
 	LogConf       *LogConf    `mapstructure:"log-conf"                 yaml:"log-conf"         json:"log_conf"`                             // Log 配置
 	Name          string      `mapstructure:"name"                     yaml:"name"             json:"name"`                                 // 服务器名称
 	Mode          string      `mapstructure:"mode"                     yaml:"mode"             json:"mode"`                                 // 运行模式
+	MetricsUrl    string      `mapstructure:"metrics-url"              yaml:"metrics-url"      json:"metrics_url"`                          // 指标 URL
+	Prometheus    *Prometheus `mapstructure:"prometheus"               yaml:"prometheus"       json:"prometheus"`                           // Prometheus 配置
+	Telemetry     *Telemetry  `mapstructure:"telemetry"                yaml:"telemetry"        json:"telemetry"`                            // 追踪配置
 }
 
 // NewRpcServer 创建一个新的 RpcServer 实例
@@ -43,6 +46,8 @@ func (r *RpcServer) Clone() internal.Configurable {
 	var (
 		logConfClone    *LogConf
 		etcdConfigClone *EtcdConfig
+		prometheusClone *Prometheus
+		telemetry       *Telemetry
 	)
 	if r.LogConf != nil {
 		logConfClone = r.LogConf.Clone().(*LogConf) // 确保克隆 LogConf
@@ -51,6 +56,15 @@ func (r *RpcServer) Clone() internal.Configurable {
 	if r.Etcd != nil {
 		etcdConfigClone = r.Etcd.Clone().(*EtcdConfig) // 确保克隆 EtcdConfig
 	}
+
+	if r.Prometheus != nil {
+		prometheusClone = r.Prometheus.Clone().(*Prometheus) // 确保克隆 Prometheus
+	}
+
+	if r.Telemetry != nil {
+		telemetry = r.Telemetry.Clone().(*Telemetry) // 确保克隆 Telemetry
+	}
+
 	return &RpcServer{
 		ModuleName:    r.ModuleName,
 		ListenOn:      r.ListenOn,
@@ -62,6 +76,9 @@ func (r *RpcServer) Clone() internal.Configurable {
 		LogConf:       logConfClone,
 		Name:          r.Name,
 		Mode:          r.Mode,
+		MetricsUrl:    r.MetricsUrl,
+		Prometheus:    prometheusClone,
+		Telemetry:     telemetry,
 	}
 }
 
@@ -83,6 +100,9 @@ func (r *RpcServer) Set(data interface{}) {
 		r.LogConf = configData.LogConf
 		r.Name = configData.Name
 		r.Mode = configData.Mode
+		r.MetricsUrl = configData.MetricsUrl
+		r.Prometheus = configData.Prometheus
+		r.Telemetry = configData.Telemetry
 	}
 }
 
