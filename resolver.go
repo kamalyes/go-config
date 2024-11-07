@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 16:08:11
+ * @LastEditTime: 2024-11-07 17:05:59
  * @FilePath: \go-config\resolver.go
  * @Description:
  *
@@ -25,7 +25,15 @@ const (
 	defaultConfigSuffix = "_config"     // 默认配置文件后缀
 	defaultConfigType   = "yaml"        // 默认配置文件类型
 	defaultConfigPath   = "./resources" // 默认配置文件路径
+	defaultUseEnvLevel  = EnvLevelOS
 )
+
+const (
+	EnvLevelOS  EnvLevel = "os"
+	EnvLevelCtx EnvLevel = "ctx"
+)
+
+type EnvLevel string
 
 // ConfigOptions 定义配置选项结构体
 type ConfigOptions struct {
@@ -34,6 +42,19 @@ type ConfigOptions struct {
 	ConfigSuffix  string              // 配置文件后缀
 	EnvValue      env.EnvironmentType // 初始化环境
 	EnvContextKey env.ContextKey      // 环境上下文Key
+	UseEnvLevel   EnvLevel            // 使用环境级别，值为 "os" 或 "ctx"
+}
+
+// MultiConfigManager 负责加载和管理 MultiConfig
+type MultiConfigManager struct {
+	MultiConfig *MultiConfig
+	Options     ConfigOptions
+}
+
+// SingleConfigManager 负责加载和管理 SingleConfig
+type SingleConfigManager struct {
+	SingleConfig *SingleConfig
+	Options      ConfigOptions
 }
 
 // GetDefaultConfigOptions 返回 ConfigOptions 的默认值
@@ -44,13 +65,8 @@ func GetDefaultConfigOptions() *ConfigOptions {
 		ConfigPath:    defaultConfigPath,
 		EnvValue:      env.DefaultEnv,
 		EnvContextKey: env.GetContextKey(),
+		UseEnvLevel:   defaultUseEnvLevel,
 	}
-}
-
-// MultiConfigManager 负责加载和管理 MultiConfig
-type MultiConfigManager struct {
-	MultiConfig *MultiConfig
-	Options     ConfigOptions
 }
 
 // NewMultiConfigManager 创建一个新的 MultiConfigManager
@@ -60,12 +76,6 @@ func NewMultiConfigManager(ctx context.Context, options *ConfigOptions) (*MultiC
 		return nil, err
 	}
 	return mcm, nil
-}
-
-// SingleConfigManager 负责加载和管理 SingleConfig
-type SingleConfigManager struct {
-	SingleConfig *SingleConfig
-	Options      ConfigOptions
 }
 
 // NewSingleConfigManager 创建一个新的 SingleConfigManager
@@ -80,20 +90,22 @@ func NewSingleConfigManager(ctx context.Context, options *ConfigOptions) (*Singl
 // initialize 初始化配置选项并加载配置
 func (m *MultiConfigManager) initialize(ctx context.Context, options *ConfigOptions, config interface{}) error {
 	m.Options = initializeConfigOptions(options)
-	multiConfig, err := loadConfig(ctx, config, m.Options)
+	multiConfig, newOptions, err := loadConfig(ctx, config, m.Options)
 	if err != nil {
 		return err
 	}
+	m.Options = newOptions
 	m.MultiConfig = multiConfig.(*MultiConfig) // 类型断言
 	return nil
 }
 
 func (m *SingleConfigManager) initialize(ctx context.Context, options *ConfigOptions, config interface{}) error {
 	m.Options = initializeConfigOptions(options)
-	singleConfig, err := loadConfig(ctx, config, m.Options)
+	singleConfig, newOptions, err := loadConfig(ctx, config, m.Options)
 	if err != nil {
 		return err
 	}
+	m.Options = newOptions
 	m.SingleConfig = singleConfig.(*SingleConfig) // 类型断言
 	return nil
 }
@@ -124,18 +136,34 @@ func initializeConfigOptions(options *ConfigOptions) ConfigOptions {
 		options.EnvContextKey = env.GetContextKey()
 	}
 
+	if options.UseEnvLevel == "" {
+		options.UseEnvLevel = defaultUseEnvLevel
+	}
+
 	env.SetContextKey(&env.ContextKeyOptions{Key: options.EnvContextKey, Value: options.EnvValue})
 
 	return *options
 }
 
 // loadConfig 加载配置文件并返回相应的配置对象
-func loadConfig(ctx context.Context, config interface{}, options ConfigOptions) (interface{}, error) {
-	// 从上下文获取当前环境
-	contextEnv := options.EnvValue.String()
+func loadConfig(ctx context.Context, config interface{}, options ConfigOptions) (interface{}, ConfigOptions, error) {
+	// 获取OS环境变量中的值
+	osEnv := env.GetEnvironment()
+	// 使用变量将Os值存起来为当前
+	contextEnv := osEnv
 
-	// 确定使用的环境
-	filename := contextEnv + options.ConfigSuffix
+	// 如果俩环境变量不一致
+	if osEnv != env.EnvironmentType(contextEnv) {
+		// 优先级为Ctx、就使用Ctx进行替换
+		if options.UseEnvLevel == EnvLevelCtx {
+			contextEnv = options.EnvValue
+		}
+	}
+	// 最后更新options EnvValue
+	options.EnvValue = contextEnv
+
+	// 确定使用的配置文件
+	filename := contextEnv.String() + options.ConfigSuffix
 
 	v := viper.New()
 	v.SetConfigName(filename)
@@ -144,11 +172,11 @@ func loadConfig(ctx context.Context, config interface{}, options ConfigOptions) 
 	log.Printf("读取配置文件: %s", filename)
 
 	if err := v.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("读取配置文件异常: %w", err)
+		return nil, options, fmt.Errorf("读取配置文件异常: %w", err)
 	}
 
 	if err := v.Unmarshal(config); err != nil {
-		return nil, fmt.Errorf("读取配置文件异常: %w", err)
+		return nil, options, fmt.Errorf("读取配置文件异常: %w", err)
 	}
 
 	// 监控配置改变
@@ -160,7 +188,7 @@ func loadConfig(ctx context.Context, config interface{}, options ConfigOptions) 
 		}
 	})
 
-	return config, nil
+	return config, options, nil
 }
 
 // SubItem 从配置中获取指定的配置子项
