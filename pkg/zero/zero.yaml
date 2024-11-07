@@ -107,9 +107,8 @@ zerorestful:
   timeout: 5000
   cpu-threshold: 70
   signature:
-    algorithm:
-      strict: true
-      expiry: 0
-      private-keys:
-        - fingerprint: "m2IVFc1LJl"
-          key-file: "gTf1kch7W0"
+    strict: true
+    expiry: 0
+    private-keys:
+      - fingerprint: "Ohbqo770x7"
+        key-file: "MqJrsscC16"
