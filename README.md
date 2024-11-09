@@ -185,16 +185,19 @@ func main() {
     ├── register/ # 注册中心、服务端口等相关配置
     ├── cors/     # 跨域配置
     ├── database/ # 数据库配置
+    ├── elk/      # ELK配置
     ├── email/    # 邮件配置
     ├── env/      # 环境变量配置
     ├── ftp/      # 文件服务器配置
     ├── jwt/      # JWT token 生成和校验配置
     ├── mqtt/     # MQTT 物联网配置
     ├── oss/      # OSS 配置
+    ├── queue/    # mqtt等队列相关配置
     ├── pay/      # 支付相关配置（支付宝和微信）
     ├── redis/    # redis(redis缓存数据库相关配置)
     ├── sms/      # 短信配置
     ├── sts/      # STS 配置
     ├── youzan/   # 有赞配置
     └── zap/      # 日志相关配置
+    └── zero/     # zero相关配置
 ```
