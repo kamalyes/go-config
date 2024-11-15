@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 13:55:55
+ * @LastEditTime: 2024-11-16 01:15:55
  * @FilePath: \go-config\tests\resolver_test.go
  * @Description:
  *
@@ -62,7 +62,7 @@ func createConfigFile(filename string, content string) error {
 
 // generateRandomConfigFile 生成随机模型并创建配置文件
 func generateRandomConfigFile(model *goconfig.SingleConfig, filePath string) (*goconfig.SingleConfig, error) {
-	resultModel, resultJson, err := random.GenerateRandomModel(model)
+	resultModel, resultJson, err := random.GenerateRandModel(model)
 	if err != nil {
 		return nil, err
 	}

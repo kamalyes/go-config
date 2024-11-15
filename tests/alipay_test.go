@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-06 13:59:31
+ * @LastEditTime: 2024-11-16 01:15:55
  * @FilePath: \go-config\tests\alipay_test.go
  * @Description:
  *
