@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 10:56:22
+ * @LastEditTime: 2024-11-26 13:52:55
  * @FilePath: \go-config\pkg\zap\zap.go
  * @Description:
  *
@@ -30,6 +30,7 @@ type Zap struct {
 	EncodeLevel   string `mapstructure:"encode-level"             yaml:"encode-level"        json:"encode_level"`                                                                // 日志编码等级，指定不通过等级可以有不同颜色
 	StacktraceKey string `mapstructure:"stacktrace-key"           yaml:"stacktrace-key"      json:"stacktrace_key"`                                                              // 堆栈捕捉标识
 	LogInConsole  bool   `mapstructure:"log-in-console"           yaml:"log-in-console"      json:"log_in_console"`                                                              // 是否在控制台打印日志
+	Development   bool   `mapstructure:"development"              yaml:"development"         json:"development"`                                                                 // 是否为开发者模式
 	ModuleName    string `mapstructure:"modulename"               yaml:"modulename"          json:"module_name"`                                                                 // 模块名称
 }
 
@@ -59,6 +60,7 @@ func (z *Zap) Clone() internal.Configurable {
 		ShowLine:      z.ShowLine,
 		EncodeLevel:   z.EncodeLevel,
 		StacktraceKey: z.StacktraceKey,
+		Development:   z.Development,
 		LogInConsole:  z.LogInConsole,
 	}
 }
@@ -84,6 +86,7 @@ func (z *Zap) Set(data interface{}) {
 		z.ShowLine = configData.ShowLine
 		z.EncodeLevel = configData.EncodeLevel
 		z.StacktraceKey = configData.StacktraceKey
+		z.Development = configData.Development
 		z.LogInConsole = configData.LogInConsole
 	}
 }

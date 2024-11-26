@@ -31,3 +31,5 @@ zap:
   stacktrace-key: 'stacktrace'
   # 是否在控制台打印日志
   log-in-console: true
+  # 是否开启开发者模式
+  development: true
