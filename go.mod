@@ -30,7 +30,7 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/go-playground/validator/v10 v10.22.1
+	github.com/go-playground/validator/v10 v10.23.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/kamalyes/go-toolbox v0.11.9
 	github.com/magiconair/properties v1.8.7 // indirect
