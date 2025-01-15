@@ -32,7 +32,7 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/go-playground/validator/v10 v10.22.1
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/kamalyes/go-toolbox v0.11.9
+	github.com/kamalyes/go-toolbox v0.11.30
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
