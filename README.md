@@ -1,6 +1,6 @@
 # go-config
 
-> go-config is characterized by daily work requirements and extension development, encapsulated generic tool classes
+> 一个功能完善的 Go 配置管理框架，专为现代微服务架构设计，提供统一的配置加载、验证和多环境支持。
 
 [![stable](https://img.shields.io/badge/stable-stable-green.svg)](https://github.com/kamalyes/go-config)
 [![license](https://img.shields.io/github/license/kamalyes/go-config)]()
@@ -22,6 +22,19 @@
 ### 介绍
 
 go 开发中常用的一些配置
+
+## 📚 文档
+
+🔗 **[完整使用文档](./DOC.md)** - 详细的安装、配置、API参考和最佳实践指南
+
+包含内容：
+
+- 🚀 快速开始和安装指南
+- 🏗️ 核心概念和架构说明
+- 🔧 20+ 配置模块详解
+- 🌍 多环境管理
+- 📄 配置文件示例
+- 💡 最佳实践和故障排除
 
 ### 安装
 
