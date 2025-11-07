@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-11-01 08:58:09
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-08 00:00:26
+ * @LastEditTime: 2025-11-08 03:01:26
  * @FilePath: \go-config\config.go
  * @Description:
  *
@@ -51,6 +51,7 @@ type MultiConfig struct {
 	JWT           []jwt.JWT             `mapstructure:"jwt"          yaml:"jwt"          json:"jwt"`
 	Minio         []oss.Minio           `mapstructure:"minio"        yaml:"minio"        json:"minio"`
 	AliyunOss     []oss.AliyunOss       `mapstructure:"aliyunoss"    yaml:"aliyunoss"    json:"aliyunoss"`
+	S3            []oss.S3              `mapstructure:"s3"           yaml:"s3"           json:"s3"`
 	Mqtt          []queue.Mqtt          `mapstructure:"mqtt"         yaml:"mqtt"         json:"mqtt"`
 	Zap           []zap.Zap             `mapstructure:"zap"          yaml:"zap"          json:"zap"`
 	AliPay        []pay.AliPay          `mapstructure:"alipay"       yaml:"alipay"       json:"alipay"`
@@ -64,7 +65,10 @@ type MultiConfig struct {
 	Kafka         []elk.Kafka           `mapstructure:"kafka"        yaml:"kafka"        json:"kafka"`
 	Elasticsearch []elk.Elasticsearch   `mapstructure:"elasticsearch"  yaml:"elasticsearch"  json:"elasticsearch"`
 	Jaeger        []register.Jaeger     `mapstructure:"jaeger"       yaml:"jaeger"       json:"jaeger"`
+	Pprof        []register.PProf       `mapstructure:"pprof"       yaml:"pprof"       json:"pprof"`
 	Viper         *viper.Viper          `mapstructure:"-"            yaml:"-"            json:"-"`
+	ExternalVipers map[string]*viper.Viper `mapstructure:"-" yaml:"-" json:"-"`
+	DynamicConfigs map[string]interface{}  `mapstructure:",remain" yaml:",inline" json:",inline"`
 }
 
 // SingleConfig 单一配置
@@ -82,6 +86,7 @@ type SingleConfig struct {
 	JWT           jwt.JWT             `mapstructure:"jwt"          yaml:"jwt"          json:"jwt"`
 	Minio         oss.Minio           `mapstructure:"minio"        yaml:"minio"        json:"minio"`
 	AliyunOss     oss.AliyunOss       `mapstructure:"aliyunoss"    yaml:"aliyunoss"    json:"aliyunoss"`
+	S3            oss.S3              `mapstructure:"s3"           yaml:"s3"           json:"s3"`
 	Mqtt          queue.Mqtt          `mapstructure:"mqtt"         yaml:"mqtt"         json:"mqtt"`
 	Zap           zap.Zap             `mapstructure:"zap"          yaml:"zap"          json:"zap"`
 	AliPay        pay.AliPay          `mapstructure:"alipay"       yaml:"alipay"       json:"alipay"`
@@ -95,7 +100,12 @@ type SingleConfig struct {
 	Kafka         elk.Kafka           `mapstructure:"kafka"        yaml:"kafka"        json:"kafka"`
 	Elasticsearch elk.Elasticsearch   `mapstructure:"elasticsearch"  yaml:"elasticsearch"  json:"elasticsearch"`
 	Jaeger        register.Jaeger     `mapstructure:"jaeger"       yaml:"jaeger"       json:"jaeger"`
+	Pprof         register.PProf      `mapstructure:"pprof"        yaml:"pprof"        json:"pprof"`
 	Viper         *viper.Viper        `mapstructure:"-"            yaml:"-"            json:"-"`
+	
+	// 新增：存储无关系的Viper实例和动态配置
+	ExternalVipers map[string]*viper.Viper `mapstructure:"-" yaml:"-" json:"-"`
+	DynamicConfigs map[string]interface{}  `mapstructure:",remain" yaml:",inline" json:",inline"`
 }
 
 // GetSingleConfigByModuleName 根据提供的模块名称从 MultiConfig 中获取对应的 SingleConfig
@@ -190,4 +200,224 @@ func getModuleName[T any](module T) (string, error) {
 		}
 	}
 	return "", fmt.Errorf("type %T does not have a ModuleName field", module)
+}
+
+// InitializeExternalVipers 初始化外部Viper实例映射
+func (mc *MultiConfig) InitializeExternalVipers() {
+	if mc.ExternalVipers == nil {
+		mc.ExternalVipers = make(map[string]*viper.Viper)
+	}
+	if mc.DynamicConfigs == nil {
+		mc.DynamicConfigs = make(map[string]interface{})
+	}
+}
+
+// InitializeExternalVipers 初始化外部Viper实例映射
+func (sc *SingleConfig) InitializeExternalVipers() {
+	if sc.ExternalVipers == nil {
+		sc.ExternalVipers = make(map[string]*viper.Viper)
+	}
+	if sc.DynamicConfigs == nil {
+		sc.DynamicConfigs = make(map[string]interface{})
+	}
+}
+
+// AddExternalViper 添加外部Viper实例
+func (mc *MultiConfig) AddExternalViper(key string, v *viper.Viper) {
+	mc.InitializeExternalVipers()
+	mc.ExternalVipers[key] = v
+}
+
+// AddExternalViper 添加外部Viper实例
+func (sc *SingleConfig) AddExternalViper(key string, v *viper.Viper) {
+	sc.InitializeExternalVipers()
+	sc.ExternalVipers[key] = v
+}
+
+// GetExternalViper 获取外部Viper实例
+func (mc *MultiConfig) GetExternalViper(key string) (*viper.Viper, bool) {
+	if mc.ExternalVipers == nil {
+		return nil, false
+	}
+	v, exists := mc.ExternalVipers[key]
+	return v, exists
+}
+
+// GetExternalViper 获取外部Viper实例
+func (sc *SingleConfig) GetExternalViper(key string) (*viper.Viper, bool) {
+	if sc.ExternalVipers == nil {
+		return nil, false
+	}
+	v, exists := sc.ExternalVipers[key]
+	return v, exists
+}
+
+// SetDynamicConfig 设置动态配置
+func (mc *MultiConfig) SetDynamicConfig(key string, value interface{}) {
+	mc.InitializeExternalVipers()
+	mc.DynamicConfigs[key] = value
+}
+
+// SetDynamicConfig 设置动态配置
+func (sc *SingleConfig) SetDynamicConfig(key string, value interface{}) {
+	sc.InitializeExternalVipers()
+	sc.DynamicConfigs[key] = value
+}
+
+// GetDynamicConfig 获取动态配置
+func (mc *MultiConfig) GetDynamicConfig(key string) (interface{}, bool) {
+	if mc.DynamicConfigs == nil {
+		return nil, false
+	}
+	value, exists := mc.DynamicConfigs[key]
+	return value, exists
+}
+
+// GetDynamicConfig 获取动态配置
+func (sc *SingleConfig) GetDynamicConfig(key string) (interface{}, bool) {
+	if sc.DynamicConfigs == nil {
+		return nil, false
+	}
+	value, exists := sc.DynamicConfigs[key]
+	return value, exists
+}
+
+// GetAllExternalViperKeys 获取所有外部Viper键
+func (mc *MultiConfig) GetAllExternalViperKeys() []string {
+	if mc.ExternalVipers == nil {
+		return []string{}
+	}
+	keys := make([]string, 0, len(mc.ExternalVipers))
+	for key := range mc.ExternalVipers {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
+// GetAllExternalViperKeys 获取所有外部Viper键
+func (sc *SingleConfig) GetAllExternalViperKeys() []string {
+	if sc.ExternalVipers == nil {
+		return []string{}
+	}
+	keys := make([]string, 0, len(sc.ExternalVipers))
+	for key := range sc.ExternalVipers {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
+// GetAllDynamicConfigKeys 获取所有动态配置键
+func (mc *MultiConfig) GetAllDynamicConfigKeys() []string {
+	if mc.DynamicConfigs == nil {
+		return []string{}
+	}
+	keys := make([]string, 0, len(mc.DynamicConfigs))
+	for key := range mc.DynamicConfigs {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
+// GetAllDynamicConfigKeys 获取所有动态配置键
+func (sc *SingleConfig) GetAllDynamicConfigKeys() []string {
+	if sc.DynamicConfigs == nil {
+		return []string{}
+	}
+	keys := make([]string, 0, len(sc.DynamicConfigs))
+	for key := range sc.DynamicConfigs {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
+// RemoveExternalViper 移除外部Viper实例
+func (mc *MultiConfig) RemoveExternalViper(key string) bool {
+	if mc.ExternalVipers == nil {
+		return false
+	}
+	_, exists := mc.ExternalVipers[key]
+	if exists {
+		delete(mc.ExternalVipers, key)
+	}
+	return exists
+}
+
+// RemoveExternalViper 移除外部Viper实例
+func (sc *SingleConfig) RemoveExternalViper(key string) bool {
+	if sc.ExternalVipers == nil {
+		return false
+	}
+	_, exists := sc.ExternalVipers[key]
+	if exists {
+		delete(sc.ExternalVipers, key)
+	}
+	return exists
+}
+
+// RemoveDynamicConfig 移除动态配置
+func (mc *MultiConfig) RemoveDynamicConfig(key string) bool {
+	if mc.DynamicConfigs == nil {
+		return false
+	}
+	_, exists := mc.DynamicConfigs[key]
+	if exists {
+		delete(mc.DynamicConfigs, key)
+	}
+	return exists
+}
+
+// RemoveDynamicConfig 移除动态配置
+func (sc *SingleConfig) RemoveDynamicConfig(key string) bool {
+	if sc.DynamicConfigs == nil {
+		return false
+	}
+	_, exists := sc.DynamicConfigs[key]
+	if exists {
+		delete(sc.DynamicConfigs, key)
+	}
+	return exists
+}
+
+// UnmarshalFromExternalViper 从外部Viper实例解析配置到指定结构体
+func (mc *MultiConfig) UnmarshalFromExternalViper(key string, target interface{}) error {
+	viper, exists := mc.GetExternalViper(key)
+	if !exists {
+		return fmt.Errorf("external viper with key '%s' not found", key)
+	}
+	return viper.Unmarshal(target)
+}
+
+// UnmarshalFromExternalViper 从外部Viper实例解析配置到指定结构体
+func (sc *SingleConfig) UnmarshalFromExternalViper(key string, target interface{}) error {
+	viper, exists := sc.GetExternalViper(key)
+	if !exists {
+		return fmt.Errorf("external viper with key '%s' not found", key)
+	}
+	return viper.Unmarshal(target)
+}
+
+// UnmarshalSubFromExternalViper 从外部Viper实例的子配置解析到指定结构体
+func (mc *MultiConfig) UnmarshalSubFromExternalViper(viperKey, subKey string, target interface{}) error {
+	viper, exists := mc.GetExternalViper(viperKey)
+	if !exists {
+		return fmt.Errorf("external viper with key '%s' not found", viperKey)
+	}
+	sub := viper.Sub(subKey)
+	if sub == nil {
+		return fmt.Errorf("sub config '%s' not found in viper '%s'", subKey, viperKey)
+	}
+	return sub.Unmarshal(target)
+}
+
+// UnmarshalSubFromExternalViper 从外部Viper实例的子配置解析到指定结构体
+func (sc *SingleConfig) UnmarshalSubFromExternalViper(viperKey, subKey string, target interface{}) error {
+	viper, exists := sc.GetExternalViper(viperKey)
+	if !exists {
+		return fmt.Errorf("external viper with key '%s' not found", viperKey)
+	}
+	sub := viper.Sub(subKey)
+	if sub == nil {
+		return fmt.Errorf("sub config '%s' not found in viper '%s'", subKey, viperKey)
+	}
+	return sub.Unmarshal(target)
 }

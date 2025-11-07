@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-08 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-08 00:00:00
+ * @LastEditTime: 2025-11-08 00:39:11
  * @FilePath: \go-config\tests\pprof_bench_test.go
  * @Description: pprof监控模块性能测试
  *
@@ -17,18 +17,18 @@ import (
 	"github.com/kamalyes/go-config/pkg/register"
 )
 
-func BenchmarkNewPProfConfig(b *testing.B) {
+func BenchmarkNewPProf(b *testing.B) {
 	params := generatePProfTestParams()
 	
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = register.NewPProfConfig(params)
+		_ = register.NewPProf(params)
 	}
 }
 
 func BenchmarkPProfConfigClone(b *testing.B) {
 	params := generatePProfTestParams()
-	config := register.NewPProfConfig(params)
+	config := register.NewPProf(params)
 	
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -38,7 +38,7 @@ func BenchmarkPProfConfigClone(b *testing.B) {
 
 func BenchmarkPProfConfigValidate(b *testing.B) {
 	params := generatePProfTestParams()
-	config := register.NewPProfConfig(params)
+	config := register.NewPProf(params)
 	
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 23:39:15
+ * @LastEditTime: 2025-11-08 02:51:01
  * @FilePath: \go-config\pkg\register\jaeger.go
  * @Description:
  *
@@ -38,6 +38,7 @@ func NewJaeger(opt *Jaeger) *Jaeger {
 // Clone 返回 Jaeger 配置的副本
 func (j *Jaeger) Clone() internal.Configurable {
 	return &Jaeger{
+		ModuleName:         j.ModuleName,
 		Type:               j.Type,
 		Param:              j.Param,
 		LogSpans:           j.LogSpans,
@@ -54,6 +55,7 @@ func (j *Jaeger) Get() interface{} {
 // Set 更新 Jaeger 配置的字段
 func (j *Jaeger) Set(data interface{}) {
 	if configData, ok := data.(*Jaeger); ok {
+		j.ModuleName = configData.ModuleName
 		j.Type = configData.Type
 		j.Param = configData.Param
 		j.LogSpans = configData.LogSpans

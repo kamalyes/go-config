@@ -1,5 +1,8 @@
 # pprof 性能监控配置
 pprof:
+  # 模块名称
+  modulename: "common"
+
   # 是否启用pprof
   enabled: true
   

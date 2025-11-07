@@ -1,0 +1,126 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "启动基础示例",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/examples/basic_usage/main.go",
+            "cwd": "${workspaceFolder}/examples/basic_usage",
+            "env": {},
+            "args": []
+        },
+        {
+            "name": "启动多配置示例",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/examples/multi_config/main.go",
+            "cwd": "${workspaceFolder}/examples/multi_config",
+            "env": {},
+            "args": []
+        },
+        {
+            "name": "启动环境配置示例",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/examples/environment_config/main.go",
+            "cwd": "${workspaceFolder}/examples/environment_config",
+            "env": {
+                "APP_ENV": "dev"
+            },
+            "args": []
+        },
+        {
+            "name": "启动Web服务示例",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/examples/web_service/main.go",
+            "cwd": "${workspaceFolder}/examples/web_service",
+            "env": {},
+            "args": []
+        },
+        {
+            "name": "启动高级功能示例",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/examples/advanced_features/main.go",
+            "cwd": "${workspaceFolder}/examples/advanced_features",
+            "env": {},
+            "args": []
+        },
+        {
+            "name": "启动验证演示",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/examples/validation_demo/main.go",
+            "cwd": "${workspaceFolder}/examples/validation_demo",
+            "env": {},
+            "args": []
+        },
+        {
+            "name": "附加到进程",
+            "type": "go",
+            "request": "attach",
+            "mode": "local",
+            "processId": 0
+        },
+        {
+            "name": "连接到远程服务器",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "remotePath": "${workspaceFolder}",
+            "port": 2345,
+            "host": "127.0.0.1"
+        },
+        {
+            "name": "调试测试包",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}",
+            "env": {},
+            "args": [
+                "-test.v"
+            ]
+        },
+        {
+            "name": "调试指定测试函数",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}",
+            "env": {},
+            "args": [
+                "-test.run",
+                "^${input:testName}$",
+                "-test.v"
+            ]
+        },
+        {
+            "name": "调试当前测试文件",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${fileDirname}",
+            "env": {},
+            "args": [
+                "-test.v"
+            ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "testName",
+            "description": "Enter test function name",
+            "default": "TestConfig",
+            "type": "promptString"
+        }
+    ]
+}

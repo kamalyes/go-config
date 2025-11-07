@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-08 00:41:11
+ * @LastEditTime: 2025-11-08 00:38:17
  * @FilePath: \go-config\pkg\register\pprof.go
  * @Description:
  *
@@ -16,10 +16,10 @@ import (
 	"github.com/kamalyes/go-config/internal"
 )
 
-// PProfConfig pprof配置
+// PProf pprof配置
 // 用于控制pprof的启用、路径、认证、日志等参数
 // 可用于多种配置格式（json/yaml/toml）
-type PProfConfig struct {
+type PProf struct {
 	// 是否启用pprof
 	Enabled bool `json:"enabled" yaml:"enabled" toml:"enabled"`
 
@@ -43,16 +43,17 @@ type PProfConfig struct {
 
 	// 自定义处理器映射
 	CustomHandlers map[string]http.HandlerFunc `json:"-" yaml:"-" toml:"-"`
+	ModuleName         string `mapstructure:"modulename"               yaml:"modulename"                json:"module_name"`                               // 模块名称
 }
 
 
-// NewPProfConfig 创建一个新的 PProfConfig 实例
-func NewPProfConfig(opt *PProfConfig) *PProfConfig {
-	var pprofInstance *PProfConfig
+// NewPProf 创建一个新的 PProf 实例
+func NewPProf(opt *PProf) *PProf {
+	var pprofInstance *PProf
 
 	internal.LockFunc(func() {
 		if opt == nil {
-			opt = &PProfConfig{}
+			opt = &PProf{}
 		}
 		
 		// 设置默认值
@@ -68,8 +69,8 @@ func NewPProfConfig(opt *PProfConfig) *PProfConfig {
 	return pprofInstance
 }
 
-// Clone 返回 PProfConfig 配置的副本
-func (p *PProfConfig) Clone() internal.Configurable {
+// Clone 返回 PProf 配置的副本
+func (p *PProf) Clone() internal.Configurable {
 	// 复制自定义处理器
 	customHandlers := make(map[string]http.HandlerFunc)
 	for k, v := range p.CustomHandlers {
@@ -80,7 +81,8 @@ func (p *PProfConfig) Clone() internal.Configurable {
 	allowedIPs := make([]string, len(p.AllowedIPs))
 	copy(allowedIPs, p.AllowedIPs)
 
-	return &PProfConfig{
+	return &PProf{
+		ModuleName:    p.ModuleName,
 		Enabled:        p.Enabled,
 		PathPrefix:     p.PathPrefix,
 		AllowedIPs:     allowedIPs,
@@ -92,14 +94,15 @@ func (p *PProfConfig) Clone() internal.Configurable {
 	}
 }
 
-// Get 返回 PProfConfig 配置的所有字段
-func (p *PProfConfig) Get() interface{} {
+// Get 返回 PProf 配置的所有字段
+func (p *PProf) Get() interface{} {
 	return p
 }
 
-// Set 更新 PProfConfig 配置的字段
-func (p *PProfConfig) Set(data interface{}) {
-	if configData, ok := data.(*PProfConfig); ok {
+// Set 更新 PProf 配置的字段
+func (p *PProf) Set(data interface{}) {
+	if configData, ok := data.(*PProf); ok {
+		p.ModuleName = configData.ModuleName
 		p.Enabled = configData.Enabled
 		p.PathPrefix = configData.PathPrefix
 		p.AllowedIPs = configData.AllowedIPs
@@ -111,7 +114,7 @@ func (p *PProfConfig) Set(data interface{}) {
 	}
 }
 
-// Validate 检查 PProfConfig 配置的有效性
-func (p *PProfConfig) Validate() error {
+// Validate 检查 PProf 配置的有效性
+func (p *PProf) Validate() error {
 	return internal.ValidateStruct(p)
 }

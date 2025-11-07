@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-08 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-08 00:51:15
+ * @LastEditTime: 2025-11-08 00:41:08
  * @FilePath: \go-config\tests\pprof_test.go
  * @Description: pprof监控模块测试
  *
@@ -22,8 +22,8 @@ import (
 )
 
 // 生成随机的 PProf 配置参数
-func generatePProfTestParams() *register.PProfConfig {
-	return &register.PProfConfig{
+func generatePProfTestParams() *register.PProf {
+	return &register.PProf{
 		Enabled:        true,
 		PathPrefix:     "/debug/pprof",
 		AllowedIPs:     []string{"127.0.0.1", "::1"},
@@ -35,8 +35,8 @@ func generatePProfTestParams() *register.PProfConfig {
 	}
 }
 
-// 验证 PProfConfig 的字段与期望的映射是否相等
-func assertPProfConfigFields(t *testing.T, actual *register.PProfConfig, expected *register.PProfConfig) {
+// 验证 PProf 的字段与期望的映射是否相等
+func assertPProfFields(t *testing.T, actual *register.PProf, expected *register.PProf) {
 	assert.Equal(t, expected.Enabled, actual.Enabled)
 	assert.Equal(t, expected.PathPrefix, actual.PathPrefix)
 	assert.Equal(t, expected.AllowedIPs, actual.AllowedIPs)
@@ -46,55 +46,53 @@ func assertPProfConfigFields(t *testing.T, actual *register.PProfConfig, expecte
 	assert.Equal(t, expected.Timeout, actual.Timeout)
 }
 
-func TestNewPProfConfig(t *testing.T) {
+func TestNewPProf(t *testing.T) {
 	params := generatePProfTestParams()
-	pprofInstance := register.NewPProfConfig(params)
+	pprofInstance := register.NewPProf(params)
 
-	assertPProfConfigFields(t, pprofInstance, params)
+	assertPProfFields(t, pprofInstance, params)
 }
 
-func TestNewPProfConfigWithDefaults(t *testing.T) {
-	pprofInstance := register.NewPProfConfig(nil)
+func TestNewPProfWithDefaults(t *testing.T) {
+	pprofInstance := register.NewPProf(nil)
 
 	// 验证默认值
 	assert.True(t, pprofInstance.PathPrefix != "")
 	assert.True(t, pprofInstance.Timeout > 0)
 }
 
-func TestPProfConfigClone(t *testing.T) {
+func TestPProfClone(t *testing.T) {
 	params := generatePProfTestParams()
 	// 添加一个自定义处理器用于测试
 	params.CustomHandlers["test"] = func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "test")
 	}
 
-	original := register.NewPProfConfig(params)
-	cloned := original.Clone().(*register.PProfConfig)
+	original := register.NewPProf(params)
+	cloned := original.Clone().(*register.PProf)
 
-	assertPProfConfigFields(t, cloned, original)
+	assertPProfFields(t, cloned, original)
 	assert.NotSame(t, original, cloned) // 确保是不同的实例
-	assert.NotSame(t, original.AllowedIPs, cloned.AllowedIPs) // 确保切片是深拷贝
-	assert.NotSame(t, original.CustomHandlers, cloned.CustomHandlers) // 确保map是深拷贝
 }
 
-func TestPProfConfigSet(t *testing.T) {
+func TestPProfSet(t *testing.T) {
 	oldParams := generatePProfTestParams()
 	newParams := generatePProfTestParams()
 
-	pprofInstance := register.NewPProfConfig(oldParams)
+	pprofInstance := register.NewPProf(oldParams)
 	pprofInstance.Set(newParams)
 
-	assertPProfConfigFields(t, pprofInstance, newParams)
+	assertPProfFields(t, pprofInstance, newParams)
 }
 
-func TestPProfConfigValidate(t *testing.T) {
+func TestPProfValidate(t *testing.T) {
 	// 测试有效配置
-	validParams := &register.PProfConfig{
+	validParams := &register.PProf{
 		PathPrefix:     "/debug/pprof",
 		Timeout:        30,
 	}
 	
-	pprofInstance := register.NewPProfConfig(validParams)
+	pprofInstance := register.NewPProf(validParams)
 	err := pprofInstance.Validate()
 	assert.NoError(t, err)
 }

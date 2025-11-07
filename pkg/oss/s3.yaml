@@ -1,0 +1,64 @@
+# AWS S3 配置示例
+# 适用于 AWS S3、兼容 S3 API 的对象存储服务
+
+# S3 对象存储配置
+s3:
+  # S3 端点地址
+  endpoint: "https://s3.ap-southeast-1.amazonaws.com"
+  
+  # AWS 区域
+  region: "ap-southeast-1"
+  
+  # AWS Access Key ID
+  access-key: "your-access-key-id"
+  
+  # AWS Secret Access Key
+  secret-key: "your-secret-access-key"
+  
+  # 存储桶前缀（可选）
+  bucket-prefix: "aicsqa"
+  
+  # 会话令牌（临时凭证时使用，可选）
+  session-token: ""
+  
+  # 是否使用 HTTPS（默认: true）
+  use-ssl: true
+  
+  # 是否使用路径样式访问（默认: false）
+  # true: https://s3.amazonaws.com/bucket/key
+  # false: https://bucket.s3.amazonaws.com/key
+  path-style: false
+  
+  # 模块名称（多实例配置时使用）
+  modulename: "default"
+
+# 多个 S3 实例配置示例
+# s3:
+#   - modulename: "primary"
+#     endpoint: "https://s3.us-west-2.amazonaws.com"
+#     region: "us-west-2"
+#     access-key: "your-primary-access-key"
+#     secret-key: "your-primary-secret-key"
+#     bucket-prefix: "primary"
+#     use-ssl: true
+#     path-style: false
+#   
+#   - modulename: "backup"
+#     endpoint: "https://s3.eu-west-1.amazonaws.com"
+#     region: "eu-west-1"
+#     access-key: "your-backup-access-key"
+#     secret-key: "your-backup-secret-key"
+#     bucket-prefix: "backup"
+#     use-ssl: true
+#     path-style: false
+
+# MinIO 兼容配置示例
+# s3:
+#   endpoint: "http://localhost:9000"
+#   region: "us-east-1"
+#   access-key: "minioadmin"
+#   secret-key: "minioadmin"
+#   bucket-prefix: "minio"
+#   use-ssl: false
+#   path-style: true
+#   modulename: "minio"

@@ -232,6 +232,27 @@ aliyunoss:
   # 替换后的主机
   replace-later-host: "new.example.com"
 
+# AWS S3 配置示例
+s3:
+  # S3 端点地址
+  endpoint: "https://s3.ap-southeast-1.amazonaws.com"
+  # AWS 区域
+  region: "ap-southeast-1"
+  # AWS Access Key ID
+  access-key: "your-access-key-id"
+  # AWS Secret Access Key
+  secret-key: "your-secret-access-key"
+  # 存储桶前缀
+  bucket-prefix: "aicsqa"
+  # 会话令牌（临时凭证时使用，可选）
+  session-token: ""
+  # 是否使用 HTTPS
+  use-ssl: true
+  # 是否使用路径样式访问
+  path-style: false
+  # 模块名称
+  modulename: "default"
+
 # mqtt配置
 mqtt:
   # MQTT-服务器连接地址，如果有多个，用逗号隔开，如：tcp://127.0.0.1:1883，tcp://192.168.2.133:1883
@@ -461,6 +482,8 @@ jaeger:
 
 # pprof 性能监控配置
 pprof:
+  modulename: "wa5985888"
+
   # 是否启用pprof
   enabled: true
   
