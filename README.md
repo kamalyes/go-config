@@ -20,7 +20,7 @@
 |------|------|------|
 | 🌍 **多环境支持** | dev, sit, fat, uat, prod | 一套代码，多环境部署 |
 | 🔄 **配置热更新** | 基于 fsnotify 实时监听 | 无需重启应用即可更新配置 |
-| 📦 **模块化配置** | 20+ 种常用服务预置配置 | 开箱即用，快速集成 |
+| 📦 **模块化配置** | 25+ 种常用服务预置配置 | 开箱即用，快速集成 |
 | 🎭 **双模式管理** | SingleConfig & MultiConfig | 灵活应对不同业务场景 |
 | 🛡️ **类型安全** | 强类型配置结构和验证 | 编译时发现配置错误 |
 | ⚡ **高性能** | 基于 Viper，零依赖解析 | 毫秒级配置加载 |
@@ -60,6 +60,7 @@ graph TB
 ### 📁 文件存储
 - **Minio** - 开源对象存储服务
 - **AliyunOSS** - 阿里云对象存储
+- **S3** - AWS S3 兼容对象存储服务
 - **FTP** - 文件传输协议服务
 
 ### 📨 消息队列
@@ -139,6 +140,19 @@ zap:
   level: 'info'
   format: 'console'
   development: true
+
+# 性能分析配置
+pprof:
+  enabled: false              # 生产环境建议关闭
+  path_prefix: '/debug/pprof'
+
+# 对象存储配置（可选，根据需要选择）
+s3:
+  endpoint: 'https://s3.amazonaws.com'
+  region: 'us-east-1'
+  access-key: 'your_access_key'
+  secret-key: 'your_secret_key'
+  bucket-prefix: 'myapp'
 ```
 
 #### 2️⃣ 编写代码
@@ -504,6 +518,21 @@ jwt:
   use-multipoint: true                    # 是否启用多地登录拦截
 ```
 
+### � 性能分析配置 (PProf)
+
+```yaml
+pprof:
+  enabled: true                          # 是否启用 pprof
+  path_prefix: "/debug/pprof"           # pprof 路径前缀
+  allowed_ips:                          # 允许访问的 IP 地址列表
+    - "127.0.0.1"
+    - "::1"
+  require_auth: false                   # 是否需要认证
+  auth_token: ""                        # 认证令牌（当 require_auth 为 true 时）
+  enable_logging: true                  # 是否启用请求日志
+  timeout: 30                           # 超时时间（秒）
+```
+
 ### 📁 文件存储配置
 
 #### Minio 对象存储
@@ -526,6 +555,20 @@ aliyunoss:
   bucket: "your_bucket_name"             # 存储桶名称
   replace-original-host: "original.example.com"
   replace-later-host: "new.example.com"
+```
+
+#### AWS S3
+
+```yaml
+s3:
+  endpoint: "https://s3.ap-southeast-1.amazonaws.com"  # S3 端点地址
+  region: "ap-southeast-1"               # AWS 区域
+  access-key: "your_access_key"          # AWS Access Key ID  
+  secret-key: "your_secret_key"          # AWS Secret Access Key
+  bucket-prefix: "myapp"                 # 存储桶前缀
+  session-token: ""                      # 会话令牌（临时凭证）
+  use-ssl: true                          # 是否使用 HTTPS
+  path-style: false                      # 是否使用路径样式访问
 ```
 
 ### 📨 消息队列配置
