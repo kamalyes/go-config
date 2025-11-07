@@ -380,5 +380,19 @@
     "local-agent-host-port": "GSFwUPSoR8",
     "service": "lMyQW50gfQ",
     "modulename": "dH7x36hLQ2"
+  },
+  "pprof": {
+    "enabled": true,
+    "path_prefix": "/debug/pprof",
+    "allowed_ips": [
+      "127.0.0.1",
+      "::1"
+    ],
+    "require_auth": false,
+    "auth_token": "",
+    "enable_logging": true,
+    "timeout": 30,
+    "max_header_bytes": 1048576
   }
+  
 }

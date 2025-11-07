@@ -1,0 +1,27 @@
+# pprof 性能监控配置
+pprof:
+  # 是否启用pprof
+  enabled: true
+  
+  # pprof路径前缀
+  path_prefix: "/debug/pprof"
+  
+  # 允许访问的IP地址列表（空表示允许所有）
+  allowed_ips:
+    - "127.0.0.1"
+    - "::1"
+  
+  # 是否需要认证
+  require_auth: false
+  
+  # 认证令牌（当require_auth为true时使用）
+  auth_token: ""
+  
+  # 是否启用请求日志
+  enable_logging: true
+  
+  # 超时设置（秒）
+  timeout: 30
+  
+  # 最大请求头大小（字节）
+  max_header_bytes: 1048576
