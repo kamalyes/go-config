@@ -50,3 +50,22 @@ func (e *Telemetry) Set(data interface{}) {
 func (e *Telemetry) Validate() error {
 	return internal.ValidateStruct(e)
 }
+
+// DefaultTelemetry 返回默认的 Telemetry 指针，支持链式调用
+func DefaultTelemetry() *Telemetry {
+	config := DefaultTelemetryConfig()
+	return &config
+}
+
+// DefaultTelemetryConfig 返回默认的 Telemetry 值
+func DefaultTelemetryConfig() Telemetry {
+	return Telemetry{
+		Enabled: false,
+	}
+}
+
+// WithEnabled 设置是否启用追踪
+func (e *Telemetry) WithEnabled(enabled bool) *Telemetry {
+	e.Enabled = enabled
+	return e
+}

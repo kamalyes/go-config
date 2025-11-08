@@ -68,3 +68,57 @@ func (c *Captcha) Set(data interface{}) {
 func (c *Captcha) Validate() error {
 	return internal.ValidateStruct(c)
 }
+
+// DefaultCaptcha 返回默认Captcha配置
+func DefaultCaptcha() Captcha {
+	return Captcha{
+		ModuleName: "captcha",
+		KeyLen:     4,
+		ImgWidth:   120,
+		ImgHeight:  40,
+		MaxSkew:    0.7,
+		DotCount:   80,
+	}
+}
+
+// Default 返回默认Captcha配置的指针，支持链式调用
+func Default() *Captcha {
+	config := DefaultCaptcha()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (c *Captcha) WithModuleName(moduleName string) *Captcha {
+	c.ModuleName = moduleName
+	return c
+}
+
+// WithKeyLen 设置验证码长度
+func (c *Captcha) WithKeyLen(keyLen int) *Captcha {
+	c.KeyLen = keyLen
+	return c
+}
+
+// WithImgWidth 设置验证码宽度
+func (c *Captcha) WithImgWidth(imgWidth int) *Captcha {
+	c.ImgWidth = imgWidth
+	return c
+}
+
+// WithImgHeight 设置验证码高度
+func (c *Captcha) WithImgHeight(imgHeight int) *Captcha {
+	c.ImgHeight = imgHeight
+	return c
+}
+
+// WithMaxSkew 设置最大歪曲度
+func (c *Captcha) WithMaxSkew(maxSkew float64) *Captcha {
+	c.MaxSkew = maxSkew
+	return c
+}
+
+// WithDotCount 设置点的数量
+func (c *Captcha) WithDotCount(dotCount int) *Captcha {
+	c.DotCount = dotCount
+	return c
+}

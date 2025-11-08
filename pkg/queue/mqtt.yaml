@@ -3,13 +3,13 @@ mqtt:
   # 模块名称
   modulename: "common"
   # MQTT-服务器连接地址，如果有多个，用逗号隔开，如：tcp://127.0.0.1:1883，tcp://192.168.2.133:1883
-  url: tcp://127.0.0.1:1882
+  endpoint: tcp://127.0.0.1:1883
   # 用户名
   username: mqtt
   # 密码
   password: 123456
   # 协议  Mqtt 协议版本号 4是3.1.1，3是3.1
-  protocol-ver: 4
+  protocol-version: 4
   # 设置客户端掉线服务端是否清除session
   clean-session: true
   # 断开后是否重连

@@ -76,3 +76,78 @@ func (e *Etcd) Set(data interface{}) {
 func (e *Etcd) Validate() error {
 	return internal.ValidateStruct(e)
 }
+
+// DefaultEtcd 返回默认的 Etcd 值
+func DefaultEtcd() Etcd {
+	return Etcd{
+		Hosts:              []string{"127.0.0.1:2379"},
+		Key:                "default-key",
+		ID:                 1,
+		User:               "",
+		Pass:               "",
+		CertFile:           "",
+		CertKeyFile:        "",
+		CACertFile:         "",
+		InsecureSkipVerify: false,
+	}
+}
+
+// DefaultEtcdConfig 返回默认的 Etcd 指针，支持链式调用
+func DefaultEtcdConfig() *Etcd {
+	config := DefaultEtcd()
+	return &config
+}
+
+// WithHosts 设置Etcd主机列表
+func (e *Etcd) WithHosts(hosts []string) *Etcd {
+	e.Hosts = hosts
+	return e
+}
+
+// WithKey 设置注册的键
+func (e *Etcd) WithKey(key string) *Etcd {
+	e.Key = key
+	return e
+}
+
+// WithID 设置ID
+func (e *Etcd) WithID(id int64) *Etcd {
+	e.ID = id
+	return e
+}
+
+// WithUser 设置用户名
+func (e *Etcd) WithUser(user string) *Etcd {
+	e.User = user
+	return e
+}
+
+// WithPass 设置密码
+func (e *Etcd) WithPass(pass string) *Etcd {
+	e.Pass = pass
+	return e
+}
+
+// WithCertFile 设置证书文件
+func (e *Etcd) WithCertFile(certFile string) *Etcd {
+	e.CertFile = certFile
+	return e
+}
+
+// WithCertKeyFile 设置证书密钥文件
+func (e *Etcd) WithCertKeyFile(certKeyFile string) *Etcd {
+	e.CertKeyFile = certKeyFile
+	return e
+}
+
+// WithCACertFile 设置CA证书文件
+func (e *Etcd) WithCACertFile(caCertFile string) *Etcd {
+	e.CACertFile = caCertFile
+	return e
+}
+
+// WithInsecureSkipVerify 设置是否跳过证书验证
+func (e *Etcd) WithInsecureSkipVerify(insecureSkipVerify bool) *Etcd {
+	e.InsecureSkipVerify = insecureSkipVerify
+	return e
+}

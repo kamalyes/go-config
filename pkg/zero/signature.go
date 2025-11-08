@@ -67,3 +67,45 @@ func (s *Signature) Set(data interface{}) {
 func (s *Signature) Validate() error {
 	return internal.ValidateStruct(s)
 }
+
+// DefaultSignature 返回默认的 Signature 值
+func DefaultSignature() Signature {
+	return Signature{
+		Strict:      false,
+		Expiry:      time.Hour,
+		PrivateKeys: []PrivateKeyConf{},
+	}
+}
+
+// DefaultSignatureConfig 返回默认的 Signature 指针，支持链式调用
+func DefaultSignatureConfig() *Signature {
+	config := DefaultSignature()
+	return &config
+}
+
+// WithStrict 设置是否严格验证
+func (s *Signature) WithStrict(strict bool) *Signature {
+	s.Strict = strict
+	return s
+}
+
+// WithExpiry 设置签名过期时间
+func (s *Signature) WithExpiry(expiry time.Duration) *Signature {
+	s.Expiry = expiry
+	return s
+}
+
+// WithPrivateKeys 设置私钥列表
+func (s *Signature) WithPrivateKeys(privateKeys []PrivateKeyConf) *Signature {
+	s.PrivateKeys = privateKeys
+	return s
+}
+
+// AddPrivateKey 添加私钥
+func (s *Signature) AddPrivateKey(fingerprint, keyFile string) *Signature {
+	s.PrivateKeys = append(s.PrivateKeys, PrivateKeyConf{
+		Fingerprint: fingerprint,
+		KeyFile:     keyFile,
+	})
+	return s
+}

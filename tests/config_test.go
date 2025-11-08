@@ -24,16 +24,16 @@ func TestGetSingleConfigByModuleName(t *testing.T) {
 	// 创建一个示例 MultiConfig
 	multiConfig := goconfig.MultiConfig{
 		Server: []register.Server{
-			{ModuleName: "server1", Addr: "localhost:8080"},
-			{ModuleName: "server2", Addr: "localhost:9000"},
+			{ModuleName: "server1", Endpoint: "localhost:8080"},
+			{ModuleName: "server2", Endpoint: "localhost:9000"},
 		},
 		Cors: []cors.Cors{
 			{ModuleName: "cors1", AllowedOrigins: []string{"*"}},
 			{ModuleName: "cors2", AllowedOrigins: []string{"http://example.com"}},
 		},
 		Consul: []register.Consul{
-			{ModuleName: "consul1", Addr: "127.0.0.1:8080"},
-			{ModuleName: "consul2", Addr: "127.0.0.1:7777"},
+			{ModuleName: "consul1", Endpoint: "127.0.0.1:8080"},
+			{ModuleName: "consul2", Endpoint: "127.0.0.1:7777"},
 		},
 		Captcha: []captcha.Captcha{
 			{ModuleName: "captcha1", KeyLen: 55},
@@ -57,14 +57,14 @@ func TestGetSingleConfigByModuleName(t *testing.T) {
 		{
 			moduleName: "server2",
 			expected: goconfig.SingleConfig{
-				Server: register.Server{ModuleName: "server2", Addr: "localhost:9000"},
+				Server: register.Server{ModuleName: "server2", Endpoint: "localhost:9000"},
 			},
 			expectError: false,
 		},
 		{
 			moduleName: "consul1",
 			expected: goconfig.SingleConfig{
-				Consul: register.Consul{ModuleName: "consul1", Addr: "127.0.0.1:8080"},
+				Consul: register.Consul{ModuleName: "consul1", Endpoint: "127.0.0.1:8080"},
 			},
 			expectError: false,
 		},
@@ -103,13 +103,13 @@ func TestGetSingleConfigByModuleName(t *testing.T) {
 
 // compareSingleConfig 手动比较 SingleConfig 结构体
 func compareSingleConfig(a, b goconfig.SingleConfig) bool {
-	if a.Server.ModuleName != b.Server.ModuleName || a.Server.Addr != b.Server.Addr {
+	if a.Server.ModuleName != b.Server.ModuleName || a.Server.Endpoint != b.Server.Endpoint {
 		return false
 	}
 	if a.Cors.ModuleName != b.Cors.ModuleName || !equalStringSlices(a.Cors.AllowedOrigins, b.Cors.AllowedOrigins) {
 		return false
 	}
-	if a.Consul.ModuleName != b.Consul.ModuleName || a.Consul.Addr != b.Consul.Addr {
+	if a.Consul.ModuleName != b.Consul.ModuleName || a.Consul.Endpoint != b.Consul.Endpoint {
 		return false
 	}
 	if a.Captcha.ModuleName != b.Captcha.ModuleName || a.Captcha.KeyLen != b.Captcha.KeyLen {

@@ -103,3 +103,99 @@ func (m MySQL) GetCommonConfig() *DBConfig {
 		LogLevel:        m.LogLevel,
 	}
 }
+
+// DefaultMySQL 返回默认MySQL配置
+func DefaultMySQL() MySQL {
+	return MySQL{
+		ModuleName:      "mysql",
+		Host:            "127.0.0.1",
+		Port:            "3306",
+		Config:          "charset=utf8mb4&parseTime=True&loc=Local",
+		LogLevel:        "silent",
+		Dbname:          "",
+		Username:        "",
+		Password:        "",
+		MaxIdleConns:    10,
+		MaxOpenConns:    100,
+		ConnMaxIdleTime: 3600,  // 1小时
+		ConnMaxLifeTime: 7200,  // 2小时
+	}
+}
+
+// Default 返回默认MySQL配置的指针，支持链式调用
+func Default() *MySQL {
+	config := DefaultMySQL()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (m *MySQL) WithModuleName(moduleName string) *MySQL {
+	m.ModuleName = moduleName
+	return m
+}
+
+// WithHost 设置主机地址
+func (m *MySQL) WithHost(host string) *MySQL {
+	m.Host = host
+	return m
+}
+
+// WithPort 设置端口
+func (m *MySQL) WithPort(port string) *MySQL {
+	m.Port = port
+	return m
+}
+
+// WithConfig 设置配置字符串
+func (m *MySQL) WithConfig(config string) *MySQL {
+	m.Config = config
+	return m
+}
+
+// WithLogLevel 设置日志级别
+func (m *MySQL) WithLogLevel(logLevel string) *MySQL {
+	m.LogLevel = logLevel
+	return m
+}
+
+// WithDbname 设置数据库名称
+func (m *MySQL) WithDbname(dbname string) *MySQL {
+	m.Dbname = dbname
+	return m
+}
+
+// WithUsername 设置用户名
+func (m *MySQL) WithUsername(username string) *MySQL {
+	m.Username = username
+	return m
+}
+
+// WithPassword 设置密码
+func (m *MySQL) WithPassword(password string) *MySQL {
+	m.Password = password
+	return m
+}
+
+// WithMaxIdleConns 设置最大空闲连接数
+func (m *MySQL) WithMaxIdleConns(maxIdleConns int) *MySQL {
+	m.MaxIdleConns = maxIdleConns
+	return m
+}
+
+// WithMaxOpenConns 设置最大连接数
+func (m *MySQL) WithMaxOpenConns(maxOpenConns int) *MySQL {
+	m.MaxOpenConns = maxOpenConns
+	return m
+}
+
+// WithConnMaxIdleTime 设置连接最大空闲时间
+func (m *MySQL) WithConnMaxIdleTime(connMaxIdleTime int) *MySQL {
+	m.ConnMaxIdleTime = connMaxIdleTime
+	return m
+}
+
+// WithConnMaxLifeTime 设置连接最大生命周期
+func (m *MySQL) WithConnMaxLifeTime(connMaxLifeTime int) *MySQL {
+	m.ConnMaxLifeTime = connMaxLifeTime
+	return m
+}

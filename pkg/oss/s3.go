@@ -93,3 +93,78 @@ func (s *S3) GetBucketName(suffix string) string {
 func (s *S3) IsTemporaryCredentials() bool {
 	return s.SessionToken != ""
 }
+
+// DefaultS3 返回默认S3配置
+func DefaultS3() S3 {
+	return S3{
+		ModuleName:   "s3",
+		Endpoint:     "https://s3.amazonaws.com",
+		Region:       "us-east-1",
+		AccessKey:    "",
+		SecretKey:    "",
+		BucketPrefix: "",
+		SessionToken: "",
+		UseSSL:       true,
+		PathStyle:    false,
+	}
+}
+
+// Default 返回默认S3配置的指针，支持链式调用
+func DefaultS3Config() *S3 {
+	config := DefaultS3()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (s *S3) WithModuleName(moduleName string) *S3 {
+	s.ModuleName = moduleName
+	return s
+}
+
+// WithEndpoint 设置S3端点地址
+func (s *S3) WithEndpoint(endpoint string) *S3 {
+	s.Endpoint = endpoint
+	return s
+}
+
+// WithRegion 设置AWS区域
+func (s *S3) WithRegion(region string) *S3 {
+	s.Region = region
+	return s
+}
+
+// WithAccessKey 设置AWS Access Key ID
+func (s *S3) WithAccessKey(accessKey string) *S3 {
+	s.AccessKey = accessKey
+	return s
+}
+
+// WithSecretKey 设置AWS Secret Access Key
+func (s *S3) WithSecretKey(secretKey string) *S3 {
+	s.SecretKey = secretKey
+	return s
+}
+
+// WithBucketPrefix 设置存储桶前缀
+func (s *S3) WithBucketPrefix(bucketPrefix string) *S3 {
+	s.BucketPrefix = bucketPrefix
+	return s
+}
+
+// WithSessionToken 设置会话令牌
+func (s *S3) WithSessionToken(sessionToken string) *S3 {
+	s.SessionToken = sessionToken
+	return s
+}
+
+// WithDisableSSL 设置是否使用HTTPS
+func (s *S3) WithDisableSSL(disableSSL bool) *S3 {
+	s.UseSSL = !disableSSL
+	return s
+}
+
+// WithPathStyle 设置是否使用路径样式访问
+func (s *S3) WithPathStyle(pathStyle bool) *S3 {
+	s.PathStyle = pathStyle
+	return s
+}

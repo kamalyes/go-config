@@ -93,3 +93,99 @@ func (z *Restful) Validate() error {
 	// 额外的验证逻辑可以在这里添加
 	return nil
 }
+
+// DefaultRestful 返回默认的 Restful 值
+func DefaultRestful() Restful {
+	return Restful{
+		RpcServer:    nil,
+		Host:         "0.0.0.0",
+		Port:         8080,
+		CertFile:     "",
+		KeyFile:      "",
+		Verbose:      false,
+		MaxConns:     10000,
+		MaxBytes:     1048576, // 1MB
+		Timeout:      3000,
+		CpuThreshold: 900,
+		Signature:    nil,
+		ModuleName:   "restful",
+	}
+}
+
+// DefaultRestfulConfig 返回默认的 Restful 指针，支持链式调用
+func DefaultRestfulConfig() *Restful {
+	config := DefaultRestful()
+	return &config
+}
+
+// WithRpcServer 设置RpcServer配置
+func (z *Restful) WithRpcServer(rpcServer *RpcServer) *Restful {
+	z.RpcServer = rpcServer
+	return z
+}
+
+// WithHost 设置主机
+func (z *Restful) WithHost(host string) *Restful {
+	z.Host = host
+	return z
+}
+
+// WithPort 设置端口
+func (z *Restful) WithPort(port int) *Restful {
+	z.Port = port
+	return z
+}
+
+// WithCertFile 设置证书文件
+func (z *Restful) WithCertFile(certFile string) *Restful {
+	z.CertFile = certFile
+	return z
+}
+
+// WithKeyFile 设置密钥文件
+func (z *Restful) WithKeyFile(keyFile string) *Restful {
+	z.KeyFile = keyFile
+	return z
+}
+
+// WithVerbose 设置是否详细输出
+func (z *Restful) WithVerbose(verbose bool) *Restful {
+	z.Verbose = verbose
+	return z
+}
+
+// WithMaxConns 设置最大连接数
+func (z *Restful) WithMaxConns(maxConns int) *Restful {
+	z.MaxConns = maxConns
+	return z
+}
+
+// WithMaxBytes 设置最大字节数
+func (z *Restful) WithMaxBytes(maxBytes int64) *Restful {
+	z.MaxBytes = maxBytes
+	return z
+}
+
+// WithTimeout 设置超时时间
+func (z *Restful) WithTimeout(timeout int64) *Restful {
+	z.Timeout = timeout
+	return z
+}
+
+// WithCpuThreshold 设置CPU阈值
+func (z *Restful) WithCpuThreshold(cpuThreshold int64) *Restful {
+	z.CpuThreshold = cpuThreshold
+	return z
+}
+
+// WithSignature 设置签名配置
+func (z *Restful) WithSignature(signature *Signature) *Restful {
+	z.Signature = signature
+	return z
+}
+
+// WithModuleName 设置模块名称
+func (z *Restful) WithModuleName(moduleName string) *Restful {
+	z.ModuleName = moduleName
+	return z
+}

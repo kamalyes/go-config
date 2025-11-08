@@ -118,3 +118,78 @@ func (p *PProf) Set(data interface{}) {
 func (p *PProf) Validate() error {
 	return internal.ValidateStruct(p)
 }
+
+// DefaultPProf 返回默认PProf配置
+func DefaultPProf() PProf {
+	return PProf{
+		ModuleName:     "pprof",
+		Enabled:        false,
+		PathPrefix:     "/debug/pprof",
+		AllowedIPs:     []string{},
+		RequireAuth:    false,
+		AuthToken:      "",
+		EnableLogging:  false,
+		Timeout:        30,
+		CustomHandlers: make(map[string]http.HandlerFunc),
+	}
+}
+
+// DefaultPProfConfig 返回默认PProf配置的指针，支持链式调用
+func DefaultPProfConfig() *PProf {
+	config := DefaultPProf()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (p *PProf) WithModuleName(moduleName string) *PProf {
+	p.ModuleName = moduleName
+	return p
+}
+
+// WithEnabled 设置是否启用pprof
+func (p *PProf) WithEnabled(enabled bool) *PProf {
+	p.Enabled = enabled
+	return p
+}
+
+// WithPathPrefix 设置pprof路径前缀
+func (p *PProf) WithPathPrefix(pathPrefix string) *PProf {
+	p.PathPrefix = pathPrefix
+	return p
+}
+
+// WithAllowedIPs 设置允许访问的IP地址列表
+func (p *PProf) WithAllowedIPs(allowedIPs []string) *PProf {
+	p.AllowedIPs = allowedIPs
+	return p
+}
+
+// WithRequireAuth 设置是否需要认证
+func (p *PProf) WithRequireAuth(requireAuth bool) *PProf {
+	p.RequireAuth = requireAuth
+	return p
+}
+
+// WithAuthToken 设置认证令牌
+func (p *PProf) WithAuthToken(authToken string) *PProf {
+	p.AuthToken = authToken
+	return p
+}
+
+// WithEnableLogging 设置是否启用请求日志
+func (p *PProf) WithEnableLogging(enableLogging bool) *PProf {
+	p.EnableLogging = enableLogging
+	return p
+}
+
+// WithTimeout 设置超时时间（秒）
+func (p *PProf) WithTimeout(timeout int) *PProf {
+	p.Timeout = timeout
+	return p
+}
+
+// WithCustomHandlers 设置自定义处理器映射
+func (p *PProf) WithCustomHandlers(customHandlers map[string]http.HandlerFunc) *PProf {
+	p.CustomHandlers = customHandlers
+	return p
+}

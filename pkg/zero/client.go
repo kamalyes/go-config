@@ -83,3 +83,78 @@ func (r *RpcClient) Set(data interface{}) {
 func (r *RpcClient) Validate() error {
 	return internal.ValidateStruct(r)
 }
+
+// DefaultRpcClient 返回默认的 RpcClient 值
+func DefaultRpcClient() RpcClient {
+	return RpcClient{
+		Etcd:          nil,
+		Endpoints:     []string{},
+		Target:        "",
+		App:           "",
+		Token:         "",
+		NonBlock:      false,
+		Timeout:       5000,
+		KeepaliveTime: 30 * time.Second,
+		ModuleName:    "rpc-client",
+	}
+}
+
+// DefaultRpcClientConfig 返回默认的 RpcClient 指针，支持链式调用
+func DefaultRpcClientConfig() *RpcClient {
+	config := DefaultRpcClient()
+	return &config
+}
+
+// WithEtcd 设置Etcd配置
+func (r *RpcClient) WithEtcd(etcd *Etcd) *RpcClient {
+	r.Etcd = etcd
+	return r
+}
+
+// WithEndpoints 设置端点列表
+func (r *RpcClient) WithEndpoints(endpoints []string) *RpcClient {
+	r.Endpoints = endpoints
+	return r
+}
+
+// WithTarget 设置目标服务器地址
+func (r *RpcClient) WithTarget(target string) *RpcClient {
+	r.Target = target
+	return r
+}
+
+// WithApp 设置应用名称
+func (r *RpcClient) WithApp(app string) *RpcClient {
+	r.App = app
+	return r
+}
+
+// WithToken 设置认证token
+func (r *RpcClient) WithToken(token string) *RpcClient {
+	r.Token = token
+	return r
+}
+
+// WithNonBlock 设置是否非阻塞
+func (r *RpcClient) WithNonBlock(nonBlock bool) *RpcClient {
+	r.NonBlock = nonBlock
+	return r
+}
+
+// WithTimeout 设置超时时间
+func (r *RpcClient) WithTimeout(timeout int64) *RpcClient {
+	r.Timeout = timeout
+	return r
+}
+
+// WithKeepaliveTime 设置保持连接时间
+func (r *RpcClient) WithKeepaliveTime(keepaliveTime time.Duration) *RpcClient {
+	r.KeepaliveTime = keepaliveTime
+	return r
+}
+
+// WithModuleName 设置模块名称
+func (r *RpcClient) WithModuleName(moduleName string) *RpcClient {
+	r.ModuleName = moduleName
+	return r
+}

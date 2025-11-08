@@ -66,3 +66,50 @@ func (j *JWT) Set(data interface{}) {
 func (j *JWT) Validate() error {
 	return internal.ValidateStruct(j)
 }
+
+// DefaultJWT 返回默认JWT配置
+func DefaultJWT() JWT {
+	return JWT{
+		ModuleName:    "jwt",
+		SigningKey:    "go-config-default-key",
+		ExpiresTime:   3600 * 24 * 7, // 7天，单位：秒
+		BufferTime:    3600,          // 1小时，单位：秒
+		UseMultipoint: false,
+	}
+}
+
+// Default 返回默认JWT配置的指针，支持链式调用
+func Default() *JWT {
+	config := DefaultJWT()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (j *JWT) WithModuleName(moduleName string) *JWT {
+	j.ModuleName = moduleName
+	return j
+}
+
+// WithSigningKey 设置签名密钥
+func (j *JWT) WithSigningKey(signingKey string) *JWT {
+	j.SigningKey = signingKey
+	return j
+}
+
+// WithExpiresTime 设置过期时间（单位：秒）
+func (j *JWT) WithExpiresTime(expiresTime int64) *JWT {
+	j.ExpiresTime = expiresTime
+	return j
+}
+
+// WithBufferTime 设置缓冲时间（单位：秒）
+func (j *JWT) WithBufferTime(bufferTime int64) *JWT {
+	j.BufferTime = bufferTime
+	return j
+}
+
+// WithUseMultipoint 设置是否启用多地登录拦截
+func (j *JWT) WithUseMultipoint(useMultipoint bool) *JWT {
+	j.UseMultipoint = useMultipoint
+	return j
+}

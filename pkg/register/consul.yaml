@@ -3,6 +3,6 @@ consul:
   # 模块名称
   modulename: "common"
   # 注册中心地址
-  addr: 127.0.0.1:8500
+  endpoint: 127.0.0.1:8500
   # 间隔 单位秒
   register-interval: 30

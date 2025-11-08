@@ -233,3 +233,18 @@ type EnvironmentInterface interface {
 
 // Ensure Environment 实现了 EnvironmentInterface
 var _ EnvironmentInterface = (*Environment)(nil)
+
+// Default 返回默认的 Environment 指针，支持链式调用
+func Default() *Environment {
+	config := DefaultEnvironment()
+	return &config
+}
+
+// DefaultEnvironment 返回默认的 Environment 值
+func DefaultEnvironment() Environment {
+	return Environment{
+		CheckFrequency: 2 * time.Second,
+		Value:          DefaultEnv,
+		quit:           make(chan struct{}),
+	}
+}

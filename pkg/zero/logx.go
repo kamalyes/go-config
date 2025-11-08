@@ -94,3 +94,120 @@ func (l *LogConf) Set(data interface{}) {
 func (l *LogConf) Validate() error {
 	return internal.ValidateStruct(l)
 }
+
+// DefaultLogConf 返回默认的 LogConf 值
+func DefaultLogConf() LogConf {
+	return LogConf{
+		ServiceName:         "default-service",
+		Mode:                "console",
+		Encoding:            "json",
+		TimeFormat:          "2006-01-02 15:04:05",
+		Path:                "logs",
+		Level:               "info",
+		MaxContentLength:    10000,
+		Compress:            false,
+		Stat:                true,
+		KeepDays:            7,
+		StackCooldownMillis: 100,
+		MaxBackups:          0,
+		MaxSize:             0,
+		Rotation:            "daily",
+		FileTimeFormat:      "2006-01-02",
+	}
+}
+
+// DefaultLogConfConfig 返回默认的 LogConf 指针，支持链式调用
+func DefaultLogConfConfig() *LogConf {
+	config := DefaultLogConf()
+	return &config
+}
+
+// WithServiceName 设置服务名称
+func (l *LogConf) WithServiceName(serviceName string) *LogConf {
+	l.ServiceName = serviceName
+	return l
+}
+
+// WithMode 设置日志模式
+func (l *LogConf) WithMode(mode string) *LogConf {
+	l.Mode = mode
+	return l
+}
+
+// WithEncoding 设置编码类型
+func (l *LogConf) WithEncoding(encoding string) *LogConf {
+	l.Encoding = encoding
+	return l
+}
+
+// WithTimeFormat 设置时间格式
+func (l *LogConf) WithTimeFormat(timeFormat string) *LogConf {
+	l.TimeFormat = timeFormat
+	return l
+}
+
+// WithPath 设置日志文件路径
+func (l *LogConf) WithPath(path string) *LogConf {
+	l.Path = path
+	return l
+}
+
+// WithLevel 设置日志级别
+func (l *LogConf) WithLevel(level string) *LogConf {
+	l.Level = level
+	return l
+}
+
+// WithMaxContentLength 设置最大内容长度
+func (l *LogConf) WithMaxContentLength(maxContentLength uint32) *LogConf {
+	l.MaxContentLength = maxContentLength
+	return l
+}
+
+// WithCompress 设置是否压缩
+func (l *LogConf) WithCompress(compress bool) *LogConf {
+	l.Compress = compress
+	return l
+}
+
+// WithStat 设置记录统计信息
+func (l *LogConf) WithStat(stat bool) *LogConf {
+	l.Stat = stat
+	return l
+}
+
+// WithKeepDays 设置保留天数
+func (l *LogConf) WithKeepDays(keepDays int) *LogConf {
+	l.KeepDays = keepDays
+	return l
+}
+
+// WithStackCooldownMillis 设置堆栈冷却时间
+func (l *LogConf) WithStackCooldownMillis(stackCooldownMillis int) *LogConf {
+	l.StackCooldownMillis = stackCooldownMillis
+	return l
+}
+
+// WithMaxBackups 设置最大备份数
+func (l *LogConf) WithMaxBackups(maxBackups int) *LogConf {
+	l.MaxBackups = maxBackups
+	return l
+}
+
+// WithMaxSize 设置最大文件大小
+func (l *LogConf) WithMaxSize(maxSize int) *LogConf {
+	l.MaxSize = maxSize
+	return l
+}
+
+// WithRotation 设置轮换规则
+func (l *LogConf) WithRotation(rotation string) *LogConf {
+	l.Rotation = rotation
+	return l
+}
+
+// WithFileTimeFormat 设置文件时间格式
+func (l *LogConf) WithFileTimeFormat(fileTimeFormat string) *LogConf {
+	l.FileTimeFormat = fileTimeFormat
+	return l
+}

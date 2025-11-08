@@ -56,3 +56,52 @@ func TestWechatSet(t *testing.T) {
 	assert.Equal(t, newParams.ApiKey, wechatInstance.ApiKey)
 	assert.Equal(t, newParams.CertP12Path, wechatInstance.CertP12Path)
 }
+
+// TestWechatPayDefault 测试默认配置
+func TestWechatPayDefault(t *testing.T) {
+	defaultConfig := pay.DefaultWechatPay()
+	
+	// 检查默认值
+	assert.Equal(t, "wechatpay", defaultConfig.ModuleName)
+	assert.Equal(t, "", defaultConfig.AppId)
+	assert.Equal(t, "", defaultConfig.MchId)
+	assert.Equal(t, "", defaultConfig.NotifyUrl)
+	assert.Equal(t, "", defaultConfig.ApiKey)
+	assert.Equal(t, "", defaultConfig.CertP12Path)
+}
+
+// TestWechatPayDefaultPointer 测试默认配置指针
+func TestWechatPayDefaultPointer(t *testing.T) {
+	config := pay.DefaultWechatPayConfig()
+	
+	assert.NotNil(t, config)
+	assert.Equal(t, "wechatpay", config.ModuleName)
+}
+
+// TestWechatPayChainMethods 测试链式方法
+func TestWechatPayChainMethods(t *testing.T) {
+	config := pay.DefaultWechatPayConfig().
+		WithModuleName("payment-service").
+		WithAppID("wx1234567890123456").
+		WithMchID("1234567890").
+		WithNotifyURL("https://example.com/notify").
+		WithApiKey("my-api-key").
+		WithCertP12Path("./certs/apiclient_cert.p12")
+	
+	assert.Equal(t, "payment-service", config.ModuleName)
+	assert.Equal(t, "wx1234567890123456", config.AppId)
+	assert.Equal(t, "1234567890", config.MchId)
+	assert.Equal(t, "https://example.com/notify", config.NotifyUrl)
+	assert.Equal(t, "my-api-key", config.ApiKey)
+	assert.Equal(t, "./certs/apiclient_cert.p12", config.CertP12Path)
+}
+
+// TestWechatPayChainMethodsReturnPointer 测试链式方法返回指针
+func TestWechatPayChainMethodsReturnPointer(t *testing.T) {
+	config1 := pay.DefaultWechatPayConfig()
+	config2 := config1.WithAppID("new-app-id")
+	
+	// 应该返回同一个实例
+	assert.Same(t, config1, config2)
+	assert.Equal(t, "new-app-id", config1.AppId)
+}

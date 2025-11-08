@@ -179,7 +179,7 @@ func main() {
     config := manager.GetConfig()
     
     // 使用配置
-    log.Printf("🚀 服务启动: %s", config.Server.Addr)
+    log.Printf("🚀 服务启动: %s", config.Server.Endpoint)
     log.Printf("📊 数据库: %s:%s/%s", 
         config.MySQL.Host, config.MySQL.Port, config.MySQL.Dbname)
     log.Printf("⚡ Redis: %s (DB:%d)", 
@@ -208,83 +208,6 @@ go run main.go
 # 方式三: Windows 环境
 set APP_ENV=prod && go run main.go
 ```
-
-## 📚 完整示例代码
-
-我们提供了多个完整的可运行示例，位于项目的 `examples/` 目录：
-
-```text
-examples/
-├── 📁 basic_usage/              # 基础用法示例
-│   ├── 📄 main.go              # 单配置模式演示
-│   └── 📄 config.yaml          # 基础配置文件
-├── 📁 multi_config/             # 多配置模式示例
-│   ├── 📄 main.go              # 多实例配置演示
-│   └── 📄 config.yaml          # 多模块配置文件
-├── 📁 environment_config/       # 环境配置示例
-│   ├── 📄 main.go              # 多环境切换演示
-│   ├── 📄 dev_config.yaml      # 开发环境配置
-│   └── 📄 prod_config.yaml     # 生产环境配置
-├── 📁 web_service/              # Web服务示例
-│   ├── 📄 main.go              # HTTP服务器演示
-│   └── 📄 config.yaml          # 服务器配置
-├── 📁 advanced_features/        # 高级功能示例
-│   ├── 📄 main.go              # 外部Viper和动态配置
-│   └── 📄 config.yaml          # 高级配置文件
-└── 📁 validation_demo/          # 配置验证示例
-    ├── 📄 main.go              # 配置验证演示
-    └── 📄 config.yaml          # 验证配置文件
-```
-
-### 🚀 快速运行示例
-
-```bash
-# 1. 克隆项目
-git clone https://github.com/kamalyes/go-config.git
-cd go-config
-
-# 2. 运行基础示例
-cd examples/basic_usage
-go run main.go
-
-# 3. 运行多配置示例
-cd ../multi_config
-go run main.go
-
-# 4. 运行环境配置示例 (指定环境)
-cd ../environment_config
-export APP_ENV=dev  # 或 export APP_ENV=prod
-go run main.go
-
-# 5. 运行Web服务示例
-cd ../web_service
-go run main.go
-# 访问: http://localhost:8080
-
-# 6. 运行高级功能示例
-cd ../advanced_features  
-go run main.go
-
-# 7. 运行验证示例
-cd ../validation_demo
-go run main.go
-```
-
-### 🎯 VS Code 调试支持
-
-项目已配置好 VS Code 调试环境，可以直接在 VS Code 中：
-
-1. 📁 打开项目根目录
-2. 🔍 按 `F5` 或转到 **运行和调试** 面板
-3. 🎯 选择要调试的示例：
-   - **启动基础示例** - 基础用法演示
-   - **启动多配置示例** - 多实例配置演示
-   - **启动环境配置示例** - 环境切换演示  
-   - **启动Web服务示例** - HTTP服务演示
-   - **启动高级功能示例** - 外部Viper和动态配置
-   - **启动验证演示** - 配置验证演示
-
-> 💡 **提示**: 每个示例都是完全独立的，包含完整的配置文件和清理逻辑，可以安全地运行和测试。
 
 ## 🎯 核心概念
 

@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 23:50:29
+ * @LastEditTime: 2025-11-09 01:13:53
  * @FilePath: \go-config\pkg\pay\alipay.go
  * @Description:
  *
@@ -73,4 +73,72 @@ func (a *AliPay) Set(data interface{}) {
 // Validate 验证 AliPay 配置的有效性
 func (a *AliPay) Validate() error {
 	return internal.ValidateStruct(a)
+}
+
+// DefaultAliPay 返回默认AliPay配置
+func DefaultAliPay() AliPay {
+	return AliPay{
+		ModuleName: "alipay",
+		Pid:        "",
+		AppId:      "",
+		PriKey:     "",
+		PubKey:     "",
+		SignType:   "RSA2",
+		NotifyUrl:  "",
+		Subject:    "默认订单",
+	}
+}
+
+// DefaultAliPayConfig 返回默认AliPay配置的指针，支持链式调用
+func DefaultAliPayConfig() *AliPay {
+	config := DefaultAliPay()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (a *AliPay) WithModuleName(moduleName string) *AliPay {
+	a.ModuleName = moduleName
+	return a
+}
+
+// WithPid 设置商户PID
+func (a *AliPay) WithPid(pid string) *AliPay {
+	a.Pid = pid
+	return a
+}
+
+// WithAppID 设置应用ID
+func (a *AliPay) WithAppID(appID string) *AliPay {
+	a.AppId = appID
+	return a
+}
+
+// WithPrivateKey 设置私钥
+func (a *AliPay) WithPrivateKey(priKey string) *AliPay {
+	a.PriKey = priKey
+	return a
+}
+
+// WithPublicKey 设置公钥
+func (a *AliPay) WithPublicKey(pubKey string) *AliPay {
+	a.PubKey = pubKey
+	return a
+}
+
+// WithSignType 设置签名方式
+func (a *AliPay) WithSignType(signType string) *AliPay {
+	a.SignType = signType
+	return a
+}
+
+// WithNotifyURL 设置回调URL
+func (a *AliPay) WithNotifyURL(notifyURL string) *AliPay {
+	a.NotifyUrl = notifyURL
+	return a
+}
+
+// WithSubject 设置默认订单标题
+func (a *AliPay) WithSubject(subject string) *AliPay {
+	a.Subject = subject
+	return a
 }

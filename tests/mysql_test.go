@@ -67,3 +67,65 @@ func TestMySQLSet(t *testing.T) {
 	assert.Equal(t, newParams.ConnMaxIdleTime, mysqlInstance.ConnMaxIdleTime)
 	assert.Equal(t, newParams.ConnMaxLifeTime, mysqlInstance.ConnMaxLifeTime)
 }
+
+// TestMySQLDefault 测试默认配置
+func TestMySQLDefault(t *testing.T) {
+	defaultConfig := database.DefaultMySQL()
+	
+	// 检查默认值
+	assert.Equal(t, "mysql", defaultConfig.ModuleName)
+	assert.Equal(t, "127.0.0.1", defaultConfig.Host)
+	assert.Equal(t, "3306", defaultConfig.Port)
+	assert.Equal(t, "charset=utf8mb4&parseTime=True&loc=Local", defaultConfig.Config)
+	assert.Equal(t, "silent", defaultConfig.LogLevel)
+	assert.Equal(t, 10, defaultConfig.MaxIdleConns)
+	assert.Equal(t, 100, defaultConfig.MaxOpenConns)
+	assert.Equal(t, 3600, defaultConfig.ConnMaxIdleTime)
+	assert.Equal(t, 7200, defaultConfig.ConnMaxLifeTime)
+}
+
+// TestMySQLDefaultPointer 测试默认配置指针
+func TestMySQLDefaultPointer(t *testing.T) {
+	config := database.Default()
+	
+	assert.NotNil(t, config)
+	assert.Equal(t, "mysql", config.ModuleName)
+	assert.Equal(t, "127.0.0.1", config.Host)
+	assert.Equal(t, "3306", config.Port)
+}
+
+// TestMySQLChainMethods 测试链式方法
+func TestMySQLChainMethods(t *testing.T) {
+	config := database.Default().
+		WithModuleName("test-db").
+		WithHost("192.168.1.100").
+		WithPort("3307").
+		WithDbname("testdb").
+		WithUsername("testuser").
+		WithPassword("testpass").
+		WithMaxIdleConns(20).
+		WithMaxOpenConns(200).
+		WithConnMaxIdleTime(7200).
+		WithConnMaxLifeTime(14400)
+	
+	assert.Equal(t, "test-db", config.ModuleName)
+	assert.Equal(t, "192.168.1.100", config.Host)
+	assert.Equal(t, "3307", config.Port)
+	assert.Equal(t, "testdb", config.Dbname)
+	assert.Equal(t, "testuser", config.Username)
+	assert.Equal(t, "testpass", config.Password)
+	assert.Equal(t, 20, config.MaxIdleConns)
+	assert.Equal(t, 200, config.MaxOpenConns)
+	assert.Equal(t, 7200, config.ConnMaxIdleTime)
+	assert.Equal(t, 14400, config.ConnMaxLifeTime)
+}
+
+// TestMySQLChainMethodsReturnPointer 测试链式方法返回指针
+func TestMySQLChainMethodsReturnPointer(t *testing.T) {
+	config1 := database.Default()
+	config2 := config1.WithHost("localhost")
+	
+	// 应该返回同一个实例
+	assert.Same(t, config1, config2)
+	assert.Equal(t, "localhost", config1.Host)
+}

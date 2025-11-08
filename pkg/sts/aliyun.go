@@ -68,3 +68,63 @@ func (a *AliyunSts) Set(data interface{}) {
 func (a *AliyunSts) Validate() error {
 	return internal.ValidateStruct(a)
 }
+
+// Default 返回默认的 AliyunSts 指针，支持链式调用
+func Default() *AliyunSts {
+	config := DefaultAliyunSts()
+	return &config
+}
+
+// DefaultAliyunSts 返回默认的 AliyunSts 值
+func DefaultAliyunSts() AliyunSts {
+	return AliyunSts{
+		ModuleName:      "aliyun-sts",
+		RegionID:        "cn-hangzhou",
+		AccessKeyID:     "",
+		AccessKeySecret: "",
+		RoleArn:         "",
+		RoleSessionName: "default-session",
+	}
+}
+
+// DefaultAliyunStsConfig 返回默认的 AliyunSts 指针，支持链式调用
+func DefaultAliyunStsConfig() *AliyunSts {
+	config := DefaultAliyunSts()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (a *AliyunSts) WithModuleName(moduleName string) *AliyunSts {
+	a.ModuleName = moduleName
+	return a
+}
+
+// WithRegionID 设置区域 ID
+func (a *AliyunSts) WithRegionID(regionID string) *AliyunSts {
+	a.RegionID = regionID
+	return a
+}
+
+// WithAccessKeyID 设置访问密钥 ID
+func (a *AliyunSts) WithAccessKeyID(accessKeyID string) *AliyunSts {
+	a.AccessKeyID = accessKeyID
+	return a
+}
+
+// WithAccessKeySecret 设置访问密钥 Secret
+func (a *AliyunSts) WithAccessKeySecret(accessKeySecret string) *AliyunSts {
+	a.AccessKeySecret = accessKeySecret
+	return a
+}
+
+// WithRoleArn 设置角色 ARN
+func (a *AliyunSts) WithRoleArn(roleArn string) *AliyunSts {
+	a.RoleArn = roleArn
+	return a
+}
+
+// WithRoleSessionName 设置角色会话名称
+func (a *AliyunSts) WithRoleSessionName(roleSessionName string) *AliyunSts {
+	a.RoleSessionName = roleSessionName
+	return a
+}

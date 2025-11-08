@@ -50,3 +50,22 @@ func (e *Prometheus) Set(data interface{}) {
 func (e *Prometheus) Validate() error {
 	return internal.ValidateStruct(e)
 }
+
+// DefaultPrometheus 返回默认的 Prometheus 值
+func DefaultPrometheus() Prometheus {
+	return Prometheus{
+		Enabled: false,
+	}
+}
+
+// DefaultPrometheusConfig 返回默认的 Prometheus 指针，支持链式调用
+func DefaultPrometheusConfig() *Prometheus {
+	config := DefaultPrometheus()
+	return &config
+}
+
+// WithEnabled 设置是否启用Prometheus
+func (e *Prometheus) WithEnabled(enabled bool) *Prometheus {
+	e.Enabled = enabled
+	return e
+}

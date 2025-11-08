@@ -95,3 +95,120 @@ func (z *Zap) Set(data interface{}) {
 func (z *Zap) Validate() error {
 	return internal.ValidateStruct(z)
 }
+
+// DefaultZap 返回默认Zap配置
+func DefaultZap() Zap {
+	return Zap{
+		ModuleName:    "zap",
+		Level:         "info",
+		Format:        "console",
+		Prefix:        "[GO-CONFIG]",
+		Director:      "./logs",
+		MaxSize:       10,
+		MaxAge:        30,
+		MaxBackups:    5,
+		Compress:      false,
+		LinkName:      "latest_log",
+		ShowLine:      true,
+		EncodeLevel:   "capitalColor",
+		StacktraceKey: "stacktrace",
+		LogInConsole:  true,
+		Development:   false,
+	}
+}
+
+// Default 返回默认Zap配置的指针，支持链式调用
+func Default() *Zap {
+	config := DefaultZap()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (z *Zap) WithModuleName(moduleName string) *Zap {
+	z.ModuleName = moduleName
+	return z
+}
+
+// WithLevel 设置日志级别
+func (z *Zap) WithLevel(level string) *Zap {
+	z.Level = level
+	return z
+}
+
+// WithFormat 设置日志格式
+func (z *Zap) WithFormat(format string) *Zap {
+	z.Format = format
+	return z
+}
+
+// WithPrefix 设置日志前缀
+func (z *Zap) WithPrefix(prefix string) *Zap {
+	z.Prefix = prefix
+	return z
+}
+
+// WithDirector 设置日志目录
+func (z *Zap) WithDirector(director string) *Zap {
+	z.Director = director
+	return z
+}
+
+// WithMaxSize 设置日志文件最大大小
+func (z *Zap) WithMaxSize(maxSize int) *Zap {
+	z.MaxSize = maxSize
+	return z
+}
+
+// WithMaxAge 设置日志最大保留时间
+func (z *Zap) WithMaxAge(maxAge int) *Zap {
+	z.MaxAge = maxAge
+	return z
+}
+
+// WithMaxBackups 设置保留旧文件最大个数
+func (z *Zap) WithMaxBackups(maxBackups int) *Zap {
+	z.MaxBackups = maxBackups
+	return z
+}
+
+// WithCompress 设置是否压缩
+func (z *Zap) WithCompress(compress bool) *Zap {
+	z.Compress = compress
+	return z
+}
+
+// WithLinkName 设置日志软连接文件名
+func (z *Zap) WithLinkName(linkName string) *Zap {
+	z.LinkName = linkName
+	return z
+}
+
+// WithShowLine 设置是否在日志中输出源码行
+func (z *Zap) WithShowLine(showLine bool) *Zap {
+	z.ShowLine = showLine
+	return z
+}
+
+// WithEncodeLevel 设置日志编码等级
+func (z *Zap) WithEncodeLevel(encodeLevel string) *Zap {
+	z.EncodeLevel = encodeLevel
+	return z
+}
+
+// WithStacktraceKey 设置堆栈捕捉标识
+func (z *Zap) WithStacktraceKey(stacktraceKey string) *Zap {
+	z.StacktraceKey = stacktraceKey
+	return z
+}
+
+// WithLogInConsole 设置是否在控制台打印日志
+func (z *Zap) WithLogInConsole(logInConsole bool) *Zap {
+	z.LogInConsole = logInConsole
+	return z
+}
+
+// WithDevelopment 设置是否为开发者模式
+func (z *Zap) WithDevelopment(development bool) *Zap {
+	z.Development = development
+	return z
+}

@@ -17,7 +17,7 @@ import (
 
 // YouZan 结构体表示 YouZan 配置
 type YouZan struct {
-	Host          string `mapstructure:"host"                     yaml:"host"                json:"host"                  validate:"required,url"` // Host，必须是有效的 URL
+	Endpoint      string `mapstructure:"endpoint"                 yaml:"endpoint"            json:"endpoint"              validate:"required,url"` // API端点地址，必须是有效的 URL
 	ClientID      string `mapstructure:"client-id"                yaml:"client-id"           json:"client_id"             validate:"required"`     // 客户端 ID
 	ClientSecret  string `mapstructure:"client-secret"            yaml:"client-secret"       json:"client_secret"         validate:"required"`     // 客户端密钥
 	AuthorizeType string `mapstructure:"authorize-type"           yaml:"authorize-type"      json:"authorize_type"        validate:"required"`     // 授权类型
@@ -40,7 +40,7 @@ func NewYouZan(opt *YouZan) *YouZan {
 func (y *YouZan) Clone() internal.Configurable {
 	return &YouZan{
 		ModuleName:    y.ModuleName,
-		Host:          y.Host,
+		Endpoint:      y.Endpoint,
 		ClientID:      y.ClientID,
 		ClientSecret:  y.ClientSecret,
 		AuthorizeType: y.AuthorizeType,
@@ -58,7 +58,7 @@ func (y *YouZan) Get() interface{} {
 func (y *YouZan) Set(data interface{}) {
 	if configData, ok := data.(*YouZan); ok {
 		y.ModuleName = configData.ModuleName
-		y.Host = configData.Host
+		y.Endpoint = configData.Endpoint
 		y.ClientID = configData.ClientID
 		y.ClientSecret = configData.ClientSecret
 		y.AuthorizeType = configData.AuthorizeType
@@ -70,4 +70,71 @@ func (y *YouZan) Set(data interface{}) {
 // Validate 验证 YouZan 配置的有效性
 func (y *YouZan) Validate() error {
 	return internal.ValidateStruct(y)
+}
+
+// Default 返回默认的 YouZan 指针，支持链式调用
+func Default() *YouZan {
+	config := DefaultYouZan()
+	return &config
+}
+
+// DefaultYouZan 返回默认的 YouZan 值
+func DefaultYouZan() YouZan {
+	return YouZan{
+		Endpoint:      "https://open.youzan.com",
+		ClientID:      "",
+		ClientSecret:  "",
+		AuthorizeType: "silent",
+		GrantID:       "",
+		Refresh:       true,
+		ModuleName:    "youzan",
+	}
+}
+
+// DefaultYouZanConfig 返回默认的 YouZan 指针，支持链式调用
+func DefaultYouZanConfig() *YouZan {
+	config := DefaultYouZan()
+	return &config
+}
+
+// WithEndpoint 设置API端点地址
+func (y *YouZan) WithEndpoint(endpoint string) *YouZan {
+	y.Endpoint = endpoint
+	return y
+}
+
+// WithClientID 设置客户端 ID
+func (y *YouZan) WithClientID(clientID string) *YouZan {
+	y.ClientID = clientID
+	return y
+}
+
+// WithClientSecret 设置客户端密钥
+func (y *YouZan) WithClientSecret(clientSecret string) *YouZan {
+	y.ClientSecret = clientSecret
+	return y
+}
+
+// WithAuthorizeType 设置授权类型
+func (y *YouZan) WithAuthorizeType(authorizeType string) *YouZan {
+	y.AuthorizeType = authorizeType
+	return y
+}
+
+// WithGrantID 设置授权 ID
+func (y *YouZan) WithGrantID(grantID string) *YouZan {
+	y.GrantID = grantID
+	return y
+}
+
+// WithRefresh 设置是否刷新
+func (y *YouZan) WithRefresh(refresh bool) *YouZan {
+	y.Refresh = refresh
+	return y
+}
+
+// WithModuleName 设置模块名称
+func (y *YouZan) WithModuleName(moduleName string) *YouZan {
+	y.ModuleName = moduleName
+	return y
 }

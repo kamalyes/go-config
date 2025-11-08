@@ -110,3 +110,106 @@ func (r *RpcServer) Set(data interface{}) {
 func (r *RpcServer) Validate() error {
 	return internal.ValidateStruct(r)
 }
+
+// DefaultRpcServer 返回默认的 RpcServer 值
+func DefaultRpcServer() RpcServer {
+	return RpcServer{
+		ListenOn:      "0.0.0.0:8080",
+		Timeout:       5000,
+		CpuThreshold:  90,
+		Etcd:          nil,
+		Auth:          false,
+		StrictControl: false,
+		LogConf:       nil,
+		Name:          "rpc-server",
+		Mode:          "dev",
+		MetricsUrl:    "",
+		Prometheus:    nil,
+		Telemetry:     nil,
+		ModuleName:    "rpc-server",
+	}
+}
+
+// DefaultRpcServerConfig 返回默认的 RpcServer 指针，支持链式调用
+func DefaultRpcServerConfig() *RpcServer {
+	config := DefaultRpcServer()
+	return &config
+}
+
+// WithListenOn 设置监听地址
+func (r *RpcServer) WithListenOn(listenOn string) *RpcServer {
+	r.ListenOn = listenOn
+	return r
+}
+
+// WithTimeout 设置超时时间
+func (r *RpcServer) WithTimeout(timeout int64) *RpcServer {
+	r.Timeout = timeout
+	return r
+}
+
+// WithCpuThreshold 设置CPU使用率阈值
+func (r *RpcServer) WithCpuThreshold(cpuThreshold int64) *RpcServer {
+	r.CpuThreshold = cpuThreshold
+	return r
+}
+
+// WithEtcd 设置Etcd配置
+func (r *RpcServer) WithEtcd(etcd *Etcd) *RpcServer {
+	r.Etcd = etcd
+	return r
+}
+
+// WithAuth 设置是否启用认证
+func (r *RpcServer) WithAuth(auth bool) *RpcServer {
+	r.Auth = auth
+	return r
+}
+
+// WithStrictControl 设置是否启用严格控制
+func (r *RpcServer) WithStrictControl(strictControl bool) *RpcServer {
+	r.StrictControl = strictControl
+	return r
+}
+
+// WithLogConf 设置Log配置
+func (r *RpcServer) WithLogConf(logConf *LogConf) *RpcServer {
+	r.LogConf = logConf
+	return r
+}
+
+// WithName 设置服务器名称
+func (r *RpcServer) WithName(name string) *RpcServer {
+	r.Name = name
+	return r
+}
+
+// WithMode 设置运行模式
+func (r *RpcServer) WithMode(mode string) *RpcServer {
+	r.Mode = mode
+	return r
+}
+
+// WithMetricsUrl 设置指标URL
+func (r *RpcServer) WithMetricsUrl(metricsUrl string) *RpcServer {
+	r.MetricsUrl = metricsUrl
+	return r
+}
+
+// WithPrometheus 设置Prometheus配置
+func (r *RpcServer) WithPrometheus(prometheus *Prometheus) *RpcServer {
+	r.Prometheus = prometheus
+	return r
+}
+
+// WithTelemetry 设置追踪配置
+func (r *RpcServer) WithTelemetry(telemetry *Telemetry) *RpcServer {
+	r.Telemetry = telemetry
+	return r
+}
+
+// WithModuleName 设置模块名称
+func (r *RpcServer) WithModuleName(moduleName string) *RpcServer {
+	r.ModuleName = moduleName
+	return r
+}

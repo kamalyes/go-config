@@ -22,7 +22,7 @@ import (
 func generateConsulTestParams() *register.Consul {
 	return &register.Consul{
 		ModuleName:       "TestModule",
-		Addr:             "127.0.0.1:8500",
+		Endpoint:         "127.0.0.1:8500",
 		RegisterInterval: 10, // 随机间隔设置为 10 秒
 	}
 }
@@ -30,7 +30,7 @@ func generateConsulTestParams() *register.Consul {
 // 验证 Consul 的字段与期望的映射是否相等
 func assertConsulFields(t *testing.T, consul *register.Consul, expected *register.Consul) {
 	assert.Equal(t, expected.ModuleName, consul.ModuleName)
-	assert.Equal(t, expected.Addr, consul.Addr)
+	assert.Equal(t, expected.Endpoint, consul.Endpoint)
 	assert.Equal(t, expected.RegisterInterval, consul.RegisterInterval)
 }
 
@@ -54,7 +54,7 @@ func TestConsulSet(t *testing.T) {
 	oldParams := generateConsulTestParams()
 	newParams := &register.Consul{
 		ModuleName:       "UpdatedModule",
-		Addr:             "192.168.1.1:8500",
+		Endpoint:         "192.168.1.1:8500",
 		RegisterInterval: 15,
 	}
 
@@ -62,6 +62,6 @@ func TestConsulSet(t *testing.T) {
 	consulInstance.Set(newParams)
 
 	assert.Equal(t, newParams.ModuleName, consulInstance.ModuleName)
-	assert.Equal(t, newParams.Addr, consulInstance.Addr)
+	assert.Equal(t, newParams.Endpoint, consulInstance.Endpoint)
 	assert.Equal(t, newParams.RegisterInterval, consulInstance.RegisterInterval)
 }

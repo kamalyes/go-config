@@ -55,3 +55,53 @@ func TestCaptchaSet(t *testing.T) {
 	assert.Equal(t, newParams.MaxSkew, captchaInstance.MaxSkew)
 	assert.Equal(t, newParams.DotCount, captchaInstance.DotCount)
 }
+
+// TestCaptchaDefault 测试默认配置
+func TestCaptchaDefault(t *testing.T) {
+	defaultConfig := captcha.DefaultCaptcha()
+	
+	// 检查默认值
+	assert.Equal(t, "captcha", defaultConfig.ModuleName)
+	assert.Equal(t, 4, defaultConfig.KeyLen)
+	assert.Equal(t, 120, defaultConfig.ImgWidth)
+	assert.Equal(t, 40, defaultConfig.ImgHeight)
+	assert.Equal(t, 0.7, defaultConfig.MaxSkew)
+	assert.Equal(t, 80, defaultConfig.DotCount)
+}
+
+// TestCaptchaDefaultPointer 测试默认配置指针
+func TestCaptchaDefaultPointer(t *testing.T) {
+	config := captcha.Default()
+	
+	assert.NotNil(t, config)
+	assert.Equal(t, "captcha", config.ModuleName)
+	assert.Equal(t, 4, config.KeyLen)
+}
+
+// TestCaptchaChainMethods 测试链式方法
+func TestCaptchaChainMethods(t *testing.T) {
+	config := captcha.Default().
+		WithModuleName("security").
+		WithKeyLen(6).
+		WithImgWidth(150).
+		WithImgHeight(50).
+		WithMaxSkew(0.8).
+		WithDotCount(100)
+	
+	assert.Equal(t, "security", config.ModuleName)
+	assert.Equal(t, 6, config.KeyLen)
+	assert.Equal(t, 150, config.ImgWidth)
+	assert.Equal(t, 50, config.ImgHeight)
+	assert.Equal(t, 0.8, config.MaxSkew)
+	assert.Equal(t, 100, config.DotCount)
+}
+
+// TestCaptchaChainMethodsReturnPointer 测试链式方法返回指针
+func TestCaptchaChainMethodsReturnPointer(t *testing.T) {
+	config1 := captcha.Default()
+	config2 := config1.WithKeyLen(8)
+	
+	// 应该返回同一个实例
+	assert.Same(t, config1, config2)
+	assert.Equal(t, 8, config1.KeyLen)
+}

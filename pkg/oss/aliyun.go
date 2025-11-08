@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:39:54
+ * @LastEditTime: 2025-11-09 01:19:56
  * @FilePath: \go-config\pkg\oss\aliyun.go
  * @Description:
  *
@@ -21,6 +21,7 @@ type AliyunOss struct {
 	SecretKey           string `mapstructure:"secret-key"         yaml:"secret-key"      json:"secret_key"       validate:"required"` // 签名用的钥匙
 	Endpoint            string `mapstructure:"endpoint"           yaml:"endpoint"        json:"endpoint"`                             // 地区
 	Bucket              string `mapstructure:"bucket"             yaml:"bucket"          json:"bucket"`                               // 桶
+	Region       string `mapstructure:"region"        yaml:"region"        json:"region"         validate:"required"` // AWS 区域，如：ap-southeast-1
 	ReplaceOriginalHost string `mapstructure:"replace-original-host" yaml:"replace-original-host" json:"replace_original_host"`       // 替换的原始主机
 	ReplaceLaterHost    string `mapstructure:"replace-later-host" yaml:"replace-later-host"   json:"replace_later_host"`              // 替换后的主机
 	ModuleName          string `mapstructure:"modulename"         yaml:"modulename" json:"module_name"`                               // 模块名称
@@ -60,6 +61,7 @@ func (m *AliyunOss) Set(data interface{}) {
 		m.ModuleName = configData.ModuleName
 		m.Endpoint = configData.Endpoint
 		m.Bucket = configData.Bucket
+		m.Region = configData.Region
 		m.AccessKey = configData.AccessKey
 		m.SecretKey = configData.SecretKey
 		m.ReplaceOriginalHost = configData.ReplaceOriginalHost
@@ -70,4 +72,72 @@ func (m *AliyunOss) Set(data interface{}) {
 // Validate 验证 AliyunOss 配置的有效性
 func (m *AliyunOss) Validate() error {
 	return internal.ValidateStruct(m)
+}
+
+// DefaultAliyunOss 返回默认AliyunOss配置
+func DefaultAliyunOss() AliyunOss {
+	return AliyunOss{
+		ModuleName:          "aliyun-oss",
+		AccessKey:           "",
+		SecretKey:           "",
+		Endpoint:            "oss-cn-hangzhou.aliyuncs.com",
+		Region:              "oss-cn-hangzhou",
+		Bucket:              "",
+		ReplaceOriginalHost: "",
+		ReplaceLaterHost:    "",
+	}
+}
+
+// DefaultAliyunOSSConfig 返回默认AliyunOSS配置的指针，支持链式调用
+func DefaultAliyunOSSConfig() *AliyunOss {
+	config := DefaultAliyunOss()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (m *AliyunOss) WithModuleName(moduleName string) *AliyunOss {
+	m.ModuleName = moduleName
+	return m
+}
+
+// WithAccessKey 设置访问密钥
+func (m *AliyunOss) WithAccessKey(accessKey string) *AliyunOss {
+	m.AccessKey = accessKey
+	return m
+}
+
+// WithSecretKey 设置私有密钥
+func (m *AliyunOss) WithSecretKey(secretKey string) *AliyunOss {
+	m.SecretKey = secretKey
+	return m
+}
+
+// WithEndpoint 设置OSS端点
+func (m *AliyunOss) WithEndpoint(endpoint string) *AliyunOss {
+	m.Endpoint = endpoint
+	return m
+}
+
+// WithBucket 设置存储桶名称
+func (m *AliyunOss) WithBucket(bucket string) *AliyunOss {
+	m.Bucket = bucket
+	return m
+}
+
+// WithRegion 设置区域
+func (a *AliyunOss) WithRegion(region string) *AliyunOss {
+	a.Region = region
+	return a
+}
+
+// WithReplaceOriginalHost 设置原始主机替换
+func (m *AliyunOss) WithReplaceOriginalHost(replaceOriginalHost string) *AliyunOss {
+	m.ReplaceOriginalHost = replaceOriginalHost
+	return m
+}
+
+// WithReplaceLaterHost 设置替换后的主机
+func (m *AliyunOss) WithReplaceLaterHost(replaceLaterHost string) *AliyunOss {
+	m.ReplaceLaterHost = replaceLaterHost
+	return m
 }

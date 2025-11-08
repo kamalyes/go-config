@@ -23,7 +23,7 @@ import (
 func generateServerTestParams() *register.Server {
 	return &register.Server{
 		ModuleName:             random.RandString(10, random.CAPITAL),
-		Addr:                   "0.0.0.0:8080",                       // Addr
+		Endpoint:                   "0.0.0.0:8080",                       // Addr
 		ServerName:             random.RandString(8, random.CAPITAL), // 随机生成服务名称
 		ContextPath:            random.RandString(5, random.CAPITAL), // 随机生成请求根路径
 		DataDriver:             random.RandString(5, random.CAPITAL), // 随机生成数据库类型
@@ -51,7 +51,7 @@ func TestServerSet(t *testing.T) {
 	serverInstance.Set(newConfig)
 
 	assert.Equal(t, newParams.ModuleName, serverInstance.ModuleName)
-	assert.Equal(t, newParams.Addr, serverInstance.Addr)
+	assert.Equal(t, newParams.Endpoint, serverInstance.Endpoint)
 	assert.Equal(t, newParams.ServerName, serverInstance.ServerName)
 	assert.Equal(t, newParams.ContextPath, serverInstance.ContextPath)
 	assert.Equal(t, newParams.DataDriver, serverInstance.DataDriver)

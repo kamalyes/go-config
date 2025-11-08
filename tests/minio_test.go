@@ -22,8 +22,7 @@ import (
 func generateMinioTestParams() *oss.Minio {
 	return &oss.Minio{
 		ModuleName: random.RandString(10, random.CAPITAL),
-		Host:       random.RandString(5, random.CAPITAL) + ".minio.local", // 随机生成主机名
-		Port:       random.FRandInt(9000, 9999),                           // 随机生成端口（9000到9999）
+		Endpoint:   random.RandString(5, random.CAPITAL) + ".minio.local", // 随机生成主机名
 		AccessKey:  random.RandString(16, random.CAPITAL),                 // 随机生成 Access Key
 		SecretKey:  random.RandString(32, random.CAPITAL),                 // 随机生成 Secret Key
 	}
@@ -48,8 +47,7 @@ func TestMinioSet(t *testing.T) {
 	minioInstance.Set(newConfig)
 
 	assert.Equal(t, newParams.ModuleName, minioInstance.ModuleName)
-	assert.Equal(t, newParams.Host, minioInstance.Host)
-	assert.Equal(t, newParams.Port, minioInstance.Port)
+	assert.Equal(t, newParams.Endpoint, minioInstance.Endpoint)
 	assert.Equal(t, newParams.AccessKey, minioInstance.AccessKey)
 	assert.Equal(t, newParams.SecretKey, minioInstance.SecretKey)
 }

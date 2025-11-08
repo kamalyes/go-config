@@ -71,3 +71,64 @@ func (e *Email) Set(data interface{}) {
 func (e *Email) Validate() error {
 	return internal.ValidateStruct(e)
 }
+
+// DefaultEmail 返回默认Email配置
+func DefaultEmail() Email {
+	return Email{
+		ModuleName: "email",
+		To:         "",
+		From:       "",
+		Host:       "smtp.gmail.com",
+		Port:       587,
+		Secret:     "",
+		IsSSL:      true,
+	}
+}
+
+// Default 返回默认Email配置的指针，支持链式调用
+func Default() *Email {
+	config := DefaultEmail()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (e *Email) WithModuleName(moduleName string) *Email {
+	e.ModuleName = moduleName
+	return e
+}
+
+// WithTo 设置收件人
+func (e *Email) WithTo(to string) *Email {
+	e.To = to
+	return e
+}
+
+// WithFrom 设置发件人
+func (e *Email) WithFrom(from string) *Email {
+	e.From = from
+	return e
+}
+
+// WithHost 设置邮件服务器地址
+func (e *Email) WithHost(host string) *Email {
+	e.Host = host
+	return e
+}
+
+// WithPort 设置端口
+func (e *Email) WithPort(port int) *Email {
+	e.Port = port
+	return e
+}
+
+// WithSecret 设置密钥
+func (e *Email) WithSecret(secret string) *Email {
+	e.Secret = secret
+	return e
+}
+
+// WithIsSSL 设置是否启用SSL
+func (e *Email) WithIsSSL(isSSL bool) *Email {
+	e.IsSSL = isSSL
+	return e
+}

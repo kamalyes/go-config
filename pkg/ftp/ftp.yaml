@@ -3,7 +3,7 @@ ftp:
   # 模块名称
   modulename: "common"
   #ftp 服务器Ip和端口
-  addr: '127.0.0.1:6379'
+  endpoint: '127.0.0.1:21'
   #用户
   username: 'ftpuser1'
   #密码

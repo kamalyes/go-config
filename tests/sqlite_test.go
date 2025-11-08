@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-11-01 10:55:05
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 17:05:16
+ * @LastEditTime: 2025-11-09 00:21:52
  * @FilePath: \go-config\tests\sqlite_test.go
  * @Description:
  *
@@ -56,7 +56,63 @@ func TestSQLiteSet(t *testing.T) {
 	assert.Equal(t, newParams.MaxIdleConns, sqliteInstance.MaxIdleConns)
 	assert.Equal(t, newParams.MaxOpenConns, sqliteInstance.MaxOpenConns)
 	assert.Equal(t, newParams.LogLevel, sqliteInstance.LogLevel)
-	assert.Equal(t, newParams.Vacuum, sqliteInstance.Vacuum)
 	assert.Equal(t, newParams.ConnMaxIdleTime, sqliteInstance.ConnMaxIdleTime)
 	assert.Equal(t, newParams.ConnMaxLifeTime, sqliteInstance.ConnMaxLifeTime)
+	assert.Equal(t, newParams.Vacuum, sqliteInstance.Vacuum)
+}
+
+// TestSQLiteDefault 测试默认配置
+func TestSQLiteDefault(t *testing.T) {
+	defaultConfig := database.DefaultSQLite()
+	
+	// 检查默认值
+	assert.Equal(t, "sqlite", defaultConfig.ModuleName)
+	assert.Equal(t, "./data.db", defaultConfig.DbPath)
+	assert.Equal(t, 10, defaultConfig.MaxIdleConns)
+	assert.Equal(t, 100, defaultConfig.MaxOpenConns)
+	assert.Equal(t, "silent", defaultConfig.LogLevel)
+	assert.Equal(t, 3600, defaultConfig.ConnMaxIdleTime)
+	assert.Equal(t, 7200, defaultConfig.ConnMaxLifeTime)
+	assert.Equal(t, false, defaultConfig.Vacuum)
+}
+
+// TestSQLiteDefaultPointer 测试默认配置指针
+func TestSQLiteDefaultPointer(t *testing.T) {
+	config := database.DefaultSQLiteConfig()
+	
+	assert.NotNil(t, config)
+	assert.Equal(t, "sqlite", config.ModuleName)
+	assert.Equal(t, "./data.db", config.DbPath)
+}
+
+// TestSQLiteChainMethods 测试链式方法
+func TestSQLiteChainMethods(t *testing.T) {
+	config := database.DefaultSQLiteConfig().
+		WithModuleName("app-db").
+		WithDbPath("./app.db").
+		WithMaxIdleConns(20).
+		WithMaxOpenConns(200).
+		WithLogLevel("info").
+		WithConnMaxIdleTime(7200).
+		WithConnMaxLifeTime(14400).
+		WithVacuum(true)
+	
+	assert.Equal(t, "app-db", config.ModuleName)
+	assert.Equal(t, "./app.db", config.DbPath)
+	assert.Equal(t, 20, config.MaxIdleConns)
+	assert.Equal(t, 200, config.MaxOpenConns)
+	assert.Equal(t, "info", config.LogLevel)
+	assert.Equal(t, 7200, config.ConnMaxIdleTime)
+	assert.Equal(t, 14400, config.ConnMaxLifeTime)
+	assert.Equal(t, true, config.Vacuum)
+}
+
+// TestSQLiteChainMethodsReturnPointer 测试链式方法返回指针
+func TestSQLiteChainMethodsReturnPointer(t *testing.T) {
+	config1 := database.DefaultSQLiteConfig()
+	config2 := config1.WithDbPath("./test.db")
+	
+	// 应该返回同一个实例
+	assert.Same(t, config1, config2)
+	assert.Equal(t, "./test.db", config1.DbPath)
 }

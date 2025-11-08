@@ -1,7 +1,7 @@
 elasticsearch:
-  url: "lWNNDuT8eD"
+  endpoint: "http://localhost:9200"
   health-check: 18
   sniff: true
   gzip: true
-  timeout: "k0NPkGPU6E"
-  modulename: "CHIzrdR0ZR"
+  timeout: "5s"
+  modulename: "common"

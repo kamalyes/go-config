@@ -10,7 +10,7 @@ redis:
   password: ''
   # 最大重试次数
   max-retries: 3
-  # 最大空闲连接数
+  # 最小空闲连接数
   min-idle-conns: 5
   # 连接池大小
   pool-size: 10

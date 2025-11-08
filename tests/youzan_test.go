@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-10-31 12:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-03 20:57:55
+ * @LastEditTime: 2025-11-09 02:05:56
  * @FilePath: \go-config\tests\youzan_test.go
  * @Description:
  *
@@ -24,7 +24,7 @@ import (
 func generateYouZanTestParams() *youzan.YouZan {
 	return &youzan.YouZan{
 		ModuleName:    random.RandString(10, random.CAPITAL),
-		Host:          fmt.Sprintf("https://%s.example.com", random.RandString(5, random.CAPITAL)), // 随机生成 Host
+		Endpoint:          fmt.Sprintf("https://%s.example.com", random.RandString(5, random.CAPITAL)), // 随机生成 Host
 		ClientID:      random.RandString(16, random.CAPITAL),                                       // 随机生成客户端ID
 		ClientSecret:  random.RandString(32, random.CAPITAL),                                       // 随机生成客户端密钥
 		AuthorizeType: random.RandString(10, random.CAPITAL),                                       // 随机生成授权类型
@@ -52,7 +52,7 @@ func TestYouZanSet(t *testing.T) {
 	youzanInstance.Set(newConfig)
 
 	assert.Equal(t, newParams.ModuleName, youzanInstance.ModuleName)
-	assert.Equal(t, newParams.Host, youzanInstance.Host)
+	assert.Equal(t, newParams.Endpoint, youzanInstance.Endpoint)
 	assert.Equal(t, newParams.ClientID, youzanInstance.ClientID)
 	assert.Equal(t, newParams.ClientSecret, youzanInstance.ClientSecret)
 	assert.Equal(t, newParams.AuthorizeType, youzanInstance.AuthorizeType)

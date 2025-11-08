@@ -73,3 +73,71 @@ func (a *AliyunSms) Set(data interface{}) {
 func (a *AliyunSms) Validate() error {
 	return internal.ValidateStruct(a)
 }
+
+// DefaultAliyunSms 返回默认AliyunSms配置
+func DefaultAliyunSms() AliyunSms {
+	return AliyunSms{
+		ModuleName:           "aliyun-sms",
+		SecretID:             "",
+		SecretKey:            "",
+		Sign:                 "",
+		ResourceOwnerAccount: "",
+		ResourceOwnerID:      0,
+		TemplateCodeVerify:   "",
+		Endpoint:             "https://dysmsapi.aliyuncs.com",
+	}
+}
+
+// Default 返回默认AliyunSms配置的指针，支持链式调用
+func Default() *AliyunSms {
+	config := DefaultAliyunSms()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (a *AliyunSms) WithModuleName(moduleName string) *AliyunSms {
+	a.ModuleName = moduleName
+	return a
+}
+
+// WithSecretID 设置阿里云短信服务的Secret ID
+func (a *AliyunSms) WithSecretID(secretID string) *AliyunSms {
+	a.SecretID = secretID
+	return a
+}
+
+// WithSecretKey 设置阿里云短信服务的Secret Key
+func (a *AliyunSms) WithSecretKey(secretKey string) *AliyunSms {
+	a.SecretKey = secretKey
+	return a
+}
+
+// WithSign 设置短信签名
+func (a *AliyunSms) WithSign(sign string) *AliyunSms {
+	a.Sign = sign
+	return a
+}
+
+// WithResourceOwnerAccount 设置资源所有者账户
+func (a *AliyunSms) WithResourceOwnerAccount(resourceOwnerAccount string) *AliyunSms {
+	a.ResourceOwnerAccount = resourceOwnerAccount
+	return a
+}
+
+// WithResourceOwnerID 设置资源所有者ID
+func (a *AliyunSms) WithResourceOwnerID(resourceOwnerID int64) *AliyunSms {
+	a.ResourceOwnerID = resourceOwnerID
+	return a
+}
+
+// WithTemplateCodeVerify 设置短信模板代码
+func (a *AliyunSms) WithTemplateCodeVerify(templateCodeVerify string) *AliyunSms {
+	a.TemplateCodeVerify = templateCodeVerify
+	return a
+}
+
+// WithEndpoint 设置短信服务的API端点
+func (a *AliyunSms) WithEndpoint(endpoint string) *AliyunSms {
+	a.Endpoint = endpoint
+	return a
+}

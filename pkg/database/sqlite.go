@@ -86,3 +86,71 @@ func (s SQLite) GetCommonConfig() *DBConfig {
 		Vacuum:          s.Vacuum,
 	}
 }
+
+// DefaultSQLite 返回默认SQLite配置
+func DefaultSQLite() SQLite {
+	return SQLite{
+		ModuleName:      "sqlite",
+		DbPath:          "./data.db",
+		MaxIdleConns:    10,
+		MaxOpenConns:    100,
+		LogLevel:        "silent",
+		ConnMaxIdleTime: 3600,  // 1小时
+		ConnMaxLifeTime: 7200,  // 2小时
+		Vacuum:          false,
+	}
+}
+
+// DefaultSQLiteConfig 返回默认SQLite配置的指针，支持链式调用
+func DefaultSQLiteConfig() *SQLite {
+	config := DefaultSQLite()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (s *SQLite) WithModuleName(moduleName string) *SQLite {
+	s.ModuleName = moduleName
+	return s
+}
+
+// WithDbPath 设置数据库文件路径
+func (s *SQLite) WithDbPath(dbPath string) *SQLite {
+	s.DbPath = dbPath
+	return s
+}
+
+// WithMaxIdleConns 设置最大空闲连接数
+func (s *SQLite) WithMaxIdleConns(maxIdleConns int) *SQLite {
+	s.MaxIdleConns = maxIdleConns
+	return s
+}
+
+// WithMaxOpenConns 设置最大连接数
+func (s *SQLite) WithMaxOpenConns(maxOpenConns int) *SQLite {
+	s.MaxOpenConns = maxOpenConns
+	return s
+}
+
+// WithLogLevel 设置日志级别
+func (s *SQLite) WithLogLevel(logLevel string) *SQLite {
+	s.LogLevel = logLevel
+	return s
+}
+
+// WithConnMaxIdleTime 设置连接最大空闲时间
+func (s *SQLite) WithConnMaxIdleTime(connMaxIdleTime int) *SQLite {
+	s.ConnMaxIdleTime = connMaxIdleTime
+	return s
+}
+
+// WithConnMaxLifeTime 设置连接最大生命周期
+func (s *SQLite) WithConnMaxLifeTime(connMaxLifeTime int) *SQLite {
+	s.ConnMaxLifeTime = connMaxLifeTime
+	return s
+}
+
+// WithVacuum 设置是否执行清除命令
+func (s *SQLite) WithVacuum(vacuum bool) *SQLite {
+	s.Vacuum = vacuum
+	return s
+}

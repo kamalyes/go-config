@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 23:51:09
+ * @LastEditTime: 2025-11-09 01:32:15
  * @FilePath: \go-config\pkg\queue\mqtt.go
  * @Description:
  *
@@ -17,7 +17,7 @@ import (
 
 // Mqtt 结构体用于配置 MQTT 相关参数
 type Mqtt struct {
-	Url                  string `mapstructure:"url"                      yaml:"url"             json:"url"             validate:"required,url"`        // Mqtt 代理服务器的 IP 和端口
+	Endpoint             string `mapstructure:"endpoint"                 yaml:"endpoint"        json:"endpoint"        validate:"required,url"`        // Mqtt 代理服务器端点地址
 	ProtocolVersion      uint   `mapstructure:"protocol-version"         yaml:"protocol-ver"    json:"protocol_version" validate:"required"`           // Mqtt 协议版本号，4 是 3.1.1，3 是 3.1
 	KeepAlive            int    `mapstructure:"keep-alive"               yaml:"keep-alive"      json:"keep_alive"      validate:"required,min=1"`      // 保活时间间隔，最小值为 1 秒
 	MaxReconnectInterval int    `mapstructure:"max-reconnect-interval"   yaml:"max-reconnect-interval" json:"max_reconnect_interval" validate:"min=1"` // 最大连接间隔时间，单位：秒，最小值为 1 秒
@@ -46,7 +46,7 @@ func NewMqtt(opt *Mqtt) *Mqtt {
 func (m *Mqtt) Clone() internal.Configurable {
 	return &Mqtt{
 		ModuleName:           m.ModuleName,
-		Url:                  m.Url,
+		Endpoint:             m.Endpoint,
 		Username:             m.Username,
 		Password:             m.Password,
 		ProtocolVersion:      m.ProtocolVersion,
@@ -70,7 +70,7 @@ func (m *Mqtt) Get() interface{} {
 func (m *Mqtt) Set(data interface{}) {
 	if configData, ok := data.(*Mqtt); ok {
 		m.ModuleName = configData.ModuleName
-		m.Url = configData.Url
+		m.Endpoint = configData.Endpoint
 		m.Username = configData.Username
 		m.Password = configData.Password
 		m.ProtocolVersion = configData.ProtocolVersion
@@ -88,4 +88,107 @@ func (m *Mqtt) Set(data interface{}) {
 // Validate 验证 Mqtt 配置的有效性
 func (m *Mqtt) Validate() error {
 	return internal.ValidateStruct(m)
+}
+
+// DefaultMqtt 返回默认Mqtt配置
+func DefaultMqtt() Mqtt {
+	return Mqtt{
+		ModuleName:           "mqtt",
+		Endpoint:             "tcp://127.0.0.1:1883",
+		ProtocolVersion:      4,   // MQTT 3.1.1
+		KeepAlive:            60,  // 60秒
+		MaxReconnectInterval: 300, // 5分钟
+		PingTimeout:          10,  // 10秒
+		WriteTimeout:         10,  // 10秒
+		ConnectTimeout:       30,  // 30秒
+		Username:             "",
+		Password:             "",
+		CleanSession:         true,
+		AutoReconnect:        true,
+		WillTopic:            "",
+	}
+}
+
+// Default 返回默认Mqtt配置的指针，支持链式调用
+func Default() *Mqtt {
+	config := DefaultMqtt()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (m *Mqtt) WithModuleName(moduleName string) *Mqtt {
+	m.ModuleName = moduleName
+	return m
+}
+
+// WithEndpoint 设置MQTT代理服务器端点地址
+func (m *Mqtt) WithEndpoint(endpoint string) *Mqtt {
+	m.Endpoint = endpoint
+	return m
+}
+
+// WithProtocolVersion 设置MQTT协议版本
+func (m *Mqtt) WithProtocolVersion(protocolVersion uint) *Mqtt {
+	m.ProtocolVersion = protocolVersion
+	return m
+}
+
+// WithKeepAlive 设置保活时间间隔
+func (m *Mqtt) WithKeepAlive(keepAlive int) *Mqtt {
+	m.KeepAlive = keepAlive
+	return m
+}
+
+// WithMaxReconnectInterval 设置最大重连间隔
+func (m *Mqtt) WithMaxReconnectInterval(maxReconnectInterval int) *Mqtt {
+	m.MaxReconnectInterval = maxReconnectInterval
+	return m
+}
+
+// WithPingTimeout 设置ping超时时间
+func (m *Mqtt) WithPingTimeout(pingTimeout int) *Mqtt {
+	m.PingTimeout = pingTimeout
+	return m
+}
+
+// WithWriteTimeout 设置写超时时间
+func (m *Mqtt) WithWriteTimeout(writeTimeout int) *Mqtt {
+	m.WriteTimeout = writeTimeout
+	return m
+}
+
+// WithConnectTimeout 设置连接超时时间
+func (m *Mqtt) WithConnectTimeout(connectTimeout int) *Mqtt {
+	m.ConnectTimeout = connectTimeout
+	return m
+}
+
+// WithUsername 设置用户名
+func (m *Mqtt) WithUsername(username string) *Mqtt {
+	m.Username = username
+	return m
+}
+
+// WithPassword 设置密码
+func (m *Mqtt) WithPassword(password string) *Mqtt {
+	m.Password = password
+	return m
+}
+
+// WithCleanSession 设置是否清除会话
+func (m *Mqtt) WithCleanSession(cleanSession bool) *Mqtt {
+	m.CleanSession = cleanSession
+	return m
+}
+
+// WithAutoReconnect 设置是否自动重连
+func (m *Mqtt) WithAutoReconnect(autoReconnect bool) *Mqtt {
+	m.AutoReconnect = autoReconnect
+	return m
+}
+
+// WithWillTopic 设置遗言主题
+func (m *Mqtt) WithWillTopic(willTopic string) *Mqtt {
+	m.WillTopic = willTopic
+	return m
 }

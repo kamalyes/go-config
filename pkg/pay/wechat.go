@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 23:50:51
+ * @LastEditTime: 2025-11-09 01:14:39
  * @FilePath: \go-config\pkg\pay\wechat.go
  * @Description:
  *
@@ -67,4 +67,58 @@ func (w *WechatPay) Set(data interface{}) {
 // Validate 验证 WechatPay 配置的有效性
 func (w *WechatPay) Validate() error {
 	return internal.ValidateStruct(w)
+}
+
+// DefaultWechatPay 返回默认WechatPay配置
+func DefaultWechatPay() WechatPay {
+	return WechatPay{
+		ModuleName:  "wechatpay",
+		AppId:       "",
+		MchId:       "",
+		NotifyUrl:   "",
+		ApiKey:      "",
+		CertP12Path: "",
+	}
+}
+
+// DefaultWechatPayConfig 返回默认WechatPay配置的指针，支持链式调用
+func DefaultWechatPayConfig() *WechatPay {
+	config := DefaultWechatPay()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (w *WechatPay) WithModuleName(moduleName string) *WechatPay {
+	w.ModuleName = moduleName
+	return w
+}
+
+// WithAppID 设置应用ID
+func (w *WechatPay) WithAppID(appId string) *WechatPay {
+	w.AppId = appId
+	return w
+}
+
+// WithMchID 设置微信商户号
+func (w *WechatPay) WithMchID(mchId string) *WechatPay {
+	w.MchId = mchId
+	return w
+}
+
+// WithNotifyURL 设置回调URL
+func (w *WechatPay) WithNotifyURL(notifyURL string) *WechatPay {
+	w.NotifyUrl = notifyURL
+	return w
+}
+
+// WithApiKey 设置签名密钥
+func (w *WechatPay) WithApiKey(apiKey string) *WechatPay {
+	w.ApiKey = apiKey
+	return w
+}
+
+// WithCertP12Path 设置P12证书文件路径
+func (w *WechatPay) WithCertP12Path(certP12Path string) *WechatPay {
+	w.CertP12Path = certP12Path
+	return w
 }

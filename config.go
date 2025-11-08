@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/kamalyes/go-config/pkg/cache"
 	"github.com/kamalyes/go-config/pkg/captcha"
 	"github.com/kamalyes/go-config/pkg/cors"
 	"github.com/kamalyes/go-config/pkg/database"
@@ -39,6 +40,7 @@ import (
 // MultiConfig 多配置
 type MultiConfig struct {
 	Server        []register.Server     `mapstructure:"server"       yaml:"server"       json:"server"`
+	Cache         []cache.Cache         `mapstructure:"cache"        yaml:"cache"        json:"cache"`
 	Cors          []cors.Cors           `mapstructure:"cors"         yaml:"cors"         json:"cors"`
 	Consul        []register.Consul     `mapstructure:"consul"       yaml:"consul"       json:"consul"`
 	Captcha       []captcha.Captcha     `mapstructure:"captcha"      yaml:"captcha"      json:"captcha"`
@@ -74,6 +76,7 @@ type MultiConfig struct {
 // SingleConfig 单一配置
 type SingleConfig struct {
 	Server        register.Server     `mapstructure:"server"       yaml:"server"       json:"server"`
+	Cache         cache.Cache         `mapstructure:"cache"        yaml:"cache"        json:"cache"`
 	Cors          cors.Cors           `mapstructure:"cors"         yaml:"cors"         json:"cors"`
 	Consul        register.Consul     `mapstructure:"consul"       yaml:"consul"       json:"consul"`
 	Captcha       captcha.Captcha     `mapstructure:"captcha"      yaml:"captcha"      json:"captcha"`

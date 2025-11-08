@@ -96,3 +96,4 @@ testdata/** binary
 *.db binary
 *.sqlite binary
 *.sqlite3 binary
+examples/** binary

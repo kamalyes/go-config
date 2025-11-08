@@ -2,10 +2,8 @@
 minio:
   # 模块名称
   modulename: "common"
-  # Host地址
-  host: "127.0.0.1"
-  # 端口
-  port: 9000
+  # 服务端点地址
+  endpoint: "127.0.0.1:9000"
   # 签名用的 key 
   access-key: minioadmin
   # 签名用的 秘钥

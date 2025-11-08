@@ -80,3 +80,85 @@ func (c *Cors) Set(data interface{}) {
 func (c *Cors) Validate() error {
 	return internal.ValidateStruct(c)
 }
+
+// DefaultCors 返回默认Cors配置
+func DefaultCors() Cors {
+	return Cors{
+		ModuleName:          "cors",
+		AllowedOrigins:      []string{"*"},
+		AllowedMethods:      []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:      []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
+		MaxAge:              "86400",
+		AllowedAllOrigins:   false,
+		AllowedAllMethods:   false,
+		ExposedHeaders:      []string{},
+		AllowCredentials:    true,
+		OptionsResponseCode: 200,
+	}
+}
+
+// Default 返回默认Cors配置的指针，支持链式调用
+func Default() *Cors {
+	config := DefaultCors()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (c *Cors) WithModuleName(moduleName string) *Cors {
+	c.ModuleName = moduleName
+	return c
+}
+
+// WithAllowedOrigins 设置允许的来源
+func (c *Cors) WithAllowedOrigins(allowedOrigins []string) *Cors {
+	c.AllowedOrigins = allowedOrigins
+	return c
+}
+
+// WithAllowedMethods 设置允许的方法
+func (c *Cors) WithAllowedMethods(allowedMethods []string) *Cors {
+	c.AllowedMethods = allowedMethods
+	return c
+}
+
+// WithAllowedHeaders 设置允许的头部
+func (c *Cors) WithAllowedHeaders(allowedHeaders []string) *Cors {
+	c.AllowedHeaders = allowedHeaders
+	return c
+}
+
+// WithMaxAge 设置最大缓存时间
+func (c *Cors) WithMaxAge(maxAge string) *Cors {
+	c.MaxAge = maxAge
+	return c
+}
+
+// WithAllowedAllOrigins 设置是否允许所有来源
+func (c *Cors) WithAllowedAllOrigins(allowedAllOrigins bool) *Cors {
+	c.AllowedAllOrigins = allowedAllOrigins
+	return c
+}
+
+// WithAllowedAllMethods 设置是否允许所有方法
+func (c *Cors) WithAllowedAllMethods(allowedAllMethods bool) *Cors {
+	c.AllowedAllMethods = allowedAllMethods
+	return c
+}
+
+// WithExposedHeaders 设置暴露的头部
+func (c *Cors) WithExposedHeaders(exposedHeaders []string) *Cors {
+	c.ExposedHeaders = exposedHeaders
+	return c
+}
+
+// WithAllowCredentials 设置是否允许凭证
+func (c *Cors) WithAllowCredentials(allowCredentials bool) *Cors {
+	c.AllowCredentials = allowCredentials
+	return c
+}
+
+// WithOptionsResponseCode 设置Options响应码
+func (c *Cors) WithOptionsResponseCode(optionsResponseCode int) *Cors {
+	c.OptionsResponseCode = optionsResponseCode
+	return c
+}

@@ -102,3 +102,99 @@ func (p PostgreSQL) GetCommonConfig() *DBConfig {
 		LogLevel:        p.LogLevel,
 	}
 }
+
+// DefaultPostgreSQL 返回默认PostgreSQL配置
+func DefaultPostgreSQL() PostgreSQL {
+	return PostgreSQL{
+		ModuleName:      "postgresql",
+		Host:            "127.0.0.1",
+		Port:            "5432",
+		Config:          "sslmode=disable",
+		LogLevel:        "silent",
+		Dbname:          "",
+		Username:        "",
+		Password:        "",
+		MaxIdleConns:    10,
+		MaxOpenConns:    100,
+		ConnMaxIdleTime: 3600,  // 1小时
+		ConnMaxLifeTime: 7200,  // 2小时
+	}
+}
+
+// DefaultPostgreSQLConfig 返回默认PostgreSQL配置的指针，支持链式调用
+func DefaultPostgreSQLConfig() *PostgreSQL {
+	config := DefaultPostgreSQL()
+	return &config
+}
+
+// WithModuleName 设置模块名称
+func (p *PostgreSQL) WithModuleName(moduleName string) *PostgreSQL {
+	p.ModuleName = moduleName
+	return p
+}
+
+// WithHost 设置主机地址
+func (p *PostgreSQL) WithHost(host string) *PostgreSQL {
+	p.Host = host
+	return p
+}
+
+// WithPort 设置端口
+func (p *PostgreSQL) WithPort(port string) *PostgreSQL {
+	p.Port = port
+	return p
+}
+
+// WithConfig 设置配置字符串
+func (p *PostgreSQL) WithConfig(config string) *PostgreSQL {
+	p.Config = config
+	return p
+}
+
+// WithLogLevel 设置日志级别
+func (p *PostgreSQL) WithLogLevel(logLevel string) *PostgreSQL {
+	p.LogLevel = logLevel
+	return p
+}
+
+// WithDbname 设置数据库名称
+func (p *PostgreSQL) WithDbname(dbname string) *PostgreSQL {
+	p.Dbname = dbname
+	return p
+}
+
+// WithUsername 设置用户名
+func (p *PostgreSQL) WithUsername(username string) *PostgreSQL {
+	p.Username = username
+	return p
+}
+
+// WithPassword 设置密码
+func (p *PostgreSQL) WithPassword(password string) *PostgreSQL {
+	p.Password = password
+	return p
+}
+
+// WithMaxIdleConns 设置最大空闲连接数
+func (p *PostgreSQL) WithMaxIdleConns(maxIdleConns int) *PostgreSQL {
+	p.MaxIdleConns = maxIdleConns
+	return p
+}
+
+// WithMaxOpenConns 设置最大连接数
+func (p *PostgreSQL) WithMaxOpenConns(maxOpenConns int) *PostgreSQL {
+	p.MaxOpenConns = maxOpenConns
+	return p
+}
+
+// WithConnMaxIdleTime 设置连接最大空闲时间
+func (p *PostgreSQL) WithConnMaxIdleTime(connMaxIdleTime int) *PostgreSQL {
+	p.ConnMaxIdleTime = connMaxIdleTime
+	return p
+}
+
+// WithConnMaxLifeTime 设置连接最大生命周期
+func (p *PostgreSQL) WithConnMaxLifeTime(connMaxLifeTime int) *PostgreSQL {
+	p.ConnMaxLifeTime = connMaxLifeTime
+	return p
+}
