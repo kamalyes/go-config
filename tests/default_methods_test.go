@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-11-08 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-09 02:02:15
+ * @LastEditTime: 2025-11-11 10:32:49
  * @FilePath: \go-config\tests\default_methods_test.go
  * @Description: 测试所有包的Default方法
  *
@@ -16,6 +16,7 @@ import (
 
 	"github.com/kamalyes/go-config/pkg/cache"
 	"github.com/kamalyes/go-config/pkg/captcha"
+	"github.com/kamalyes/go-config/pkg/consul"
 	"github.com/kamalyes/go-config/pkg/cors"
 	"github.com/kamalyes/go-config/pkg/database"
 	"github.com/kamalyes/go-config/pkg/elk"
@@ -26,7 +27,6 @@ import (
 	"github.com/kamalyes/go-config/pkg/oss"
 	"github.com/kamalyes/go-config/pkg/pay"
 	"github.com/kamalyes/go-config/pkg/queue"
-	"github.com/kamalyes/go-config/pkg/register"
 	"github.com/kamalyes/go-config/pkg/sms"
 	"github.com/kamalyes/go-config/pkg/sts"
 	"github.com/kamalyes/go-config/pkg/youzan"
@@ -49,40 +49,37 @@ func TestAllDefaultMethods(t *testing.T) {
 		{"JWT", func() interface{} { return jwt.Default() }},
 		{"Mqtt", func() interface{} { return queue.Default() }},
 		{"Zap", func() interface{} { return zap.Default() }},
-		
+
 		// Database
 		{"MySQL", func() interface{} { return database.DefaultMySQL() }},
 		{"PostgreSQL", func() interface{} { return database.DefaultPostgreSQL() }},
 		{"SQLite", func() interface{} { return database.DefaultSQLite() }},
-		
+
 		// ELK
 		{"Elasticsearch", func() interface{} { return elk.DefaultElasticsearch() }},
 		{"Kafka", func() interface{} { return elk.DefaultKafka() }},
-		
+
 		// OSS
 		{"AliyunOss", func() interface{} { return oss.DefaultAliyunOss() }},
 		{"S3", func() interface{} { return oss.DefaultS3() }},
 		{"Minio", func() interface{} { return oss.DefaultMinio() }},
-		
+
 		// Pay
 		{"AliPay", func() interface{} { return pay.DefaultAliPay() }},
 		{"WechatPay", func() interface{} { return pay.DefaultWechatPay() }},
-		
+
 		// Register
-		{"Server", func() interface{} { return register.DefaultServer() }},
-		{"Consul", func() interface{} { return register.DefaultConsul() }},
-		{"Jaeger", func() interface{} { return register.DefaultJaeger() }},
-		{"PProf", func() interface{} { return register.DefaultPProf() }},
-		
+		{"Consul", func() interface{} { return consul.DefaultConsul() }},
+
 		// SMS
 		{"AliyunSms", func() interface{} { return sms.DefaultAliyunSms() }},
-		
+
 		// STS
 		{"AliyunSts", func() interface{} { return sts.Default() }},
-		
+
 		// YouZan
 		{"YouZan", func() interface{} { return youzan.Default() }},
-		
+
 		// Zero
 		{"RpcClient", func() interface{} { return zero.DefaultRpcClient() }},
 		{"RpcServer", func() interface{} { return zero.DefaultRpcServer() }},
@@ -119,40 +116,37 @@ func TestAllDefaultChainMethods(t *testing.T) {
 		{"JWTChain", func() interface{} { return jwt.DefaultJWT() }},
 		{"MqttChain", func() interface{} { return queue.DefaultMqtt() }},
 		{"ZapChain", func() interface{} { return zap.DefaultZap() }},
-		
+
 		// Database
 		{"MySQLChain", func() interface{} { return database.Default() }},
 		{"PostgreSQLChain", func() interface{} { return database.DefaultPostgreSQLConfig() }},
 		{"SQLiteChain", func() interface{} { return database.DefaultSQLiteConfig() }},
-		
+
 		// ELK
 		{"ElasticsearchChain", func() interface{} { return elk.DefaultElasticsearch() }},
 		{"KafkaChain", func() interface{} { return elk.DefaultKafka() }},
-		
+
 		// OSS
 		{"AliyunOssChain", func() interface{} { return oss.DefaultAliyunOSSConfig() }},
 		{"S3Chain", func() interface{} { return oss.DefaultS3Config() }},
 		{"MinioChain", func() interface{} { return oss.DefaultMinioConfig() }},
-		
+
 		// Pay
 		{"AliPayChain", func() interface{} { return pay.DefaultAliPayConfig() }},
 		{"WechatPayChain", func() interface{} { return pay.DefaultWechatPayConfig() }},
-		
+
 		// Register
-		{"ServerChain", func() interface{} { return register.Default() }},
-		{"ConsulChain", func() interface{} { return register.DefaultConsulConfig() }},
-		{"JaegerChain", func() interface{} { return register.DefaultJaegerConfig() }},
-		{"PProfChain", func() interface{} { return register.DefaultPProfConfig() }},
-		
+		{"ConsulChain", func() interface{} { return consul.DefaultConsulConfig() }},
+
 		// SMS
 		{"AliyunSmsChain", func() interface{} { return sms.Default() }},
-		
+
 		// STS
 		{"AliyunStsChain", func() interface{} { return sts.DefaultAliyunSts() }},
-		
+
 		// YouZan
 		{"YouZanChain", func() interface{} { return youzan.DefaultYouZan() }},
-		
+
 		// Zero
 		{"RpcClientChain", func() interface{} { return zero.DefaultRpcClientConfig() }},
 		{"RpcServerChain", func() interface{} { return zero.DefaultRpcServerConfig() }},
@@ -180,26 +174,26 @@ func TestChainMethodUsage(t *testing.T) {
 	cacheConfig := cache.Default().
 		WithType("redis").
 		WithEnabled(true)
-	
+
 	if cacheConfig.Type != "redis" || !cacheConfig.Enabled {
 		t.Error("Cache chain methods not working correctly")
 	}
-	
+
 	// 测试JWT链式配置
 	jwtConfig := jwt.Default().
 		WithSigningKey("test-key").
 		WithExpiresTime(3600)
-	
+
 	if jwtConfig.SigningKey != "test-key" || jwtConfig.ExpiresTime != 3600 {
 		t.Error("JWT chain methods not working correctly")
 	}
-	
+
 	// 测试MySQL链式配置
 	mysqlConfig := database.Default().
 		WithHost("localhost").
 		WithPort("3306").
 		WithDbname("test")
-	
+
 	if mysqlConfig.Host != "localhost" || mysqlConfig.Port != "3306" || mysqlConfig.Dbname != "test" {
 		t.Error("MySQL chain methods not working correctly")
 	}

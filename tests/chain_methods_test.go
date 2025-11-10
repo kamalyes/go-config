@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-09 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-09 00:50:38
+ * @LastEditTime: 2025-11-11 10:31:10
  * @FilePath: \go-config\tests\chain_methods_test.go
  * @Description: 测试所有包的链式方法功能
  *
@@ -24,7 +24,6 @@ import (
 	"github.com/kamalyes/go-config/pkg/jwt"
 	"github.com/kamalyes/go-config/pkg/oss"
 	"github.com/kamalyes/go-config/pkg/queue"
-	"github.com/kamalyes/go-config/pkg/register"
 	"github.com/kamalyes/go-config/pkg/zap"
 	"github.com/stretchr/testify/assert"
 )
@@ -76,7 +75,6 @@ func TestChainMethodsComplexScenario(t *testing.T) {
 		JWT      *jwt.JWT
 		Email    *email.Email
 		Logger   *zap.Zap
-		Server   *register.Server
 	}{
 		Cache: cache.Default().
 			WithModuleName("app-cache").
@@ -97,8 +95,8 @@ func TestChainMethodsComplexScenario(t *testing.T) {
 		JWT: jwt.Default().
 			WithModuleName("auth").
 			WithSigningKey("production-secret-key").
-			WithExpiresTime(3600 * 24).    // 24小时
-			WithBufferTime(3600).          // 1小时缓冲
+			WithExpiresTime(3600 * 24). // 24小时
+			WithBufferTime(3600).       // 1小时缓冲
 			WithUseMultipoint(true),
 
 		Email: email.Default().
@@ -117,10 +115,6 @@ func TestChainMethodsComplexScenario(t *testing.T) {
 			WithDirector("./logs/production").
 			WithMaxSize(100).
 			WithCompress(true),
-
-		Server: register.Default().
-			WithModuleName("api-server").
-			WithEndpoint(":8080"),
 	}
 
 	// 验证配置
@@ -143,10 +137,6 @@ func TestChainMethodsComplexScenario(t *testing.T) {
 	assert.Equal(t, "app-logger", appConfig.Logger.ModuleName)
 	assert.Equal(t, "info", appConfig.Logger.Level)
 	assert.Equal(t, "json", appConfig.Logger.Format)
-
-	assert.Equal(t, "api-server", appConfig.Server.ModuleName)
-	assert.Equal(t, ":8080", appConfig.Server.Endpoint)
-	assert.Equal(t, "/", appConfig.Server.ContextPath)
 }
 
 // TestChainMethodsImmutability 测试链式方法的不变性
@@ -154,10 +144,10 @@ func TestChainMethodsImmutability(t *testing.T) {
 	// 创建基础配置
 	baseConfig := cache.Default()
 	originalType := baseConfig.Type
-	
+
 	// 使用链式方法修改配置
 	modifiedConfig := baseConfig.WithType(cache.TypeRedis)
-	
+
 	// 验证返回的是同一个实例（可变性）
 	assert.Same(t, baseConfig, modifiedConfig)
 	assert.Equal(t, cache.TypeRedis, baseConfig.Type)
@@ -172,7 +162,7 @@ func TestDefaultConfigsValidation(t *testing.T) {
 	// 默认配置可能因为缺少必需字段而验证失败，这是正常的
 	t.Logf("MySQL validation result: %v", err)
 
-	// 测试JWT默认配置验证  
+	// 测试JWT默认配置验证
 	jwtConfig := jwt.Default()
 	err = jwtConfig.Validate()
 	assert.NoError(t, err) // JWT默认配置应该是有效的

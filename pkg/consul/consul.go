@@ -3,13 +3,13 @@
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
  * @LastEditTime: 2025-11-09 01:34:36
- * @FilePath: \go-config\pkg\register\consul.go
+ * @FilePath: \go-config\pkg\consul\consul.go
  * @Description:
  *
  * Copyright (c) 2024 by kamalyes, All Rights Reserved.
  */
 
-package register
+package consul
 
 import (
 	"github.com/kamalyes/go-config/internal"
@@ -17,9 +17,9 @@ import (
 
 // Consul 结构体用于配置 Consul 注册中心相关参数
 type Consul struct {
-	ModuleName       string `mapstructure:"modulename"              yaml:"modulename"        json:"module_name"       validate:"required"`      // 模块名称
+	ModuleName       string `mapstructure:"modulename"              yaml:"modulename"        json:"module_name"       validate:"required"`     // 模块名称
 	Endpoint         string `mapstructure:"endpoint"                yaml:"endpoint"          json:"endpoint"          validate:"required,url"` // 注册中心端点地址
-	RegisterInterval int    `mapstructure:"register-interval"        yaml:"register-interval" json:"register_interval" validate:"min=1"`        // 注册间隔，单位秒，最小值为 1 秒
+	RegisterInterval int    `mapstructure:"register-interval"        yaml:"register-interval" json:"register_interval" validate:"min=1"`       // 注册间隔，单位秒，最小值为 1 秒
 }
 
 // NewConsul 创建一个新的 Consul 实例

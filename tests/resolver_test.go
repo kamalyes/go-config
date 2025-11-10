@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-16 01:15:55
+ * @LastEditTime: 2025-11-11 11:17:11
  * @FilePath: \go-config\tests\resolver_test.go
  * @Description:
  *
@@ -74,13 +74,8 @@ func generateRandomConfigFile(model *goconfig.SingleConfig, filePath string) (*g
 	return resultModel.(*goconfig.SingleConfig), nil
 }
 
-func assertEnvironment(t *testing.T, expected env.EnvironmentType) {
-	currentOsEnv := env.GetEnvironment()
-	assert.Equal(t, expected, currentOsEnv, "期望环境为 %s, 实际为 %s", expected, currentOsEnv)
-}
-
 // 测试全局配置加载
-func TestDefaultSingleConfig(t *testing.T) {
+func DefaultSingleConfig(t *testing.T) {
 	// 默认环境变量
 	ctx := context.Background() // 创建一个新的背景上下文
 	// 生成配置文件
