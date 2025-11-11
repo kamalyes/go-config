@@ -24,6 +24,29 @@ type Configurable interface {
 	Validate() error
 }
 
+// Hookable 接口定义了配置的钩子函数
+// 实现此接口的配置可以在加载前后执行自定义操作
+type Hookable interface {
+	BeforeLoad() error // 配置加载前的钩子，可用于设置默认值或预处理
+	AfterLoad() error  // 配置加载后的钩子，可用于计算衍生字段或后处理
+}
+
+// CallBeforeLoad 安全调用 BeforeLoad 钩子
+func CallBeforeLoad(cfg interface{}) error {
+	if hookable, ok := cfg.(Hookable); ok {
+		return hookable.BeforeLoad()
+	}
+	return nil
+}
+
+// CallAfterLoad 安全调用 AfterLoad 钩子
+func CallAfterLoad(cfg interface{}) error {
+	if hookable, ok := cfg.(Hookable); ok {
+		return hookable.AfterLoad()
+	}
+	return nil
+}
+
 var mu sync.Mutex // 用于保护实例的创建
 
 // 全局验证器实例

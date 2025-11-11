@@ -32,9 +32,13 @@ import (
 // Gateway网关统一配置
 type Gateway struct {
 	ModuleName    string                 `mapstructure:"module_name" yaml:"module-name" json:"module_name"`       // 模块名称
+	Name          string                 `mapstructure:"name" yaml:"name" json:"name"`                            // 网关名称
 	Enabled       bool                   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用网关
+	Debug         bool                   `mapstructure:"debug" yaml:"debug" json:"debug"`                         // 是否启用调试模式
 	Version       string                 `mapstructure:"version" yaml:"version" json:"version"`                   // 版本号
 	Environment   string                 `mapstructure:"environment" yaml:"environment" json:"environment"`       // 环境 (dev, test, prod)
+	HTTPServer    *HTTPServer            `mapstructure:"http" yaml:"http" json:"http"`                            // HTTP服务器配置
+	GRPC          *GRPC                  `mapstructure:"grpc" yaml:"grpc" json:"grpc"`                            // GRPC配置
 	Cache         *cache.Cache           `mapstructure:"cache" yaml:"cache" json:"cache"`                         // 缓存配置
 	MySQL         *database.MySQL        `mapstructure:"mysql" yaml:"mysql" json:"mysql"`                         // mysql数据库配置
 	Mqtt          *queue.Mqtt            `mapstructure:"mqtt" yaml:"mqtt" json:"mqtt"`                            // MQTT配置
@@ -42,7 +46,7 @@ type Gateway struct {
 	S3            *oss.S3                `mapstructure:"s3" yaml:"s3" json:"s3"`                                  // 对象存储配置
 	AliyunOss     *oss.AliyunOss         `mapstructure:"aliyun_oss" yaml:"aliyun_oss" json:"aliyun_oss"`          // 阿里云OSS配置
 	Smtp          *smtp.Smtp             `mapstructure:"smtp" yaml:"smtp" json:"smtp"`                            // SMTP邮件服务配置
-	Server        *server.Server         `mapstructure:"server" yaml:"server" json:"server"`                      // 服务器配置
+	Server        *server.Server         `mapstructure:"server" yaml:"server" json:"server"`                      // 服务器配置(兼容旧版)
 	Health        *health.Health         `mapstructure:"health" yaml:"health" json:"health"`                      // 健康检查配置
 	Monitoring    *monitoring.Monitoring `mapstructure:"monitoring" yaml:"monitoring" json:"monitoring"`          // 监控配置
 	Security      *security.Security     `mapstructure:"security" yaml:"security" json:"security"`                // 安全配置
@@ -56,9 +60,13 @@ type Gateway struct {
 func Default() *Gateway {
 	return &Gateway{
 		ModuleName:    "gateway",
+		Name:          "Go RPC Gateway",
 		Enabled:       true,
+		Debug:         false,
 		Version:       "v1.0.0",
 		Environment:   "dev",
+		HTTPServer:    DefaultHTTPServer(),
+		GRPC:          DefaultGRPC(),
 		Cache:         cache.Default(),
 		MySQL:         database.Default(),
 		Mqtt:          queue.Default(),
@@ -92,9 +100,13 @@ func (c *Gateway) Set(data interface{}) {
 func (c *Gateway) Clone() internal.Configurable {
 	return &Gateway{
 		ModuleName:    c.ModuleName,
+		Name:          c.Name,
 		Enabled:       c.Enabled,
+		Debug:         c.Debug,
 		Version:       c.Version,
 		Environment:   c.Environment,
+		HTTPServer:    c.HTTPServer.Clone(),
+		GRPC:          c.GRPC.Clone(),
 		Cache:         c.Cache.Clone().(*cache.Cache),
 		MySQL:         c.MySQL.Clone().(*database.MySQL),
 		Mqtt:          c.Mqtt.Clone().(*queue.Mqtt),
@@ -195,9 +207,21 @@ func (c *Gateway) WithModuleName(moduleName string) *Gateway {
 	return c
 }
 
+// WithName 设置网关名称
+func (c *Gateway) WithName(name string) *Gateway {
+	c.Name = name
+	return c
+}
+
 // WithEnabled 设置是否启用网关
 func (c *Gateway) WithEnabled(enabled bool) *Gateway {
 	c.Enabled = enabled
+	return c
+}
+
+// WithDebug 设置调试模式
+func (c *Gateway) WithDebug(debug bool) *Gateway {
+	c.Debug = debug
 	return c
 }
 

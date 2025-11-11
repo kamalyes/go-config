@@ -50,6 +50,7 @@ type Swagger struct {
 	Title       string      `mapstructure:"title" yaml:"title" json:"title"`                   // 文档标题
 	Description string      `mapstructure:"description" yaml:"description" json:"description"` // 文档描述
 	Auth        *AuthConfig `mapstructure:"auth" yaml:"auth" json:"auth"`                      // 认证配置
+	Version     string      `mapstructure:"version" yaml:"version" json:"version"`             // Swagger版本
 }
 
 // Default 创建默认Swagger配置
@@ -64,6 +65,7 @@ func Default() *Swagger {
 		Auth: &AuthConfig{
 			Type: AuthNone,
 		},
+		Version: "1.0.0",
 	}
 }
 
@@ -106,6 +108,11 @@ func (c *Swagger) WithDescription(description string) *Swagger {
 // WithAuth 设置认证配置
 func (c *Swagger) WithAuth(auth *AuthConfig) *Swagger {
 	c.Auth = auth
+	return c
+}
+// WithVersion 设置Swagger版本
+func (c *Swagger) WithVersion(version string) *Swagger {
+	c.Version = version
 	return c
 }
 
@@ -169,6 +176,9 @@ func (c *Swagger) WithDefaults() *Swagger {
 	if c.Auth == nil {
 		c.Auth = defaults.Auth
 	}
+	if c.Version == "" {
+		c.Version = defaults.Version
+	}
 
 	return c
 }
@@ -216,6 +226,10 @@ func (c *Swagger) Clone() internal.Configurable {
 		}
 	}
 
+	if c.Version != "" {
+		clone.Version = c.Version
+	}
+
 	return clone
 }
 
@@ -252,6 +266,7 @@ func (c *Swagger) Reset() *Swagger {
 	c.Title = defaults.Title
 	c.Description = defaults.Description
 	c.Auth = defaults.Auth
+	c.Version = defaults.Version
 	return c
 }
 

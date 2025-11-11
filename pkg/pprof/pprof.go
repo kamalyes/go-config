@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-11 10:00:32
+ * @LastEditTime: 2025-11-12 01:12:30
  * @FilePath: \go-rpc-gateway\go-config\pkg\pprof\pprof.go
  * @Description: PProf性能分析配置模块
  *
@@ -17,7 +17,7 @@ import "github.com/kamalyes/go-config/internal"
 type PProf struct {
 	ModuleName     string          `mapstructure:"module_name" yaml:"module-name" json:"module_name"`             // 模块名称
 	Enabled        bool            `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                         // 是否启用PProf
-	Path           string          `mapstructure:"path" yaml:"path" json:"path"`                                  // PProf路径前缀
+	PathPrefix     string          `mapstructure:"path_prefix" yaml:"path_prefix" json:"path_prefix"`             // PProf路径前缀
 	Port           int             `mapstructure:"port" yaml:"port" json:"port"`                                  // PProf服务端口
 	EnableProfiles *ProfilesConfig `mapstructure:"enable_profiles" yaml:"enable-profiles" json:"enable_profiles"` // 启用的性能分析
 	Sampling       *SamplingConfig `mapstructure:"sampling" yaml:"sampling" json:"sampling"`                      // 采样配置
@@ -49,7 +49,7 @@ func Default() *PProf {
 	return &PProf{
 		ModuleName: "PProf",
 		Enabled:    false,
-		Path:       "/debug/PProf",
+		PathPrefix:       "/debug/PProf",
 		Port:       6060,
 		EnableProfiles: &ProfilesConfig{
 			CPU:          true,
@@ -98,7 +98,7 @@ func (c *PProf) Clone() internal.Configurable {
 	return &PProf{
 		ModuleName:     c.ModuleName,
 		Enabled:        c.Enabled,
-		Path:           c.Path,
+		PathPrefix:     c.PathPrefix,
 		Port:           c.Port,
 		EnableProfiles: profiles,
 		Sampling:       sampling,
@@ -122,9 +122,9 @@ func (c *PProf) WithEnabled(enabled bool) *PProf {
 	return c
 }
 
-// WithPath 设置PProf路径前缀
-func (c *PProf) WithPath(path string) *PProf {
-	c.Path = path
+// WithPathPrefix 设置PProf路径前缀
+func (c *PProf) WithPathPrefix(pathPrefix string) *PProf {
+	c.PathPrefix = pathPrefix
 	return c
 }
 

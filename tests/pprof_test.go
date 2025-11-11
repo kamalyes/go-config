@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-08 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-11 10:37:44
+ * @LastEditTime: 2025-11-12 03:11:28
  * @FilePath: \go-config\tests\pprof_test.go
  * @Description: pprof监控模块测试
  *
@@ -22,7 +22,7 @@ import (
 func generatePProfTestParams() *pprof.PProf {
 	return &pprof.PProf{
 		Enabled: true,
-		Path:    "/debug/pprof",
+		PathPrefix:    "/debug/pprof",
 		Port:    6060,
 		EnableProfiles: &pprof.ProfilesConfig{
 			CPU:          true,
@@ -47,7 +47,7 @@ func generatePProfTestParams() *pprof.PProf {
 // 验证 PProf 的字段与期望的映射是否相等
 func assertPProfFields(t *testing.T, actual *pprof.PProf, expected *pprof.PProf) {
 	assert.Equal(t, expected.Enabled, actual.Enabled)
-	assert.Equal(t, expected.Path, actual.Path)
+	assert.Equal(t, expected.PathPrefix, actual.PathPrefix)
 	assert.Equal(t, expected.Port, actual.Port)
 	assert.Equal(t, expected.EnableProfiles, actual.EnableProfiles)
 	assert.Equal(t, expected.Sampling, actual.Sampling)

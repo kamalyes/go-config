@@ -26,14 +26,16 @@ type Health struct {
 
 // RedisConfig Redis健康检查配置
 type RedisConfig struct {
-	Enabled bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"` // 是否启用Redis健康检查
-	Timeout int  `mapstructure:"timeout" yaml:"timeout" json:"timeout"` // 超时时间(秒)
+	Enabled bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"` // 是否启用Redis健康检查
+	Path    string `mapstructure:"path" yaml:"path" json:"path"`          // 健康检查路径
+	Timeout int    `mapstructure:"timeout" yaml:"timeout" json:"timeout"` // 超时时间(秒)
 }
 
 // MySQLConfig MySQL健康检查配置
 type MySQLConfig struct {
-	Enabled bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"` // 是否启用MySQL健康检查
-	Timeout int  `mapstructure:"timeout" yaml:"timeout" json:"timeout"` // 超时时间(秒)
+	Enabled bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"` // 是否启用MySQL健康检查
+	Path    string `mapstructure:"path" yaml:"path" json:"path"`          // 健康检查路径
+	Timeout int    `mapstructure:"timeout" yaml:"timeout" json:"timeout"` // 超时时间(秒)
 }
 
 // Default 创建默认健康检查配置
@@ -46,10 +48,12 @@ func Default() *Health {
 		Timeout:    30,
 		Redis: &RedisConfig{
 			Enabled: false,
+			Path:    "/health/redis",
 			Timeout: 5,
 		},
 		MySQL: &MySQLConfig{
 			Enabled: false,
+			Path:    "/health/mysql",
 			Timeout: 5,
 		},
 	}
@@ -124,21 +128,23 @@ func (c *Health) WithTimeout(timeout int) *Health {
 }
 
 // WithRedisCheck 设置Redis健康检查
-func (c *Health) WithRedisCheck(enabled bool, timeout int) *Health {
+func (c *Health) WithRedisCheck(enabled bool, path string, timeout int) *Health {
 	if c.Redis == nil {
 		c.Redis = &RedisConfig{}
 	}
 	c.Redis.Enabled = enabled
+	c.Redis.Path = path
 	c.Redis.Timeout = timeout
 	return c
 }
 
 // WithMySQLCheck 设置MySQL健康检查
-func (c *Health) WithMySQLCheck(enabled bool, timeout int) *Health {
+func (c *Health) WithMySQLCheck(enabled bool, path string, timeout int) *Health {
 	if c.MySQL == nil {
 		c.MySQL = &MySQLConfig{}
 	}
 	c.MySQL.Enabled = enabled
+	c.MySQL.Path = path
 	c.MySQL.Timeout = timeout
 	return c
 }

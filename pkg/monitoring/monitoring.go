@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-11 10:41:18
+ * @LastEditTime: 2025-11-12 01:27:26
  * @FilePath: \go-config\pkg\monitoring\monitoring.go
  * @Description: 监控配置模块 - 统一管理所有监控相关功能
  *
@@ -31,12 +31,15 @@ type Monitoring struct {
 
 // Metrics 指标配置
 type Metrics struct {
-	Enabled       bool           `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                      // 是否启用指标
-	RequestCount  bool           `mapstructure:"request_count" yaml:"request_count" json:"request_count"`    // 是否记录请求数
-	Duration      bool           `mapstructure:"duration" yaml:"duration" json:"duration"`                   // 是否记录请求时长
-	ResponseSize  bool           `mapstructure:"response_size" yaml:"response_size" json:"response_size"`    // 是否记录响应大小
-	RequestSize   bool           `mapstructure:"request_size" yaml:"request_size" json:"request_size"`       // 是否记录请求大小
-	CustomMetrics []CustomMetric `mapstructure:"custom_metrics" yaml:"custom_metrics" json:"custom_metrics"` // 自定义指标
+	Enabled           bool           `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                               // 是否启用指标
+	RequestCount      bool           `mapstructure:"request_count" yaml:"request-count" json:"request_count"`             // 是否记录请求数
+	Duration          bool           `mapstructure:"duration" yaml:"duration" json:"duration"`                            // 是否记录请求时长
+	ResponseSize      bool           `mapstructure:"response_size" yaml:"response-size" json:"response_size"`             // 是否记录响应大小
+	RequestSize       bool           `mapstructure:"request_size" yaml:"request-size" json:"request_size"`                // 是否记录请求大小
+	Buckets           []float64      `mapstructure:"buckets" yaml:"buckets" json:"buckets"`                               // 直方图桶配置
+	EnableOpenMetrics bool           `mapstructure:"enable_open_metrics" yaml:"enable-open-metrics" json:"enable_open_metrics"` // 是否启用 OpenMetrics 格式
+	CustomMetrics     []CustomMetric `mapstructure:"custom_metrics" yaml:"custom-metrics" json:"custom_metrics"`          // 自定义指标
+	Endpoint          string         `mapstructure:"-" yaml:"-" json:"endpoint"`                                          // 指标端点（自动计算）
 }
 
 // CustomMetric 自定义指标配置
@@ -101,19 +104,21 @@ type SlackConfig struct {
 
 // Default 创建默认监控配置
 func Default() *Monitoring {
-	return &Monitoring{
+	m := &Monitoring{
 		ModuleName: "monitoring",
 		Enabled:    false,
 		Prometheus: prometheus.Default(),
 		Grafana:    grafana.Default(),
 		Jaeger:     jaeger.Default(),
 		Metrics: &Metrics{
-			Enabled:       true,
-			RequestCount:  true,
-			Duration:      true,
-			ResponseSize:  true,
-			RequestSize:   true,
-			CustomMetrics: []CustomMetric{},
+			Enabled:           true,
+			RequestCount:      true,
+			Duration:          true,
+			ResponseSize:      true,
+			RequestSize:       true,
+			Buckets:           []float64{0.001, 0.01, 0.1, 0.3, 0.6, 1, 3, 6, 9, 20, 30, 60, 90, 120},
+			EnableOpenMetrics: false,
+			CustomMetrics:     []CustomMetric{},
 		},
 		Alerting: &Alerting{
 			Enabled:  false,
@@ -128,6 +133,25 @@ func Default() *Monitoring {
 			},
 		},
 	}
+	internal.CallAfterLoad(m) // 自动计算 Endpoint
+	return m
+}
+
+// BeforeLoad 配置加载前的钩子
+func (m *Monitoring) BeforeLoad() error {
+	return nil
+}
+
+// AfterLoad 配置加载后的钩子 - 计算 Metrics Endpoint
+func (m *Monitoring) AfterLoad() error {
+	// 如果 Prometheus 配置存在且有 Path，使用它来计算 Metrics Endpoint
+	if m.Prometheus != nil && m.Prometheus.Path != "" {
+		m.Metrics.Endpoint = m.Prometheus.Path
+	} else if m.Metrics != nil {
+		// 否则使用默认的 /metrics
+		m.Metrics.Endpoint = "/metrics"
+	}
+	return nil
 }
 
 // Get 返回配置接口
@@ -149,6 +173,7 @@ func (m *Monitoring) Clone() internal.Configurable {
 
 	if m.Metrics != nil {
 		*metrics = *m.Metrics
+		metrics.Buckets = append([]float64(nil), m.Metrics.Buckets...)
 		metrics.CustomMetrics = make([]CustomMetric, len(m.Metrics.CustomMetrics))
 		for i, cm := range m.Metrics.CustomMetrics {
 			metrics.CustomMetrics[i] = CustomMetric{
@@ -179,7 +204,7 @@ func (m *Monitoring) Clone() internal.Configurable {
 		}
 	}
 
-	return &Monitoring{
+	cloned := &Monitoring{
 		ModuleName: m.ModuleName,
 		Enabled:    m.Enabled,
 		Prometheus: m.Prometheus.Clone().(*prometheus.Prometheus),
@@ -188,6 +213,8 @@ func (m *Monitoring) Clone() internal.Configurable {
 		Metrics:    metrics,
 		Alerting:   alerting,
 	}
+	internal.CallAfterLoad(cloned) // 重新计算 Endpoint
+	return cloned
 }
 
 // Validate 验证配置
@@ -228,9 +255,10 @@ func (m *Monitoring) WithEnabled(enabled bool) *Monitoring {
 	return m
 }
 
-// WithPrometheus 设置Prometheus配置
-func (m *Monitoring) WithPrometheus(cfg *prometheus.Prometheus) *Monitoring {
-	m.Prometheus = cfg
+// WithPrometheus 设置 Prometheus 配置
+func (m *Monitoring) WithPrometheus(p *prometheus.Prometheus) *Monitoring {
+	m.Prometheus = p
+	internal.CallAfterLoad(m) // 重新计算 Endpoint
 	return m
 }
 
@@ -362,4 +390,15 @@ func (m *Monitoring) Disable() *Monitoring {
 // IsEnabled 检查是否启用
 func (m *Monitoring) IsEnabled() bool {
 	return m.Enabled
+}
+
+// GetEndpoint 获取 Metrics 的 Endpoint（确保已计算）
+func (m *Monitoring) GetEndpoint() string {
+	if m.Metrics != nil && m.Metrics.Endpoint == "" {
+		internal.CallAfterLoad(m)
+	}
+	if m.Metrics != nil {
+		return m.Metrics.Endpoint
+	}
+	return "/metrics" // 默认值
 }

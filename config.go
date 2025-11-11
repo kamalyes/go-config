@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-11-01 08:58:09
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-11 11:23:09
+ * @LastEditTime: 2025-11-12 01:34:22
  * @FilePath: \go-config\config.go
  * @Description:
  *
@@ -120,6 +120,7 @@ type SingleConfig struct {
 	Kafka         elk.Kafka             `mapstructure:"kafka"        yaml:"kafka"        json:"kafka"`
 	Elasticsearch elk.Elasticsearch     `mapstructure:"elasticsearch" yaml:"elasticsearch" json:"elasticsearch"`
 	Jaeger        jaeger.Jaeger         `mapstructure:"jaeger"       yaml:"jaeger"       json:"jaeger"`
+	Pprof         pprof.PProf           `mapstructure:"pprof"        yaml:"pprof"        json:"pprof"`
 	Swagger       swagger.Swagger       `mapstructure:"swagger"      yaml:"swagger"      json:"swagger"`
 	Banner        banner.Banner         `mapstructure:"banner"       yaml:"banner"       json:"banner"`
 	Health        health.Health         `mapstructure:"health"       yaml:"health"       json:"health"`
