@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 16:11:10
+ * @LastEditTime: 2025-11-11 11:49:33
  * @FilePath: \go-config\pkg\env\env.go
  * @Description:
  *
@@ -47,10 +47,11 @@ type ContextKeyOptions struct {
 
 // 环境配置
 type Environment struct {
-	CheckFrequency time.Duration   // 检查频率
-	mu             sync.RWMutex    // 读写互斥锁
-	quit           chan struct{}   // 用于停止监控的信道
-	Value          EnvironmentType // 当前环境值
+	CheckFrequency time.Duration     // 检查频率
+	mu             sync.RWMutex      // 读写互斥锁
+	quit           chan struct{}     // 用于停止监控的信道
+	Value          EnvironmentType   // 当前环境值
+	registeredEnvs []EnvironmentType // 注册的环境类型
 }
 
 // NewEnvironment 创建一个新的 Environment 实例，并将环境变量写入上下文
@@ -59,6 +60,7 @@ func NewEnvironment() *Environment {
 		Value:          GetEnvironment(),
 		CheckFrequency: 2 * time.Second, // 默认检查频率
 		quit:           make(chan struct{}),
+		registeredEnvs: []EnvironmentType{Dev, Sit, Fat, Uat, Prod}, // 默认注册的环境类型
 	}
 	if err := setEnv(envContextKey, envInstance.Value); err != nil {
 		log.Fatalf("初始化环境失败: %v", err)
@@ -67,6 +69,24 @@ func NewEnvironment() *Environment {
 	go envInstance.watchEnv() // 启动监控环境变量的 goroutine
 
 	return envInstance
+}
+
+// RegisterEnvironment 注册新的环境类型
+func (e *Environment) RegisterEnvironment(env EnvironmentType) error {
+	e.mu.Lock()         // 获取写锁
+	defer e.mu.Unlock() // 确保在函数结束时释放锁
+
+	// 检查是否已经存在该环境类型
+	for _, registeredEnv := range e.registeredEnvs {
+		if registeredEnv == env {
+			return fmt.Errorf("环境类型 %s 已注册", env)
+		}
+	}
+
+	// 注册新的环境类型
+	e.registeredEnvs = append(e.registeredEnvs, env)
+	log.Printf("环境类型 %s 注册成功", env)
+	return nil
 }
 
 // SetContextKey 设置上下文键

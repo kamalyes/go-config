@@ -9,3 +9,17 @@ jwt:
   signing-key: 84a27a85-0868-45ea-95bc-c83b0388dd2e
   # 多地登录拦截 true 拦截 fasle 不拦截
   use-multipoint: true
+  # 签发者
+  issuer: "9y23dDs7Kl"
+  # 受众
+  audience: "xfF2WrI5fV"
+  # 签名算法
+  algorithm: "cdwvkkslyb"
+  # 是否启用刷新token
+  enable-refresh: true
+  # 刷新token有效期
+  refresh-token-life: 0
+  # 主题
+  subject: "8lEmuEKyGl"
+  # 自定义声明
+  custom-claims: null
