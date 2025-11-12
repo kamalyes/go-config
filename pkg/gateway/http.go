@@ -1,10 +1,10 @@
 /*
  * @Author: kamalyes 501893067@qq.com
- * @Date: 2025-11-12 00:00:00
+ * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 00:00:00
+ * @LastEditTime: 2025-11-12 10:10:56
  * @FilePath: \go-config\pkg\gateway\http.go
- * @Description: HTTP服务器配置
+ * @Description: 服务器配置模块
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
  */
@@ -19,25 +19,50 @@ import (
 
 // HTTPServer HTTP服务器配置
 type HTTPServer struct {
-	Host                string `mapstructure:"host" yaml:"host" json:"host"`                                           // 主机地址
-	Port                int    `mapstructure:"port" yaml:"port" json:"port"`                                           // 端口
-	ReadTimeout         int    `mapstructure:"read_timeout" yaml:"read_timeout" json:"read_timeout"`                   // 读取超时(秒)
-	WriteTimeout        int    `mapstructure:"write_timeout" yaml:"write_timeout" json:"write_timeout"`                // 写入超时(秒)
-	IdleTimeout         int    `mapstructure:"idle_timeout" yaml:"idle_timeout" json:"idle_timeout"`                   // 空闲超时(秒)
-	MaxHeaderBytes      int    `mapstructure:"max_header_bytes" yaml:"max_header_bytes" json:"max_header_bytes"`       // 最大请求头字节数
-	EnableGzipCompress  bool   `mapstructure:"enable_gzip_compress" yaml:"enable_gzip_compress" json:"enable_gzip_compress"` // 是否启用Gzip压缩
-	Endpoint            string `mapstructure:"-" yaml:"-" json:"endpoint"`                                             // 完整的服务端点地址（自动计算，不从配置文件读取）
+	ModuleName         string            `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                            // 模块名称
+	Host               string            `mapstructure:"host" yaml:"host" json:"host"`                                                 // 主机地址
+	Port               int               `mapstructure:"port" yaml:"port" json:"port"`                                                 // 端口
+	GrpcPort           int               `mapstructure:"grpc_port" yaml:"grpc-port" json:"grpc_port"`                                  // GRPC端口
+	ReadTimeout        int               `mapstructure:"read_timeout" yaml:"read-timeout" json:"read_timeout"`                         // 读取超时(秒)
+	WriteTimeout       int               `mapstructure:"write_timeout" yaml:"write-timeout" json:"write_timeout"`                      // 写入超时(秒)
+	IdleTimeout        int               `mapstructure:"idle_timeout" yaml:"idle-timeout" json:"idle_timeout"`                         // 空闲超时(秒)
+	MaxHeaderBytes     int               `mapstructure:"max_header_bytes" yaml:"max_header_bytes" json:"max_header_bytes"`             // 最大请求头字节数
+	EnableHttp         bool              `mapstructure:"enable_http" yaml:"enable-http" json:"enable_http"`                            // 是否启用HTTP
+	EnableGrpc         bool              `mapstructure:"enable_grpc" yaml:"enable-grpc" json:"enable_grpc"`                            // 是否启用GRPC
+	EnableTls          bool              `mapstructure:"enable_tls" yaml:"enable-tls" json:"enable_tls"`                               // 是否启用TLS
+	TLS                *TLS              `mapstructure:"tls" yaml:"tls" json:"tls"`                                                    // TLS配置
+	Headers            map[string]string `mapstructure:"headers" yaml:"headers" json:"headers"`                                        // 自定义头部
+	Endpoint           string            `mapstructure:"-" yaml:"-" json:"endpoint"`                                                   // 完整的服务端点地址（自动计算，不从配置文件读取）
+	EnableGzipCompress bool              `mapstructure:"enable_gzip_compress" yaml:"enable_gzip_compress" json:"enable_gzip_compress"` // 是否启用Gzip压缩
+}
+
+// TLS TLS配置
+type TLS struct {
+	CertFile string `mapstructure:"cert_file" yaml:"cert-file" json:"cert_file"` // 证书文件路径
+	KeyFile  string `mapstructure:"key_file" yaml:"key-file" json:"key_file"`    // 私钥文件路径
+	CAFile   string `mapstructure:"ca_file" yaml:"ca-file" json:"ca_file"`       // CA文件路径
 }
 
 // DefaultHTTPServer 创建默认HTTP服务器配置
 func DefaultHTTPServer() *HTTPServer {
 	h := &HTTPServer{
-		Host:               "0.0.0.0",
-		Port:               8080,
-		ReadTimeout:        30,
-		WriteTimeout:       30,
-		IdleTimeout:        60,
-		MaxHeaderBytes:     1 << 20, // 1MB
+		ModuleName:     "server",
+		Host:           "0.0.0.0",
+		Port:           8080,
+		GrpcPort:       9090,
+		ReadTimeout:    30,
+		WriteTimeout:   30,
+		IdleTimeout:    60,
+		MaxHeaderBytes: 1 << 20, // 1MB
+		EnableHttp:     true,
+		EnableGrpc:     false,
+		EnableTls:      false,
+		TLS: &TLS{
+			CertFile: "",
+			KeyFile:  "",
+			CAFile:   "",
+		},
+		Headers:            make(map[string]string),
 		EnableGzipCompress: true,
 	}
 	internal.CallAfterLoad(h) // 自动调用 AfterLoad 钩子
@@ -45,14 +70,12 @@ func DefaultHTTPServer() *HTTPServer {
 }
 
 // BeforeLoad 配置加载前的钩子函数
-// 在配置从文件加载之前调用，可用于设置前置条件
 func (h *HTTPServer) BeforeLoad() error {
 	// 这里可以添加加载前的预处理逻辑
 	return nil
 }
 
 // AfterLoad 配置加载后的钩子函数 - 用于计算衍生字段
-// 这个方法会在配置加载后自动调用
 func (h *HTTPServer) AfterLoad() error {
 	h.Endpoint = fmt.Sprintf("http://%s:%d", h.Host, h.Port)
 	return nil
@@ -69,13 +92,29 @@ func (h *HTTPServer) GetEndpoint() string {
 // Clone 返回配置的副本
 func (h *HTTPServer) Clone() *HTTPServer {
 	cloned := &HTTPServer{
+		ModuleName:         h.ModuleName,
 		Host:               h.Host,
 		Port:               h.Port,
+		GrpcPort:           h.GrpcPort,
 		ReadTimeout:        h.ReadTimeout,
 		WriteTimeout:       h.WriteTimeout,
 		IdleTimeout:        h.IdleTimeout,
 		MaxHeaderBytes:     h.MaxHeaderBytes,
+		EnableHttp:         h.EnableHttp,
+		EnableGrpc:         h.EnableGrpc,
+		EnableTls:          h.EnableTls,
 		EnableGzipCompress: h.EnableGzipCompress,
+	}
+	if h.TLS != nil {
+		cloned.TLS = &TLS{
+			CertFile: h.TLS.CertFile,
+			KeyFile:  h.TLS.KeyFile,
+			CAFile:   h.TLS.CAFile,
+		}
+	}
+	cloned.Headers = make(map[string]string)
+	for k, v := range h.Headers {
+		cloned.Headers[k] = v
 	}
 	internal.CallAfterLoad(cloned) // 重新计算衍生字段
 	return cloned
@@ -100,11 +139,65 @@ func (h *HTTPServer) WithPort(port int) *HTTPServer {
 	return h
 }
 
+// WithGrpcPort 设置GRPC端口
+func (h *HTTPServer) WithGrpcPort(port int) *HTTPServer {
+	h.GrpcPort = port
+	return h
+}
+
 // WithTimeouts 设置超时配置
 func (h *HTTPServer) WithTimeouts(read, write, idle int) *HTTPServer {
 	h.ReadTimeout = read
 	h.WriteTimeout = write
 	h.IdleTimeout = idle
+	return h
+}
+
+// WithTLS 设置TLS配置
+func (h *HTTPServer) WithTLS(certFile, keyFile, caFile string) *HTTPServer {
+	if h.TLS == nil {
+		h.TLS = &TLS{}
+	}
+	h.TLS.CertFile = certFile
+	h.TLS.KeyFile = keyFile
+	h.TLS.CAFile = caFile
+	h.EnableTls = true
+	return h
+}
+
+// EnableHTTP 启用HTTP服务
+func (h *HTTPServer) EnableHTTP() *HTTPServer {
+	h.EnableHttp = true
+	return h
+}
+
+// DisableHTTP 禁用HTTP服务
+func (h *HTTPServer) DisableHTTP() *HTTPServer {
+	h.EnableHttp = false
+	return h
+}
+
+// EnableGRPC 启用GRPC服务
+func (h *HTTPServer) EnableGRPC() *HTTPServer {
+	h.EnableGrpc = true
+	return h
+}
+
+// DisableGRPC 禁用GRPC服务
+func (h *HTTPServer) DisableGRPC() *HTTPServer {
+	h.EnableGrpc = false
+	return h
+}
+
+// EnableTLSService 启用TLS
+func (h *HTTPServer) EnableTLSService() *HTTPServer {
+	h.EnableTls = true
+	return h
+}
+
+// DisableTLS 禁用TLS
+func (h *HTTPServer) DisableTLS() *HTTPServer {
+	h.EnableTls = false
 	return h
 }
 
@@ -117,5 +210,14 @@ func (h *HTTPServer) EnableGzip() *HTTPServer {
 // DisableGzip 禁用Gzip压缩
 func (h *HTTPServer) DisableGzip() *HTTPServer {
 	h.EnableGzipCompress = false
+	return h
+}
+
+// AddHeader 添加自定义头部
+func (h *HTTPServer) AddHeader(key, value string) *HTTPServer {
+	if h.Headers == nil {
+		h.Headers = make(map[string]string)
+	}
+	h.Headers[key] = value
 	return h
 }
