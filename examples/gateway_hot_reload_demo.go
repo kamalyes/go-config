@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 12:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 12:00:00
+ * @LastEditTime: 2025-11-13 01:36:01
  * @FilePath: \go-config\examples\gateway_hot_reload_demo.go
  * @Description: Gateway配置热更新完整演示Demo
  *
@@ -436,22 +436,6 @@ func (gs *GatewayService) Stop() error {
 	}
 
 	return nil
-}
-
-// 辅助函数
-
-// getClientIP 获取客户端IP
-func getClientIP(r *http.Request) string {
-	// 尝试从 X-Forwarded-For 头获取
-	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-		return xff
-	}
-	// 尝试从 X-Real-IP 头获取
-	if xri := r.Header.Get("X-Real-IP"); xri != "" {
-		return xri
-	}
-	// 使用远程地址
-	return r.RemoteAddr
 }
 
 // main 主函数
