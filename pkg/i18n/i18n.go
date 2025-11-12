@@ -11,18 +11,30 @@
 
 package i18n
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+)
+
+// MessageLoader 消息加载器接口
+type MessageLoader interface {
+	LoadMessages(language string) (map[string]string, error)
+}
 
 // I18N 国际化中间件配置
 type I18N struct {
-	ModuleName         string   `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                         // 模块名称
-	Enabled            bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                     // 是否启用国际化
-	DefaultLanguage    string   `mapstructure:"default_language" yaml:"default-language" json:"default_language"`          // 默认语言
-	SupportedLanguages []string `mapstructure:"supported_languages" yaml:"supported-languages" json:"supported_languages"` // 支持的语言
-	LocaleDir          string   `mapstructure:"locale_dir" yaml:"locale-dir" json:"locale_dir"`                            // 语言文件目录
-	HeaderName         string   `mapstructure:"header_name" yaml:"header-name" json:"header_name"`                         // 语言头部名称
-	QueryParam         string   `mapstructure:"query_param" yaml:"query-param" json:"query_param"`                         // 查询参数名称
-	CookieName         string   `mapstructure:"cookie_name" yaml:"cookie-name" json:"cookie_name"`                         // Cookie名称
+	ModuleName             string            `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                                         // 模块名称
+	Enabled                bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                     // 是否启用国际化
+	DefaultLanguage        string            `mapstructure:"default_language" yaml:"default-language" json:"default_language"`                          // 默认语言
+	SupportedLanguages     []string          `mapstructure:"supported_languages" yaml:"supported-languages" json:"supported_languages"`               // 支持的语言
+	LanguageMapping        map[string]string `mapstructure:"language_mapping" yaml:"language-mapping" json:"language_mapping"`                         // 语言映射关系
+	DetectionOrder         []string          `mapstructure:"detection_order" yaml:"detection-order" json:"detection_order"`                            // 语言检测顺序
+	LanguageParam          string            `mapstructure:"language_param" yaml:"language-param" json:"language_param"`                               // 语言参数名称（用于query和cookie）
+	LanguageHeader         string            `mapstructure:"language_header" yaml:"language-header" json:"language_header"`                            // 语言头名称
+	MessagesPath           string            `mapstructure:"messages_path" yaml:"messages-path" json:"messages_path"`                                  // 消息文件路径
+	CustomMessagePaths     map[string]string `mapstructure:"custom_message_paths" yaml:"custom-message-paths" json:"custom_message_paths"`             // 自定义消息文件路径映射
+	EnableFallback         bool              `mapstructure:"enable_fallback" yaml:"enable-fallback" json:"enable_fallback"`                            // 是否启用回退到默认语言
+	MessageLoader          MessageLoader     `mapstructure:"-" yaml:"-" json:"-"`                                                                      // 自定义消息加载器
+	CookieName             string            `mapstructure:"cookie_name" yaml:"cookie-name" json:"cookie_name"`                                        // Cookie名称
 }
 
 // Default 创建默认国际化配置
@@ -32,9 +44,18 @@ func Default() *I18N {
 		Enabled:            false,
 		DefaultLanguage:    "en",
 		SupportedLanguages: []string{"en", "zh", "ja", "ko"},
-		LocaleDir:          "./locales",
-		HeaderName:         "Accept-Language",
-		QueryParam:         "lang",
+		LanguageMapping: map[string]string{
+			"zh-cn": "zh",
+			"zh-tw": "zh-tw",
+			"en-us": "en",
+			"fr-fr": "fr",
+		},
+		DetectionOrder:     []string{"header", "query", "cookie", "default"},
+		LanguageParam:      "lang",
+		LanguageHeader:     "Accept-Language",
+		MessagesPath:       "./locales",
+		CustomMessagePaths: make(map[string]string),
+		EnableFallback:     true,
 		CookieName:         "language",
 	}
 }
@@ -54,15 +75,30 @@ func (i *I18N) Set(data interface{}) {
 // Clone 返回配置的副本
 func (i *I18N) Clone() internal.Configurable {
 	clone := &I18N{
-		ModuleName:      i.ModuleName,
-		Enabled:         i.Enabled,
-		DefaultLanguage: i.DefaultLanguage,
-		LocaleDir:       i.LocaleDir,
-		HeaderName:      i.HeaderName,
-		QueryParam:      i.QueryParam,
-		CookieName:      i.CookieName,
+		ModuleName:         i.ModuleName,
+		Enabled:            i.Enabled,
+		DefaultLanguage:    i.DefaultLanguage,
+		LanguageParam:      i.LanguageParam,
+		LanguageHeader:     i.LanguageHeader,
+		MessagesPath:       i.MessagesPath,
+		EnableFallback:     i.EnableFallback,
+		MessageLoader:      i.MessageLoader,
+		CookieName:         i.CookieName,
 	}
 	clone.SupportedLanguages = append([]string(nil), i.SupportedLanguages...)
+	clone.DetectionOrder = append([]string(nil), i.DetectionOrder...)
+	
+	// 深拷贝映射
+	clone.LanguageMapping = make(map[string]string)
+	for k, v := range i.LanguageMapping {
+		clone.LanguageMapping[k] = v
+	}
+	
+	clone.CustomMessagePaths = make(map[string]string)
+	for k, v := range i.CustomMessagePaths {
+		clone.CustomMessagePaths[k] = v
+	}
+	
 	return clone
 }
 
@@ -83,21 +119,21 @@ func (i *I18N) WithSupportedLanguages(supportedLanguages []string) *I18N {
 	return i
 }
 
-// WithLocaleDir 设置语言文件目录
-func (i *I18N) WithLocaleDir(localeDir string) *I18N {
-	i.LocaleDir = localeDir
+// WithMessagesPath 设置消息文件路径
+func (i *I18N) WithMessagesPath(messagesPath string) *I18N {
+	i.MessagesPath = messagesPath
 	return i
 }
 
-// WithHeaderName 设置语言头部名称
-func (i *I18N) WithHeaderName(headerName string) *I18N {
-	i.HeaderName = headerName
+// WithLanguageHeader 设置语言头名称
+func (i *I18N) WithLanguageHeader(languageHeader string) *I18N {
+	i.LanguageHeader = languageHeader
 	return i
 }
 
-// WithQueryParam 设置查询参数名称
-func (i *I18N) WithQueryParam(queryParam string) *I18N {
-	i.QueryParam = queryParam
+// WithLanguageParam 设置语言参数名称
+func (i *I18N) WithLanguageParam(languageParam string) *I18N {
+	i.LanguageParam = languageParam
 	return i
 }
 

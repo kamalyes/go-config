@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-09 01:24:48
+ * @LastEditTime: 2025-11-13 01:25:18
  * @FilePath: \go-config\pkg\oss\minio.go
  * @Description:
  *
@@ -17,11 +17,12 @@ import (
 
 // Minio 结构体用于配置 Minio 服务器的相关参数
 type Minio struct {
-	Endpoint            string `mapstructure:"endpoint"           yaml:"endpoint"        json:"endpoint"`                             // 地区
-	AccessKey  string `mapstructure:"access-key"         yaml:"access-key"      json:"access_key"       validate:"required"`                 // 签名用的 key
-	SecretKey  string `mapstructure:"secret-key"         yaml:"secret-key"      json:"secret_key"       validate:"required"`                 // 签名用的钥匙
-	Bucket              string `mapstructure:"bucket"             yaml:"bucket"          json:"bucket"`                               // 桶
-	ModuleName string `mapstructure:"modulename"         yaml:"modulename"      json:"module_name"`                                          // 模块名称
+	Endpoint   string `mapstructure:"endpoint"    yaml:"endpoint"    json:"endpoint"`                                  // 地区
+	AccessKey  string `mapstructure:"access-key"  yaml:"access-key"  json:"access_key"  validate:"required"`       // 签名用的 key
+	SecretKey  string `mapstructure:"secret-key"  yaml:"secret-key"  json:"secret_key"  validate:"required"`       // 签名用的钥匙
+	Bucket     string `mapstructure:"bucket"      yaml:"bucket"      json:"bucket"`                                  // 桶
+	ModuleName string `mapstructure:"modulename"  yaml:"modulename"  json:"module_name"`                             // 模块名称
+	UseSSL     bool   `mapstructure:"use-ssl"     yaml:"use-ssl"     json:"use_ssl"`                                // 是否使用 HTTPS
 }
 
 // NewMinio 创建一个新的 Minio 实例
@@ -41,8 +42,62 @@ func (m *Minio) Clone() internal.Configurable {
 		Endpoint:   m.Endpoint,
 		AccessKey:  m.AccessKey,
 		SecretKey:  m.SecretKey,
-		Bucket:    m.Bucket,
+		Bucket:     m.Bucket,
+		UseSSL:     m.UseSSL,
 	}
+}
+
+// OSSProvider 接口实现
+
+// GetProviderType 获取提供商类型
+func (m *Minio) GetProviderType() OSSType {
+	return OSSTypeMinio
+}
+
+// GetEndpoint 获取端点地址
+func (m *Minio) GetEndpoint() string {
+	return m.Endpoint
+}
+
+// GetAccessKey 获取访问密钥
+func (m *Minio) GetAccessKey() string {
+	return m.AccessKey
+}
+
+// GetSecretKey 获取私密密钥
+func (m *Minio) GetSecretKey() string {
+	return m.SecretKey
+}
+
+// GetBucket 获取存储桶名称
+func (m *Minio) GetBucket() string {
+	return m.Bucket
+}
+
+// IsSSL 是否使用SSL
+func (m *Minio) IsSSL() bool {
+	return m.UseSSL
+}
+
+// GetModuleName 获取模块名称
+func (m *Minio) GetModuleName() string {
+	return m.ModuleName
+}
+
+// SetCredentials 设置凭证
+func (m *Minio) SetCredentials(accessKey, secretKey string) {
+	m.AccessKey = accessKey
+	m.SecretKey = secretKey
+}
+
+// SetEndpoint 设置端点
+func (m *Minio) SetEndpoint(endpoint string) {
+	m.Endpoint = endpoint
+}
+
+// SetBucket 设置存储桶
+func (m *Minio) SetBucket(bucket string) {
+	m.Bucket = bucket
 }
 
 // Get 返回 Minio 配置的所有字段

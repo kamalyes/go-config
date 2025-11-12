@@ -15,12 +15,40 @@ import "github.com/kamalyes/go-config/internal"
 
 // PProf 性能分析配置
 type PProf struct {
-	ModuleName     string          `mapstructure:"module_name" yaml:"module-name" json:"module_name"`             // 模块名称
-	Enabled        bool            `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                         // 是否启用PProf
-	PathPrefix     string          `mapstructure:"path_prefix" yaml:"path_prefix" json:"path_prefix"`             // PProf路径前缀
-	Port           int             `mapstructure:"port" yaml:"port" json:"port"`                                  // PProf服务端口
-	EnableProfiles *ProfilesConfig `mapstructure:"enable_profiles" yaml:"enable-profiles" json:"enable_profiles"` // 启用的性能分析
-	Sampling       *SamplingConfig `mapstructure:"sampling" yaml:"sampling" json:"sampling"`                      // 采样配置
+	ModuleName      string          `mapstructure:"module_name" yaml:"module-name" json:"module_name"`             // 模块名称
+	Enabled         bool            `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                         // 是否启用PProf
+	PathPrefix      string          `mapstructure:"path_prefix" yaml:"path_prefix" json:"path_prefix"`             // PProf路径前缀
+	Port            int             `mapstructure:"port" yaml:"port" json:"port"`                                  // PProf服务端口
+	EnableProfiles  *ProfilesConfig `mapstructure:"enable_profiles" yaml:"enable-profiles" json:"enable_profiles"` // 启用的性能分析
+	Sampling        *SamplingConfig `mapstructure:"sampling" yaml:"sampling" json:"sampling"`                      // 采样配置
+	Authentication  *AuthConfig     `mapstructure:"authentication" yaml:"authentication" json:"authentication"`    // 认证配置
+	Gateway         *GatewayConfig  `mapstructure:"gateway" yaml:"gateway" json:"gateway"`                         // Gateway特定配置
+	WebInterface    *WebConfig      `mapstructure:"web_interface" yaml:"web-interface" json:"web_interface"`       // Web界面配置
+}
+
+// AuthConfig 认证配置
+type AuthConfig struct {
+	Enabled     bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`           // 是否启用认证
+	AuthToken   string   `mapstructure:"auth_token" yaml:"auth-token" json:"auth_token"`   // 认证令牌
+	AllowedIPs  []string `mapstructure:"allowed_ips" yaml:"allowed-ips" json:"allowed_ips"` // 允许的IP列表
+	RequireAuth bool     `mapstructure:"require_auth" yaml:"require-auth" json:"require_auth"` // 是否需要认证
+	Timeout     int      `mapstructure:"timeout" yaml:"timeout" json:"timeout"`           // 认证超时时间(秒)
+}
+
+// GatewayConfig Gateway特定配置
+type GatewayConfig struct {
+	Enabled             bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                               // 是否启用Gateway集成
+	DevModeOnly         bool `mapstructure:"dev_mode_only" yaml:"dev-mode-only" json:"dev_mode_only"`             // 仅在开发模式启用
+	EnableLogging       bool `mapstructure:"enable_logging" yaml:"enable-logging" json:"enable_logging"`          // 是否启用日志
+	RegisterWebInterface bool `mapstructure:"register_web_interface" yaml:"register-web-interface" json:"register_web_interface"` // 是否注册Web界面
+}
+
+// WebConfig Web界面配置
+type WebConfig struct {
+	Enabled      bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`           // 是否启用Web界面
+	Title        string `mapstructure:"title" yaml:"title" json:"title"`                 // Web界面标题
+	Description  string `mapstructure:"description" yaml:"description" json:"description"` // 描述
+	ShowScenarios bool   `mapstructure:"show_scenarios" yaml:"show-scenarios" json:"show_scenarios"` // 是否显示性能测试场景
 }
 
 // ProfilesConfig 性能分析配置
@@ -49,7 +77,7 @@ func Default() *PProf {
 	return &PProf{
 		ModuleName: "PProf",
 		Enabled:    false,
-		PathPrefix:       "/debug/PProf",
+		PathPrefix: "/debug/pprof",
 		Port:       6060,
 		EnableProfiles: &ProfilesConfig{
 			CPU:          true,
@@ -67,6 +95,25 @@ func Default() *PProf {
 			MemoryRate:    512 * 1024, // 512KB
 			BlockRate:     1,
 			MutexFraction: 1,
+		},
+		Authentication: &AuthConfig{
+			Enabled:     false,
+			AuthToken:   "",
+			AllowedIPs:  []string{},
+			RequireAuth: false,
+			Timeout:     30,
+		},
+		Gateway: &GatewayConfig{
+			Enabled:              false,
+			DevModeOnly:          false,
+			EnableLogging:        true,
+			RegisterWebInterface: true,
+		},
+		WebInterface: &WebConfig{
+			Enabled:       true,
+			Title:         "PProf Performance Analysis",
+			Description:   "Go Performance Profiling Interface",
+			ShowScenarios: true,
 		},
 	}
 }
@@ -87,12 +134,28 @@ func (c *PProf) Set(data interface{}) {
 func (c *PProf) Clone() internal.Configurable {
 	profiles := &ProfilesConfig{}
 	sampling := &SamplingConfig{}
+	auth := &AuthConfig{}
+	gateway := &GatewayConfig{}
+	webConfig := &WebConfig{}
 
 	if c.EnableProfiles != nil {
 		*profiles = *c.EnableProfiles
 	}
 	if c.Sampling != nil {
 		*sampling = *c.Sampling
+	}
+	if c.Authentication != nil {
+		auth.Enabled = c.Authentication.Enabled
+		auth.AuthToken = c.Authentication.AuthToken
+		auth.AllowedIPs = append([]string(nil), c.Authentication.AllowedIPs...)
+		auth.RequireAuth = c.Authentication.RequireAuth
+		auth.Timeout = c.Authentication.Timeout
+	}
+	if c.Gateway != nil {
+		*gateway = *c.Gateway
+	}
+	if c.WebInterface != nil {
+		*webConfig = *c.WebInterface
 	}
 
 	return &PProf{
@@ -102,6 +165,9 @@ func (c *PProf) Clone() internal.Configurable {
 		Port:           c.Port,
 		EnableProfiles: profiles,
 		Sampling:       sampling,
+		Authentication: auth,
+		Gateway:        gateway,
+		WebInterface:   webConfig,
 	}
 }
 
@@ -205,6 +271,58 @@ func (c *PProf) EnableMutexProfile() *PProf {
 		c.EnableProfiles = &ProfilesConfig{}
 	}
 	c.EnableProfiles.Mutex = true
+	return c
+}
+
+// WithAuthToken 设置认证令牌
+func (c *PProf) WithAuthToken(token string) *PProf {
+	if c.Authentication == nil {
+		c.Authentication = &AuthConfig{}
+	}
+	c.Authentication.AuthToken = token
+	c.Authentication.RequireAuth = token != ""
+	c.Authentication.Enabled = token != ""
+	return c
+}
+
+// WithAllowedIPs 设置允许的IP列表
+func (c *PProf) WithAllowedIPs(ips []string) *PProf {
+	if c.Authentication == nil {
+		c.Authentication = &AuthConfig{}
+	}
+	c.Authentication.AllowedIPs = ips
+	return c
+}
+
+// EnableForDevelopment 启用开发环境配置
+func (c *PProf) EnableForDevelopment() *PProf {
+	c.Enabled = true
+	return c.WithAuthToken("dev-debug-token").
+		WithAllowedIPs([]string{"127.0.0.1", "::1"}).
+		EnableGateway(true, true)
+}
+
+// EnableGateway 启用Gateway集成
+func (c *PProf) EnableGateway(enabled, devModeOnly bool) *PProf {
+	if c.Gateway == nil {
+		c.Gateway = &GatewayConfig{}
+	}
+	c.Gateway.Enabled = enabled
+	c.Gateway.DevModeOnly = devModeOnly
+	c.Gateway.EnableLogging = true
+	c.Gateway.RegisterWebInterface = true
+	return c
+}
+
+// WithWebInterface 配置Web界面
+func (c *PProf) WithWebInterface(enabled bool, title, description string) *PProf {
+	if c.WebInterface == nil {
+		c.WebInterface = &WebConfig{}
+	}
+	c.WebInterface.Enabled = enabled
+	c.WebInterface.Title = title
+	c.WebInterface.Description = description
+	c.WebInterface.ShowScenarios = true
 	return c
 }
 

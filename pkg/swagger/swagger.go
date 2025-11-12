@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 17:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-11 10:25:11
- * @FilePath: \go-rpc-gateway\go-config\pkg\swagger\swagger.go
+ * @LastEditTime: 2025-11-12 23:16:53
+ * @FilePath: \go-config\pkg\swagger\swagger.go
  * @Description: Swagger配置模块 - 基于go-config设计模式
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
@@ -31,6 +31,19 @@ const (
 	AuthCustom AuthType = "custom"
 )
 
+// Contact Swagger联系信息
+type Contact struct {
+	Name  string `mapstructure:"name" yaml:"name" json:"name"`   // 联系人姓名
+	URL   string `mapstructure:"url" yaml:"url" json:"url"`      // 联系URL
+	Email string `mapstructure:"email" yaml:"email" json:"email"` // 联系邮箱
+}
+
+// License Swagger许可证信息
+type License struct {
+	Name string `mapstructure:"name" yaml:"name" json:"name"` // 许可证名称
+	URL  string `mapstructure:"url" yaml:"url" json:"url"`   // 许可证URL
+}
+
 // AuthConfig Swagger认证配置
 type AuthConfig struct {
 	Type        AuthType `mapstructure:"type" yaml:"type" json:"type"`                         // 认证类型
@@ -49,8 +62,10 @@ type Swagger struct {
 	UIPath      string      `mapstructure:"ui_path" yaml:"ui_path" json:"ui_path"`             // Swagger UI路由路径
 	Title       string      `mapstructure:"title" yaml:"title" json:"title"`                   // 文档标题
 	Description string      `mapstructure:"description" yaml:"description" json:"description"` // 文档描述
-	Auth        *AuthConfig `mapstructure:"auth" yaml:"auth" json:"auth"`                      // 认证配置
 	Version     string      `mapstructure:"version" yaml:"version" json:"version"`             // Swagger版本
+	Contact     *Contact    `mapstructure:"contact" yaml:"contact" json:"contact"`             // 联系信息
+	License     *License    `mapstructure:"license" yaml:"license" json:"license"`             // 许可证信息
+	Auth        *AuthConfig `mapstructure:"auth" yaml:"auth" json:"auth"`                      // 认证配置
 }
 
 // Default 创建默认Swagger配置
@@ -62,10 +77,19 @@ func Default() *Swagger {
 		UIPath:      "/swagger/*any",
 		Title:       "API Documentation",
 		Description: "API Documentation powered by Swagger UI",
+		Version:     "1.0.0",
+		Contact: &Contact{
+			Name:  "API Support",
+			URL:   "",
+			Email: "",
+		},
+		License: &License{
+			Name: "MIT",
+			URL:  "",
+		},
 		Auth: &AuthConfig{
 			Type: AuthNone,
 		},
-		Version: "1.0.0",
 	}
 }
 
@@ -110,9 +134,22 @@ func (c *Swagger) WithAuth(auth *AuthConfig) *Swagger {
 	c.Auth = auth
 	return c
 }
+
 // WithVersion 设置Swagger版本
 func (c *Swagger) WithVersion(version string) *Swagger {
 	c.Version = version
+	return c
+}
+
+// WithContact 设置联系信息
+func (c *Swagger) WithContact(contact *Contact) *Swagger {
+	c.Contact = contact
+	return c
+}
+
+// WithLicense 设置许可证信息
+func (c *Swagger) WithLicense(license *License) *Swagger {
+	c.License = license
 	return c
 }
 
@@ -213,6 +250,7 @@ func (c *Swagger) Clone() internal.Configurable {
 		UIPath:      c.UIPath,
 		Title:       c.Title,
 		Description: c.Description,
+		Version:     c.Version,
 	}
 
 	if c.Auth != nil {
@@ -226,8 +264,19 @@ func (c *Swagger) Clone() internal.Configurable {
 		}
 	}
 
-	if c.Version != "" {
-		clone.Version = c.Version
+	if c.Contact != nil {
+		clone.Contact = &Contact{
+			Name:  c.Contact.Name,
+			URL:   c.Contact.URL,
+			Email: c.Contact.Email,
+		}
+	}
+
+	if c.License != nil {
+		clone.License = &License{
+			Name: c.License.Name,
+			URL:  c.License.URL,
+		}
 	}
 
 	return clone
@@ -247,6 +296,9 @@ func (c *Swagger) Set(data interface{}) {
 		c.UIPath = configData.UIPath
 		c.Title = configData.Title
 		c.Description = configData.Description
+		c.Version = configData.Version
+		c.Contact = configData.Contact
+		c.License = configData.License
 		c.Auth = configData.Auth
 	}
 }
@@ -265,8 +317,10 @@ func (c *Swagger) Reset() *Swagger {
 	c.UIPath = defaults.UIPath
 	c.Title = defaults.Title
 	c.Description = defaults.Description
-	c.Auth = defaults.Auth
 	c.Version = defaults.Version
+	c.Contact = defaults.Contact
+	c.License = defaults.License
+	c.Auth = defaults.Auth
 	return c
 }
 

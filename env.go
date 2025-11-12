@@ -3,7 +3,7 @@
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
  * @LastEditTime: 2025-11-12 11:08:23
- * @FilePath: \engine-im-push-service\go-config\env.go
+ * @FilePath: \go-config\env.go
  * @Description: 重构后的环境管理器，提供线程安全的环境管理和别名支持
  *
  * Copyright (c) 2024 by kamalyes, All Rights Reserved.

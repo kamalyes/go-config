@@ -2,221 +2,310 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2024-11-03 20:55:05
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 10:43:32
- * @FilePath: \engine-im-push-service\go-config\pkg\database\database.go
- * @Description:
+ * @LastEditTime: 2025-11-12 22:50:17
+ * @FilePath: \go-config\pkg\database\database.go
+ * @Description: 数据库统一配置管理
  *
  * Copyright (c) 2024 by kamalyes, All Rights Reserved.
  */
 package database
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/kamalyes/go-config/internal"
 )
 
-// BaseConfig 数据库基础配置结构体
-type BaseConfig struct {
-	Host            string `mapstructure:"host"                yaml:"host"                json:"host"            validate:"required"` // 数据库 IP 地址
-	Port            string `mapstructure:"port"                yaml:"port"                json:"port"            validate:"required"` // 端口
-	Config          string `mapstructure:"config"              yaml:"config"              json:"config"          validate:"required"` // 后缀配置 默认配置 charset=utf8mb4&parseTime=True&loc=Local
-	LogLevel        string `mapstructure:"log-level"           yaml:"log-level"           json:"log_level"       validate:"required"` // SQL 日志等级
-	Dbname          string `mapstructure:"db-name"             yaml:"db-name"             json:"db_name"         validate:"required"` // 数据库名称
-	Username        string `mapstructure:"username"            yaml:"username"            json:"username"        validate:"required"` // 数据库用户名
-	Password        string `mapstructure:"password"            yaml:"password"            json:"password"        validate:"required"` // 数据库密码
-	MaxIdleConns    int    `mapstructure:"max-idle-conns"      yaml:"max-idle-conns"      json:"max_idle_conns"  validate:"min=0"`    // 最大空闲连接数
-	MaxOpenConns    int    `mapstructure:"max-open-conns"      yaml:"max-open-conns"      json:"max_open_conns"  validate:"min=0"`    // 最大连接数
-	ConnMaxIdleTime int    `mapstructure:"conn-max-idle-time"  yaml:"conn-max-idle-time"  json:"conn_max_idle_time" validate:"min=0"` // 连接最大空闲时间 单位：秒
-	ConnMaxLifeTime int    `mapstructure:"conn-max-life-time"  yaml:"conn-max-life-time"  json:"conn_max_life_time" validate:"min=0"` // 连接最大生命周期 单位：秒
-	DbPath          string `mapstructure:"db-path"             yaml:"db-path"             json:"db_path"`                             // SQLite 文件存放位置
-	Vacuum          bool   `mapstructure:"vacuum"              yaml:"vacuum"              json:"vacuum"`                              // 是否执行清除命令
-	ModuleName      string `mapstructure:"modulename"          yaml:"modulename"          json:"module_name"`                         // 模块名称
+// DBType 定义数据库类型
+type DBType string
+
+const (
+	DBTypeMySQL      DBType = "mysql"
+	DBTypePostgreSQL DBType = "postgres"
+	DBTypeSQLite     DBType = "sqlite"
+)
+
+// DatabaseProvider 数据库提供商接口，统一不同数据库的操作
+type DatabaseProvider interface {
+	internal.Configurable
+	
+	// GetDBType 获取数据库类型
+	GetDBType() DBType
+	
+	// GetHost 获取主机地址
+	GetHost() string
+	
+	// GetPort 获取端口
+	GetPort() string
+	
+	// GetDBName 获取数据库名称
+	GetDBName() string
+	
+	// GetUsername 获取用户名
+	GetUsername() string
+	
+	// GetPassword 获取密码
+	GetPassword() string
+	
+	// GetConfig 获取额外配置
+	GetConfig() string
+	
+	// GetModuleName 获取模块名称
+	GetModuleName() string
+	
+	// SetCredentials 设置凭证
+	SetCredentials(username, password string)
+	
+	// SetHost 设置主机地址
+	SetHost(host string)
+	
+	// SetPort 设置端口
+	SetPort(port string)
+	
+	// SetDBName 设置数据库名称
+	SetDBName(dbName string)
 }
 
-// Database 数据库配置
+// Database 数据库统一配置结构
 type Database struct {
-	*BaseConfig
-	DBType string `mapstructure:"db-type"  yaml:"db-type"  json:"db_type"  validate:"required,oneof=mysql postgres sqlite"` // 数据库类型
+	Type       DBType     `mapstructure:"type"       yaml:"type"       json:"type"`           // 数据库类型
+	Enabled    bool       `mapstructure:"enabled"    yaml:"enabled"    json:"enabled"`        // 是否启用
+	Default    string     `mapstructure:"default"    yaml:"default"    json:"default"`        // 默认使用的数据库
+	MySQL      *MySQL     `mapstructure:"mysql"      yaml:"mysql"      json:"mysql"`          // MySQL配置
+	PostgreSQL *PostgreSQL `mapstructure:"postgresql" yaml:"postgresql" json:"postgresql"`     // PostgreSQL配置
+	SQLite     *SQLite    `mapstructure:"sqlite"     yaml:"sqlite"     json:"sqlite"`         // SQLite配置
 }
 
-// NewDatabase 创建一个新的 Database 实例
-func NewDatabase(opt *Database) *Database {
-	var dbInstance *Database
-
-	internal.LockFunc(func() {
-		dbInstance = opt
-	})
-	return dbInstance
-}
-
-// Clone 返回 Database 配置的副本
-func (d *Database) Clone() internal.Configurable {
+// NewDatabase 创建新的数据库配置管理器
+func NewDatabase() *Database {
 	return &Database{
-		BaseConfig: &BaseConfig{
-			Host:            d.Host,
-			Port:            d.Port,
-			Config:          d.Config,
-			LogLevel:        d.LogLevel,
-			Dbname:          d.Dbname,
-			Username:        d.Username,
-			Password:        d.Password,
-			MaxIdleConns:    d.MaxIdleConns,
-			MaxOpenConns:    d.MaxOpenConns,
-			ConnMaxIdleTime: d.ConnMaxIdleTime,
-			ConnMaxLifeTime: d.ConnMaxLifeTime,
-			DbPath:          d.DbPath,
-			Vacuum:          d.Vacuum,
-			ModuleName:      d.ModuleName,
-		},
-		DBType: d.DBType,
+		Type:       DBTypeMySQL,
+		Enabled:    true,
+		Default:    string(DBTypeMySQL),
+		MySQL:      DefaultMySQLConfig(),
+		PostgreSQL: DefaultPostgreSQLConfig(),
+		SQLite:     DefaultSQLiteConfig(),
 	}
 }
 
-// Get 返回 Database 配置的所有字段
-func (d *Database) Get() interface{} {
-	return d
-}
-
-// Set 更新 Database 配置的字段
-func (d *Database) Set(data interface{}) {
-	if configData, ok := data.(*Database); ok {
-		d.Host = configData.Host
-		d.Port = configData.Port
-		d.Config = configData.Config
-		d.LogLevel = configData.LogLevel
-		d.Dbname = configData.Dbname
-		d.Username = configData.Username
-		d.Password = configData.Password
-		d.MaxIdleConns = configData.MaxIdleConns
-		d.MaxOpenConns = configData.MaxOpenConns
-		d.ConnMaxIdleTime = configData.ConnMaxIdleTime
-		d.ConnMaxLifeTime = configData.ConnMaxLifeTime
-		d.DbPath = configData.DbPath
-		d.Vacuum = configData.Vacuum
-		d.ModuleName = configData.ModuleName
-		d.DBType = configData.DBType
+// GetProvider 获取指定类型的数据库提供商
+func (c *Database) GetProvider(dbType DBType) (DatabaseProvider, error) {
+	switch dbType {
+	case DBTypeMySQL:
+		if c.MySQL == nil {
+			return nil, fmt.Errorf("mysql config not found")
+		}
+		return c.MySQL, nil
+	case DBTypePostgreSQL:
+		if c.PostgreSQL == nil {
+			return nil, fmt.Errorf("postgresql config not found")
+		}
+		return c.PostgreSQL, nil
+	case DBTypeSQLite:
+		if c.SQLite == nil {
+			return nil, fmt.Errorf("sqlite config not found")
+		}
+		return c.SQLite, nil
+	default:
+		return nil, fmt.Errorf("unsupported database type: %s", dbType)
 	}
 }
 
-// Validate 检查 Database 配置的有效性
-func (d *Database) Validate() error {
-	return internal.ValidateStruct(d)
+// GetDefaultProvider 获取默认的数据库提供商
+func (c *Database) GetDefaultProvider() (DatabaseProvider, error) {
+	defaultType := DBType(c.Default)
+	return c.GetProvider(defaultType)
 }
 
-// DefaultDatabase 返回默认Database配置
-func DefaultDatabase() Database {
-	return Database{
-		BaseConfig: &BaseConfig{
-			Host:            "localhost",
-			Port:            "3306",
-			Config:          "charset=utf8mb4&parseTime=True&loc=Local",
-			LogLevel:        "info",
-			Dbname:          "test",
-			Username:        "root",
-			Password:        "",
-			MaxIdleConns:    10,
-			MaxOpenConns:    100,
-			ConnMaxIdleTime: 600,
-			ConnMaxLifeTime: 3600,
-			DbPath:          "./data/app.db",
-			Vacuum:          false,
-			ModuleName:      "database",
-		},
-		DBType: "mysql",
+// SetDefaultProvider 设置默认数据库提供商
+func (c *Database) SetDefaultProvider(dbType DBType) {
+	c.Default = string(dbType)
+	c.Type = dbType
+}
+
+// ListAvailableProviders 列出所有可用的数据库提供商
+func (c *Database) ListAvailableProviders() []DBType {
+	var providers []DBType
+	
+	if c.MySQL != nil {
+		providers = append(providers, DBTypeMySQL)
+	}
+	if c.PostgreSQL != nil {
+		providers = append(providers, DBTypePostgreSQL)
+	}
+	if c.SQLite != nil {
+		providers = append(providers, DBTypeSQLite)
+	}
+	
+	return providers
+}
+
+// ValidateProvider 验证指定提供商的配置
+func (c *Database) ValidateProvider(dbType DBType) error {
+	provider, err := c.GetProvider(dbType)
+	if err != nil {
+		return err
+	}
+	
+	return provider.Validate()
+}
+
+// ValidateAll 验证所有配置的提供商
+func (c *Database) ValidateAll() error {
+	providers := c.ListAvailableProviders()
+	
+	for _, providerType := range providers {
+		if err := c.ValidateProvider(providerType); err != nil {
+			return fmt.Errorf("validation failed for %s: %w", providerType, err)
+		}
+	}
+	
+	return nil
+}
+
+// Clone 返回Database配置的副本
+func (c *Database) Clone() internal.Configurable {
+	newConfig := &Database{
+		Type:    c.Type,
+		Enabled: c.Enabled,
+		Default: c.Default,
+	}
+	
+	if c.MySQL != nil {
+		newConfig.MySQL = c.MySQL.Clone().(*MySQL)
+	}
+	if c.PostgreSQL != nil {
+		newConfig.PostgreSQL = c.PostgreSQL.Clone().(*PostgreSQL)
+	}
+	if c.SQLite != nil {
+		newConfig.SQLite = c.SQLite.Clone().(*SQLite)
+	}
+	
+	return newConfig
+}
+
+// Get 返回Database配置
+func (c *Database) Get() interface{} {
+	return c
+}
+
+// Set 设置Database配置
+func (c *Database) Set(data interface{}) {
+	if config, ok := data.(*Database); ok {
+		*c = *config
 	}
 }
 
-// Default 返回默认Database配置的指针，支持链式调用
-func Default() *Database {
-	config := DefaultDatabase()
-	return &config
+// Validate 验证Database配置的有效性
+func (c *Database) Validate() error {
+	if !c.Enabled {
+		return nil
+	}
+	
+	// 验证默认提供商设置
+	if c.Default == "" {
+		return fmt.Errorf("default database provider not specified")
+	}
+	
+	defaultType := DBType(c.Default)
+	if err := c.ValidateProvider(defaultType); err != nil {
+		return fmt.Errorf("default provider validation failed: %w", err)
+	}
+	
+	return nil
 }
 
-// WithModuleName 设置模块名称
-func (d *Database) WithModuleName(moduleName string) *Database {
-	d.ModuleName = moduleName
-	return d
+// EnsureDefaults 确保所有子配置都有默认值，避免空指针
+func (c *Database) EnsureDefaults() {
+	if c.MySQL == nil {
+		c.MySQL = DefaultMySQLConfig()
+	}
+	if c.PostgreSQL == nil {
+		c.PostgreSQL = DefaultPostgreSQLConfig()
+	}
+	if c.SQLite == nil {
+		c.SQLite = DefaultSQLiteConfig()
+	}
+	
+	// 如果没有设置默认类型，使用MySQL
+	if c.Default == "" {
+		c.Default = string(DBTypeMySQL)
+	}
+	if c.Type == "" {
+		c.Type = DBTypeMySQL
+	}
 }
 
-// WithDBType 设置数据库类型
-func (d *Database) WithDBType(dbType string) *Database {
-	d.DBType = dbType
-	return d
+// GetSafe 安全获取配置，确保所有字段都有默认值
+func (c *Database) GetSafe() interface{} {
+	if c == nil {
+		return DefaultDatabaseConfig()
+	}
+	c.EnsureDefaults()
+	return c
 }
 
-// WithHost 设置数据库主机地址
-func (d *Database) WithHost(host string) *Database {
-	d.Host = host
-	return d
+// BeforeLoad 配置加载前的钩子
+func (c *Database) BeforeLoad() error {
+	c.EnsureDefaults()
+	return nil
 }
 
-// WithPort 设置数据库端口
-func (d *Database) WithPort(port string) *Database {
-	d.Port = port
-	return d
+// AfterLoad 配置加载后的钩子
+func (c *Database) AfterLoad() error {
+	c.EnsureDefaults()
+	
+	// 验证默认提供商配置的有效性
+	if c.Default != "" {
+		if err := c.ValidateProvider(DBType(c.Default)); err != nil {
+			// 如果默认提供商配置无效，回退到MySQL
+			c.Default = string(DBTypeMySQL)
+			c.Type = DBTypeMySQL
+		}
+	}
+	
+	return nil
 }
 
-// WithConfig 设置数据库配置参数
-func (d *Database) WithConfig(config string) *Database {
-	d.Config = config
-	return d
+// GetProviderName 获取提供商显示名称
+func GetProviderName(dbType DBType) string {
+	switch dbType {
+	case DBTypeMySQL:
+		return "MySQL"
+	case DBTypePostgreSQL:
+		return "PostgreSQL"
+	case DBTypeSQLite:
+		return "SQLite"
+	default:
+		return string(dbType)
+	}
 }
 
-// WithLogLevel 设置日志级别
-func (d *Database) WithLogLevel(logLevel string) *Database {
-	d.LogLevel = logLevel
-	return d
+// ParseDBType 解析数据库类型字符串
+func ParseDBType(typeStr string) (DBType, error) {
+	switch strings.ToLower(typeStr) {
+	case "mysql":
+		return DBTypeMySQL, nil
+	case "postgres", "postgresql":
+		return DBTypePostgreSQL, nil
+	case "sqlite", "sqlite3":
+		return DBTypeSQLite, nil
+	default:
+		return "", fmt.Errorf("unsupported database type: %s", typeStr)
+	}
 }
 
-// WithDbname 设置数据库名称
-func (d *Database) WithDbname(dbname string) *Database {
-	d.Dbname = dbname
-	return d
+// DefaultDatabaseConfig 返回默认的数据库配置
+func DefaultDatabaseConfig() *Database {
+	return NewDatabase()
 }
 
-// WithUsername 设置数据库用户名
-func (d *Database) WithUsername(username string) *Database {
-	d.Username = username
-	return d
-}
-
-// WithPassword 设置数据库密码
-func (d *Database) WithPassword(password string) *Database {
-	d.Password = password
-	return d
-}
-
-// WithMaxIdleConns 设置最大空闲连接数
-func (d *Database) WithMaxIdleConns(maxIdleConns int) *Database {
-	d.MaxIdleConns = maxIdleConns
-	return d
-}
-
-// WithMaxOpenConns 设置最大连接数
-func (d *Database) WithMaxOpenConns(maxOpenConns int) *Database {
-	d.MaxOpenConns = maxOpenConns
-	return d
-}
-
-// WithConnMaxIdleTime 设置连接最大空闲时间
-func (d *Database) WithConnMaxIdleTime(connMaxIdleTime int) *Database {
-	d.ConnMaxIdleTime = connMaxIdleTime
-	return d
-}
-
-// WithConnMaxLifeTime 设置连接最大生命周期
-func (d *Database) WithConnMaxLifeTime(connMaxLifeTime int) *Database {
-	d.ConnMaxLifeTime = connMaxLifeTime
-	return d
-}
-
-// WithDbPath 设置SQLite数据库文件路径
-func (d *Database) WithDbPath(dbPath string) *Database {
-	d.DbPath = dbPath
-	return d
-}
-
-// WithVacuum 设置是否执行清除命令
-func (d *Database) WithVacuum(vacuum bool) *Database {
-	d.Vacuum = vacuum
-	return d
+// GetSupportedTypes 获取所有支持的数据库类型
+func GetSupportedTypes() []DBType {
+	return []DBType{
+		DBTypeMySQL,
+		DBTypePostgreSQL,
+		DBTypeSQLite,
+	}
 }

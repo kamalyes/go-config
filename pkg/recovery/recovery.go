@@ -11,25 +11,39 @@
 
 package recovery
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"net/http"
+
+	"github.com/kamalyes/go-config/internal"
+)
 
 // Recovery 恢复中间件配置
 type Recovery struct {
-	ModuleName   string `mapstructure:"module_name" yaml:"module-name" json:"module_name"`       // 模块名称
-	Enabled      bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用恢复
-	PrintStack   bool   `mapstructure:"print_stack" yaml:"print-stack" json:"print_stack"`       // 是否打印堆栈
-	LogLevel     string `mapstructure:"log_level" yaml:"log-level" json:"log_level"`             // 日志级别
-	EnableNotify bool   `mapstructure:"enable_notify" yaml:"enable-notify" json:"enable_notify"` // 是否启用通知
+	ModuleName       string                                                           `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                 // 模块名称
+	Enabled          bool                                                             `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                             // 是否启用恢复
+	EnableStack      bool                                                             `mapstructure:"enable_stack" yaml:"enable-stack" json:"enable_stack"`              // 是否启用堆栈跟踪
+	StackSize        int                                                              `mapstructure:"stack_size" yaml:"stack-size" json:"stack_size"`                    // 堆栈大小
+	EnableDebug      bool                                                             `mapstructure:"enable_debug" yaml:"enable-debug" json:"enable_debug"`              // 是否启用调试模式
+	ErrorMessage     string                                                           `mapstructure:"error_message" yaml:"error-message" json:"error_message"`           // 默认错误消息
+	LogLevel         string                                                           `mapstructure:"log_level" yaml:"log-level" json:"log_level"`                       // 日志级别
+	EnableNotify     bool                                                             `mapstructure:"enable_notify" yaml:"enable-notify" json:"enable_notify"`           // 是否启用通知
+	RecoveryHandler  func(http.ResponseWriter, *http.Request, interface{}) `mapstructure:"-" yaml:"-" json:"-"`                                              // 自定义恢复处理器
+	PrintStack       bool                                                             `mapstructure:"print_stack" yaml:"print-stack" json:"print_stack"`                 // 是否打印堆栈(兼容旧版)
 }
 
 // Default 创建默认恢复配置
 func Default() *Recovery {
 	return &Recovery{
-		ModuleName:   "recovery",
-		Enabled:      true,
-		PrintStack:   true,
-		LogLevel:     "error",
-		EnableNotify: false,
+		ModuleName:      "recovery",
+		Enabled:         true,
+		EnableStack:     true,
+		StackSize:       4096,
+		EnableDebug:     false,
+		ErrorMessage:    "服务器内部错误",
+		LogLevel:        "error",
+		EnableNotify:    false,
+		RecoveryHandler: nil,
+		PrintStack:      true, // 兼容旧版
 	}
 }
 
@@ -48,11 +62,16 @@ func (r *Recovery) Set(data interface{}) {
 // Clone 返回配置的副本
 func (r *Recovery) Clone() internal.Configurable {
 	return &Recovery{
-		ModuleName:   r.ModuleName,
-		Enabled:      r.Enabled,
-		PrintStack:   r.PrintStack,
-		LogLevel:     r.LogLevel,
-		EnableNotify: r.EnableNotify,
+		ModuleName:      r.ModuleName,
+		Enabled:         r.Enabled,
+		EnableStack:     r.EnableStack,
+		StackSize:       r.StackSize,
+		EnableDebug:     r.EnableDebug,
+		ErrorMessage:    r.ErrorMessage,
+		LogLevel:        r.LogLevel,
+		EnableNotify:    r.EnableNotify,
+		RecoveryHandler: r.RecoveryHandler,
+		PrintStack:      r.PrintStack,
 	}
 }
 
@@ -64,6 +83,37 @@ func (r *Recovery) Validate() error {
 // WithPrintStack 设置是否打印堆栈
 func (r *Recovery) WithPrintStack(printStack bool) *Recovery {
 	r.PrintStack = printStack
+	r.EnableStack = printStack // 同步设置新字段
+	return r
+}
+
+// WithEnableStack 设置是否启用堆栈跟踪
+func (r *Recovery) WithEnableStack(enableStack bool) *Recovery {
+	r.EnableStack = enableStack
+	return r
+}
+
+// WithStackSize 设置堆栈大小
+func (r *Recovery) WithStackSize(stackSize int) *Recovery {
+	r.StackSize = stackSize
+	return r
+}
+
+// WithEnableDebug 设置是否启用调试模式
+func (r *Recovery) WithEnableDebug(enableDebug bool) *Recovery {
+	r.EnableDebug = enableDebug
+	return r
+}
+
+// WithErrorMessage 设置默认错误消息
+func (r *Recovery) WithErrorMessage(errorMessage string) *Recovery {
+	r.ErrorMessage = errorMessage
+	return r
+}
+
+// WithRecoveryHandler 设置自定义恢复处理器
+func (r *Recovery) WithRecoveryHandler(handler func(http.ResponseWriter, *http.Request, interface{})) *Recovery {
+	r.RecoveryHandler = handler
 	return r
 }
 

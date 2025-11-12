@@ -11,6 +11,8 @@
 package zero
 
 import (
+	"time"
+
 	"github.com/kamalyes/go-config/internal"
 )
 
@@ -101,7 +103,7 @@ func DefaultLogConf() LogConf {
 		ServiceName:         "default-service",
 		Mode:                "console",
 		Encoding:            "json",
-		TimeFormat:          "2006-01-02 15:04:05",
+		TimeFormat:          time.DateTime,
 		Path:                "logs",
 		Level:               "info",
 		MaxContentLength:    10000,

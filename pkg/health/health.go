@@ -3,7 +3,7 @@
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
  * @LastEditTime: 2025-11-12 09:51:05
- * @FilePath: \engine-im-push-service\go-config\pkg\health\health.go
+ * @FilePath: \go-config\pkg\health\health.go
  * @Description: 健康检查配置模块
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.

@@ -18,6 +18,7 @@ type Metrics struct {
 	ModuleName   string    `mapstructure:"module_name" yaml:"module-name" json:"module_name"`       // 模块名称
 	Enabled      bool      `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用指标
 	Path         string    `mapstructure:"path" yaml:"path" json:"path"`                            // 指标路径
+	Namespace    string    `mapstructure:"namespace" yaml:"namespace" json:"namespace"`             // 命名空间
 	Subsystem    string    `mapstructure:"subsystem" yaml:"subsystem" json:"subsystem"`             // 子系统名称
 	SkipPaths    []string  `mapstructure:"skip_paths" yaml:"skip-paths" json:"skip_paths"`          // 跳过的路径
 	Buckets      []float64 `mapstructure:"buckets" yaml:"buckets" json:"buckets"`                   // 直方图桶
@@ -33,7 +34,8 @@ func Default() *Metrics {
 		ModuleName:   "metrics",
 		Enabled:      false,
 		Path:         "/metrics",
-		Subsystem:    "gateway",
+		Namespace:    "gateway",
+		Subsystem:    "http",
 		SkipPaths:    []string{"/health"},
 		Buckets:      []float64{0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0},
 		RequestCount: true,
@@ -61,6 +63,7 @@ func (m *Metrics) Clone() internal.Configurable {
 		ModuleName:   m.ModuleName,
 		Enabled:      m.Enabled,
 		Path:         m.Path,
+		Namespace:    m.Namespace,
 		Subsystem:    m.Subsystem,
 		RequestCount: m.RequestCount,
 		Duration:     m.Duration,
@@ -80,6 +83,12 @@ func (m *Metrics) Validate() error {
 // WithPath 设置指标路径
 func (m *Metrics) WithPath(path string) *Metrics {
 	m.Path = path
+	return m
+}
+
+// WithNamespace 设置命名空间
+func (m *Metrics) WithNamespace(namespace string) *Metrics {
+	m.Namespace = namespace
 	return m
 }
 

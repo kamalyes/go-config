@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-11 09:57:02
- * @FilePath: \go-rpc-gateway\go-config\pkg\security\security.go
+ * @LastEditTime: 2025-11-13 00:00:57
+ * @FilePath: \go-config\pkg\security\security.go
  * @Description: 统一安全配置模块 - 管理所有安全相关功能
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
@@ -18,7 +18,6 @@ type Security struct {
 	ModuleName string      `mapstructure:"module_name" yaml:"module_name" json:"module_name"` // 模块名称
 	Enabled    bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用安全功能
 	JWT        *JWT        `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                         // JWT配置
-	RateLimit  *RateLimit  `mapstructure:"rate_limit" yaml:"rate_limit" json:"rate_limit"`    // 限流配置
 	Auth       *Auth       `mapstructure:"auth" yaml:"auth" json:"auth"`                      // 通用认证配置
 	Protection *Protection `mapstructure:"protection" yaml:"protection" json:"protection"`    // 服务保护配置
 }
@@ -30,14 +29,6 @@ type JWT struct {
 	Expiry    int    `mapstructure:"expiry" yaml:"expiry" json:"expiry"`          // 过期时间(小时)
 	Issuer    string `mapstructure:"issuer" yaml:"issuer" json:"issuer"`          // 签发者
 	Algorithm string `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"` // 加密算法
-}
-
-// RateLimit 限流配置
-type RateLimit struct {
-	Enabled         bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                            // 是否启用限流
-	RequestsPerMin  int  `mapstructure:"requests_per_min" yaml:"requests-per-min" json:"requests_per_min"` // 每分钟请求数
-	BurstSize       int  `mapstructure:"burst_size" yaml:"burst-size" json:"burst_size"`                   // 突发大小
-	CleanupInterval int  `mapstructure:"cleanup_interval" yaml:"cleanup-interval" json:"cleanup_interval"` // 清理间隔(分钟)
 }
 
 // Auth 通用认证配置 - 支持多种认证方式
@@ -124,12 +115,6 @@ func Default() *Security {
 			Expiry:    24,
 			Issuer:    "go-rpc-gateway",
 			Algorithm: "HS256",
-		},
-		RateLimit: &RateLimit{
-			Enabled:         false,
-			RequestsPerMin:  100,
-			BurstSize:       10,
-			CleanupInterval: 10,
 		},
 		Auth: &Auth{
 			Enabled:     false,
@@ -234,18 +219,6 @@ func (s *Security) WithJWT(enabled bool, secret string, expiry int, issuer, algo
 	return s
 }
 
-// WithRateLimit 设置限流配置
-func (s *Security) WithRateLimit(enabled bool, requestsPerMin, burstSize, cleanupInterval int) *Security {
-	if s.RateLimit == nil {
-		s.RateLimit = &RateLimit{}
-	}
-	s.RateLimit.Enabled = enabled
-	s.RateLimit.RequestsPerMin = requestsPerMin
-	s.RateLimit.BurstSize = burstSize
-	s.RateLimit.CleanupInterval = cleanupInterval
-	return s
-}
-
 // WithAuth 设置认证配置
 func (s *Security) WithAuth(enabled bool, authType, headerName, tokenPrefix string) *Security {
 	if s.Auth == nil {
@@ -264,15 +237,6 @@ func (s *Security) EnableJWT() *Security {
 		s.JWT = &JWT{}
 	}
 	s.JWT.Enabled = true
-	return s
-}
-
-// EnableRateLimit 启用限流
-func (s *Security) EnableRateLimit() *Security {
-	if s.RateLimit == nil {
-		s.RateLimit = &RateLimit{}
-	}
-	s.RateLimit.Enabled = true
 	return s
 }
 

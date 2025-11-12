@@ -50,7 +50,7 @@ func NewConfigFormatter(lg ...*logger.Logger) *ConfigFormatter {
 func (cf *ConfigFormatter) LogConfigChanged(event CallbackEvent, newConfig interface{}) {
 	cf.logger.Info("🔄 配置发生变更!")
 	cf.logger.Info("   📂 来源: %s", event.Source)
-	cf.logger.Info("   🕐 时间: %s", event.Timestamp.Format("2006-01-02 15:04:05"))
+	cf.logger.Info("   🕐 时间: %s", event.Timestamp.Format(time.DateTime))
 	cf.logger.Info("   🌍 环境: %s", event.Environment)
 	cf.logger.Info("   📋 事件类型: %s", event.Type)
 
@@ -114,10 +114,20 @@ func (cf *ConfigFormatter) LogHTTPServer(httpConfig *gateway.HTTPServer) {
 // LogDatabase 记录数据库配置
 func (cf *ConfigFormatter) LogDatabase(dbConfig *database.Database) {
 	cf.logger.Info("   🗄️ 数据库配置:")
-	cf.logger.Info("      📍 地址: %s:%s", dbConfig.Host, dbConfig.Port)
-	cf.logger.Info("      💾 数据库: %s", dbConfig.Dbname)
-	cf.logger.Info("      👤 用户: %s", dbConfig.Username)
-	cf.logger.Info("      🔗 最大连接: %d", dbConfig.MaxOpenConns)
+	
+	// 获取默认提供商配置
+	if provider, err := dbConfig.GetDefaultProvider(); err == nil {
+		cf.logger.Info("      📍 类型: %s", provider.GetDBType())
+		if provider.GetHost() != "" {
+			cf.logger.Info("      📍 地址: %s:%s", provider.GetHost(), provider.GetPort())
+		}
+		cf.logger.Info("      💾 数据库: %s", provider.GetDBName())
+		if provider.GetUsername() != "" {
+			cf.logger.Info("      👤 用户: %s", provider.GetUsername())
+		}
+	} else {
+		cf.logger.Info("      ⚠️ 默认数据库提供商配置无效: %v", err)
+	}
 }
 
 // LogCache 记录缓存配置
@@ -133,7 +143,7 @@ func (cf *ConfigFormatter) LogEnvironmentChanged(oldEnv, newEnv EnvironmentType)
 	cf.logger.Info("🌍 环境发生变更!")
 	cf.logger.Info("   📤 旧环境: %s", oldEnv)
 	cf.logger.Info("   📥 新环境: %s", newEnv)
-	cf.logger.Info("   🕐 变更时间: %s", time.Now().Format("2006-01-02 15:04:05"))
+	cf.logger.Info("   🕐 变更时间: %s", time.Now().Format(time.DateTime))
 
 	switch newEnv {
 	case EnvDevelopment:
@@ -153,7 +163,7 @@ func (cf *ConfigFormatter) LogEnvironmentChanged(oldEnv, newEnv EnvironmentType)
 func (cf *ConfigFormatter) LogError(event CallbackEvent) {
 	cf.logger.Error("❌ 发生错误: %s", event.Error)
 	cf.logger.Error("   📂 来源: %s", event.Source)
-	cf.logger.Error("   🕐 时间: %s", event.Timestamp.Format("2006-01-02 15:04:05"))
+	cf.logger.Error("   🕐 时间: %s", event.Timestamp.Format(time.DateTime))
 }
 
 // LogValidation 记录配置验证结果

@@ -53,6 +53,59 @@ func (s *S3) Clone() internal.Configurable {
 	}
 }
 
+// OSSProvider 接口实现
+
+// GetProviderType 获取提供商类型
+func (s *S3) GetProviderType() OSSType {
+	return OSSTypeS3
+}
+
+// GetEndpoint 获取端点地址
+func (s *S3) GetEndpoint() string {
+	return s.Endpoint
+}
+
+// GetAccessKey 获取访问密钥
+func (s *S3) GetAccessKey() string {
+	return s.AccessKey
+}
+
+// GetSecretKey 获取私密密钥
+func (s *S3) GetSecretKey() string {
+	return s.SecretKey
+}
+
+// GetBucket 获取存储桶名称 (S3使用前缀)
+func (s *S3) GetBucket() string {
+	return s.BucketPrefix
+}
+
+// IsSSL 是否使用SSL
+func (s *S3) IsSSL() bool {
+	return s.UseSSL
+}
+
+// GetModuleName 获取模块名称
+func (s *S3) GetModuleName() string {
+	return s.ModuleName
+}
+
+// SetCredentials 设置凭证
+func (s *S3) SetCredentials(accessKey, secretKey string) {
+	s.AccessKey = accessKey
+	s.SecretKey = secretKey
+}
+
+// SetEndpoint 设置端点
+func (s *S3) SetEndpoint(endpoint string) {
+	s.Endpoint = endpoint
+}
+
+// SetBucket 设置存储桶
+func (s *S3) SetBucket(bucket string) {
+	s.BucketPrefix = bucket
+}
+
 // Get 返回 S3 配置的所有字段
 func (s *S3) Get() interface{} {
 	return s

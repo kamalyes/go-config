@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 15:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 15:00:00
+ * @LastEditTime: 2025-11-13 01:22:47
  * @FilePath: \go-config\config_logger.go
  * @Description: 配置日志输出工具 - 封装配置信息的格式化输出
  *
@@ -46,7 +46,7 @@ func NewConfigLogger(loggerInstance ...*logger.Logger) *ConfigLogger {
 func (cl *ConfigLogger) LogConfigChangeEvent(event CallbackEvent, newConfig interface{}) {
 	cl.logger.Info("🔄 配置发生变更!")
 	cl.logger.Info("   📂 来源: %s", event.Source)
-	cl.logger.Info("   🕐 时间: %s", event.Timestamp.Format("2006-01-02 15:04:05"))
+	cl.logger.Info("   🕐 时间: %s", event.Timestamp.Format(time.DateTime))
 	cl.logger.Info("   🌍 环境: %s", event.Environment)
 	cl.logger.Info("   📋 事件类型: %s", event.Type)
 
@@ -70,7 +70,7 @@ func (cl *ConfigLogger) LogEnvironmentChangeEvent(oldEnv, newEnv EnvironmentType
 	cl.logger.Info("🌍 环境发生变更!")
 	cl.logger.Info("   📤 旧环境: %s", oldEnv)
 	cl.logger.Info("   📥 新环境: %s", newEnv)
-	cl.logger.Info("   🕐 变更时间: %s", time.Now().Format("2006-01-02 15:04:05"))
+	cl.logger.Info("   🕐 变更时间: %s", time.Now().Format(time.DateTime))
 
 	// 根据环境类型显示不同的提示信息
 	switch newEnv {
@@ -89,7 +89,7 @@ func (cl *ConfigLogger) LogEnvironmentChangeEvent(oldEnv, newEnv EnvironmentType
 func (cl *ConfigLogger) LogErrorEvent(event CallbackEvent) {
 	cl.logger.Error("❌ 发生错误: %s", event.Error)
 	cl.logger.Error("   📂 来源: %s", event.Source)
-	cl.logger.Error("   🕐 时间: %s", event.Timestamp.Format("2006-01-02 15:04:05"))
+	cl.logger.Error("   🕐 时间: %s", event.Timestamp.Format(time.DateTime))
 
 	if event.Metadata != nil {
 		if errorType, ok := event.Metadata["error_type"]; ok {
@@ -174,15 +174,23 @@ func (cl *ConfigLogger) LogGRPCConfig(grpcConfig *gateway.GRPC) {
 // LogDatabaseConfig 记录数据库配置
 func (cl *ConfigLogger) LogDatabaseConfig(dbConfig *database.Database) {
 	cl.logger.Info("   🗄️ 数据库配置:")
-	cl.logger.Info("      🏷️ 类型: %s", dbConfig.DBType)
-	cl.logger.Info("      📍 地址: %s:%s", dbConfig.Host, dbConfig.Port)
-	cl.logger.Info("      💾 数据库: %s", dbConfig.Dbname)
-	cl.logger.Info("      👤 用户: %s", dbConfig.Username)
-	cl.logger.Info("      🔗 最大连接: %d", dbConfig.MaxOpenConns)
-	cl.logger.Info("      🔗 最大空闲: %d", dbConfig.MaxIdleConns)
-	cl.logger.Info("      ⏰ 空闲超时: %ds", dbConfig.ConnMaxIdleTime)
-	cl.logger.Info("      ⏰ 连接生命周期: %ds", dbConfig.ConnMaxLifeTime)
-	cl.logger.Info("      📊 日志级别: %s", dbConfig.LogLevel)
+	cl.logger.Info("      🚦 启用: %s", cl.formatEnabledStatus(dbConfig.Enabled))
+	cl.logger.Info("      🏷️ 默认类型: %s", dbConfig.Default)
+	
+	// 获取默认提供商配置
+	if provider, err := dbConfig.GetDefaultProvider(); err == nil {
+		cl.logger.Info("      � 当前类型: %s", provider.GetDBType())
+		if provider.GetHost() != "" {
+			cl.logger.Info("      � 地址: %s:%s", provider.GetHost(), provider.GetPort())
+		}
+		cl.logger.Info("      � 数据库: %s", provider.GetDBName())
+		if provider.GetUsername() != "" {
+			cl.logger.Info("      👤 用户: %s", provider.GetUsername())
+		}
+		cl.logger.Info("      📊 模块名: %s", provider.GetModuleName())
+	} else {
+		cl.logger.Info("      ⚠️ 默认数据库提供商配置无效: %v", err)
+	}
 }
 
 // LogCacheConfig 记录缓存配置
@@ -299,34 +307,6 @@ func (cl *ConfigLogger) formatEnabledStatus(enabled bool) string {
 func (cl *ConfigLogger) formatEndpoint(method, endpoint string) string {
 	methodPart := fmt.Sprintf("%-4s", method)
 	return fmt.Sprintf("%s %s", methodPart, endpoint)
-}
-
-// isEmptyValue 检查值是否为空
-func (cl *ConfigLogger) isEmptyValue(v interface{}) bool {
-	if v == nil {
-		return true
-	}
-
-	value := reflect.ValueOf(v)
-	switch value.Kind() {
-	case reflect.String:
-		return value.Len() == 0
-	case reflect.Ptr, reflect.Interface:
-		return value.IsNil()
-	case reflect.Slice, reflect.Map, reflect.Array:
-		return value.Len() == 0
-	case reflect.Struct:
-		// 对于结构体，检查所有字段是否都是零值
-		for i := 0; i < value.NumField(); i++ {
-			field := value.Field(i)
-			if !field.IsZero() {
-				return false
-			}
-		}
-		return true
-	default:
-		return value.IsZero()
-	}
 }
 
 // SetLogger 设置自定义日志器

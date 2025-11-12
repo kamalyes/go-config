@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 13:10:15
+ * @LastEditTime: 2025-11-12 23:58:45
  * @FilePath: \go-config\pkg\gateway\gateway.go
  * @Description: Gateway网关统一配置模块
  *
@@ -24,6 +24,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/monitoring"
 	"github.com/kamalyes/go-config/pkg/oss"
 	"github.com/kamalyes/go-config/pkg/queue"
+	"github.com/kamalyes/go-config/pkg/ratelimit"
 	"github.com/kamalyes/go-config/pkg/security"
 	"github.com/kamalyes/go-config/pkg/smtp"
 	"github.com/kamalyes/go-config/pkg/swagger"
@@ -39,12 +40,11 @@ type Gateway struct {
 	Environment   string                 `mapstructure:"environment" yaml:"environment" json:"environment"`       // 环境 (dev, test, prod)
 	HTTPServer    *HTTPServer            `mapstructure:"http" yaml:"http" json:"http"`                            // HTTP服务器配置
 	GRPC          *GRPC                  `mapstructure:"grpc" yaml:"grpc" json:"grpc"`                            // GRPC配置
-	Cache         *cache.Cache           `mapstructure:"cache" yaml:"cache" json:"cache"`                         // 缓存配置
-	Database      *database.Database     `mapstructure:"database" yaml:"database" json:"database"`                // 数据库配置
+	Cache         *cache.Cache           `mapstructure:"cache" yaml:"cache" json:"cache"`                         // 缓存配置(包含Redis)
+	Database      *database.Database     `mapstructure:"database" yaml:"database" json:"database"`              // 数据库统一配置
+	OSS           *oss.OSSConfig         `mapstructure:"oss" yaml:"oss" json:"oss"`                               // 对象存储统一配置
 	Mqtt          *queue.Mqtt            `mapstructure:"mqtt" yaml:"mqtt" json:"mqtt"`                            // MQTT配置
 	Elasticsearch *elk.Elasticsearch     `mapstructure:"elasticsearch" yaml:"elasticsearch" json:"elasticsearch"` // Elasticsearch配置
-	S3            *oss.S3                `mapstructure:"s3" yaml:"s3" json:"s3"`                                  // 对象存储配置
-	AliyunOss     *oss.AliyunOss         `mapstructure:"aliyun_oss" yaml:"aliyun_oss" json:"aliyun_oss"`          // 阿里云OSS配置
 	Smtp          *smtp.Smtp             `mapstructure:"smtp" yaml:"smtp" json:"smtp"`                            // SMTP邮件服务配置
 	Health        *health.Health         `mapstructure:"health" yaml:"health" json:"health"`                      // 健康检查配置
 	Monitoring    *monitoring.Monitoring `mapstructure:"monitoring" yaml:"monitoring" json:"monitoring"`          // 监控配置
@@ -54,6 +54,7 @@ type Gateway struct {
 	JWT           *jwt.JWT               `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                               // JWT配置
 	Swagger       *swagger.Swagger       `mapstructure:"swagger" yaml:"swagger" json:"swagger"`                   // Swagger配置
 	Banner        *banner.Banner         `mapstructure:"banner" yaml:"banner" json:"banner"`                      // Banner配置
+	RateLimit     *ratelimit.RateLimit   `mapstructure:"rate_limit" yaml:"rate_limit" json:"rate_limit"`          // 限流配置
 }
 
 // Default 创建默认Gateway配置
@@ -68,10 +69,10 @@ func Default() *Gateway {
 		HTTPServer:    DefaultHTTPServer(),
 		GRPC:          DefaultGRPC(),
 		Cache:         cache.Default(),
-		Database:      database.Default(),
+		Database:      database.DefaultDatabaseConfig(),
+		OSS:           oss.DefaultOSSConfig(),
 		Mqtt:          queue.Default(),
 		Elasticsearch: elk.Default(),
-		S3:            oss.DefaultS3Config(),
 		Smtp:          smtp.Default(),
 		Health:        health.Default(),
 		Monitoring:    monitoring.Default(),
@@ -79,6 +80,7 @@ func Default() *Gateway {
 		Middleware:    middleware.Default(),
 		CORS:          cors.Default(),
 		JWT:           jwt.Default(),
+		RateLimit: ratelimit.Default(),
 		Swagger:       swagger.Default(),
 		Banner:        banner.Default(),
 	}
@@ -109,17 +111,16 @@ func (c *Gateway) Clone() internal.Configurable {
 		GRPC:          c.GRPC.Clone(),
 		Cache:         c.Cache.Clone().(*cache.Cache),
 		Database:      c.Database.Clone().(*database.Database),
+		OSS:           c.OSS.Clone().(*oss.OSSConfig),
 		Mqtt:          c.Mqtt.Clone().(*queue.Mqtt),
 		Elasticsearch: c.Elasticsearch.Clone().(*elk.Elasticsearch),
-		S3:            c.S3.Clone().(*oss.S3),
-		AliyunOss:     c.AliyunOss.Clone().(*oss.AliyunOss),
-		Smtp:          c.Smtp.Clone().(*smtp.Smtp),
 		Health:        c.Health.Clone().(*health.Health),
 		Monitoring:    c.Monitoring.Clone().(*monitoring.Monitoring),
 		Security:      c.Security.Clone().(*security.Security),
 		Middleware:    c.Middleware.Clone().(*middleware.Middleware),
 		CORS:          c.CORS.Clone().(*cors.Cors),
 		JWT:           c.JWT.Clone().(*jwt.JWT),
+		RateLimit:     c.RateLimit.Clone().(*ratelimit.RateLimit),
 		Swagger:       c.Swagger.Clone().(*swagger.Swagger),
 		Banner:        c.Banner.Clone().(*banner.Banner),
 	}
@@ -147,18 +148,13 @@ func (c *Gateway) Validate() error {
 			return err
 		}
 	}
+	if c.OSS != nil {
+		if err := c.OSS.Validate(); err != nil {
+			return err
+		}
+	}
 	if c.Elasticsearch != nil {
 		if err := c.Elasticsearch.Validate(); err != nil {
-			return err
-		}
-	}
-	if c.S3 != nil {
-		if err := c.S3.Validate(); err != nil {
-			return err
-		}
-	}
-	if c.AliyunOss != nil {
-		if err := c.AliyunOss.Validate(); err != nil {
 			return err
 		}
 	}
@@ -199,6 +195,11 @@ func (c *Gateway) Validate() error {
 	}
 	if c.JWT != nil {
 		if err := c.JWT.Validate(); err != nil {
+			return err
+		}
+	}
+	if c.RateLimit != nil {
+		if err := c.RateLimit.Validate(); err != nil {
 			return err
 		}
 	}

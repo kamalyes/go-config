@@ -45,9 +45,63 @@ func (m *AliyunOss) Clone() internal.Configurable {
 		SecretKey:           m.SecretKey,
 		Endpoint:            m.Endpoint,
 		Bucket:              m.Bucket,
+		Region:              m.Region,
 		ReplaceOriginalHost: m.ReplaceOriginalHost,
 		ReplaceLaterHost:    m.ReplaceLaterHost,
 	}
+}
+
+// OSSProvider 接口实现
+
+// GetProviderType 获取提供商类型
+func (a *AliyunOss) GetProviderType() OSSType {
+	return OSSTypeAliyunOSS
+}
+
+// GetEndpoint 获取端点地址
+func (a *AliyunOss) GetEndpoint() string {
+	return a.Endpoint
+}
+
+// GetAccessKey 获取访问密钥
+func (a *AliyunOss) GetAccessKey() string {
+	return a.AccessKey
+}
+
+// GetSecretKey 获取私密密钥
+func (a *AliyunOss) GetSecretKey() string {
+	return a.SecretKey
+}
+
+// GetBucket 获取存储桶名称
+func (a *AliyunOss) GetBucket() string {
+	return a.Bucket
+}
+
+// IsSSL 是否使用SSL (阿里云OSS默认使用HTTPS)
+func (a *AliyunOss) IsSSL() bool {
+	return true // 阿里云OSS默认使用HTTPS
+}
+
+// GetModuleName 获取模块名称
+func (a *AliyunOss) GetModuleName() string {
+	return a.ModuleName
+}
+
+// SetCredentials 设置凭证
+func (a *AliyunOss) SetCredentials(accessKey, secretKey string) {
+	a.AccessKey = accessKey
+	a.SecretKey = secretKey
+}
+
+// SetEndpoint 设置端点
+func (a *AliyunOss) SetEndpoint(endpoint string) {
+	a.Endpoint = endpoint
+}
+
+// SetBucket 设置存储桶
+func (a *AliyunOss) SetBucket(bucket string) {
+	a.Bucket = bucket
 }
 
 // Get 返回 AliyunOss 配置的所有字段
