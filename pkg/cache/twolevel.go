@@ -19,7 +19,7 @@ import (
 
 // TwoLevel 二级缓存配置
 type TwoLevel struct {
-	ModuleName       string        `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                           // 模块名
+	ModuleName       string        `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                   // 模块名
 	L1Type           CacheType     `mapstructure:"l1_type" yaml:"l1_type" json:"l1_type"`                               // L1缓存类型
 	L2Type           CacheType     `mapstructure:"l2_type" yaml:"l2_type" json:"l2_type"`                               // L2缓存类型
 	L1TTL            time.Duration `mapstructure:"l1_ttl" yaml:"l1_ttl" json:"l1_ttl"`                                  // L1缓存TTL
@@ -78,8 +78,8 @@ func (t *TwoLevel) Set(data interface{}) {
 func DefaultTwoLevelConfig() TwoLevel {
 	return TwoLevel{
 		ModuleName:       "twolevel",
-		L1Type:           TypeMemory,
-		L2Type:           TypeRedis,
+		L1Type:           CacheTypeMemory,
+		L2Type:           CacheTypeRedis,
 		L1TTL:            5 * time.Minute,
 		L2TTL:            30 * time.Minute,
 		SyncStrategy:     "write_through",
@@ -92,10 +92,10 @@ func DefaultTwoLevelConfig() TwoLevel {
 // Validate 验证二级缓存配置
 func (t *TwoLevel) Validate() error {
 	if t.L1Type == "" {
-		t.L1Type = TypeMemory
+		t.L1Type = CacheTypeMemory
 	}
 	if t.L2Type == "" {
-		t.L2Type = TypeRedis
+		t.L2Type = CacheTypeRedis
 	}
 	if t.L1TTL <= 0 {
 		t.L1TTL = 5 * time.Minute

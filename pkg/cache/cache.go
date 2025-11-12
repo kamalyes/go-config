@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-08 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-09 00:18:27
+ * @LastEditTime: 2025-11-12 11:53:53
  * @FilePath: \go-config\pkg\cache\cache.go
  * @Description: 缓存总配置定义
  *
@@ -21,12 +21,12 @@ import (
 type CacheType string
 
 const (
-	TypeMemory     CacheType = "memory"     // 内存缓存(LRU)
-	TypeRistretto  CacheType = "ristretto"  // 高性能缓存
-	TypeRedis      CacheType = "redis"      // Redis缓存
-	TypeSharded    CacheType = "sharded"    // 分片缓存
-	TypeTwoLevel   CacheType = "two-level"  // 二级缓存
-	TypeExpiring   CacheType = "expiring"   // 过期缓存
+	CacheTypeMemory    CacheType = "memory"    // 内存缓存(LRU)
+	CacheTypeRistretto CacheType = "ristretto" // 高性能缓存
+	CacheTypeRedis     CacheType = "redis"     // Redis缓存
+	CacheTypeSharded   CacheType = "sharded"   // 分片缓存
+	CacheTypeTwoLevel  CacheType = "two-level" // 二级缓存
+	CacheTypeExpiring  CacheType = "expiring"  // 过期缓存
 )
 
 // Cache 总缓存配置
@@ -34,12 +34,12 @@ type Cache struct {
 	ModuleName string    `mapstructure:"module_name" yaml:"module_name" json:"module_name"`
 	Type       CacheType `mapstructure:"type" yaml:"type" json:"type"`
 	Enabled    bool      `mapstructure:"enabled" yaml:"enabled" json:"enabled"`
-	
+
 	// 基础配置
 	DefaultTTL time.Duration `mapstructure:"default_ttl" yaml:"default_ttl" json:"default_ttl"`
 	KeyPrefix  string        `mapstructure:"key_prefix" yaml:"key_prefix" json:"key_prefix"`
 	Serializer string        `mapstructure:"serializer" yaml:"serializer" json:"serializer"` // json, gob, msgpack
-	
+
 	// 各种缓存实现的配置（按需使用）
 	Memory    Memory    `mapstructure:"memory" yaml:"memory" json:"memory"`
 	Ristretto Ristretto `mapstructure:"ristretto" yaml:"ristretto" json:"ristretto"`
@@ -62,18 +62,18 @@ func NewCache(opt *Cache) *Cache {
 // Clone 返回 Cache 配置的副本
 func (c *Cache) Clone() internal.Configurable {
 	return &Cache{
-		ModuleName:   c.ModuleName,
-		Type:         c.Type,
-		Enabled:      c.Enabled,
-		Memory:       c.Memory,
-		Ristretto:    c.Ristretto,
-		Redis:        c.Redis,
-		Sharded:      c.Sharded,
-		TwoLevel:     c.TwoLevel,
-		Expiring:     c.Expiring,
-		DefaultTTL:   c.DefaultTTL,
-		KeyPrefix:    c.KeyPrefix,
-		Serializer:   c.Serializer,
+		ModuleName: c.ModuleName,
+		Type:       c.Type,
+		Enabled:    c.Enabled,
+		Memory:     c.Memory,
+		Ristretto:  c.Ristretto,
+		Redis:      c.Redis,
+		Sharded:    c.Sharded,
+		TwoLevel:   c.TwoLevel,
+		Expiring:   c.Expiring,
+		DefaultTTL: c.DefaultTTL,
+		KeyPrefix:  c.KeyPrefix,
+		Serializer: c.Serializer,
 	}
 }
 
@@ -147,17 +147,17 @@ func (c *Cache) Validate() error {
 
 	// 验证具体的缓存配置
 	switch c.Type {
-	case TypeMemory:
+	case CacheTypeMemory:
 		return c.Memory.Validate()
-	case TypeRistretto:
+	case CacheTypeRistretto:
 		return c.Ristretto.Validate()
-	case TypeRedis:
+	case CacheTypeRedis:
 		return c.Redis.Validate()
-	case TypeSharded:
+	case CacheTypeSharded:
 		return c.Sharded.Validate()
-	case TypeTwoLevel:
+	case CacheTypeTwoLevel:
 		return c.TwoLevel.Validate()
-	case TypeExpiring:
+	case CacheTypeExpiring:
 		return c.Expiring.Validate()
 	}
 
@@ -168,7 +168,7 @@ func (c *Cache) Validate() error {
 func DefaultCache() Cache {
 	return Cache{
 		ModuleName: "default",
-		Type:       TypeMemory,
+		Type:       CacheTypeMemory,
 		Enabled:    true,
 		DefaultTTL: 30 * time.Minute,
 		KeyPrefix:  "cache:",

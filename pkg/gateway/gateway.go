@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-11 11:26:40
- * @FilePath: \go-config\pkg\gateway\gateway.go
+ * @LastEditTime: 2025-11-12 11:13:27
+ * @FilePath: \engine-im-push-service\go-config\pkg\gateway\gateway.go
  * @Description: Gateway网关统一配置模块
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
@@ -24,7 +24,6 @@ import (
 	"github.com/kamalyes/go-config/pkg/oss"
 	"github.com/kamalyes/go-config/pkg/queue"
 	"github.com/kamalyes/go-config/pkg/security"
-	"github.com/kamalyes/go-config/pkg/server"
 	"github.com/kamalyes/go-config/pkg/smtp"
 	"github.com/kamalyes/go-config/pkg/swagger"
 )
@@ -40,13 +39,12 @@ type Gateway struct {
 	HTTPServer    *HTTPServer            `mapstructure:"http" yaml:"http" json:"http"`                            // HTTP服务器配置
 	GRPC          *GRPC                  `mapstructure:"grpc" yaml:"grpc" json:"grpc"`                            // GRPC配置
 	Cache         *cache.Cache           `mapstructure:"cache" yaml:"cache" json:"cache"`                         // 缓存配置
-	MySQL         *database.MySQL        `mapstructure:"mysql" yaml:"mysql" json:"mysql"`                         // mysql数据库配置
+	Database      *database.Database     `mapstructure:"database" yaml:"database" json:"database"`                // 数据库配置
 	Mqtt          *queue.Mqtt            `mapstructure:"mqtt" yaml:"mqtt" json:"mqtt"`                            // MQTT配置
 	Elasticsearch *elk.Elasticsearch     `mapstructure:"elasticsearch" yaml:"elasticsearch" json:"elasticsearch"` // Elasticsearch配置
 	S3            *oss.S3                `mapstructure:"s3" yaml:"s3" json:"s3"`                                  // 对象存储配置
 	AliyunOss     *oss.AliyunOss         `mapstructure:"aliyun_oss" yaml:"aliyun_oss" json:"aliyun_oss"`          // 阿里云OSS配置
 	Smtp          *smtp.Smtp             `mapstructure:"smtp" yaml:"smtp" json:"smtp"`                            // SMTP邮件服务配置
-	Server        *server.Server         `mapstructure:"server" yaml:"server" json:"server"`                      // 服务器配置(兼容旧版)
 	Health        *health.Health         `mapstructure:"health" yaml:"health" json:"health"`                      // 健康检查配置
 	Monitoring    *monitoring.Monitoring `mapstructure:"monitoring" yaml:"monitoring" json:"monitoring"`          // 监控配置
 	Security      *security.Security     `mapstructure:"security" yaml:"security" json:"security"`                // 安全配置
@@ -68,12 +66,11 @@ func Default() *Gateway {
 		HTTPServer:    DefaultHTTPServer(),
 		GRPC:          DefaultGRPC(),
 		Cache:         cache.Default(),
-		MySQL:         database.Default(),
+		Database:      database.Default(),
 		Mqtt:          queue.Default(),
 		Elasticsearch: elk.Default(),
 		S3:            oss.DefaultS3Config(),
 		Smtp:          smtp.Default(),
-		Server:        server.Default(),
 		Health:        health.Default(),
 		Monitoring:    monitoring.Default(),
 		Security:      security.Default(),
@@ -108,13 +105,12 @@ func (c *Gateway) Clone() internal.Configurable {
 		HTTPServer:    c.HTTPServer.Clone(),
 		GRPC:          c.GRPC.Clone(),
 		Cache:         c.Cache.Clone().(*cache.Cache),
-		MySQL:         c.MySQL.Clone().(*database.MySQL),
+		Database:      c.Database.Clone().(*database.Database),
 		Mqtt:          c.Mqtt.Clone().(*queue.Mqtt),
 		Elasticsearch: c.Elasticsearch.Clone().(*elk.Elasticsearch),
 		S3:            c.S3.Clone().(*oss.S3),
 		AliyunOss:     c.AliyunOss.Clone().(*oss.AliyunOss),
 		Smtp:          c.Smtp.Clone().(*smtp.Smtp),
-		Server:        c.Server.Clone().(*server.Server),
 		Health:        c.Health.Clone().(*health.Health),
 		Monitoring:    c.Monitoring.Clone().(*monitoring.Monitoring),
 		Security:      c.Security.Clone().(*security.Security),
@@ -137,8 +133,8 @@ func (c *Gateway) Validate() error {
 			return err
 		}
 	}
-	if c.MySQL != nil {
-		if err := c.MySQL.Validate(); err != nil {
+	if c.Database != nil {
+		if err := c.Database.Validate(); err != nil {
 			return err
 		}
 	}
@@ -239,27 +235,27 @@ func (c *Gateway) WithEnvironment(environment string) *Gateway {
 
 // WithServer 设置服务器配置
 func (c *Gateway) WithServer(host string, port int, grpcPort int) *Gateway {
-	if c.Server == nil {
-		c.Server = &server.Server{}
+	if c.HTTPServer == nil {
+		c.HTTPServer = &HTTPServer{}
 	}
-	c.Server.Host = host
-	c.Server.Port = port
-	c.Server.GrpcPort = grpcPort
+	c.HTTPServer.Host = host
+	c.HTTPServer.Port = port
+	c.HTTPServer.GrpcPort = grpcPort
 	return c
 }
 
 // WithTLS 设置TLS配置
 func (c *Gateway) WithTLS(enabled bool, certFile, keyFile, caFile string) *Gateway {
-	if c.Server == nil {
-		c.Server = &server.Server{}
+	if c.HTTPServer == nil {
+		c.HTTPServer = &HTTPServer{}
 	}
-	if c.Server.TLS == nil {
-		c.Server.TLS = &server.TLS{}
+	if c.HTTPServer.TLS == nil {
+		c.HTTPServer.TLS = &TLS{}
 	}
-	c.Server.EnableTls = enabled
-	c.Server.TLS.CertFile = certFile
-	c.Server.TLS.KeyFile = keyFile
-	c.Server.TLS.CAFile = caFile
+	c.HTTPServer.EnableTls = enabled
+	c.HTTPServer.TLS.CertFile = certFile
+	c.HTTPServer.TLS.KeyFile = keyFile
+	c.HTTPServer.TLS.CAFile = caFile
 	return c
 }
 
@@ -315,28 +311,28 @@ func (c *Gateway) WithSwagger(cfg *swagger.Swagger) *Gateway {
 
 // EnableHTTP 启用HTTP服务
 func (c *Gateway) EnableHTTP() *Gateway {
-	if c.Server == nil {
-		c.Server = &server.Server{}
+	if c.HTTPServer == nil {
+		c.HTTPServer = &HTTPServer{}
 	}
-	c.Server.EnableHttp = true
+	c.HTTPServer.EnableHttp = true
 	return c
 }
 
 // EnableGRPC 启用GRPC服务
 func (c *Gateway) EnableGRPC() *Gateway {
-	if c.Server == nil {
-		c.Server = &server.Server{}
+	if c.HTTPServer == nil {
+		c.HTTPServer = &HTTPServer{}
 	}
-	c.Server.EnableGrpc = true
+	c.HTTPServer.EnableGrpc = true
 	return c
 }
 
 // EnableTLS 启用TLS
 func (c *Gateway) EnableTLS() *Gateway {
-	if c.Server == nil {
-		c.Server = &server.Server{}
+	if c.HTTPServer == nil {
+		c.HTTPServer = &HTTPServer{}
 	}
-	c.Server.EnableTls = true
+	c.HTTPServer.EnableTls = true
 	return c
 }
 
@@ -404,19 +400,4 @@ func (c *Gateway) Disable() *Gateway {
 // IsEnabled 检查是否启用
 func (c *Gateway) IsEnabled() bool {
 	return c.Enabled
-}
-
-// IsDevelopment 检查是否为开发环境
-func (c *Gateway) IsDevelopment() bool {
-	return c.Environment == "dev" || c.Environment == "development"
-}
-
-// IsProduction 检查是否为生产环境
-func (c *Gateway) IsProduction() bool {
-	return c.Environment == "prod" || c.Environment == "production"
-}
-
-// IsTest 检查是否为测试环境
-func (c *Gateway) IsTest() bool {
-	return c.Environment == "test" || c.Environment == "testing"
 }

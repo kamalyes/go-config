@@ -1,0 +1,86 @@
+# Gateway 网关配置示例
+module-name: "gateway"
+name: "示例网关服务"
+enabled: true
+debug: true
+version: "v1.0.0"
+environment: "development"
+
+# HTTP服务器配置
+http:
+  module-name: "http-server"
+  host: "0.0.0.0"
+  port: 8080
+  grpc-port: 9090
+  read-timeout: 30
+  write-timeout: 30
+  idle-timeout: 60
+  max_header_bytes: 1048576
+  enable-http: true
+  enable-grpc: false
+  enable-tls: false
+  enable_gzip_compress: true
+  headers:
+    X-Service: "Gateway"
+    X-Version: "v1.0.0"
+  tls:
+    cert-file: ""
+    key-file: ""
+    ca-file: ""
+
+# 数据库配置
+database:
+  mysql:
+    host: "127.0.0.1"
+    port: "3306"
+    username: "root"
+    password: "password"
+    db-name: "gateway_db"
+    config: "charset=utf8mb4&parseTime=True&loc=Local"
+    log-level: "info"
+    max-idle-conns: 10
+    max-open-conns: 100
+    conn-max-idle-time: 300
+    conn-max-life-time: 3600
+
+# 缓存配置
+cache:
+  module_name: "default"
+  type: "memory"
+  enabled: true
+  default_ttl: "30m"
+  key_prefix: "gateway:"
+  serializer: "json"
+  memory:
+    capacity: 1000
+    cleanup_interval: "5m"
+
+# CORS配置
+cors:
+  allowed-all-origins: true
+  allow-credentials: true
+  max-age: "86400"
+
+# Swagger配置
+swagger:
+  enabled: true
+  json-path: "/swagger/doc.json"
+  ui-path: "/swagger/*any"
+  title: "Gateway API Documentation"
+  description: "Gateway服务API文档"
+
+# 健康检查配置
+health:
+  enabled: true
+  path: "/health"
+  interval: "30s"
+
+# 监控配置
+monitoring:
+  enabled: true
+  metrics-path: "/metrics"
+
+# Banner配置
+banner:
+  enabled: true
+  template: "GATEWAY SERVICE"

@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-11 10:15:14
- * @FilePath: \go-rpc-gateway\go-config\pkg\health\health.go
+ * @LastEditTime: 2025-11-12 09:51:05
+ * @FilePath: \engine-im-push-service\go-config\pkg\health\health.go
  * @Description: 健康检查配置模块
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
@@ -97,7 +97,9 @@ func (c *Health) Clone() internal.Configurable {
 // Validate 验证配置
 func (c *Health) Validate() error {
 	return internal.ValidateStruct(c)
-} // WithModuleName 设置模块名称
+}
+
+// WithModuleName 设置模块名称
 func (c *Health) WithModuleName(moduleName string) *Health {
 	c.ModuleName = moduleName
 	return c

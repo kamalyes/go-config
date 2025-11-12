@@ -1,0 +1,76 @@
+database:
+  # 数据库类型 (mysql/postgres/sqlite)
+  db-type: "mysql"
+  # 数据库主机地址
+  host: "localhost"
+  # 数据库端口
+  port: "3306"
+  # 数据库名称
+  db-name: "test_db"
+  # 数据库用户名
+  username: "root"
+  # 数据库密码
+  password: "password"
+  # 连接配置参数
+  config: "charset=utf8mb4&parseTime=True&loc=Local&timeout=10s&readTimeout=30s&writeTimeout=60s"
+  # 日志级别
+  log-level: "info"
+  # 最大空闲连接数
+  max-idle-conns: 10
+  # 最大连接数
+  max-open-conns: 100
+  # 连接最大空闲时间（秒）
+  conn-max-idle-time: 600
+  # 连接最大生命周期（秒）
+  conn-max-life-time: 3600
+  # SQLite数据库文件路径
+  db-path: "./data/app.db"
+  # 是否执行清理命令
+  vacuum: false
+  # 模块名称
+  modulename: "database"
+
+# MySQL 示例配置
+mysql:
+  db-type: "mysql"
+  host: "localhost"
+  port: "3306"
+  db-name: "mysql_db"
+  username: "root"
+  password: "mysql_password"
+  config: "charset=utf8mb4&parseTime=True&loc=Local&timeout=10s"
+  log-level: "warn"
+  max-idle-conns: 20
+  max-open-conns: 200
+  conn-max-idle-time: 300
+  conn-max-life-time: 1800
+  modulename: "mysql"
+
+# PostgreSQL 示例配置
+postgres:
+  db-type: "postgres"
+  host: "localhost"
+  port: "5432"
+  db-name: "postgres_db"
+  username: "postgres"
+  password: "postgres_password"
+  config: "sslmode=disable&TimeZone=Asia/Shanghai"
+  log-level: "error"
+  max-idle-conns: 15
+  max-open-conns: 150
+  conn-max-idle-time: 400
+  conn-max-life-time: 2400
+  modulename: "postgres"
+
+# SQLite 示例配置
+sqlite:
+  db-type: "sqlite"
+  db-path: "./data/sqlite.db"
+  config: "cache=shared&mode=rwc&_journal_mode=WAL"
+  log-level: "silent"
+  max-idle-conns: 5
+  max-open-conns: 50
+  conn-max-idle-time: 120
+  conn-max-life-time: 600
+  vacuum: true
+  modulename: "sqlite"
