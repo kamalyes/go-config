@@ -14,6 +14,16 @@
 
 </div>
 
+## 🎉 v1.0 新特性
+
+| 🆕 新功能 | 🎯 亮点 |
+|-----------|---------|
+| **🔗 链式调用API** | `NewManager(config).WithPrefix("app").WithHotReload(nil).BuildAndStart()` |
+| **🛡️ 泛型类型安全** | `config, err := GetConfigAs[MyConfig](manager)` - 编译期类型检查 |
+| **🎯 智能配置发现** | 支持路径、前缀、模式匹配、自动发现四种模式 |
+| **⚡ Must便捷函数** | `MustBuildAndStart()` - 快速启动，失败即panic |
+| **🔄 增强回调系统** | 支持优先级、异步执行、超时控制的事件处理 |
+
 ## ✨ 特性亮点
 
 | 特性 | 说明 | 优势 |
@@ -21,6 +31,8 @@
 | 🌍 **多环境支持** | dev, sit, fat, uat, prod | 一套代码，多环境部署 |
 | 🔄 **配置热更新** | 基于 fsnotify 实时监听 | 无需重启应用即可更新配置 |
 | 🔍 **智能配置发现** | 自动发现和创建配置文件 | 支持多种格式，智能匹配 |
+| 🔗 **流畅链式 API** | 支持链式调用的构建器模式 | 代码简洁，类型安全 |
+| 🎯 **多种发现模式** | 路径、前缀、模式匹配 | 灵活适配不同项目结构 |
 | 📝 **美观日志输出** | emoji 和结构化日志格式 | 配置变更一目了然 |
 | 🔔 **回调机制** | 多级优先级事件通知 | 配置变更及时响应 |
 | 🌐 **上下文集成** | Context 注入和中间件支持 | HTTP/gRPC 服务集成 |
@@ -84,7 +96,7 @@ EOF
 go run examples/gateway_hot_reload_demo.go ./config
 ```
 
-### 🆕 推荐用法
+### 🆕 推荐用法（链式调用 API）
 
 ```go
 package main
@@ -98,30 +110,175 @@ import (
 )
 
 func main() {
-    // 自动发现配置文件
+    // 🚀 新的链式调用 API - 简洁、类型安全、功能强大
     config := &gateway.Gateway{}
-    manager, err := goconfig.CreateAndStartIntegratedManagerWithAutoDiscovery(
-        config, "./config", goconfig.GetEnvironment(), "gateway")
+    
+    // 方式1: 使用搜索路径自动发现
+    manager, err := goconfig.NewManager(config).
+        WithSearchPath("./config").
+        WithPrefix("gateway").
+        WithEnvironment(goconfig.EnvDevelopment).
+        WithHotReload(nil). // 使用默认热重载配置
+        BuildAndStart()
+    
     if err != nil {
-        log.Fatal(err)
+        log.Fatal("启动配置管理器失败:", err)
     }
     defer manager.Stop()
     
-    // 注册配置变更回调
+    // 方式2: 直接指定配置文件路径
+    // manager, err := goconfig.NewManager(config).
+    //     WithConfigPath("./config/gateway-dev.yaml").
+    //     WithHotReload(nil).
+    //     BuildAndStart()
+    
+    // 方式3: 使用模式匹配
+    // manager, err := goconfig.NewManager(config).
+    //     WithSearchPath("./config").
+    //     WithPattern("gateway-*.yaml").
+    //     WithEnvironment(goconfig.EnvProduction).
+    //     BuildAndStart()
+    
+    // 🔔 注册配置变更回调 - 支持多种事件类型和优先级
     manager.RegisterConfigCallback(func(ctx context.Context, event goconfig.CallbackEvent) error {
-        goconfig.LogConfigChange(event, event.NewValue)
+        log.Printf("📝 配置已更新: %s", event.Source)
+        // 自动美化日志已内置，无需手动调用
         return nil
     }, goconfig.CallbackOptions{
-        ID:       "main_handler",
+        ID:       "main_config_handler",
         Types:    []goconfig.CallbackType{goconfig.CallbackTypeConfigChanged},
         Priority: goconfig.CallbackPriorityHigh,
+        Async:    false,
+        Timeout:  time.Second * 5,
     })
     
-    // 使用配置
-    gatewayConfig := manager.GetConfig().(*gateway.Gateway)
+    // 🌍 注册环境变更回调
+    manager.RegisterEnvironmentCallback("env_handler", func(oldEnv, newEnv goconfig.EnvironmentType) error {
+        log.Printf("🌍 环境切换: %s → %s", oldEnv, newEnv)
+        return nil
+    }, goconfig.CallbackPriorityHigh, false)
+    
+    // ✅ 类型安全的配置获取
+    gatewayConfig, err := goconfig.GetConfigAs[gateway.Gateway](manager)
+    if err != nil {
+        log.Fatal("获取配置失败:", err)
+    }
+    
+    // 🚀 使用配置启动服务
     log.Printf("🚀 服务启动: %s", gatewayConfig.Name)
-    log.Printf("📍 HTTP服务器: %s", gatewayConfig.HTTPServer.GetEndpoint())
+    log.Printf("📍 HTTP服务器: %s:%d", gatewayConfig.HTTPServer.Host, gatewayConfig.HTTPServer.Port)
+    
+    // 🔄 支持运行时手动重载配置
+    // err = manager.ReloadConfig(context.Background())
 }
+```
+
+### 🔧 便捷函数（适用于简单场景）
+
+```go
+// 快速创建（使用默认选项）
+manager, err := goconfig.CreateIntegratedManager(config, "./config/app.yaml", goconfig.EnvProduction)
+
+// Must版本（失败时panic，适用于启动阶段）
+manager := goconfig.NewManager(config).
+    WithConfigPath("./config/app.yaml").
+    MustBuildAndStart()
+```
+
+## 🛠️ API 使用指南
+
+### 📋 配置发现模式对比
+
+| 模式 | 适用场景 | 优势 | 示例 |
+|------|----------|------|------|
+| **直接路径** | 明确知道配置文件位置 | 最快速，无需搜索 | `WithConfigPath("./app.yaml")` |
+| **前缀匹配** | 标准项目结构 | 环境自动适配 | `WithPrefix("gateway")` |
+| **模式匹配** | 复杂文件命名规则 | 最灵活的匹配 | `WithPattern("config-*.json")` |
+| **自动发现** | 快速原型开发 | 零配置启动 | `WithSearchPath("./config")` |
+
+### 🎯 典型使用场景
+
+#### 场景1: 微服务网关配置
+
+```go
+// 多环境网关配置管理
+config := &gateway.Gateway{}
+manager, err := goconfig.NewManager(config).
+    WithSearchPath("./config").
+    WithPrefix("gateway").
+    WithEnvironment(goconfig.GetEnvironment()). // 从环境变量读取
+    WithHotReload(&goconfig.HotReloadConfig{
+        Enabled: true,
+        Debounce: time.Second * 2,
+    }).
+    BuildAndStart()
+```
+
+#### 场景2: 单体应用配置
+
+```go
+// 简单直接的单文件配置
+config := &MyAppConfig{}
+manager := goconfig.NewManager(config).
+    WithConfigPath("./configs/app-prod.yaml").
+    WithHotReload(nil).
+    MustBuildAndStart() // 启动失败时panic
+```
+
+#### 场景3: 容器化部署配置
+
+```go
+// 支持环境变量和多种发现方式
+config := &ServiceConfig{}
+manager, err := goconfig.NewManager(config).
+    WithSearchPath("/app/config").       // 容器内配置目录
+    WithPattern("service-*.yaml").       // 模式匹配
+    WithEnvironment(goconfig.EnvProduction).
+    WithContext(&goconfig.ContextKeyOptions{
+        Value: "k8s-service",
+    }).
+    BuildAndStart(ctx) // 带超时控制的启动
+```
+
+### 🔄 高级功能示例
+
+#### 多回调处理
+
+```go
+// 配置变更回调
+manager.RegisterConfigCallback(func(ctx context.Context, event goconfig.CallbackEvent) error {
+    // 重启HTTP服务器
+    return restartHTTPServer(event.NewValue)
+}, goconfig.CallbackOptions{
+    ID: "http_restart",
+    Types: []goconfig.CallbackType{goconfig.CallbackTypeConfigChanged},
+    Priority: goconfig.CallbackPriorityHigh,
+})
+
+// 错误处理回调  
+manager.RegisterConfigCallback(func(ctx context.Context, event goconfig.CallbackEvent) error {
+    log.Error("配置错误", "error", event.Error)
+    // 发送告警到监控系统
+    return sendAlert(event.Error)
+}, goconfig.CallbackOptions{
+    ID: "error_alert",
+    Types: []goconfig.CallbackType{goconfig.CallbackTypeError},
+    Async: true,
+})
+```
+
+#### 运行时配置操作
+
+```go
+// 运行时重新加载配置
+err = manager.ReloadConfig(context.Background())
+
+// 动态切换环境
+err = manager.SetEnvironment(goconfig.EnvProduction)
+
+// 获取配置元数据
+metadata := manager.GetConfigMetadata()
+fmt.Printf("配置文件: %s, 更新时间: %v", metadata["config_path"], metadata["updated_at"])
 ```
 
 ## 📋 支持的配置模块
@@ -254,19 +411,29 @@ go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
 ## 📋 路线图
 
+### ✅ v1.0.0 (已完成)
+
+- [x] 🔗 链式调用API (ManagerBuilder)
+- [x] 🎯 多种配置发现模式 (路径、前缀、模式、自动发现)
+- [x] 🛡️ 泛型类型安全 (GetConfigAs[T])
+- [x] 🔄 增强的回调机制 (优先级、异步、超时)
+- [x] 📝 完整的函数注释和文档
+
 ### 🎯 v1.1.0 (规划中)
 
-- [ ] 🔄 配置验证增强
-- [ ] 📊 配置监控面板
-- [ ] 🔌 插件系统支持
-- [ ] 🌐 国际化支持
+- [ ] 🔍 配置Schema验证 (JSON Schema / Go struct tags)
+- [ ] 📊 配置监控面板 (Web UI)
+- [ ] 🔌 插件系统支持 (自定义配置解析器)
+- [ ] 🌐 国际化支持 (多语言错误消息)
+- [ ] 🧪 配置A/B测试支持
 
 ### 🎯 v1.2.0 (未来版本)
 
-- [ ] ☁️ 云原生配置中心集成
-- [ ] 🔐 配置加密/解密支持
-- [ ] 📈 性能监控仪表板
-- [ ] 🤖 智能配置推荐
+- [ ] ☁️ 云原生配置中心集成 (Consul, etcd, Nacos)
+- [ ] 🔐 配置加密/解密支持 (AES, RSA)
+- [ ] 📈 配置性能监控仪表板
+- [ ] 🤖 智能配置推荐和优化建议
+- [ ] 🔄 配置版本控制和回滚
 
 ## 📜 许可证
 

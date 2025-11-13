@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 11:30:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 13:49:51
+ * @LastEditTime: 2025-11-13 10:14:20
  * @FilePath: \go-config\hot_reload_test.go
  * @Description: 配置热更新功能测试
  *
@@ -213,7 +213,7 @@ server:
 	config := &TestConfig{}
 
 	// 创建集成配置管理器
-	manager, err := CreateAndStartIntegratedManager(config, configFile, EnvTest)
+	manager, err := NewManager(&config).WithConfigPath(configFile).WithEnvironment(EnvTest).BuildAndStart()
 	require.NoError(t, err)
 	defer manager.Stop()
 

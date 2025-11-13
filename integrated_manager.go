@@ -8,7 +8,6 @@
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
  */
-
 package goconfig
 
 import (
@@ -23,17 +22,34 @@ import (
 	"github.com/spf13/viper"
 )
 
+// ManagerBuilder 配置管理器构建器 - 支持链式调用和泛型
+// 提供灵活的配置管理器构建方式，支持多种配置发现模式
+type ManagerBuilder[T any] struct {
+	config          *T                 // 配置结构体指针
+	configPath      string             // 直接指定的配置文件路径
+	searchPath      string             // 配置文件搜索路径
+	environment     EnvironmentType    // 运行环境类型
+	configPrefix    string             // 配置文件名前缀
+	pattern         string             // 文件匹配模式
+	hotReloadConfig *HotReloadConfig   // 热重载配置
+	contextOptions  *ContextKeyOptions // 上下文选项
+	autoDiscovery   bool               // 是否启用自动发现
+	usePattern      bool               // 是否使用模式匹配
+	useCustomPrefix bool               // 是否使用自定义前缀
+}
+
 // IntegratedConfigManager 集成配置管理器
+// 统一管理配置文件、环境变量、热重载和上下文的核心组件
 type IntegratedConfigManager struct {
-	mu              sync.RWMutex
-	environment     *Environment
-	hotReloader     HotReloader
-	contextManager  *ContextManager
-	viper           *viper.Viper
-	config          interface{}
-	configPath      string
-	hotReloadConfig *HotReloadConfig
-	running         bool
+	mu              sync.RWMutex     // 读写锁，保护并发访问
+	environment     *Environment     // 环境管理器
+	hotReloader     HotReloader      // 热重载管理器
+	contextManager  *ContextManager  // 上下文管理器
+	viper           *viper.Viper     // Viper配置解析器
+	config          interface{}      // 当前配置对象
+	configPath      string           // 配置文件路径
+	hotReloadConfig *HotReloadConfig // 热重载配置
+	running         bool             // 运行状态标识
 }
 
 // IntegratedConfigOptions 集成配置管理器选项
@@ -50,11 +66,241 @@ func DefaultIntegratedConfigOptions() *IntegratedConfigOptions {
 		ConfigPath:      "",
 		Environment:     DefaultEnv,
 		HotReloadConfig: DefaultHotReloadConfig(),
-		ContextOptions:  nil,
+		ContextOptions:  &ContextKeyOptions{Value: DefaultEnv},
 	}
 }
 
-// NewIntegratedConfigManager 创建新的集成配置管理器
+// NewManager 创建新的配置管理器构建器 - 链式调用API入口
+// 这是创建配置管理器的推荐方式，支持泛型和流畅的链式调用
+// 使用示例:
+//
+//	type MyConfig struct {
+//	    Database string `yaml:"database"`
+//	    Port     int    `yaml:"port"`
+//	}
+//	var config MyConfig
+//	manager, err := NewManager(&config).
+//	    WithSearchPath("./configs").
+//	    WithPrefix("app").
+//	    WithEnvironment(EnvDevelopment).
+//	    WithHotReload(nil).
+//	    BuildAndStart()
+func NewManager[T any](config *T) *ManagerBuilder[T] {
+	return &ManagerBuilder[T]{
+		config:      config,
+		environment: GetEnvironment(),
+	}
+}
+
+// WithConfigPath 设置配置文件路径
+// 直接指定配置文件的完整路径，优先级最高
+// path: 配置文件的绝对路径或相对路径
+func (b *ManagerBuilder[T]) WithConfigPath(path string) *ManagerBuilder[T] {
+	b.configPath = path
+	return b
+}
+
+// WithSearchPath 设置配置文件搜索路径
+// 启用自动发现模式，在指定目录中查找配置文件
+// path: 搜索配置文件的目录路径
+func (b *ManagerBuilder[T]) WithSearchPath(path string) *ManagerBuilder[T] {
+	b.searchPath = path
+	b.autoDiscovery = true
+	return b
+}
+
+// WithEnvironment 设置运行环境
+// 指定当前应用的运行环境，影响配置文件的选择和环境变量的读取
+// env: 环境类型 (EnvDevelopment, EnvTest, EnvStaging, EnvProduction)
+func (b *ManagerBuilder[T]) WithEnvironment(env EnvironmentType) *ManagerBuilder[T] {
+	b.environment = env
+	return b
+}
+
+// WithPrefix 设置配置文件名前缀
+// 用于匹配特定前缀的配置文件，结合环境后缀使用
+// 例如: prefix="app" 可匹配 "app-dev.yaml", "app-prod.json" 等
+// prefix: 配置文件名的前缀字符串
+func (b *ManagerBuilder[T]) WithPrefix(prefix string) *ManagerBuilder[T] {
+	b.configPrefix = prefix
+	b.useCustomPrefix = true
+	return b
+}
+
+// WithPattern 设置文件匹配模式
+// 使用glob模式匹配配置文件，支持通配符
+// 例如: "*.yaml" 匹配所有yaml文件, "config-*.json" 匹配以config-开头的json文件
+// pattern: glob匹配模式字符串
+func (b *ManagerBuilder[T]) WithPattern(pattern string) *ManagerBuilder[T] {
+	b.pattern = pattern
+	b.usePattern = true
+	return b
+}
+
+// WithHotReload 启用配置热重载功能
+// 当配置文件发生变化时自动重新加载配置
+// config: 热重载配置，传nil使用默认配置
+func (b *ManagerBuilder[T]) WithHotReload(config *HotReloadConfig) *ManagerBuilder[T] {
+	if config == nil {
+		config = DefaultHotReloadConfig()
+	}
+	b.hotReloadConfig = config
+	return b
+}
+
+// WithContext 设置上下文配置选项
+// 配置上下文管理器的行为和键值设置
+// options: 上下文键选项配置
+func (b *ManagerBuilder[T]) WithContext(options *ContextKeyOptions) *ManagerBuilder[T] {
+	b.contextOptions = options
+	return b
+}
+
+// Build 构建配置管理器
+// 根据设置的选项构建管理器实例，但不启动热重载等服务
+// 返回: 配置管理器实例和可能的错误
+func (b *ManagerBuilder[T]) Build() (*IntegratedConfigManager, error) {
+	configPath, err := b.resolveConfigPath()
+	if err != nil {
+		return nil, fmt.Errorf("解析配置路径失败: %w", err)
+	}
+
+	return CreateIntegratedManager(b.config, configPath, b.environment)
+}
+
+// BuildAndStart 构建并启动配置管理器
+// 这是推荐的使用方式，一步完成管理器的创建和启动
+// ctx: 可选的上下文，用于控制启动过程的超时和取消
+// 返回: 已启动的配置管理器实例和可能的错误
+func (b *ManagerBuilder[T]) BuildAndStart(ctx ...context.Context) (*IntegratedConfigManager, error) {
+	manager, err := b.Build()
+	if err != nil {
+		return nil, err
+	}
+
+	// 使用提供的上下文或创建默认上下文
+	var startCtx context.Context
+	if len(ctx) > 0 && ctx[0] != nil {
+		startCtx = ctx[0]
+	} else {
+		var cancel context.CancelFunc
+		startCtx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+	}
+
+	if err := manager.Start(startCtx); err != nil {
+		return nil, fmt.Errorf("启动管理器失败: %w", err)
+	}
+
+	return manager, nil
+}
+
+// MustBuildAndStart 构建并启动配置管理器
+// 功能同BuildAndStart，但失败时会panic，适用于启动阶段
+// ctx: 可选的上下文
+// 返回: 已启动的配置管理器实例
+func (b *ManagerBuilder[T]) MustBuildAndStart(ctx ...context.Context) *IntegratedConfigManager {
+	manager, err := b.BuildAndStart(ctx...)
+	if err != nil {
+		panic(fmt.Sprintf("构建并启动配置管理器失败: %v", err))
+	}
+	return manager
+}
+
+// resolveConfigPath 解析配置文件路径
+// 根据设置的选项和优先级顺序解析最终的配置文件路径
+// 返回: 解析出的配置文件路径和可能的错误
+func (b *ManagerBuilder[T]) resolveConfigPath() (string, error) {
+	discovery := GetGlobalConfigDiscovery()
+
+	switch {
+	case b.usePattern:
+		// 使用模式匹配
+		configFiles, err := discovery.FindConfigFileByPattern(b.searchPath, b.pattern, b.environment)
+		if err != nil {
+			return "", fmt.Errorf("按模式查找配置文件失败: %w", err)
+		}
+		if len(configFiles) == 0 {
+			return "", fmt.Errorf("未找到匹配模式 '%s' 的配置文件", b.pattern)
+		}
+		logger.GetGlobalLogger().Info("🔍 模式匹配找到配置文件: %s", configFiles[0].Path)
+		return configFiles[0].Path, nil
+
+	case b.useCustomPrefix:
+		// 使用自定义前缀发现
+		return b.discoverWithPrefix()
+
+	case b.autoDiscovery:
+		// 自动发现
+		return b.autoDiscover()
+
+	case b.configPath != "":
+		// 直接使用指定路径
+		logger.GetGlobalLogger().Info("📁 使用指定配置文件: %s", b.configPath)
+		return b.configPath, nil
+
+	default:
+		return "", fmt.Errorf("未指定配置路径或搜索选项")
+	}
+}
+
+// discoverWithPrefix 使用自定义前缀发现配置文件
+// 根据指定的前缀和环境类型查找匹配的配置文件
+// 返回: 发现的配置文件路径和可能的错误
+func (b *ManagerBuilder[T]) discoverWithPrefix() (string, error) {
+	discovery := &ConfigDiscovery{
+		SupportedExtensions: []string{".yaml", ".yml", ".json", ".toml", ".properties"},
+		DefaultNames:        []string{b.configPrefix},
+		EnvPrefixes: map[EnvironmentType][]string{
+			EnvDevelopment: {"dev", "development", "local"},
+			EnvTest:        {"test", "testing"},
+			EnvStaging:     {"staging", "stage", "pre", "preprod"},
+			EnvProduction:  {"prod", "production", "release"},
+		},
+	}
+
+	configFiles, err := discovery.DiscoverConfigFiles(b.searchPath, b.environment)
+	if err != nil {
+		return "", fmt.Errorf("发现配置文件失败: %w", err)
+	}
+
+	for _, file := range configFiles {
+		if file.Exists {
+			logger.GetGlobalLogger().Info("🎯 前缀匹配找到配置文件: %s (前缀: %s)", file.Path, b.configPrefix)
+			return file.Path, nil
+		}
+	}
+
+	return "", fmt.Errorf("未找到前缀为 '%s' 的配置文件", b.configPrefix)
+}
+
+// autoDiscover 自动发现配置文件
+// 在指定路径中自动查找适合的配置文件，优先选择匹配环境的文件
+// 返回: 发现的配置文件路径和可能的错误
+func (b *ManagerBuilder[T]) autoDiscover() (string, error) {
+	discovery := GetGlobalConfigDiscovery()
+
+	configFiles, err := discovery.DiscoverConfigFiles(b.searchPath, b.environment)
+	if err != nil {
+		return "", fmt.Errorf("自动发现配置文件失败: %w", err)
+	}
+
+	for _, file := range configFiles {
+		if file.Exists {
+			logger.GetGlobalLogger().Info("🔍 自动发现配置文件: %s", file.Path)
+			return file.Path, nil
+		}
+	}
+
+	return "", fmt.Errorf("在路径 '%s' 中未找到有效配置文件", b.searchPath)
+}
+
+// NewIntegratedConfigManager 创建集成配置管理器
+// 使用指定的配置对象和选项创建一个完整的配置管理器实例
+// 这是底层创建函数，一般推荐使用NewManager进行链式调用
+// config: 配置结构体指针
+// options: 集成配置管理器选项
+// 返回: 配置管理器实例和可能的错误
 func NewIntegratedConfigManager(config interface{}, options *IntegratedConfigOptions) (*IntegratedConfigManager, error) {
 	if options == nil {
 		options = DefaultIntegratedConfigOptions()
@@ -76,7 +322,6 @@ func NewIntegratedConfigManager(config interface{}, options *IntegratedConfigOpt
 
 	// 配置Viper
 	if options.ConfigPath != "" {
-		// 检查是否是文件还是目录
 		if info, err := os.Stat(options.ConfigPath); err == nil && !info.IsDir() {
 			// 是文件，设置配置文件路径
 			v.SetConfigFile(options.ConfigPath)
@@ -127,11 +372,12 @@ func NewIntegratedConfigManager(config interface{}, options *IntegratedConfigOpt
 	// 注册内部回调
 	manager.registerInternalCallbacks()
 
-	logger.GetGlobalLogger().Info("集成配置管理器创建完成，配置文件: %s", options.ConfigPath)
+	logger.GetGlobalLogger().Info("✅ 集成配置管理器创建完成，配置文件: %s", options.ConfigPath)
 	return manager, nil
 }
 
-// registerInternalCallbacks 注册内部回调
+// registerInternalCallbacks 注册内部回调函数
+// 设置管理器内部的事件监听和响应机制
 func (icm *IntegratedConfigManager) registerInternalCallbacks() {
 	// 注册配置变更回调
 	icm.hotReloader.RegisterCallback(icm.onConfigReloaded, CallbackOptions{
@@ -155,14 +401,15 @@ func (icm *IntegratedConfigManager) registerInternalCallbacks() {
 	})
 }
 
-// onConfigReloaded 配置重新加载回调
+// onConfigReloaded 处理配置重新加载事件
+// 当配置文件发生变化并成功重新加载时触发
 func (icm *IntegratedConfigManager) onConfigReloaded(ctx context.Context, event CallbackEvent) error {
 	icm.mu.Lock()
 	defer icm.mu.Unlock()
 
-	logger.GetGlobalLogger().Info("集成管理器: 配置已重新加载，来源: %s", event.Source)
+	logger.GetGlobalLogger().Info("🔄 集成管理器: 配置已重新加载，来源: %s", event.Source)
 
-	// 🆕 自动记录美化的配置变更日志
+	// 自动记录美化的配置变更日志
 	if isAutoLogEnabled() {
 		LogConfigChange(event, event.NewValue)
 	}
@@ -176,36 +423,36 @@ func (icm *IntegratedConfigManager) onConfigReloaded(ctx context.Context, event 
 	return nil
 }
 
-// onEnvironmentChanged 环境变更回调
+// onEnvironmentChanged 处理环境变更事件
+// 当应用环境发生变化时触发，记录日志并执行相关操作
 func (icm *IntegratedConfigManager) onEnvironmentChanged(oldEnv, newEnv EnvironmentType) error {
-	logger.GetGlobalLogger().Info("集成管理器: 环境已变更: %s -> %s", oldEnv, newEnv)
+	logger.GetGlobalLogger().Info("🌍 集成管理器: 环境已变更: %s -> %s", oldEnv, newEnv)
 
 	// 自动记录美化的环境变更日志
 	if isAutoLogEnabled() {
 		LogEnvChange(oldEnv, newEnv)
 	}
 
-	// 如果需要，可以在这里实现环境变更时的特殊逻辑
-	// 例如：重新加载对应环境的配置文件
-
 	return nil
 }
 
-// onError 错误回调
+// onError 处理错误事件
+// 当配置管理过程中发生错误时触发，统一记录和处理错误
 func (icm *IntegratedConfigManager) onError(ctx context.Context, event CallbackEvent) error {
-	logger.GetGlobalLogger().Error("集成管理器: 发生错误: %s, 来源: %s", event.Error, event.Source)
+	logger.GetGlobalLogger().Error("❌ 集成管理器: 发生错误: %s, 来源: %s", event.Error, event.Source)
 
-	// 🆕 自动记录美化的错误日志
+	// 自动记录美化的错误日志
 	if isAutoLogEnabled() {
 		LogConfigError(event)
 	}
 
-	// 在这里可以实现错误处理逻辑，如发送告警等
-
 	return nil
 }
 
-// Start 启动集成配置管理器
+// Start 启动配置管理器
+// 启动热重载服务和相关的监控机制
+// ctx: 用于控制启动过程的上下文
+// 返回: 启动成功返回nil，否则返回错误
 func (icm *IntegratedConfigManager) Start(ctx context.Context) error {
 	icm.mu.Lock()
 	defer icm.mu.Unlock()
@@ -223,11 +470,13 @@ func (icm *IntegratedConfigManager) Start(ctx context.Context) error {
 	icm.contextManager.UpdateConfig(icm.config)
 
 	icm.running = true
-	logger.GetGlobalLogger().Info("集成配置管理器启动成功")
+	logger.GetGlobalLogger().Info("🚀 集成配置管理器启动成功")
 	return nil
 }
 
-// Stop 停止集成配置管理器
+// Stop 停止配置管理器
+// 停止热重载服务和所有监控机制，释放相关资源
+// 返回: 停止成功返回nil，否则返回错误
 func (icm *IntegratedConfigManager) Stop() error {
 	icm.mu.Lock()
 	defer icm.mu.Unlock()
@@ -245,11 +494,12 @@ func (icm *IntegratedConfigManager) Stop() error {
 	icm.environment.StopWatch()
 
 	icm.running = false
-	logger.GetGlobalLogger().Info("集成配置管理器已停止")
+	logger.GetGlobalLogger().Info("⏹️ 集成配置管理器已停止")
 	return nil
 }
 
-// IsRunning 检查是否正在运行
+// IsRunning 检查管理器是否正在运行
+// 返回: true表示正在运行，false表示已停止
 func (icm *IntegratedConfigManager) IsRunning() bool {
 	icm.mu.RLock()
 	defer icm.mu.RUnlock()
@@ -257,96 +507,137 @@ func (icm *IntegratedConfigManager) IsRunning() bool {
 }
 
 // GetConfig 获取当前配置
+// 返回当前加载的配置对象，线程安全
+// 返回: 配置对象接口
 func (icm *IntegratedConfigManager) GetConfig() interface{} {
 	icm.mu.RLock()
 	defer icm.mu.RUnlock()
 	return icm.config
 }
 
-// GetConfigWithType 获取指定类型的配置
-func GetConfigWithType[T any](icm *IntegratedConfigManager) (*T, error) {
+// GetConfigAs 获取指定类型的配置
+// 泛型函数，安全地将配置转换为指定类型
+// T: 目标配置类型
+// icm: 配置管理器实例
+// 返回: 类型安全的配置指针和可能的类型转换错误
+func GetConfigAs[T any](icm *IntegratedConfigManager) (*T, error) {
 	config := icm.GetConfig()
 	if typedConfig, ok := config.(*T); ok {
 		return typedConfig, nil
 	}
-	return nil, fmt.Errorf("配置类型不匹配")
+	return nil, fmt.Errorf("配置类型不匹配: 期望 %T, 实际 %T", new(T), config)
 }
 
 // GetEnvironment 获取当前环境
+// 返回: 当前应用的运行环境类型
 func (icm *IntegratedConfigManager) GetEnvironment() EnvironmentType {
 	return icm.environment.Value
 }
 
 // GetViper 获取Viper实例
+// 返回内部使用的Viper配置解析器实例以便高级操作
+// 返回: Viper实例指针
 func (icm *IntegratedConfigManager) GetViper() *viper.Viper {
 	return icm.viper
 }
 
-// GetHotReloader 获取热更新器
+// GetHotReloader 获取热重载器
+// 返回内部使用的热重载器实例以便直接操作
+// 返回: 热重载器接口
 func (icm *IntegratedConfigManager) GetHotReloader() HotReloader {
 	return icm.hotReloader
 }
 
 // GetContextManager 获取上下文管理器
+// 返回内部使用的上下文管理器实例
+// 返回: 上下文管理器指针
 func (icm *IntegratedConfigManager) GetContextManager() *ContextManager {
 	return icm.contextManager
 }
 
 // GetEnvironmentManager 获取环境管理器
+// 返回内部使用的环境管理器实例
+// 返回: 环境管理器指针
 func (icm *IntegratedConfigManager) GetEnvironmentManager() *Environment {
 	return icm.environment
 }
 
-// WithContext 将配置信息添加到上下文中
+// WithContext 将配置信息注入到上下文中
+// 返回包含配置信息的新上下文，便于跨组件传递配置
+// ctx: 原始上下文
+// 返回: 包含配置的新上下文
 func (icm *IntegratedConfigManager) WithContext(ctx context.Context) context.Context {
 	return icm.contextManager.WithConfig(ctx)
 }
 
 // RegisterConfigCallback 注册配置变更回调
+// 当配置发生变化时会触发指定的回调函数
+// callback: 回调函数
+// options: 回调选项，包括ID、优先级、异步等设置
+// 返回: 注册成功返回nil，否则返回错误
 func (icm *IntegratedConfigManager) RegisterConfigCallback(callback CallbackFunc, options CallbackOptions) error {
 	return icm.hotReloader.RegisterCallback(callback, options)
 }
 
 // RegisterEnvironmentCallback 注册环境变更回调
+// 当应用环境发生变化时会触发指定的回调函数
+// id: 回调的唯一标识符
+// callback: 环境变更回调函数
+// priority: 回调优先级，数值越小优先级越高
+// async: 是否异步执行
+// 返回: 注册成功返回nil，否则返回错误
 func (icm *IntegratedConfigManager) RegisterEnvironmentCallback(id string, callback EnvironmentCallback, priority int, async bool) error {
 	return icm.environment.RegisterCallback(id, callback, priority, async)
 }
 
-// UnregisterConfigCallback 注销配置变更回调
+// UnregisterConfigCallback 取消配置变更回调
+// 根据ID移除指定的配置变更回调
+// id: 回调的唯一标识符
+// 返回: 取消成功返回nil，否则返回错误
 func (icm *IntegratedConfigManager) UnregisterConfigCallback(id string) error {
 	return icm.hotReloader.UnregisterCallback(id)
 }
 
-// UnregisterEnvironmentCallback 注销环境变更回调
+// UnregisterEnvironmentCallback 取消环境变更回调
+// 根据ID移除指定的环境变更回调
+// id: 回调的唯一标识符
+// 返回: 取消成功返回nil，否则返回错误
 func (icm *IntegratedConfigManager) UnregisterEnvironmentCallback(id string) error {
 	return icm.environment.UnregisterCallback(id)
 }
 
 // ReloadConfig 手动重新加载配置
+// 立即从配置文件重新读取配置，触发相关回调
+// ctx: 用于控制重载过程的上下文
+// 返回: 重载成功返回nil，否则返回错误
 func (icm *IntegratedConfigManager) ReloadConfig(ctx context.Context) error {
 	return icm.hotReloader.Reload(ctx)
 }
 
-// SetEnvironment 设置环境
+// SetEnvironment 设置应用环境
+// 更新当前应用的运行环境，会触发环境变更回调
+// env: 新的环境类型
+// 返回: 设置成功返回nil，否则返回错误
 func (icm *IntegratedConfigManager) SetEnvironment(env EnvironmentType) error {
 	icm.environment.SetEnvironment(env)
 	return nil
 }
 
-// ValidateConfig 验证配置
+// ValidateConfig 验证配置有效性
+// 检查当前加载的配置是否有效
+// 返回: 配置有效返回nil，否则返回错误
 func (icm *IntegratedConfigManager) ValidateConfig() error {
-	// 这里可以添加配置验证逻辑
-	// 例如检查必需字段、验证格式等
-
 	if icm.config == nil {
 		return fmt.Errorf("配置为空")
 	}
 
-	logger.GetGlobalLogger().Info("配置验证通过")
+	logger.GetGlobalLogger().Info("✅ 配置验证通过")
 	return nil
 }
 
 // GetConfigMetadata 获取配置元数据
+// 返回配置管理器和配置文件的详细信息
+// 返回: 包含元数据的字典
 func (icm *IntegratedConfigManager) GetConfigMetadata() map[string]interface{} {
 	metadata := make(map[string]interface{})
 
@@ -360,18 +651,22 @@ func (icm *IntegratedConfigManager) GetConfigMetadata() map[string]interface{} {
 	return metadata
 }
 
-// 便捷函数
-
-// MustStart 启动集成配置管理器，失败时panic
+// MustStart 必须成功启动配置管理器
+// 功能同Start，但失败时会panic，适用于必须成功的场景
+// ctx: 用于控制启动过程的上下文
 func (icm *IntegratedConfigManager) MustStart(ctx context.Context) {
 	if err := icm.Start(ctx); err != nil {
 		panic(fmt.Sprintf("启动集成配置管理器失败: %v", err))
 	}
 }
 
-// MustGetConfig 获取配置，失败时panic
-func MustGetConfig[T any](icm *IntegratedConfigManager) *T {
-	config, err := GetConfigWithType[T](icm)
+// MustGetConfigAs 必须成功获取指定类型的配置
+// 功能同GetConfigAs，但失败时会panic，适用于确定类型正确的场景
+// T: 目标配置类型
+// icm: 配置管理器实例
+// 返回: 类型安全的配置指针
+func MustGetConfigAs[T any](icm *IntegratedConfigManager) *T {
+	config, err := GetConfigAs[T](icm)
 	if err != nil {
 		panic(fmt.Sprintf("获取配置失败: %v", err))
 	}
@@ -379,6 +674,11 @@ func MustGetConfig[T any](icm *IntegratedConfigManager) *T {
 }
 
 // CreateIntegratedManager 创建集成配置管理器的便捷函数
+// 使用默认选项快速创建配置管理器，适合简单场景
+// config: 配置结构体指针
+// configPath: 配置文件路径
+// env: 运行环境
+// 返回: 配置管理器实例和可能的错误
 func CreateIntegratedManager(config interface{}, configPath string, env EnvironmentType) (*IntegratedConfigManager, error) {
 	options := &IntegratedConfigOptions{
 		ConfigPath:      configPath,
@@ -392,83 +692,11 @@ func CreateIntegratedManager(config interface{}, configPath string, env Environm
 	return NewIntegratedConfigManager(config, options)
 }
 
-// CreateAndStartIntegratedManager 创建并启动集成配置管理器的便捷函数
-func CreateAndStartIntegratedManager(config interface{}, configPath string, env EnvironmentType) (*IntegratedConfigManager, error) {
-	manager, err := CreateIntegratedManager(config, configPath, env)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	if err := manager.Start(ctx); err != nil {
-		return nil, fmt.Errorf("启动管理器失败: %w", err)
-	}
-
-	return manager, nil
-}
-
-// CreateIntegratedManagerWithAutoDiscovery 使用自动发现创建集成配置管理器
-func CreateIntegratedManagerWithAutoDiscovery(config interface{}, searchPath string, env EnvironmentType, configType string) (*IntegratedConfigManager, error) {
-	discovery := GetGlobalConfigDiscovery()
-
-	// 尝试找到最佳配置文件
-	configInfo, err := discovery.FindBestConfigFile(searchPath, env)
-	if err != nil {
-		// 如果没有找到，尝试创建默认配置文件
-		logger.GetGlobalLogger().Warn("未找到配置文件，尝试创建默认配置: %v", err)
-		configInfo, err = discovery.CreateDefaultConfigFile(searchPath, env, configType)
-		if err != nil {
-			return nil, fmt.Errorf("创建默认配置文件失败: %w", err)
-		}
-		logger.GetGlobalLogger().Info("已创建默认配置文件: %s", configInfo.Path)
-	} else {
-		logger.GetGlobalLogger().Info("找到配置文件: %s (环境: %s, 优先级: %d)", configInfo.Path, configInfo.Environment, configInfo.Priority)
-	}
-
-	return CreateIntegratedManager(config, configInfo.Path, env)
-}
-
-// CreateAndStartIntegratedManagerWithAutoDiscovery 使用自动发现创建并启动集成配置管理器
-func CreateAndStartIntegratedManagerWithAutoDiscovery(config interface{}, searchPath string, env EnvironmentType, configType string) (*IntegratedConfigManager, error) {
-	manager, err := CreateIntegratedManagerWithAutoDiscovery(config, searchPath, env, configType)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	if err := manager.Start(ctx); err != nil {
-		return nil, fmt.Errorf("启动管理器失败: %w", err)
-	}
-
-	return manager, nil
-}
-
-// CreateIntegratedManagerWithPattern 使用模式匹配创建集成配置管理器
-func CreateIntegratedManagerWithPattern(config interface{}, searchPath, pattern string, env EnvironmentType) (*IntegratedConfigManager, error) {
-	discovery := GetGlobalConfigDiscovery()
-
-	// 按模式查找配置文件
-	configFiles, err := discovery.FindConfigFileByPattern(searchPath, pattern, env)
-	if err != nil {
-		return nil, fmt.Errorf("按模式查找配置文件失败: %w", err)
-	}
-
-	if len(configFiles) == 0 {
-		return nil, fmt.Errorf("未找到匹配模式 '%s' 的配置文件", pattern)
-	}
-
-	// 使用第一个匹配的文件（已按优先级排序）
-	configInfo := configFiles[0]
-	logger.GetGlobalLogger().Info("找到匹配的配置文件: %s (模式: %s)", configInfo.Path, pattern)
-
-	return CreateIntegratedManager(config, configInfo.Path, env)
-}
-
 // ScanAndDisplayConfigs 扫描并显示可用的配置文件
+// 用于调试和排错，显示指定目录中的所有配置文件
+// searchPath: 搜索目录路径
+// env: 目标环境类型
+// 返回: 配置文件信息列表和可能的错误
 func ScanAndDisplayConfigs(searchPath string, env EnvironmentType) ([]*ConfigFileInfo, error) {
 	discovery := GetGlobalConfigDiscovery()
 

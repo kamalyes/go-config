@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-09 01:32:15
+ * @LastEditTime: 2025-11-13 10:31:11
  * @FilePath: \go-config\pkg\queue\mqtt.go
  * @Description:
  *
@@ -18,6 +18,7 @@ import (
 // Mqtt 结构体用于配置 MQTT 相关参数
 type Mqtt struct {
 	Endpoint             string `mapstructure:"endpoint"                 yaml:"endpoint"        json:"endpoint"        validate:"required,url"`        // Mqtt 代理服务器端点地址
+	ClientID             string `mapstructure:"client-id"                yaml:"client-id"       json:"client_id"`                                      // 客户端标识符
 	ProtocolVersion      uint   `mapstructure:"protocol-version"         yaml:"protocol-ver"    json:"protocol_version" validate:"required"`           // Mqtt 协议版本号，4 是 3.1.1，3 是 3.1
 	KeepAlive            int    `mapstructure:"keep-alive"               yaml:"keep-alive"      json:"keep_alive"      validate:"required,min=1"`      // 保活时间间隔，最小值为 1 秒
 	MaxReconnectInterval int    `mapstructure:"max-reconnect-interval"   yaml:"max-reconnect-interval" json:"max_reconnect_interval" validate:"min=1"` // 最大连接间隔时间，单位：秒，最小值为 1 秒
@@ -47,6 +48,7 @@ func (m *Mqtt) Clone() internal.Configurable {
 	return &Mqtt{
 		ModuleName:           m.ModuleName,
 		Endpoint:             m.Endpoint,
+		ClientID:             m.ClientID,
 		Username:             m.Username,
 		Password:             m.Password,
 		ProtocolVersion:      m.ProtocolVersion,
@@ -71,6 +73,7 @@ func (m *Mqtt) Set(data interface{}) {
 	if configData, ok := data.(*Mqtt); ok {
 		m.ModuleName = configData.ModuleName
 		m.Endpoint = configData.Endpoint
+		m.ClientID = configData.ClientID
 		m.Username = configData.Username
 		m.Password = configData.Password
 		m.ProtocolVersion = configData.ProtocolVersion
@@ -95,6 +98,7 @@ func DefaultMqtt() Mqtt {
 	return Mqtt{
 		ModuleName:           "mqtt",
 		Endpoint:             "tcp://127.0.0.1:1883",
+		ClientID:             "go-config-mqtt-client",
 		ProtocolVersion:      4,   // MQTT 3.1.1
 		KeepAlive:            60,  // 60秒
 		MaxReconnectInterval: 300, // 5分钟
@@ -124,6 +128,12 @@ func (m *Mqtt) WithModuleName(moduleName string) *Mqtt {
 // WithEndpoint 设置MQTT代理服务器端点地址
 func (m *Mqtt) WithEndpoint(endpoint string) *Mqtt {
 	m.Endpoint = endpoint
+	return m
+}
+
+// WithClientID 设置客户端标识符
+func (m *Mqtt) WithClientID(clientID string) *Mqtt {
+	m.ClientID = clientID
 	return m
 }
 

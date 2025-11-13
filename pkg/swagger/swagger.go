@@ -33,15 +33,15 @@ const (
 
 // Contact Swagger联系信息
 type Contact struct {
-	Name  string `mapstructure:"name" yaml:"name" json:"name"`   // 联系人姓名
-	URL   string `mapstructure:"url" yaml:"url" json:"url"`      // 联系URL
+	Name  string `mapstructure:"name" yaml:"name" json:"name"`    // 联系人姓名
+	URL   string `mapstructure:"url" yaml:"url" json:"url"`       // 联系URL
 	Email string `mapstructure:"email" yaml:"email" json:"email"` // 联系邮箱
 }
 
 // License Swagger许可证信息
 type License struct {
 	Name string `mapstructure:"name" yaml:"name" json:"name"` // 许可证名称
-	URL  string `mapstructure:"url" yaml:"url" json:"url"`   // 许可证URL
+	URL  string `mapstructure:"url" yaml:"url" json:"url"`    // 许可证URL
 }
 
 // AuthConfig Swagger认证配置
@@ -54,27 +54,52 @@ type AuthConfig struct {
 	HeaderValue string   `mapstructure:"header_value" yaml:"header_value" json:"header_value"` // 自定义header值
 }
 
+// ServiceSpec 单个微服务Swagger规范配置
+type ServiceSpec struct {
+	Name        string   `mapstructure:"name" yaml:"name" json:"name"`                      // 服务名称
+	Description string   `mapstructure:"description" yaml:"description" json:"description"` // 服务描述
+	SpecPath    string   `mapstructure:"spec_path" yaml:"spec_path" json:"spec_path"`       // Swagger规范文件路径
+	URL         string   `mapstructure:"url" yaml:"url" json:"url"`                         // 远程Swagger文档URL
+	Version     string   `mapstructure:"version" yaml:"version" json:"version"`             // 服务版本
+	Enabled     bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用
+	BasePath    string   `mapstructure:"base_path" yaml:"base_path" json:"base_path"`       // API基础路径前缀
+	Tags        []string `mapstructure:"tags" yaml:"tags" json:"tags"`                      // 服务标签
+}
+
+// AggregateConfig 聚合Swagger配置
+type AggregateConfig struct {
+	Enabled  bool           `mapstructure:"enabled" yaml:"enabled" json:"enabled"`       // 是否启用聚合
+	Mode     string         `mapstructure:"mode" yaml:"mode" json:"mode"`                // 聚合模式: merge|selector
+	Services []*ServiceSpec `mapstructure:"services" yaml:"services" json:"services"`    // 微服务列表
+	UILayout string         `mapstructure:"ui_layout" yaml:"ui_layout" json:"ui_layout"` // UI布局: tabs|dropdown|list
+}
+
 // Swagger Swagger配置结构
 type Swagger struct {
-	ModuleName  string      `mapstructure:"module_name" yaml:"module_name" json:"module_name"` // 模块名称
-	Enabled     bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用Swagger
-	JSONPath    string      `mapstructure:"json_path" yaml:"json_path" json:"json_path"`       // Swagger JSON文件路径
-	UIPath      string      `mapstructure:"ui_path" yaml:"ui_path" json:"ui_path"`             // Swagger UI路由路径
-	Title       string      `mapstructure:"title" yaml:"title" json:"title"`                   // 文档标题
-	Description string      `mapstructure:"description" yaml:"description" json:"description"` // 文档描述
-	Version     string      `mapstructure:"version" yaml:"version" json:"version"`             // Swagger版本
-	Contact     *Contact    `mapstructure:"contact" yaml:"contact" json:"contact"`             // 联系信息
-	License     *License    `mapstructure:"license" yaml:"license" json:"license"`             // 许可证信息
-	Auth        *AuthConfig `mapstructure:"auth" yaml:"auth" json:"auth"`                      // 认证配置
+	ModuleName  string           `mapstructure:"module_name" yaml:"module_name" json:"module_name"` // 模块名称
+	Enabled     bool             `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用Swagger
+	JSONPath    string           `mapstructure:"json_path" yaml:"json_path" json:"json_path"`       // Swagger JSON文件路径
+	UIPath      string           `mapstructure:"ui_path" yaml:"ui_path" json:"ui_path"`             // Swagger UI路由路径
+	YamlPath    string           `mapstructure:"yaml_path" yaml:"yaml_path" json:"yaml_path"`       // Swagger YAML文件路径
+	SpecPath    string           `mapstructure:"spec_path" yaml:"spec_path" json:"spec_path"`       // Swagger规范文件路径(自动检测格式)
+	Title       string           `mapstructure:"title" yaml:"title" json:"title"`                   // 文档标题
+	Description string           `mapstructure:"description" yaml:"description" json:"description"` // 文档描述
+	Version     string           `mapstructure:"version" yaml:"version" json:"version"`             // Swagger版本
+	Contact     *Contact         `mapstructure:"contact" yaml:"contact" json:"contact"`             // 联系信息
+	License     *License         `mapstructure:"license" yaml:"license" json:"license"`             // 许可证信息
+	Auth        *AuthConfig      `mapstructure:"auth" yaml:"auth" json:"auth"`                      // 认证配置
+	Aggregate   *AggregateConfig `mapstructure:"aggregate" yaml:"aggregate" json:"aggregate"`       // 聚合配置
 }
 
 // Default 创建默认Swagger配置
 func Default() *Swagger {
 	return &Swagger{
 		ModuleName:  "swagger",
-		Enabled:     false,
+		Enabled:     true, // 默认启用Swagger
 		JSONPath:    "/swagger/doc.json",
-		UIPath:      "/swagger/*any",
+		UIPath:      "/swagger",
+		YamlPath:    "/swagger/doc.yaml",
+		SpecPath:    "./docs/swagger.yaml", // 默认规范文件路径
 		Title:       "API Documentation",
 		Description: "API Documentation powered by Swagger UI",
 		Version:     "1.0.0",
@@ -89,6 +114,12 @@ func Default() *Swagger {
 		},
 		Auth: &AuthConfig{
 			Type: AuthNone,
+		},
+		Aggregate: &AggregateConfig{
+			Enabled:  false,
+			Mode:     "merge",
+			Services: []*ServiceSpec{},
+			UILayout: "tabs",
 		},
 	}
 }
@@ -114,6 +145,18 @@ func (c *Swagger) WithJSONPath(path string) *Swagger {
 // WithUIPath 设置Swagger UI路由路径
 func (c *Swagger) WithUIPath(path string) *Swagger {
 	c.UIPath = path
+	return c
+}
+
+// WithYamlPath 设置Swagger YAML文件路径
+func (c *Swagger) WithYamlPath(path string) *Swagger {
+	c.YamlPath = path
+	return c
+}
+
+// WithSpecPath 设置Swagger规范文件路径
+func (c *Swagger) WithSpecPath(path string) *Swagger {
+	c.SpecPath = path
 	return c
 }
 
@@ -174,24 +217,91 @@ func (c *Swagger) WithBearerAuth(token string) *Swagger {
 	return c
 }
 
-// WithCustomAuth 设置自定义认证
-func (c *Swagger) WithCustomAuth(headerName, headerValue string) *Swagger {
-	if c.Auth == nil {
-		c.Auth = &AuthConfig{}
-	}
-	c.Auth.Type = AuthCustom
-	c.Auth.HeaderName = headerName
-	c.Auth.HeaderValue = headerValue
+// WithAggregate 设置聚合配置
+func (c *Swagger) WithAggregate(aggregate *AggregateConfig) *Swagger {
+	c.Aggregate = aggregate
 	return c
 }
 
-// WithoutAuth 禁用认证
-func (c *Swagger) WithoutAuth() *Swagger {
-	if c.Auth == nil {
-		c.Auth = &AuthConfig{}
+// WithAggregateServices 设置聚合服务列表
+func (c *Swagger) WithAggregateServices(services []*ServiceSpec) *Swagger {
+	if c.Aggregate == nil {
+		c.Aggregate = &AggregateConfig{
+			Enabled:  true,
+			Mode:     "merge",
+			UILayout: "tabs",
+		}
 	}
-	c.Auth.Type = AuthNone
+	c.Aggregate.Services = services
+	c.Aggregate.Enabled = len(services) > 0
 	return c
+}
+
+// AddAggregateService 添加单个聚合服务
+func (c *Swagger) AddAggregateService(service *ServiceSpec) *Swagger {
+	if c.Aggregate == nil {
+		c.Aggregate = &AggregateConfig{
+			Enabled:  true,
+			Mode:     "merge",
+			UILayout: "tabs",
+			Services: []*ServiceSpec{},
+		}
+	}
+	c.Aggregate.Services = append(c.Aggregate.Services, service)
+	c.Aggregate.Enabled = true
+	return c
+}
+
+// WithAggregateMode 设置聚合模式
+func (c *Swagger) WithAggregateMode(mode string) *Swagger {
+	if c.Aggregate == nil {
+		c.Aggregate = &AggregateConfig{
+			Enabled:  false,
+			UILayout: "tabs",
+			Services: []*ServiceSpec{},
+		}
+	}
+	c.Aggregate.Mode = mode
+	return c
+}
+
+// WithAggregateUILayout 设置UI布局
+func (c *Swagger) WithAggregateUILayout(layout string) *Swagger {
+	if c.Aggregate == nil {
+		c.Aggregate = &AggregateConfig{
+			Enabled:  false,
+			Mode:     "merge",
+			Services: []*ServiceSpec{},
+		}
+	}
+	c.Aggregate.UILayout = layout
+	return c
+}
+
+// EnableAggregate 启用聚合功能
+func (c *Swagger) EnableAggregate() *Swagger {
+	if c.Aggregate == nil {
+		c.Aggregate = &AggregateConfig{
+			Mode:     "merge",
+			UILayout: "tabs",
+			Services: []*ServiceSpec{},
+		}
+	}
+	c.Aggregate.Enabled = true
+	return c
+}
+
+// DisableAggregate 禁用聚合功能
+func (c *Swagger) DisableAggregate() *Swagger {
+	if c.Aggregate != nil {
+		c.Aggregate.Enabled = false
+	}
+	return c
+}
+
+// IsAggregateEnabled 检查聚合功能是否启用
+func (c *Swagger) IsAggregateEnabled() bool {
+	return c.Aggregate != nil && c.Aggregate.Enabled
 }
 
 // WithDefaults 使用默认配置填充未设置的字段
@@ -279,6 +389,33 @@ func (c *Swagger) Clone() internal.Configurable {
 		}
 	}
 
+	if c.Aggregate != nil {
+		clone.Aggregate = &AggregateConfig{
+			Enabled:  c.Aggregate.Enabled,
+			Mode:     c.Aggregate.Mode,
+			UILayout: c.Aggregate.UILayout,
+		}
+		// 克隆服务列表
+		if len(c.Aggregate.Services) > 0 {
+			clone.Aggregate.Services = make([]*ServiceSpec, len(c.Aggregate.Services))
+			for i, service := range c.Aggregate.Services {
+				clone.Aggregate.Services[i] = &ServiceSpec{
+					Name:        service.Name,
+					Description: service.Description,
+					SpecPath:    service.SpecPath,
+					URL:         service.URL,
+					Version:     service.Version,
+					Enabled:     service.Enabled,
+					BasePath:    service.BasePath,
+				}
+				if len(service.Tags) > 0 {
+					clone.Aggregate.Services[i].Tags = make([]string, len(service.Tags))
+					copy(clone.Aggregate.Services[i].Tags, service.Tags)
+				}
+			}
+		}
+	}
+
 	return clone
 }
 
@@ -300,6 +437,7 @@ func (c *Swagger) Set(data interface{}) {
 		c.Contact = configData.Contact
 		c.License = configData.License
 		c.Auth = configData.Auth
+		c.Aggregate = configData.Aggregate
 	}
 }
 
@@ -321,6 +459,7 @@ func (c *Swagger) Reset() *Swagger {
 	c.Contact = defaults.Contact
 	c.License = defaults.License
 	c.Auth = defaults.Auth
+	c.Aggregate = defaults.Aggregate
 	return c
 }
 
@@ -394,4 +533,79 @@ func (c *Swagger) ValidateAuth() error {
 	}
 
 	return nil
+}
+
+// NewServiceSpec 创建新的服务规范配置
+func NewServiceSpec(name, description, specPath string) *ServiceSpec {
+	return &ServiceSpec{
+		Name:        name,
+		Description: description,
+		SpecPath:    specPath,
+		Enabled:     true,
+		Version:     "1.0.0",
+		Tags:        []string{},
+	}
+}
+
+// NewRemoteServiceSpec 创建远程服务规范配置
+func NewRemoteServiceSpec(name, description, url string) *ServiceSpec {
+	return &ServiceSpec{
+		Name:        name,
+		Description: description,
+		URL:         url,
+		Enabled:     true,
+		Version:     "1.0.0",
+		Tags:        []string{},
+	}
+}
+
+// WithName 设置服务名称
+func (s *ServiceSpec) WithName(name string) *ServiceSpec {
+	s.Name = name
+	return s
+}
+
+// WithDescription 设置服务描述
+func (s *ServiceSpec) WithDescription(description string) *ServiceSpec {
+	s.Description = description
+	return s
+}
+
+// WithVersion 设置服务版本
+func (s *ServiceSpec) WithVersion(version string) *ServiceSpec {
+	s.Version = version
+	return s
+}
+
+// WithBasePath 设置API基础路径
+func (s *ServiceSpec) WithBasePath(basePath string) *ServiceSpec {
+	s.BasePath = basePath
+	return s
+}
+
+// WithTags 设置服务标签
+func (s *ServiceSpec) WithTags(tags []string) *ServiceSpec {
+	s.Tags = tags
+	return s
+}
+
+// AddTag 添加单个标签
+func (s *ServiceSpec) AddTag(tag string) *ServiceSpec {
+	if s.Tags == nil {
+		s.Tags = []string{}
+	}
+	s.Tags = append(s.Tags, tag)
+	return s
+}
+
+// Enable 启用服务
+func (s *ServiceSpec) Enable() *ServiceSpec {
+	s.Enabled = true
+	return s
+}
+
+// Disable 禁用服务
+func (s *ServiceSpec) Disable() *ServiceSpec {
+	s.Enabled = false
+	return s
 }
