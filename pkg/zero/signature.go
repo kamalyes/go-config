@@ -20,14 +20,14 @@ import (
 // PrivateKeyConf 是一个私钥配置
 type PrivateKeyConf struct {
 	Fingerprint string `json:"fingerprint" mapstructure:"fingerprint" yaml:"fingerprint"` // 私钥指纹
-	KeyFile     string `json:"key-file" mapstructure:"key-file" yaml:"key_file"`          // 私钥文件路径
+	KeyFile     string `json:"key-file" mapstructure:"key-file" yaml:"key-file"`          // 私钥文件路径
 }
 
 // Signature 是一个签名配置
 type Signature struct {
 	Strict      bool             `json:"strict" mapstructure:"strict" yaml:"strict" default:"false"`   // 是否严格验证
 	Expiry      time.Duration    `json:"expiry" mapstructure:"expiry" yaml:"expiry" default:"1h"`      // 签名过期时间
-	PrivateKeys []PrivateKeyConf `json:"private-keys" mapstructure:"private-keys" yaml:"private_keys"` // 私钥列表
+	PrivateKeys []PrivateKeyConf `json:"private-keys" mapstructure:"private-keys" yaml:"private-keys"` // 私钥列表
 }
 
 // NewSignature 创建一个新的 Signature 实例

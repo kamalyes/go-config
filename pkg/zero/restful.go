@@ -14,16 +14,16 @@ import "github.com/kamalyes/go-config/internal"
 
 // Restful 是 REST 服务的配置
 type Restful struct {
-	RpcServer    *RpcServer `mapstructure:"rpc_server" yaml:"rpc_server" json:"rpc_server"`          // 嵌入 RpcServer 结构体指针
+	RpcServer    *RpcServer `mapstructure:"rpc_server" yaml:"rpc-server" json:"rpc_server"`          // 嵌入 RpcServer 结构体指针
 	Host         string     `mapstructure:"host"       yaml:"host"       json:"host"`                // 主机
 	Port         int        `mapstructure:"port"       yaml:"port"       json:"port"`                // 端口
-	CertFile     string     `mapstructure:"cert_file"  yaml:"cert_file"  json:"cert_file"`           // 证书文件
-	KeyFile      string     `mapstructure:"key_file"   yaml:"key_file"   json:"key_file"`            // 密钥文件
+	CertFile     string     `mapstructure:"cert_file"  yaml:"cert-file"  json:"cert_file"`           // 证书文件
+	KeyFile      string     `mapstructure:"key_file"   yaml:"key-file"   json:"key_file"`            // 密钥文件
 	Verbose      bool       `mapstructure:"verbose"    yaml:"verbose"    json:"verbose"`             // 是否详细输出
-	MaxConns     int        `mapstructure:"max_conns"  yaml:"max_conns"  json:"max_conns"`           // 最大连接数
-	MaxBytes     int64      `mapstructure:"max_bytes"  yaml:"max_bytes"  json:"max_bytes"`           // 最大字节数
+	MaxConns     int        `mapstructure:"max_conns"  yaml:"max-conns"  json:"max_conns"`           // 最大连接数
+	MaxBytes     int64      `mapstructure:"max_bytes"  yaml:"max-bytes"  json:"max_bytes"`           // 最大字节数
 	Timeout      int64      `mapstructure:"timeout"    yaml:"timeout"    json:"timeout"`             // 超时时间
-	CpuThreshold int64      `mapstructure:"cpu_threshold" yaml:"cpu_threshold" json:"cpu_threshold"` // CPU 阈值
+	CpuThreshold int64      `mapstructure:"cpu_threshold" yaml:"cpu-threshold" json:"cpu_threshold"` // CPU 阈值
 	Signature    *Signature `mapstructure:"signature"  yaml:"signature"  json:"signature"`           // 签名配置
 	ModuleName   string     `mapstructure:"modulename" yaml:"modulename" json:"module_name"`         // 模块名称
 }

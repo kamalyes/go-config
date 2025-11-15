@@ -42,7 +42,7 @@ type Gateway struct {
 	HTTPServer    *HTTPServer            `mapstructure:"http" yaml:"http" json:"http"`                            // HTTP服务器配置
 	GRPC          *GRPC                  `mapstructure:"grpc" yaml:"grpc" json:"grpc"`                            // GRPC配置
 	Cache         *cache.Cache           `mapstructure:"cache" yaml:"cache" json:"cache"`                         // 缓存配置(包含Redis)
-	Database      *database.Database     `mapstructure:"database" yaml:"database" json:"database"`              // 数据库统一配置
+	Database      *database.Database     `mapstructure:"database" yaml:"database" json:"database"`                // 数据库统一配置
 	OSS           *oss.OSSConfig         `mapstructure:"oss" yaml:"oss" json:"oss"`                               // 对象存储统一配置
 	Mqtt          *queue.Mqtt            `mapstructure:"mqtt" yaml:"mqtt" json:"mqtt"`                            // MQTT配置
 	Elasticsearch *elk.Elasticsearch     `mapstructure:"elasticsearch" yaml:"elasticsearch" json:"elasticsearch"` // Elasticsearch配置
@@ -55,7 +55,7 @@ type Gateway struct {
 	JWT           *jwt.JWT               `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                               // JWT配置
 	Swagger       *swagger.Swagger       `mapstructure:"swagger" yaml:"swagger" json:"swagger"`                   // Swagger配置
 	Banner        *banner.Banner         `mapstructure:"banner" yaml:"banner" json:"banner"`                      // Banner配置
-	RateLimit     *ratelimit.RateLimit   `mapstructure:"rate_limit" yaml:"rate_limit" json:"rate_limit"`          // 限流配置
+	RateLimit     *ratelimit.RateLimit   `mapstructure:"rate_limit" yaml:"rate-limit" json:"rate_limit"`          // 限流配置
 	WSC           *wsc.WSC               `mapstructure:"wsc" yaml:"wsc" json:"wsc"`                               // WebSocket通信配置
 }
 
@@ -82,7 +82,7 @@ func Default() *Gateway {
 		Middleware:    middleware.Default(),
 		CORS:          cors.Default(),
 		JWT:           jwt.Default(),
-		RateLimit: ratelimit.Default(),
+		RateLimit:     ratelimit.Default(),
 		Swagger:       swagger.Default(),
 		Banner:        banner.Default(),
 		WSC:           wsc.Default(),

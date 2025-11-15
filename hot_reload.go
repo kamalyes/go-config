@@ -76,11 +76,11 @@ type CallbackOptions struct {
 // HotReloadConfig 热更新配置
 type HotReloadConfig struct {
 	Enabled         bool          `yaml:"enabled" json:"enabled"`                   // 是否启用热更新
-	WatchInterval   time.Duration `yaml:"watch_interval" json:"watch_interval"`     // 监控间隔
-	DebounceDelay   time.Duration `yaml:"debounce_delay" json:"debounce_delay"`     // 防抖延迟
-	MaxRetries      int           `yaml:"max_retries" json:"max_retries"`           // 最大重试次数
-	CallbackTimeout time.Duration `yaml:"callback_timeout" json:"callback_timeout"` // 回调超时
-	EnableEnvWatch  bool          `yaml:"enable_env_watch" json:"enable_env_watch"` // 是否监控环境变量
+	WatchInterval   time.Duration `yaml:"watch-interval" json:"watch_interval"`     // 监控间隔
+	DebounceDelay   time.Duration `yaml:"debounce-delay" json:"debounce_delay"`     // 防抖延迟
+	MaxRetries      int           `yaml:"max-retries" json:"max_retries"`           // 最大重试次数
+	CallbackTimeout time.Duration `yaml:"callback-timeout" json:"callback_timeout"` // 回调超时
+	EnableEnvWatch  bool          `yaml:"enable-env-watch" json:"enable_env_watch"` // 是否监控环境变量
 }
 
 // DefaultHotReloadConfig 默认热更新配置

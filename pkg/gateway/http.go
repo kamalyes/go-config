@@ -26,14 +26,14 @@ type HTTPServer struct {
 	ReadTimeout        int               `mapstructure:"read_timeout" yaml:"read-timeout" json:"read_timeout"`                         // 读取超时(秒)
 	WriteTimeout       int               `mapstructure:"write_timeout" yaml:"write-timeout" json:"write_timeout"`                      // 写入超时(秒)
 	IdleTimeout        int               `mapstructure:"idle_timeout" yaml:"idle-timeout" json:"idle_timeout"`                         // 空闲超时(秒)
-	MaxHeaderBytes     int               `mapstructure:"max_header_bytes" yaml:"max_header_bytes" json:"max_header_bytes"`             // 最大请求头字节数
+	MaxHeaderBytes     int               `mapstructure:"max_header_bytes" yaml:"max-header-bytes" json:"max_header_bytes"`             // 最大请求头字节数
 	EnableHttp         bool              `mapstructure:"enable_http" yaml:"enable-http" json:"enable_http"`                            // 是否启用HTTP
 	EnableGrpc         bool              `mapstructure:"enable_grpc" yaml:"enable-grpc" json:"enable_grpc"`                            // 是否启用GRPC
 	EnableTls          bool              `mapstructure:"enable_tls" yaml:"enable-tls" json:"enable_tls"`                               // 是否启用TLS
 	TLS                *TLS              `mapstructure:"tls" yaml:"tls" json:"tls"`                                                    // TLS配置
 	Headers            map[string]string `mapstructure:"headers" yaml:"headers" json:"headers"`                                        // 自定义头部
 	Endpoint           string            `mapstructure:"-" yaml:"-" json:"endpoint"`                                                   // 完整的服务端点地址（自动计算，不从配置文件读取）
-	EnableGzipCompress bool              `mapstructure:"enable_gzip_compress" yaml:"enable_gzip_compress" json:"enable_gzip_compress"` // 是否启用Gzip压缩
+	EnableGzipCompress bool              `mapstructure:"enable_gzip_compress" yaml:"enable-gzip-compress" json:"enable_gzip_compress"` // 是否启用Gzip压缩
 }
 
 // TLS TLS配置

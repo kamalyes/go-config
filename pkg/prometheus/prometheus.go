@@ -35,7 +35,7 @@ type PushGateway struct {
 type Scraping struct {
 	Interval    string `mapstructure:"interval" yaml:"interval" json:"interval"`             // 抓取间隔
 	Timeout     string `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                // 超时时间
-	MetricsPath string `mapstructure:"metrics_path" yaml:"metrics_path" json:"metrics_path"` // 指标路径
+	MetricsPath string `mapstructure:"metrics_path" yaml:"metrics-path" json:"metrics_path"` // 指标路径
 }
 
 // Default 创建默认Prometheus配置

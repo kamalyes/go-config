@@ -15,7 +15,7 @@ import "github.com/kamalyes/go-config/internal"
 
 // Security 统一安全配置 - 直接使用Security而不是SecurityConfig
 type Security struct {
-	ModuleName string      `mapstructure:"module_name" yaml:"module_name" json:"module_name"` // 模块名称
+	ModuleName string      `mapstructure:"module_name" yaml:"module-name" json:"module_name"` // 模块名称
 	Enabled    bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用安全功能
 	JWT        *JWT        `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                         // JWT配置
 	Auth       *Auth       `mapstructure:"auth" yaml:"auth" json:"auth"`                      // 通用认证配置
@@ -89,17 +89,17 @@ type Pprof struct {
 	Enabled      bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用安全认证
 	Username     string   `mapstructure:"username" yaml:"username" json:"username"`                // 用户名
 	Password     string   `mapstructure:"password" yaml:"password" json:"password"`                // 密码
-	AllowedIPs   []string `mapstructure:"allowed_ips" yaml:"allowed_ips" json:"allowed_ips"`       // 允许的IP地址
-	RequireHTTPS bool     `mapstructure:"require_https" yaml:"require_https" json:"require_https"` // 是否要求HTTPS
+	AllowedIPs   []string `mapstructure:"allowed_ips" yaml:"allowed-ips" json:"allowed_ips"`       // 允许的IP地址
+	RequireHTTPS bool     `mapstructure:"require_https" yaml:"require-https" json:"require_https"` // 是否要求HTTPS
 }
 
 // ServiceProtection 服务保护配置 - 统一的服务安全配置
 type ServiceProtection struct {
 	Enabled      bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用保护
-	AuthRequired bool     `mapstructure:"auth_required" yaml:"auth_required" json:"auth_required"` // 是否需要认证
-	AuthType     string   `mapstructure:"auth_type" yaml:"auth_type" json:"auth_type"`             // 认证类型
-	IPWhitelist  []string `mapstructure:"ip_whitelist" yaml:"ip_whitelist" json:"ip_whitelist"`    // IP白名单
-	RequireHTTPS bool     `mapstructure:"require_https" yaml:"require_https" json:"require_https"` // 是否要求HTTPS
+	AuthRequired bool     `mapstructure:"auth_required" yaml:"auth-required" json:"auth_required"` // 是否需要认证
+	AuthType     string   `mapstructure:"auth_type" yaml:"auth-type" json:"auth_type"`             // 认证类型
+	IPWhitelist  []string `mapstructure:"ip_whitelist" yaml:"ip-whitelist" json:"ip_whitelist"`    // IP白名单
+	RequireHTTPS bool     `mapstructure:"require_https" yaml:"require-https" json:"require_https"` // 是否要求HTTPS
 	Username     string   `mapstructure:"username" yaml:"username" json:"username"`                // 用户名
 	Password     string   `mapstructure:"password" yaml:"password" json:"password"`                // 密码
 }
