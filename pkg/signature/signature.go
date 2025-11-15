@@ -37,8 +37,8 @@ type Signature struct {
 func Default() *Signature {
 	return &Signature{
 		ModuleName:      "signature",
-		Enabled:         true,
-		SecretKey:       "",
+		Enabled:         false,
+		SecretKey:       "default-secret-key-change-in-production",
 		SignatureHeader: "X-Signature",
 		TimestampHeader: "X-Timestamp",
 		NonceHeader:     "X-Nonce",

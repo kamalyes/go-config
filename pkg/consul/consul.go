@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-09 01:34:36
+ * @LastEditTime: 2025-11-15 13:07:22
  * @FilePath: \go-config\pkg\consul\consul.go
  * @Description:
  *
@@ -60,8 +60,8 @@ func (c *Consul) Validate() error {
 	return internal.ValidateStruct(c)
 }
 
-// DefaultConsul 返回默认Consul配置
-func DefaultConsul() Consul {
+// Default 返回默认Consul配置
+func Default() Consul {
 	return Consul{
 		ModuleName:       "consul",
 		Endpoint:         "http://127.0.0.1:8500",
@@ -71,7 +71,7 @@ func DefaultConsul() Consul {
 
 // DefaultConsulConfig 返回默认Consul配置的指针，支持链式调用
 func DefaultConsulConfig() *Consul {
-	config := DefaultConsul()
+	config := Default()
 	return &config
 }
 

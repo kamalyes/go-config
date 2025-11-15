@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sync"
 	"time"
 
@@ -346,6 +347,14 @@ func NewIntegratedConfigManager(config interface{}, options *IntegratedConfigOpt
 		return nil, fmt.Errorf("解析配置失败: %w", err)
 	}
 
+	// 处理配置指针：如果传入的是指向指针的指针，需要解引用
+	actualConfig := config
+	if reflect.TypeOf(config).Kind() == reflect.Ptr &&
+		reflect.TypeOf(config).Elem().Kind() == reflect.Ptr {
+		// 传入的是 **T，解引用得到 *T
+		actualConfig = reflect.ValueOf(config).Elem().Interface()
+	}
+
 	// 创建热更新器
 	hotReloader, err := NewHotReloader(config, v, options.ConfigPath, options.HotReloadConfig)
 	if err != nil {
@@ -363,7 +372,7 @@ func NewIntegratedConfigManager(config interface{}, options *IntegratedConfigOpt
 		hotReloader:     hotReloader,
 		contextManager:  contextManager,
 		viper:           v,
-		config:          config,
+		config:          actualConfig,
 		configPath:      options.ConfigPath,
 		hotReloadConfig: options.HotReloadConfig,
 		running:         false,

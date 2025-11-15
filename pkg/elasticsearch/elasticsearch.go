@@ -3,12 +3,12 @@
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
  * @LastEditTime: 2024-11-07 23:59:11
- * @FilePath: \go-config\pkg\elk\es.go
+ * @FilePath: \go-config\pkg\elasticsearch\elasticsearch.go
  * @Description:
  *
  * Copyright (j) 2024 by kamalyes, All Rights Reserved.
  */
-package elk
+package elasticsearch
 
 import "github.com/kamalyes/go-config/internal"
 

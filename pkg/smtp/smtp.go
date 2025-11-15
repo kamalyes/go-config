@@ -28,11 +28,11 @@ type Smtp struct {
 // Default 创建默认邮箱配置
 func Default() *Smtp {
 	return &Smtp{
-		SMTPHost:    "smtp.example.com",
+		SMTPHost:    "127.0.0.1",
 		SMTPPort:    587,
-		Username:    "user@example.com",
-		Password:    "password",
-		FromAddress: "no-reply@example.com",
+		Username:    "",
+		Password:    "",
+		FromAddress: "",
 		ToAddresses: []string{},
 		EnableTLS:   true,
 		Headers:     make(map[string]string),

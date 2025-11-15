@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 23:58:45
+ * @LastEditTime: 2025-11-15 13:29:12
  * @FilePath: \go-config\pkg\gateway\gateway.go
  * @Description: Gateway网关统一配置模块
  *
@@ -17,9 +17,11 @@ import (
 	"github.com/kamalyes/go-config/pkg/cache"
 	"github.com/kamalyes/go-config/pkg/cors"
 	"github.com/kamalyes/go-config/pkg/database"
-	"github.com/kamalyes/go-config/pkg/elk"
+	"github.com/kamalyes/go-config/pkg/elasticsearch"
+	"github.com/kamalyes/go-config/pkg/etcd"
 	"github.com/kamalyes/go-config/pkg/health"
 	"github.com/kamalyes/go-config/pkg/jwt"
+	"github.com/kamalyes/go-config/pkg/kafka"
 	"github.com/kamalyes/go-config/pkg/middleware"
 	"github.com/kamalyes/go-config/pkg/monitoring"
 	"github.com/kamalyes/go-config/pkg/oss"
@@ -33,30 +35,32 @@ import (
 
 // Gateway网关统一配置
 type Gateway struct {
-	ModuleName    string                 `mapstructure:"module_name" yaml:"module-name" json:"module_name"`       // 模块名称
-	Name          string                 `mapstructure:"name" yaml:"name" json:"name"`                            // 网关名称
-	Enabled       bool                   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用网关
-	Debug         bool                   `mapstructure:"debug" yaml:"debug" json:"debug"`                         // 是否启用调试模式
-	Version       string                 `mapstructure:"version" yaml:"version" json:"version"`                   // 版本号
-	Environment   string                 `mapstructure:"environment" yaml:"environment" json:"environment"`       // 环境 (dev, test, prod)
-	HTTPServer    *HTTPServer            `mapstructure:"http" yaml:"http" json:"http"`                            // HTTP服务器配置
-	GRPC          *GRPC                  `mapstructure:"grpc" yaml:"grpc" json:"grpc"`                            // GRPC配置
-	Cache         *cache.Cache           `mapstructure:"cache" yaml:"cache" json:"cache"`                         // 缓存配置(包含Redis)
-	Database      *database.Database     `mapstructure:"database" yaml:"database" json:"database"`                // 数据库统一配置
-	OSS           *oss.OSSConfig         `mapstructure:"oss" yaml:"oss" json:"oss"`                               // 对象存储统一配置
-	Mqtt          *queue.Mqtt            `mapstructure:"mqtt" yaml:"mqtt" json:"mqtt"`                            // MQTT配置
-	Elasticsearch *elk.Elasticsearch     `mapstructure:"elasticsearch" yaml:"elasticsearch" json:"elasticsearch"` // Elasticsearch配置
-	Smtp          *smtp.Smtp             `mapstructure:"smtp" yaml:"smtp" json:"smtp"`                            // SMTP邮件服务配置
-	Health        *health.Health         `mapstructure:"health" yaml:"health" json:"health"`                      // 健康检查配置
-	Monitoring    *monitoring.Monitoring `mapstructure:"monitoring" yaml:"monitoring" json:"monitoring"`          // 监控配置
-	Security      *security.Security     `mapstructure:"security" yaml:"security" json:"security"`                // 安全配置
-	Middleware    *middleware.Middleware `mapstructure:"middleware" yaml:"middleware" json:"middleware"`          // 中间件配置
-	CORS          *cors.Cors             `mapstructure:"cors" yaml:"cors" json:"cors"`                            // CORS配置
-	JWT           *jwt.JWT               `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                               // JWT配置
-	Swagger       *swagger.Swagger       `mapstructure:"swagger" yaml:"swagger" json:"swagger"`                   // Swagger配置
-	Banner        *banner.Banner         `mapstructure:"banner" yaml:"banner" json:"banner"`                      // Banner配置
-	RateLimit     *ratelimit.RateLimit   `mapstructure:"rate_limit" yaml:"rate-limit" json:"rate_limit"`          // 限流配置
-	WSC           *wsc.WSC               `mapstructure:"wsc" yaml:"wsc" json:"wsc"`                               // WebSocket通信配置
+	ModuleName    string                       `mapstructure:"module_name" yaml:"module-name" json:"module_name"`       // 模块名称
+	Name          string                       `mapstructure:"name" yaml:"name" json:"name"`                            // 网关名称
+	Enabled       bool                         `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用网关
+	Debug         bool                         `mapstructure:"debug" yaml:"debug" json:"debug"`                         // 是否启用调试模式
+	Version       string                       `mapstructure:"version" yaml:"version" json:"version"`                   // 版本号
+	Environment   string                       `mapstructure:"environment" yaml:"environment" json:"environment"`       // 环境 (dev, test, prod)
+	HTTPServer    *HTTPServer                  `mapstructure:"http" yaml:"http" json:"http"`                            // HTTP服务器配置
+	GRPC          *GRPC                        `mapstructure:"grpc" yaml:"grpc" json:"grpc"`                            // GRPC配置
+	Cache         *cache.Cache                 `mapstructure:"cache" yaml:"cache" json:"cache"`                         // 缓存配置(包含Redis)
+	Database      *database.Database           `mapstructure:"database" yaml:"database" json:"database"`                // 数据库统一配置
+	Etcd          *etcd.Etcd                   `mapstructure:"etcd" yaml:"etcd" json:"etcd"`                            // Etcd配置
+	Kafka         *kafka.Kafka                 `mapstructure:"kafka" yaml:"kafka" json:"kafka"`                         // Kafka配置
+	OSS           *oss.OSSConfig               `mapstructure:"oss" yaml:"oss" json:"oss"`                               // 对象存储统一配置
+	Mqtt          *queue.Mqtt                  `mapstructure:"mqtt" yaml:"mqtt" json:"mqtt"`                            // MQTT配置
+	Elasticsearch *elasticsearch.Elasticsearch `mapstructure:"elasticsearch" yaml:"elasticsearch" json:"elasticsearch"` // Elasticsearch配置
+	Smtp          *smtp.Smtp                   `mapstructure:"smtp" yaml:"smtp" json:"smtp"`                            // SMTP邮件服务配置
+	Health        *health.Health               `mapstructure:"health" yaml:"health" json:"health"`                      // 健康检查配置
+	Monitoring    *monitoring.Monitoring       `mapstructure:"monitoring" yaml:"monitoring" json:"monitoring"`          // 监控配置
+	Security      *security.Security           `mapstructure:"security" yaml:"security" json:"security"`                // 安全配置
+	Middleware    *middleware.Middleware       `mapstructure:"middleware" yaml:"middleware" json:"middleware"`          // 中间件配置
+	CORS          *cors.Cors                   `mapstructure:"cors" yaml:"cors" json:"cors"`                            // CORS配置
+	JWT           *jwt.JWT                     `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                               // JWT配置
+	Swagger       *swagger.Swagger             `mapstructure:"swagger" yaml:"swagger" json:"swagger"`                   // Swagger配置
+	Banner        *banner.Banner               `mapstructure:"banner" yaml:"banner" json:"banner"`                      // Banner配置
+	RateLimit     *ratelimit.RateLimit         `mapstructure:"rate_limit" yaml:"rate-limit" json:"rate_limit"`          // 限流配置
+	WSC           *wsc.WSC                     `mapstructure:"wsc" yaml:"wsc" json:"wsc"`                               // WebSocket通信配置
 }
 
 // Default 创建默认Gateway配置
@@ -72,9 +76,11 @@ func Default() *Gateway {
 		GRPC:          DefaultGRPC(),
 		Cache:         cache.Default(),
 		Database:      database.DefaultDatabaseConfig(),
+		Etcd:          etcd.Default(),
+		Kafka:         kafka.Default(),
 		OSS:           oss.DefaultOSSConfig(),
 		Mqtt:          queue.Default(),
-		Elasticsearch: elk.Default(),
+		Elasticsearch: elasticsearch.Default(),
 		Smtp:          smtp.Default(),
 		Health:        health.Default(),
 		Monitoring:    monitoring.Default(),
@@ -87,6 +93,30 @@ func Default() *Gateway {
 		Banner:        banner.Default(),
 		WSC:           wsc.Default(),
 	}
+}
+
+// ToYAML 导出Gateway配置为YAML格式
+func (c *Gateway) ToYAML() (string, error) {
+	return internal.ExportConfigToYAML(c)
+}
+
+// ToJSON 导出Gateway配置为JSON格式
+func (c *Gateway) ToJSON() (string, error) {
+	return internal.ExportConfigToJSON(c)
+}
+
+// GenerateDefaultYAML 生成默认Gateway配置的YAML
+func GenerateDefaultYAML() (string, error) {
+	return internal.GenerateYAMLFromDefault(func() interface{} {
+		return Default()
+	})
+}
+
+// GenerateDefaultJSON 生成默认Gateway配置的JSON
+func GenerateDefaultJSON() (string, error) {
+	return internal.GenerateJSONFromDefault(func() interface{} {
+		return Default()
+	})
 }
 
 // Get 返回配置接口
@@ -114,9 +144,11 @@ func (c *Gateway) Clone() internal.Configurable {
 		GRPC:          c.GRPC.Clone(),
 		Cache:         c.Cache.Clone().(*cache.Cache),
 		Database:      c.Database.Clone().(*database.Database),
+		Etcd:          c.Etcd.Clone().(*etcd.Etcd),
+		Kafka:         c.Kafka.Clone().(*kafka.Kafka),
 		OSS:           c.OSS.Clone().(*oss.OSSConfig),
 		Mqtt:          c.Mqtt.Clone().(*queue.Mqtt),
-		Elasticsearch: c.Elasticsearch.Clone().(*elk.Elasticsearch),
+		Elasticsearch: c.Elasticsearch.Clone().(*elasticsearch.Elasticsearch),
 		Health:        c.Health.Clone().(*health.Health),
 		Monitoring:    c.Monitoring.Clone().(*monitoring.Monitoring),
 		Security:      c.Security.Clone().(*security.Security),
@@ -146,6 +178,14 @@ func (c *Gateway) Validate() error {
 		if err := c.Database.Validate(); err != nil {
 			return err
 		}
+	}
+	// Etcd是值类型，不需要nil检查
+	if err := c.Etcd.Validate(); err != nil {
+		return err
+	}
+	// Kafka是值类型，不需要nil检查
+	if err := c.Kafka.Validate(); err != nil {
+		return err
 	}
 	if c.Mqtt != nil {
 		if err := c.Mqtt.Validate(); err != nil {

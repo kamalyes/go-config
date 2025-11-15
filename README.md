@@ -1,6 +1,6 @@
 # go-config
 
-> 🚀 **企业级 Go 配置管理框架** - 专为现代微服务架构设计，提供统一的配置加载、验证、热更新和多环境支持
+> 🚀 **企业级 Go 配置管理框架** - 专为现代微服务架构设计，提供统一的配置加载、验证、热更新、安全访问和多环境支持
 
 <div align="center">
 
@@ -14,20 +14,21 @@
 
 </div>
 
-## 🎉 v1.0 新特性
+## 🎉 v1.1 新特性
 
-| 🆕 新功能 | 🎯 亮点 |
-|-----------|---------|
-| **🔗 链式调用API** | `NewManager(config).WithPrefix("app").WithHotReload(nil).BuildAndStart()` |
-| **🛡️ 泛型类型安全** | `config, err := GetConfigAs[MyConfig](manager)` - 编译期类型检查 |
-| **🎯 智能配置发现** | 支持路径、前缀、模式匹配、自动发现四种模式 |
-| **⚡ Must便捷函数** | `MustBuildAndStart()` - 快速启动，失败即panic |
-| **🔄 增强回调系统** | 支持优先级、异步执行、超时控制的事件处理 |
+| 🆕 新功能 | 🎯 亮点 | 🔥 代码示例 |
+|-----------|---------|------------|
+| **🛡️ SafeConfig API** | 类似 JavaScript 可选链，零 panic 风险 | `config.Health().Redis().Timeout(30*time.Second)` |
+| **🔗 链式调用API** | 流畅的构建器模式，类型安全 | `NewManager(config).WithPrefix("app").BuildAndStart()` |
+| **⚡ 智能类型转换** | 自动解析字符串时间、数字转换 | `"30s"` → `30*time.Second` 自动转换 |
+| **🎯 智能配置发现** | 支持路径、前缀、模式匹配四种模式 | 支持 `map[string]interface{}` 和 `struct` |
+| **🔄 增强回调系统** | 支持优先级、异步执行、超时控制 | 配置变更实时响应，零延迟 |
 
 ## ✨ 特性亮点
 
 | 特性 | 说明 | 优势 |
 |------|------|------|
+| 🛡️ **SafeConfig 安全访问** | 防空指针异常的配置访问 | 生产环境零 panic，优雅降级 |
 | 🌍 **多环境支持** | dev, sit, fat, uat, prod | 一套代码，多环境部署 |
 | 🔄 **配置热更新** | 基于 fsnotify 实时监听 | 无需重启应用即可更新配置 |
 | 🔍 **智能配置发现** | 自动发现和创建配置文件 | 支持多种格式，智能匹配 |
@@ -38,7 +39,6 @@
 | 🌐 **上下文集成** | Context 注入和中间件支持 | HTTP/gRPC 服务集成 |
 | 📦 **模块化配置** | 25+ 种常用服务预置配置 | 开箱即用，快速集成 |
 | 🎭 **统一管理** | IntegratedConfigManager | 灵活应对不同业务场景 |
-| 🛡️ **类型安全** | 强类型配置结构和验证 | 编译时发现配置错误 |
 | ⚡ **高性能** | 基于 Viper，零依赖解析 | 毫秒级配置加载 |
 
 ## 🏗️ 架构概览
@@ -49,12 +49,15 @@ graph TB
     B --> C[Gateway Config]
     B --> D[Hot Reload Watcher]
     B --> E[Callback System]
+    B --> F[SafeConfig API]
     
-    C --> F[Built-in Modules]
-    D --> G[File System Monitoring]
-    E --> H[Event Notifications]
+    C --> G[Built-in Modules]
+    D --> H[File System Monitoring]
+    E --> I[Event Notifications]
+    F --> J[Safe Field Access]
     
-    F --> I[HTTPServer<br/>Database<br/>Cache<br/>...]
+    G --> K[HTTPServer<br/>Database<br/>Cache<br/>...]
+    J --> L[Nil-Safe Operations<br/>Type Conversion<br/>Default Values]
 ```
 
 ## 🚀 快速开始
@@ -79,13 +82,18 @@ name: "my-awesome-gateway"
 http:
   host: "0.0.0.0"
   port: 8080
-  read-timeout: 30
+  read_timeout: "30s"
+health:
+  enabled: true
+  redis:
+    enabled: true
+    timeout: "5s"
 database:
   mysql:
     host: "127.0.0.1"
     username: "root"
     password: "123456"
-    db-name: "testdb"
+    db_name: "testdb"
 cache:
   redis:
     addr: "127.0.0.1:6379"
@@ -96,7 +104,84 @@ EOF
 go run examples/gateway_hot_reload_demo.go ./config
 ```
 
-### 🆕 推荐用法（链式调用 API）
+### 🛡️ 核心特性 - SafeConfig 安全配置访问
+
+SafeConfig 提供类似 JavaScript 可选链操作符的安全配置访问，永远不会因为 nil 指针而 panic：
+
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+    
+    goconfig "github.com/kamalyes/go-config"
+)
+
+func main() {
+    // 模拟从配置文件加载的数据（支持 map 和 struct）
+    configData := map[string]interface{}{
+        "Health": map[string]interface{}{
+            "Enabled": true,
+            "Redis": map[string]interface{}{
+                "Enabled": true,
+                "Timeout": "30s",  // 字符串自动转换为 time.Duration
+                "Host":    "redis.example.com",
+                "Port":    6379,
+            },
+        },
+        "JWT": map[string]interface{}{
+            "Secret":     "my-secret-key",
+            "Expiration": "24h",
+        },
+    }
+    
+    // 🛡️ 创建安全配置访问器
+    safeConfig := goconfig.SafeConfig(configData)
+    
+    // ✅ 安全的链式访问 - 永远不会 panic
+    if safeConfig.IsHealthEnabled() {
+        fmt.Println("✅ 健康检查已启用")
+        
+        // 安全访问嵌套配置，自动类型转换
+        timeout := safeConfig.Health().Redis().Timeout(10 * time.Second)
+        fmt.Printf("⏱️  Redis 超时: %v\n", timeout) // 输出: 30s
+        
+        host := safeConfig.Health().Redis().Host("localhost")
+        fmt.Printf("🔗 Redis 主机: %s\n", host) // 输出: redis.example.com
+        
+        port := safeConfig.Health().Redis().Port(6379)
+        fmt.Printf("🔌 Redis 端口: %d\n", port) // 输出: 6379
+    }
+    
+    // 🔍 即使字段不存在也不会 panic，返回默认值
+    dbTimeout := safeConfig.Database().MySQL().Timeout(5 * time.Second)
+    fmt.Printf("💾 MySQL 超时 (默认值): %v\n", dbTimeout) // 输出: 5s
+    
+    // 📋 便捷的预定义方法
+    fmt.Printf("🔐 JWT 启用: %t\n", safeConfig.IsJWTEnabled())
+    fmt.Printf("🔑 JWT 密钥: %s\n", safeConfig.GetJWTSecret("default-secret"))
+    fmt.Printf("⏰ JWT 过期: %v\n", safeConfig.GetJWTExpiration(time.Hour))
+    
+    // 🔄 与传统方式对比
+    // 传统方式（容易 panic）:
+    // timeout := config["Health"].(map[string]interface{})["Redis"].(map[string]interface{})["Timeout"].(string)
+    
+    // SafeConfig 方式（永远不 panic）:
+    timeout = safeConfig.Health().Redis().Field("Timeout").String("10s")
+    fmt.Printf("🛡️  SafeConfig 访问: %s\n", timeout)
+}
+```
+
+**SafeConfig 的核心优势：**
+
+✅ **零 Panic 风险** - 任何字段缺失都返回默认值，不会崩溃  
+✅ **智能类型转换** - 自动将 `"30s"` 转换为 `time.Duration`  
+✅ **链式调用** - 类似 JavaScript 可选链 `config?.health?.redis?.timeout`  
+✅ **灵活兼容** - 支持 `map[string]interface{}` 和 `struct` 类型  
+✅ **预定义方法** - 常用配置项的快捷访问方法
+
+### 🆕 推荐用法（链式调用 + SafeConfig）
 
 ```go
 package main
@@ -104,6 +189,7 @@ package main
 import (
     "context"
     "log"
+    "time"
     
     goconfig "github.com/kamalyes/go-config"
     "github.com/kamalyes/go-config/pkg/gateway"
@@ -126,50 +212,70 @@ func main() {
     }
     defer manager.Stop()
     
-    // 方式2: 直接指定配置文件路径
-    // manager, err := goconfig.NewManager(config).
-    //     WithConfigPath("./config/gateway-dev.yaml").
-    //     WithHotReload(nil).
-    //     BuildAndStart()
+    // 🛡️ 创建安全配置访问器 - 防止 nil pointer panic
+    safeConfig := goconfig.SafeConfig(config)
     
-    // 方式3: 使用模式匹配
-    // manager, err := goconfig.NewManager(config).
-    //     WithSearchPath("./config").
-    //     WithPattern("gateway-*.yaml").
-    //     WithEnvironment(goconfig.EnvProduction).
-    //     BuildAndStart()
+    // ✅ 安全的配置访问 - 即使字段不存在也不会崩溃
+    if safeConfig.IsHealthEnabled() {
+        log.Printf("✅ 健康检查已启用")
+        
+        // 链式安全访问，自动类型转换
+        redisTimeout := safeConfig.Health().Redis().Timeout(30 * time.Second)
+        log.Printf("⏱️  Redis 检查超时: %v", redisTimeout)
+    }
     
     // 🔔 注册配置变更回调 - 支持多种事件类型和优先级
     manager.RegisterConfigCallback(func(ctx context.Context, event goconfig.CallbackEvent) error {
         log.Printf("📝 配置已更新: %s", event.Source)
-        // 自动美化日志已内置，无需手动调用
+        
+        // 重新创建安全配置访问器以获取最新配置
+        newSafeConfig := goconfig.SafeConfig(event.NewValue)
+        
+        // 安全检查新配置
+        if newSafeConfig.IsRedisHealthEnabled() {
+            log.Printf("🔄 Redis 健康检查配置已更新")
+            // 重新配置 Redis 连接
+            timeout := newSafeConfig.GetRedisHealthTimeout(30 * time.Second)
+            log.Printf("⏱️  新的 Redis 超时: %v", timeout)
+        }
+        
         return nil
     }, goconfig.CallbackOptions{
-        ID:       "main_config_handler",
+        ID:       "safe_config_handler",
         Types:    []goconfig.CallbackType{goconfig.CallbackTypeConfigChanged},
         Priority: goconfig.CallbackPriorityHigh,
         Async:    false,
-        Timeout:  time.Second * 5,
+        Timeout:  5 * time.Second,
     })
     
-    // 🌍 注册环境变更回调
-    manager.RegisterEnvironmentCallback("env_handler", func(oldEnv, newEnv goconfig.EnvironmentType) error {
-        log.Printf("🌍 环境切换: %s → %s", oldEnv, newEnv)
-        return nil
-    }, goconfig.CallbackPriorityHigh, false)
+    // 🌐 使用 SafeConfig 安全获取服务配置
+    serverConfig := safeConfig.Server()
+    log.Printf("🚀 服务启动: %s", safeConfig.Name("unknown-service"))
+    log.Printf("📍 HTTP服务器: %s:%d", 
+        serverConfig.Host("localhost"), 
+        serverConfig.Port(8080))
     
-    // ✅ 类型安全的配置获取
-    gatewayConfig, err := goconfig.GetConfigAs[gateway.Gateway](manager)
-    if err != nil {
-        log.Fatal("获取配置失败:", err)
-    }
+    // 📊 展示 SafeConfig 与传统方式的对比
+    log.Printf("🛡️  SafeConfig 方式:")
+    log.Printf("   - Redis启用: %t", safeConfig.IsRedisHealthEnabled())
+    log.Printf("   - MySQL启用: %t", safeConfig.IsMySQLHealthEnabled())
+    log.Printf("   - JWT密钥: %s", safeConfig.GetJWTSecret("default-secret"))
     
-    // 🚀 使用配置启动服务
-    log.Printf("🚀 服务启动: %s", gatewayConfig.Name)
-    log.Printf("📍 HTTP服务器: %s:%d", gatewayConfig.HTTPServer.Host, gatewayConfig.HTTPServer.Port)
+    // 🔄 运行时手动重载配置（结合 SafeConfig 使用）
+    go func() {
+        time.Sleep(10 * time.Second)
+        if err := manager.ReloadConfig(context.Background()); err != nil {
+            log.Printf("❌ 配置重载失败: %v", err)
+        } else {
+            // 重新获取安全配置
+            updatedSafeConfig := goconfig.SafeConfig(manager.GetCurrentConfig())
+            log.Printf("🔄 配置重载完成，Redis状态: %t", 
+                updatedSafeConfig.IsRedisHealthEnabled())
+        }
+    }()
     
-    // 🔄 支持运行时手动重载配置
-    // err = manager.ReloadConfig(context.Background())
+    // 保持应用运行
+    select {}
 }
 ```
 
@@ -179,13 +285,133 @@ func main() {
 // 快速创建（使用默认选项）
 manager, err := goconfig.CreateIntegratedManager(config, "./config/app.yaml", goconfig.EnvProduction)
 
+// SafeConfig 包装
+safeConfig := goconfig.SafeConfig(config)
+
 // Must版本（失败时panic，适用于启动阶段）
 manager := goconfig.NewManager(config).
     WithConfigPath("./config/app.yaml").
     MustBuildAndStart()
+    
+// 结合 SafeConfig 使用
+safeConfig := goconfig.SafeConfig(manager.GetCurrentConfig())
 ```
 
 ## 🛠️ API 使用指南
+
+### 🛡️ SafeConfig API 详解
+
+SafeConfig 是 go-config 的核心创新，提供了类似 JavaScript 可选链操作符的安全配置访问：
+
+#### 基本使用
+
+```go
+// 支持多种数据源
+configData := map[string]interface{}{
+    "Database": map[string]interface{}{
+        "MySQL": map[string]interface{}{
+            "Host":     "localhost",
+            "Port":     3306,
+            "Username": "root",
+            "Timeout":  "30s",
+        },
+    },
+}
+
+safeConfig := goconfig.SafeConfig(configData)
+
+// 🛡️ 安全访问 - 永远不会 panic
+host := safeConfig.Database().MySQL().Host("127.0.0.1")           // "localhost"
+port := safeConfig.Database().MySQL().Port(3306)                  // 3306
+timeout := safeConfig.Database().MySQL().Timeout(10*time.Second)  // 30s
+
+// 🔍 访问不存在的字段 - 返回默认值，不会 panic
+redis := safeConfig.Cache().Redis().Host("localhost")             // "localhost" (默认值)
+```
+
+#### 内置便捷方法
+
+```go
+safeConfig := goconfig.SafeConfig(config)
+
+// ✅ 健康检查相关
+isHealthy := safeConfig.IsHealthEnabled()                    // Health.Enabled
+redisHealthy := safeConfig.IsRedisHealthEnabled()           // Health.Redis.Enabled  
+mysqlHealthy := safeConfig.IsMySQLHealthEnabled()           // Health.MySQL.Enabled
+timeout := safeConfig.GetRedisHealthTimeout(30*time.Second) // Health.Redis.Timeout
+
+// 🔐 JWT 相关
+jwtEnabled := safeConfig.IsJWTEnabled()                     // JWT.Enabled
+secret := safeConfig.GetJWTSecret("default-secret")        // JWT.Secret
+expiry := safeConfig.GetJWTExpiration(24*time.Hour)        // JWT.Expiration
+
+// 🌐 服务器相关
+serverHost := safeConfig.GetServerHost("localhost")        // Server.Host
+serverPort := safeConfig.GetServerPort(8080)               // Server.Port
+
+// 📊 监控相关
+isMonitoringEnabled := safeConfig.IsMonitoringEnabled()    // Monitoring.Enabled
+isMetricsEnabled := safeConfig.IsMetricsEnabled()          // Monitoring.Metrics.Enabled
+metricsEndpoint := safeConfig.GetMetricsEndpoint("/metrics") // Monitoring.Metrics.Endpoint
+
+// ☁️ 云服务相关  
+isOSSEnabled := safeConfig.IsOSSEnabled()                  // OSS.Enabled
+ossBucket := safeConfig.GetOSSBucket("default-bucket")     // OSS.Bucket
+ossEndpoint := safeConfig.GetOSSEndpoint("")               // OSS.Endpoint
+```
+
+#### 高级特性
+
+```go
+// 🔍 检查配置有效性
+if safeConfig.IsValidConfig() {
+    fmt.Println("配置有效")
+}
+
+// 🔄 处理 nil 配置
+if safeConfig.IsNil() {
+    fmt.Println("配置为 nil")
+}
+
+// 🎯 安全字段访问
+field := safeConfig.SafeField("NonExistentField") // 返回空的 SafeConfig，不会 panic
+
+// 🎨 自定义默认值
+customConfig := safeConfig.WithDefault(map[string]interface{}{
+    "DefaultTimeout": "30s",
+    "DefaultHost":    "localhost",
+})
+
+// 📋 链式调用示例
+result := safeConfig.
+    Field("Services").
+    Field("UserService").
+    Field("Database").
+    Field("ConnectionPool").
+    Field("MaxConnections").
+    Int(100) // 如果任何环节失败，返回默认值 100
+```
+
+#### 类型转换支持
+
+SafeConfig 内置智能类型转换：
+
+```go
+config := map[string]interface{}{
+    "timeout":    "30s",        // 字符串 → time.Duration
+    "count":      "100",        // 字符串 → int  
+    "enabled":    "true",       // 字符串 → bool
+    "ratio":      "0.8",        // 字符串 → float64
+    "endpoints":  "a,b,c",      // 字符串 → []string (逗号分隔)
+}
+
+safeConfig := goconfig.SafeConfig(config)
+
+timeout := safeConfig.Field("timeout").Duration(10*time.Second)    // 30s
+count := safeConfig.Field("count").Int(50)                         // 100
+enabled := safeConfig.Field("enabled").Bool(false)                 // true
+ratio := safeConfig.Field("ratio").Float(0.5)                      // 0.8
+```
 
 ### 📋 配置发现模式对比
 

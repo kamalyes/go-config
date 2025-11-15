@@ -2,13 +2,13 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2024-11-07 23:16:55
- * @FilePath: \go-config\pkg\elk\kafka.go
+ * @LastEditTime: 2025-11-15 13:26:00
+ * @FilePath: \go-config\pkg\kafka\kafka.go
  * @Description:
  *
  * Copyright (j) 2024 by kamalyes, All Rights Reserved.
  */
-package elk
+package kafka
 
 import "github.com/kamalyes/go-config/internal"
 
@@ -94,8 +94,8 @@ func DefaultKafka() Kafka {
 	}
 }
 
-// DefaultKafkaConfig 返回默认Kafka配置的指针，支持链式调用
-func DefaultKafkaConfig() *Kafka {
+// Default 返回默认Kafka配置的指针，支持链式调用
+func Default() *Kafka {
 	config := DefaultKafka()
 	return &config
 }

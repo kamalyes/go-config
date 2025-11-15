@@ -1,7 +1,0 @@
-elasticsearch:
-  endpoint: "http://localhost:9200"
-  health-check: 18
-  sniff: true
-  gzip: true
-  timeout: "5s"
-  modulename: "common"

@@ -11,9 +11,11 @@
 package internal
 
 import (
+	"encoding/json"
 	"sync"
 
 	"github.com/go-playground/validator/v10"
+	"gopkg.in/yaml.v3"
 )
 
 // Configurable 接口定义了配置的基本行为
@@ -22,6 +24,12 @@ type Configurable interface {
 	Set(data interface{})
 	Clone() Configurable
 	Validate() error
+}
+
+// Exportable 接口定义了配置的导出功能
+type Exportable interface {
+	ToYAML() (string, error)
+	ToJSON() (string, error)
 }
 
 // Hookable 接口定义了配置的钩子函数
@@ -75,4 +83,44 @@ func LockFunc(fn func()) {
 	mu.Lock()
 	defer mu.Unlock()
 	fn()
+}
+
+// ExportToYAML 通用YAML导出函数
+func ExportToYAML(config interface{}) (string, error) {
+	yamlData, err := yaml.Marshal(config)
+	if err != nil {
+		return "", err
+	}
+	return string(yamlData), nil
+}
+
+// ExportToJSON 通用JSON导出函数
+func ExportToJSON(config interface{}) (string, error) {
+	jsonData, err := json.MarshalIndent(config, "", "  ")
+	if err != nil {
+		return "", err
+	}
+	return string(jsonData), nil
+}
+
+// ExportConfigToYAML 导出Configurable对象为YAML
+func ExportConfigToYAML(config Configurable) (string, error) {
+	return ExportToYAML(config.Get())
+}
+
+// ExportConfigToJSON 导出Configurable对象为JSON
+func ExportConfigToJSON(config Configurable) (string, error) {
+	return ExportToJSON(config.Get())
+}
+
+// GenerateYAMLFromDefault 从默认配置生成YAML
+func GenerateYAMLFromDefault(defaultFunc func() interface{}) (string, error) {
+	config := defaultFunc()
+	return ExportToYAML(config)
+}
+
+// GenerateJSONFromDefault 从默认配置生成JSON
+func GenerateJSONFromDefault(defaultFunc func() interface{}) (string, error) {
+	config := defaultFunc()
+	return ExportToJSON(config)
 }
