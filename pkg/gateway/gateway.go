@@ -28,6 +28,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/security"
 	"github.com/kamalyes/go-config/pkg/smtp"
 	"github.com/kamalyes/go-config/pkg/swagger"
+	"github.com/kamalyes/go-config/pkg/wsc"
 )
 
 // Gateway网关统一配置
@@ -55,6 +56,7 @@ type Gateway struct {
 	Swagger       *swagger.Swagger       `mapstructure:"swagger" yaml:"swagger" json:"swagger"`                   // Swagger配置
 	Banner        *banner.Banner         `mapstructure:"banner" yaml:"banner" json:"banner"`                      // Banner配置
 	RateLimit     *ratelimit.RateLimit   `mapstructure:"rate_limit" yaml:"rate_limit" json:"rate_limit"`          // 限流配置
+	WSC           *wsc.WSC               `mapstructure:"wsc" yaml:"wsc" json:"wsc"`                               // WebSocket通信配置
 }
 
 // Default 创建默认Gateway配置
@@ -83,6 +85,7 @@ func Default() *Gateway {
 		RateLimit: ratelimit.Default(),
 		Swagger:       swagger.Default(),
 		Banner:        banner.Default(),
+		WSC:           wsc.Default(),
 	}
 }
 
@@ -123,6 +126,7 @@ func (c *Gateway) Clone() internal.Configurable {
 		RateLimit:     c.RateLimit.Clone().(*ratelimit.RateLimit),
 		Swagger:       c.Swagger.Clone().(*swagger.Swagger),
 		Banner:        c.Banner.Clone().(*banner.Banner),
+		WSC:           c.WSC.Clone().(*wsc.WSC),
 	}
 }
 
@@ -205,6 +209,11 @@ func (c *Gateway) Validate() error {
 	}
 	if c.Swagger != nil {
 		if err := c.Swagger.Validate(); err != nil {
+			return err
+		}
+	}
+	if c.WSC != nil {
+		if err := c.WSC.Validate(); err != nil {
 			return err
 		}
 	}
@@ -403,6 +412,20 @@ func (c *Gateway) EnableSwagger() *Gateway {
 	if c.Swagger != nil {
 		c.Swagger.Enable()
 	}
+	return c
+}
+
+// EnableWSC 启用 WebSocket 通信
+func (c *Gateway) EnableWSC() *Gateway {
+	if c.WSC != nil {
+		c.WSC.Enable()
+	}
+	return c
+}
+
+// WithWSC 设置 WebSocket 通信配置
+func (c *Gateway) WithWSC(cfg *wsc.WSC) *Gateway {
+	c.WSC = cfg
 	return c
 }
 
