@@ -485,7 +485,8 @@ func (h *hotReloadManager) handleFileEvent(ctx context.Context, event fsnotify.E
 	if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Create == fsnotify.Create {
 		log.Printf("配置文件发生变化: %s", event.Name)
 
-		// 防抖处理
+		// 使用锁保护防抖处理
+		h.mu.Lock()
 		if h.debounceTimer != nil {
 			h.debounceTimer.Stop()
 		}
@@ -493,6 +494,7 @@ func (h *hotReloadManager) handleFileEvent(ctx context.Context, event fsnotify.E
 		h.debounceTimer = time.AfterFunc(h.hotConfig.DebounceDelay, func() {
 			h.reloadConfig(ctx, event.Name)
 		})
+		h.mu.Unlock()
 	}
 }
 
