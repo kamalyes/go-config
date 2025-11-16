@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 23:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 23:00:00
+ * @LastEditTime: 2025-11-16 19:03:58
  * @FilePath: \go-config\pkg\database\postgresql.go
  * @Description: PostgreSQL数据库配置
  *
@@ -66,21 +66,21 @@ func (p *PostgreSQL) Set(data interface{}) {
 }
 func (p *PostgreSQL) Validate() error { return internal.ValidateStruct(p) }
 
-// DefaultPostgreSQLConfig 返回默认PostgreSQL配置
-func DefaultPostgreSQLConfig() *PostgreSQL {
+// DefaultPostgreSQL 创建默认PostgreSQL配置
+func DefaultPostgreSQL() *PostgreSQL {
 	return &PostgreSQL{
 		ModuleName:      "postgresql",
 		Host:            "localhost",
 		Port:            "5432",
-		Config:          "sslmode=disable TimeZone=Asia/Shanghai",
+		Config:          "sslmode=disable",
 		LogLevel:        "info",
-		Dbname:          "postgres_db",
+		Dbname:          "postgres",
 		Username:        "postgres",
 		Password:        "",
 		MaxIdleConns:    10,
 		MaxOpenConns:    100,
-		ConnMaxIdleTime: 600,
-		ConnMaxLifeTime: 3600,
+		ConnMaxIdleTime: 300, // 5分钟
+		ConnMaxLifeTime: 3600, // 1小时
 	}
 }
 
