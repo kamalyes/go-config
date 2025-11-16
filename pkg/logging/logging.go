@@ -81,9 +81,24 @@ func (l *Logging) Clone() internal.Configurable {
 	return clone
 }
 
-// Validate 验证配置
-func (l *Logging) Validate() error {
-	return internal.ValidateStruct(l)
+// ========== Logging 链式调用方法 ==========
+
+// WithModuleName 设置模块名称
+func (l *Logging) WithModuleName(moduleName string) *Logging {
+	l.ModuleName = moduleName
+	return l
+}
+
+// WithEnabled 设置是否启用日志
+func (l *Logging) WithEnabled(enabled bool) *Logging {
+	l.Enabled = enabled
+	return l
+}
+
+// EnableLogging 启用日志
+func (l *Logging) EnableLogging() *Logging {
+	l.Enabled = true
+	return l
 }
 
 // WithLevel 设置日志级别
@@ -108,6 +123,66 @@ func (l *Logging) WithOutput(output string) *Logging {
 func (l *Logging) WithFilePath(filePath string) *Logging {
 	l.FilePath = filePath
 	return l
+}
+
+// WithMaxSize 设置最大文件大小
+func (l *Logging) WithMaxSize(maxSize int) *Logging {
+	l.MaxSize = maxSize
+	return l
+}
+
+// WithMaxBackups 设置最大备份文件数
+func (l *Logging) WithMaxBackups(maxBackups int) *Logging {
+	l.MaxBackups = maxBackups
+	return l
+}
+
+// WithMaxAge 设置最大保存天数
+func (l *Logging) WithMaxAge(maxAge int) *Logging {
+	l.MaxAge = maxAge
+	return l
+}
+
+// WithCompress 设置是否压缩
+func (l *Logging) WithCompress(compress bool) *Logging {
+	l.Compress = compress
+	return l
+}
+
+// WithSkipPaths 设置跳过的路径
+func (l *Logging) WithSkipPaths(skipPaths []string) *Logging {
+	l.SkipPaths = skipPaths
+	return l
+}
+
+// AddSkipPath 添加跳过的路径
+func (l *Logging) AddSkipPath(path string) *Logging {
+	l.SkipPaths = append(l.SkipPaths, path)
+	return l
+}
+
+// WithEnableRequest 设置是否记录请求
+func (l *Logging) WithEnableRequest(enableRequest bool) *Logging {
+	l.EnableRequest = enableRequest
+	return l
+}
+
+// WithEnableResponse 设置是否记录响应
+func (l *Logging) WithEnableResponse(enableResponse bool) *Logging {
+	l.EnableResponse = enableResponse
+	return l
+}
+
+// EnableRequestResponse 同时启用请求和响应记录
+func (l *Logging) EnableRequestResponse() *Logging {
+	l.EnableRequest = true
+	l.EnableResponse = true
+	return l
+}
+
+// Validate 验证配置
+func (l *Logging) Validate() error {
+	return internal.ValidateStruct(l)
 }
 
 // Enable 启用日志中间件

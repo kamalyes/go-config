@@ -83,9 +83,9 @@ func NewDatabase() *Database {
 		Type:       DBTypeMySQL,
 		Enabled:    true,
 		Default:    string(DBTypeMySQL),
-		MySQL:      DefaultMySQLConfig(),
-		PostgreSQL: DefaultPostgreSQLConfig(),
-		SQLite:     DefaultSQLiteConfig(),
+		MySQL:      DefaultMySQL(),
+		PostgreSQL: DefaultPostgreSQL(),
+		SQLite:     DefaultSQLite(),
 	}
 }
 
@@ -219,13 +219,13 @@ func (c *Database) Validate() error {
 // EnsureDefaults 确保所有子配置都有默认值，避免空指针
 func (c *Database) EnsureDefaults() {
 	if c.MySQL == nil {
-		c.MySQL = DefaultMySQLConfig()
+		c.MySQL = DefaultMySQL()
 	}
 	if c.PostgreSQL == nil {
-		c.PostgreSQL = DefaultPostgreSQLConfig()
+		c.PostgreSQL = DefaultPostgreSQL()
 	}
 	if c.SQLite == nil {
-		c.SQLite = DefaultSQLiteConfig()
+		c.SQLite = DefaultSQLite()
 	}
 	
 	// 如果没有设置默认类型，使用MySQL
@@ -308,4 +308,78 @@ func GetSupportedTypes() []DBType {
 		DBTypePostgreSQL,
 		DBTypeSQLite,
 	}
+}
+
+// ========== Database 链式调用方法 ==========
+
+// WithType 设置数据库类型
+func (d *Database) WithType(dbType DBType) *Database {
+	d.Type = dbType
+	return d
+}
+
+// WithEnabled 设置是否启用数据库
+func (d *Database) WithEnabled(enabled bool) *Database {
+	d.Enabled = enabled
+	return d
+}
+
+// EnableDatabase 启用数据库
+func (d *Database) EnableDatabase() *Database {
+	d.Enabled = true
+	return d
+}
+
+// WithDefault 设置默认数据库
+func (d *Database) WithDefault(defaultDB string) *Database {
+	d.Default = defaultDB
+	return d
+}
+
+// WithMySQL 设置MySQL配置
+func (d *Database) WithMySQL(mysql *MySQL) *Database {
+	d.MySQL = mysql
+	return d
+}
+
+// EnableMySQL 启用MySQL并设置默认配置
+func (d *Database) EnableMySQL() *Database {
+	if d.MySQL == nil {
+		d.MySQL = DefaultMySQL()
+	}
+	d.Type = DBTypeMySQL
+	d.Default = "mysql"
+	return d
+}
+
+// WithPostgreSQL 设置PostgreSQL配置
+func (d *Database) WithPostgreSQL(postgresql *PostgreSQL) *Database {
+	d.PostgreSQL = postgresql
+	return d
+}
+
+// EnablePostgreSQL 启用PostgreSQL并设置默认配置
+func (d *Database) EnablePostgreSQL() *Database {
+	if d.PostgreSQL == nil {
+		d.PostgreSQL = DefaultPostgreSQL()
+	}
+	d.Type = DBTypePostgreSQL
+	d.Default = "postgresql"
+	return d
+}
+
+// WithSQLite 设置SQLite配置
+func (d *Database) WithSQLite(sqlite *SQLite) *Database {
+	d.SQLite = sqlite
+	return d
+}
+
+// EnableSQLite 启用SQLite并设置默认配置
+func (d *Database) EnableSQLite() *Database {
+	if d.SQLite == nil {
+		d.SQLite = DefaultSQLite()
+	}
+	d.Type = DBTypeSQLite
+	d.Default = "sqlite"
+	return d
 }

@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 23:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 23:00:00
+ * @LastEditTime: 2025-11-16 19:04:18
  * @FilePath: \go-config\pkg\database\mysql.go
  * @Description: MySQL数据库配置
  *
@@ -60,27 +60,29 @@ func (m *MySQL) Clone() internal.Configurable {
 		ConnMaxLifeTime: m.ConnMaxLifeTime,
 	}
 }
+
 func (m *MySQL) Get() interface{} { return m }
 func (m *MySQL) Set(data interface{}) {
 	if cfg, ok := data.(*MySQL); ok { *m = *cfg }
 }
 func (m *MySQL) Validate() error { return internal.ValidateStruct(m) }
 
-// DefaultMySQLConfig 返回默认MySQL配置
-func DefaultMySQLConfig() *MySQL {
+
+// DefaultMySQL 创建默认MySQL配置
+func DefaultMySQL() *MySQL {
 	return &MySQL{
 		ModuleName:      "mysql",
 		Host:            "localhost",
 		Port:            "3306",
 		Config:          "charset=utf8mb4&parseTime=True&loc=Local",
 		LogLevel:        "info",
-		Dbname:          "mysql_db",
+		Dbname:          "test",
 		Username:        "root",
 		Password:        "",
 		MaxIdleConns:    10,
 		MaxOpenConns:    100,
-		ConnMaxIdleTime: 600,
-		ConnMaxLifeTime: 3600,
+		ConnMaxIdleTime: 300, // 5分钟
+		ConnMaxLifeTime: 3600, // 1小时
 	}
 }
 

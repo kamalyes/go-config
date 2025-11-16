@@ -50,6 +50,12 @@ type WSC struct {
 	
 	// === 安全配置 ===
 	Security *Security `mapstructure:"security" yaml:"security,omitempty" json:"security,omitempty"` // 安全配置
+	
+	// === VIP等级配置 ===
+	VIP *VIP `mapstructure:"vip" yaml:"vip,omitempty" json:"vip,omitempty"` // VIP等级配置
+	
+	// === 增强功能配置 ===
+	Enhancement *Enhancement `mapstructure:"enhancement" yaml:"enhancement,omitempty" json:"enhancement,omitempty"` // 增强功能配置
 }
 
 // Distributed 分布式节点配置
@@ -76,13 +82,14 @@ func DefaultRedis() *cache.Redis {
 
 // Group 群组/广播配置
 type Group struct {
-	Enabled            bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                          // 是否启用群组功能
-	MaxGroupSize       int  `mapstructure:"max_group_size" yaml:"max-group-size" json:"max_group_size"`                                     // 最大群组人数
-	MaxGroupsPerUser   int  `mapstructure:"max_groups_per_user" yaml:"max-groups-per-user" json:"max_groups_per_user"`                      // 每个用户最大群组数
-	EnableBroadcast    bool `mapstructure:"enable_broadcast" yaml:"enable-broadcast" json:"enable_broadcast"`                               // 是否启用全局广播
-	BroadcastRateLimit int  `mapstructure:"broadcast_rate_limit" yaml:"broadcast-rate-limit" json:"broadcast_rate_limit"`                   // 广播频率限制(次/分钟)
-	GroupCacheExpire   int  `mapstructure:"group_cache_expire" yaml:"group-cache-expire" json:"group_cache_expire"`                         // 群组缓存过期时间(秒)
-	AutoCreateGroup    bool `mapstructure:"auto_create_group" yaml:"auto-create-group" json:"auto_create_group"`                            // 是否自动创建群组
+	Enabled               bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                          // 是否启用群组功能
+	MaxGroupSize          int  `mapstructure:"max_group_size" yaml:"max-group-size" json:"max_group_size"`                                     // 最大群组人数
+	MaxGroupsPerUser      int  `mapstructure:"max_groups_per_user" yaml:"max-groups-per-user" json:"max_groups_per_user"`                      // 每个用户最大群组数
+	EnableBroadcast       bool `mapstructure:"enable_broadcast" yaml:"enable-broadcast" json:"enable_broadcast"`                               // 是否启用全局广播
+	BroadcastRateLimit    int  `mapstructure:"broadcast_rate_limit" yaml:"broadcast-rate-limit" json:"broadcast_rate_limit"`                   // 广播频率限制(次/分钟)
+	GroupCacheExpire      int  `mapstructure:"group_cache_expire" yaml:"group-cache-expire" json:"group_cache_expire"`                         // 群组缓存过期时间(秒)
+	AutoCreateGroup       bool `mapstructure:"auto_create_group" yaml:"auto-create-group" json:"auto_create_group"`                            // 是否自动创建群组
+	EnableMessageRecord   bool `mapstructure:"enable_message_record" yaml:"enable-message-record" json:"enable_message_record"`                // 是否启用消息记录
 }
 
 // Ticket 工单配置
@@ -99,6 +106,9 @@ type Ticket struct {
 	TransferMaxTimes     int    `mapstructure:"transfer_max_times" yaml:"transfer-max-times" json:"transfer_max_times"`                                   // 最大转接次数
 	EnableOfflineMessage bool   `mapstructure:"enable_offline_message" yaml:"enable-offline-message" json:"enable_offline_message"`                       // 是否启用离线消息
 	OfflineMessageExpire int    `mapstructure:"offline_message_expire" yaml:"offline-message-expire" json:"offline_message_expire"`                       // 离线消息过期时间(秒)
+	EnableAck            bool   `mapstructure:"enable_ack" yaml:"enable-ack" json:"enable_ack"`                                                            // 是否启用ACK确认
+	AckTimeoutMs         int    `mapstructure:"ack_timeout_ms" yaml:"ack-timeout-ms" json:"ack_timeout_ms"`                                               // ACK超时时间(毫秒)
+	MaxRetry             int    `mapstructure:"max_retry" yaml:"max-retry" json:"max_retry"`                                                               // 最大重试次数
 }
 
 // Performance 性能配置
@@ -129,6 +139,42 @@ type Security struct {
 	LoginLockDuration int      `mapstructure:"login_lock_duration" yaml:"login-lock-duration" json:"login_lock_duration"`          // 登录锁定时长(秒)
 }
 
+// VIP VIP等级配置
+type VIP struct {
+	Enabled              bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                             // 是否启用VIP等级
+	MaxLevel             int      `mapstructure:"max_level" yaml:"max-level" json:"max_level"`                                                        // 最大VIP等级 (0-8)
+	DefaultLevel         int      `mapstructure:"default_level" yaml:"default-level" json:"default_level"`                                            // 默认VIP等级
+	PriorityMultiplier   float64  `mapstructure:"priority_multiplier" yaml:"priority-multiplier" json:"priority_multiplier"`                         // VIP优先级乘数
+	MessagePriorityBonus int      `mapstructure:"message_priority_bonus" yaml:"message-priority-bonus" json:"message_priority_bonus"`               // VIP消息优先级加分
+	QueuePriority        bool     `mapstructure:"queue_priority" yaml:"queue-priority" json:"queue_priority"`                                       // VIP用户是否享受队列优先级
+	CustomServicePriority bool     `mapstructure:"custom_service_priority" yaml:"custom-service-priority" json:"custom_service_priority"`           // VIP用户是否享受专属客服
+	SpecialFeatures      []string `mapstructure:"special_features" yaml:"special-features" json:"special_features"`                               // VIP特殊功能列表
+	UpgradeRules         []string `mapstructure:"upgrade_rules" yaml:"upgrade-rules" json:"upgrade_rules"`                                         // VIP升级规则
+}
+
+// Enhancement 增强功能配置
+type Enhancement struct {
+	Enabled               bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                               // 是否启用增强功能
+	SmartRouting          bool   `mapstructure:"smart_routing" yaml:"smart-routing" json:"smart_routing"`                                            // 启用智能路由
+	LoadBalancing         bool   `mapstructure:"load_balancing" yaml:"load-balancing" json:"load_balancing"`                                        // 启用负载均衡
+	SmartQueue            bool   `mapstructure:"smart_queue" yaml:"smart-queue" json:"smart_queue"`                                                  // 启用智能队列
+	Monitoring            bool   `mapstructure:"monitoring" yaml:"monitoring" json:"monitoring"`                                                      // 启用监控
+	ClusterManagement     bool   `mapstructure:"cluster_management" yaml:"cluster-management" json:"cluster_management"`                           // 启用集群管理
+	RuleEngine            bool   `mapstructure:"rule_engine" yaml:"rule-engine" json:"rule_engine"`                                                  // 启用规则引擎
+	CircuitBreaker        bool   `mapstructure:"circuit_breaker" yaml:"circuit-breaker" json:"circuit_breaker"`                                    // 启用熔断器
+	MessageFiltering      bool   `mapstructure:"message_filtering" yaml:"message-filtering" json:"message_filtering"`                              // 启用消息过滤
+	PerformanceTracking   bool   `mapstructure:"performance_tracking" yaml:"performance-tracking" json:"performance_tracking"`                     // 启用性能追踪
+	AdvancedMetrics       bool   `mapstructure:"advanced_metrics" yaml:"advanced-metrics" json:"advanced_metrics"`                                 // 启用高级指标
+	AlertSystem           bool   `mapstructure:"alert_system" yaml:"alert-system" json:"alert_system"`                                              // 启用警报系统
+	FailureThreshold      int    `mapstructure:"failure_threshold" yaml:"failure-threshold" json:"failure_threshold"`                              // 熔断器失败阈值
+	SuccessThreshold      int    `mapstructure:"success_threshold" yaml:"success-threshold" json:"success_threshold"`                              // 熔断器成功阈值
+	CircuitTimeout        int    `mapstructure:"circuit_timeout" yaml:"circuit-timeout" json:"circuit_timeout"`                                   // 熔断器超时(秒)
+	MaxQueueSize          int    `mapstructure:"max_queue_size" yaml:"max-queue-size" json:"max_queue_size"`                                      // 智能队列最大大小
+	MetricsInterval       int    `mapstructure:"metrics_interval" yaml:"metrics-interval" json:"metrics_interval"`                                // 指标采集间隔(秒)
+	MaxSamples            int    `mapstructure:"max_samples" yaml:"max-samples" json:"max_samples"`                                                 // 性能样本最大数量
+	LoadBalanceAlgorithm  string `mapstructure:"load_balance_algorithm" yaml:"load-balance-algorithm" json:"load_balance_algorithm"`              // 负载均衡算法: round-robin, least-connections, weighted-random, consistent-hash
+}
+
 // Default 创建默认 WSC 配置
 func Default() *WSC {
 	return &WSC{
@@ -148,6 +194,8 @@ func Default() *WSC {
 		Ticket:             DefaultTicket(),
 		Performance:        DefaultPerformance(),
 		Security:           DefaultSecurity(),
+		VIP:                DefaultVIP(),
+		Enhancement:        DefaultEnhancement(),
 	}
 }
 
@@ -165,17 +213,120 @@ func DefaultDistributed() *Distributed {
 	}
 }
 
+// ========== Distributed 自身链式调用方法 ==========
+
+// Enable 启用分布式功能
+func (d *Distributed) Enable() *Distributed {
+	d.Enabled = true
+	return d
+}
+
+// Disable 禁用分布式功能
+func (d *Distributed) Disable() *Distributed {
+	d.Enabled = false
+	return d
+}
+
+// WithNodeDiscovery 设置节点发现方式
+func (d *Distributed) WithNodeDiscovery(discovery string) *Distributed {
+	d.NodeDiscovery = discovery
+	return d
+}
+
+// WithSyncInterval 设置节点同步间隔
+func (d *Distributed) WithSyncInterval(intervalSeconds int) *Distributed {
+	d.NodeSyncInterval = intervalSeconds
+	return d
+}
+
+// WithMessageRouting 设置消息路由策略
+func (d *Distributed) WithMessageRouting(routing string) *Distributed {
+	d.MessageRouting = routing
+	return d
+}
+
+// WithLoadBalance 启用/禁用负载均衡
+func (d *Distributed) WithLoadBalance(enabled bool) *Distributed {
+	d.EnableLoadBalance = enabled
+	return d
+}
+
+// WithHealthCheck 设置健康检查配置
+func (d *Distributed) WithHealthCheck(intervalSeconds, timeoutSeconds int) *Distributed {
+	d.HealthCheckInterval = intervalSeconds
+	d.NodeTimeout = timeoutSeconds
+	return d
+}
+
+// WithClusterName 设置集群名称
+func (d *Distributed) WithClusterName(clusterName string) *Distributed {
+	d.ClusterName = clusterName
+	return d
+}
+
 // DefaultGroup 默认群组配置
 func DefaultGroup() *Group {
 	return &Group{
-		Enabled:            false,
-		MaxGroupSize:       500,
-		MaxGroupsPerUser:   100,
-		EnableBroadcast:    true,
-		BroadcastRateLimit: 10,
-		GroupCacheExpire:   3600,
-		AutoCreateGroup:    false,
+		Enabled:             false,
+		MaxGroupSize:        500,
+		MaxGroupsPerUser:    100,
+		EnableBroadcast:     true,
+		BroadcastRateLimit:  10,
+		GroupCacheExpire:    3600,
+		AutoCreateGroup:     false,
+		EnableMessageRecord: true, // 默认启用消息记录
 	}
+}
+
+// ========== Group 自身链式调用方法 ==========
+
+// Enable 启用群组功能
+func (g *Group) Enable() *Group {
+	g.Enabled = true
+	return g
+}
+
+// Disable 禁用群组功能
+func (g *Group) Disable() *Group {
+	g.Enabled = false
+	return g
+}
+
+// WithMaxSize 设置群组最大人数
+func (g *Group) WithMaxSize(maxSize int) *Group {
+	g.MaxGroupSize = maxSize
+	return g
+}
+
+// WithMaxGroupsPerUser 设置每个用户最大群组数
+func (g *Group) WithMaxGroupsPerUser(maxGroups int) *Group {
+	g.MaxGroupsPerUser = maxGroups
+	return g
+}
+
+// WithBroadcast 启用/禁用全局广播
+func (g *Group) WithBroadcast(enabled bool, rateLimit int) *Group {
+	g.EnableBroadcast = enabled
+	g.BroadcastRateLimit = rateLimit
+	return g
+}
+
+// WithCacheExpire 设置群组缓存过期时间
+func (g *Group) WithCacheExpire(expireSeconds int) *Group {
+	g.GroupCacheExpire = expireSeconds
+	return g
+}
+
+// WithAutoCreate 启用/禁用自动创建群组
+func (g *Group) WithAutoCreate(enabled bool) *Group {
+	g.AutoCreateGroup = enabled
+	return g
+}
+
+// WithMessageRecord 启用/禁用消息记录
+func (g *Group) WithMessageRecord(enabled bool) *Group {
+	g.EnableMessageRecord = enabled
+	return g
 }
 
 // DefaultTicket 默认工单配置
@@ -193,7 +344,78 @@ func DefaultTicket() *Ticket {
 		TransferMaxTimes:     3,
 		EnableOfflineMessage: true,
 		OfflineMessageExpire: 86400,
+		EnableAck:            true,
+		AckTimeoutMs:         5000, // 5秒
+		MaxRetry:             3,
 	}
+}
+
+// ========== Ticket 自身链式调用方法 ==========
+
+// Enable 启用工单功能
+func (t *Ticket) Enable() *Ticket {
+	t.Enabled = true
+	return t
+}
+
+// Disable 禁用工单功能
+func (t *Ticket) Disable() *Ticket {
+	t.Enabled = false
+	return t
+}
+
+// WithMaxPerAgent 设置每个客服最大工单数
+func (t *Ticket) WithMaxPerAgent(maxTickets int) *Ticket {
+	t.MaxTicketsPerAgent = maxTickets
+	return t
+}
+
+// WithAutoAssign 设置是否自动分配工单
+func (t *Ticket) WithAutoAssign(enabled bool, strategy string) *Ticket {
+	t.AutoAssign = enabled
+	t.AssignStrategy = strategy
+	return t
+}
+
+// WithTimeout 设置工单超时
+func (t *Ticket) WithTimeout(ticketTimeoutSeconds int) *Ticket {
+	t.TicketTimeout = ticketTimeoutSeconds
+	return t
+}
+
+// WithQueueing 设置排队功能
+func (t *Ticket) WithQueueing(enabled bool, queueTimeoutSeconds int) *Ticket {
+	t.EnableQueueing = enabled
+	t.QueueTimeout = queueTimeoutSeconds
+	return t
+}
+
+// WithNotifyTimeout 设置通知超时
+func (t *Ticket) WithNotifyTimeout(timeoutSeconds int) *Ticket {
+	t.NotifyTimeout = timeoutSeconds
+	return t
+}
+
+// WithTransfer 设置工单转接功能
+func (t *Ticket) WithTransfer(enabled bool, maxTimes int) *Ticket {
+	t.EnableTransfer = enabled
+	t.TransferMaxTimes = maxTimes
+	return t
+}
+
+// WithOfflineMessage 设置离线消息功能
+func (t *Ticket) WithOfflineMessage(enabled bool, expireSeconds int) *Ticket {
+	t.EnableOfflineMessage = enabled
+	t.OfflineMessageExpire = expireSeconds
+	return t
+}
+
+// WithAck 设置ACK相关配置
+func (t *Ticket) WithAck(enabled bool, timeoutMs, maxRetry int) *Ticket {
+	t.EnableAck = enabled
+	t.AckTimeoutMs = timeoutMs
+	t.MaxRetry = maxRetry
+	return t
 }
 
 // DefaultPerformance 默认性能配置
@@ -211,6 +433,42 @@ func DefaultPerformance() *Performance {
 	}
 }
 
+// ========== Performance 自身链式调用方法 ==========
+
+// WithMaxConnections 设置最大连接数
+func (p *Performance) WithMaxConnections(maxConnections int) *Performance {
+	p.MaxConnectionsPerNode = maxConnections
+	return p
+}
+
+// WithBufferSize 设置缓冲区大小
+func (p *Performance) WithBufferSize(readSize, writeSize int) *Performance {
+	p.ReadBufferSize = readSize
+	p.WriteBufferSize = writeSize
+	return p
+}
+
+// WithCompression 设置压缩配置
+func (p *Performance) WithCompression(enabled bool, level int) *Performance {
+	p.EnableCompression = enabled
+	p.CompressionLevel = level
+	return p
+}
+
+// WithMetrics 设置性能指标配置
+func (p *Performance) WithMetrics(enabled bool, intervalSeconds int) *Performance {
+	p.EnableMetrics = enabled
+	p.MetricsInterval = intervalSeconds
+	return p
+}
+
+// WithSlowLog 设置慢日志配置
+func (p *Performance) WithSlowLog(enabled bool, thresholdMs int) *Performance {
+	p.EnableSlowLog = enabled
+	p.SlowLogThreshold = thresholdMs
+	return p
+}
+
 // DefaultSecurity 默认安全配置
 func DefaultSecurity() *Security {
 	return &Security{
@@ -226,6 +484,64 @@ func DefaultSecurity() *Security {
 		MaxLoginAttempts:  5,
 		LoginLockDuration: 300,
 	}
+}
+
+// ========== Security 自身链式调用方法 ==========
+
+// WithAuth 设置认证配置
+func (s *Security) WithAuth(enabled bool) *Security {
+	s.EnableAuth = enabled
+	return s
+}
+
+// WithEncryption 设置加密配置
+func (s *Security) WithEncryption(enabled bool) *Security {
+	s.EnableEncryption = enabled
+	return s
+}
+
+// WithRateLimit 设置限流配置
+func (s *Security) WithRateLimit(enabled bool) *Security {
+	s.EnableRateLimit = enabled
+	return s
+}
+
+// WithMaxMessageSize 设置最大消息大小
+func (s *Security) WithMaxMessageSize(maxSizeKB int) *Security {
+	s.MaxMessageSize = maxSizeKB
+	return s
+}
+
+// WithAllowedUserTypes 设置允许的用户类型
+func (s *Security) WithAllowedUserTypes(userTypes []string) *Security {
+	s.AllowedUserTypes = userTypes
+	return s
+}
+
+// WithBlockedIPs 设置黑名单IP
+func (s *Security) WithBlockedIPs(ips []string) *Security {
+	s.BlockedIPs = ips
+	return s
+}
+
+// WithWhitelist 设置IP白名单
+func (s *Security) WithWhitelist(enabled bool, ips []string) *Security {
+	s.EnableIPWhitelist = enabled
+	s.WhitelistIPs = ips
+	return s
+}
+
+// WithTokenExpiration 设置Token过期时间
+func (s *Security) WithTokenExpiration(expireSeconds int) *Security {
+	s.TokenExpiration = expireSeconds
+	return s
+}
+
+// WithLoginSecurity 设置登录安全配置
+func (s *Security) WithLoginSecurity(maxAttempts int, lockDurationSeconds int) *Security {
+	s.MaxLoginAttempts = maxAttempts
+	s.LoginLockDuration = lockDurationSeconds
+	return s
 }
 
 // Get 返回配置接口
@@ -451,6 +767,36 @@ func (c *WSC) WithSecurity(security *Security) *WSC {
 	return c
 }
 
+// WithVIP 设置VIP配置
+func (c *WSC) WithVIP(vip *VIP) *WSC {
+	c.VIP = vip
+	return c
+}
+
+// EnableVIP 启用VIP功能（使用默认配置）
+func (c *WSC) EnableVIP() *WSC {
+	if c.VIP == nil {
+		c.VIP = DefaultVIP()
+	}
+	c.VIP.Enabled = true
+	return c
+}
+
+// WithEnhancement 设置增强功能配置
+func (c *WSC) WithEnhancement(enhancement *Enhancement) *WSC {
+	c.Enhancement = enhancement
+	return c
+}
+
+// EnableEnhancement 启用增强功能（使用默认配置）
+func (c *WSC) EnableEnhancement() *WSC {
+	if c.Enhancement == nil {
+		c.Enhancement = DefaultEnhancement()
+	}
+	c.Enhancement.Enabled = true
+	return c
+}
+
 // ========== Safe 安全访问方法 ==========
 
 // WSCSafe WSC 配置安全访问器
@@ -500,6 +846,16 @@ func (s *WSCSafe) Performance() *WSCSafe {
 // Security 安全访问 Security 配置
 func (s *WSCSafe) Security() *WSCSafe {
 	return &WSCSafe{SafeAccess: s.Field("Security")}
+}
+
+// VIP 安全访问 VIP 配置
+func (s *WSCSafe) VIP() *WSCSafe {
+	return &WSCSafe{SafeAccess: s.Field("VIP")}
+}
+
+// Enhancement 安全访问 Enhancement 配置
+func (s *WSCSafe) Enhancement() *WSCSafe {
+	return &WSCSafe{SafeAccess: s.Field("Enhancement")}
 }
 
 // Enabled 安全获取 Enabled 字段
@@ -579,5 +935,199 @@ func (s *WSCSafe) PubSubChannel(defaultValue ...string) string {
 // ClusterName 安全获取 ClusterName 字段
 func (s *WSCSafe) ClusterName(defaultValue ...string) string {
 	return s.Field("ClusterName").String(defaultValue...)
+}
+
+// DefaultVIP 创建默认VIP配置
+func DefaultVIP() *VIP {
+	return &VIP{
+		Enabled:               true,
+		MaxLevel:              8,     // V0-V8
+		DefaultLevel:          0,     // V0
+		PriorityMultiplier:    2.0,
+		MessagePriorityBonus:  10,
+		QueuePriority:         true,
+		CustomServicePriority: true,
+		SpecialFeatures:       []string{"priority_queue", "dedicated_support"},
+		UpgradeRules:          []string{"spending_based", "loyalty_based"},
+	}
+}
+
+// ========== VIP 自身链式调用方法 ==========
+
+// WithMaxLevel 设置VIP最大等级
+func (v *VIP) WithMaxLevel(maxLevel int) *VIP {
+	v.MaxLevel = maxLevel
+	return v
+}
+
+// WithDefaultLevel 设置默认VIP等级
+func (v *VIP) WithDefaultLevel(defaultLevel int) *VIP {
+	v.DefaultLevel = defaultLevel
+	return v
+}
+
+// WithPriorityMultiplier 设置VIP优先级倍数
+func (v *VIP) WithPriorityMultiplier(multiplier float64) *VIP {
+	v.PriorityMultiplier = multiplier
+	return v
+}
+
+// WithMessagePriorityBonus 设置VIP消息优先级加分
+func (v *VIP) WithMessagePriorityBonus(bonus int) *VIP {
+	v.MessagePriorityBonus = bonus
+	return v
+}
+
+// WithQueuePriority 设置VIP队列优先级
+func (v *VIP) WithQueuePriority(enabled bool) *VIP {
+	v.QueuePriority = enabled
+	return v
+}
+
+// WithCustomServicePriority 设置VIP专属客服
+func (v *VIP) WithCustomServicePriority(enabled bool) *VIP {
+	v.CustomServicePriority = enabled
+	return v
+}
+
+// WithSpecialFeatures 设置VIP特殊功能列表
+func (v *VIP) WithSpecialFeatures(features []string) *VIP {
+	v.SpecialFeatures = features
+	return v
+}
+
+// WithUpgradeRules 设置VIP升级规则
+func (v *VIP) WithUpgradeRules(rules []string) *VIP {
+	v.UpgradeRules = rules
+	return v
+}
+
+// Enable 启用VIP功能
+func (v *VIP) Enable() *VIP {
+	v.Enabled = true
+	return v
+}
+
+// Disable 禁用VIP功能
+func (v *VIP) Disable() *VIP {
+	v.Enabled = false
+	return v
+}
+
+// DefaultEnhancement 创建默认增强功能配置
+func DefaultEnhancement() *Enhancement {
+	return &Enhancement{
+		Enabled:               true,
+		SmartRouting:          true,
+		LoadBalancing:         true,
+		SmartQueue:            true,
+		Monitoring:            true,
+		ClusterManagement:     false, // 默认关闭，需要集群时开启
+		RuleEngine:            true,
+		CircuitBreaker:        true,
+		MessageFiltering:      true,
+		PerformanceTracking:   true,
+		AdvancedMetrics:       false, // 默认关闭，性能敏感时开启
+		AlertSystem:           true,
+		FailureThreshold:      5,
+		SuccessThreshold:      3,
+		CircuitTimeout:        30,
+		MaxQueueSize:          1000,
+		MetricsInterval:       60,
+		MaxSamples:            1000,
+		LoadBalanceAlgorithm:  "round-robin",
+	}
+}
+
+// ========== Enhancement 自身链式调用方法 ==========
+
+// Enable 启用增强功能
+func (e *Enhancement) Enable() *Enhancement {
+	e.Enabled = true
+	return e
+}
+
+// Disable 禁用增强功能
+func (e *Enhancement) Disable() *Enhancement {
+	e.Enabled = false
+	return e
+}
+
+// WithSmartRouting 启用/禁用智能路由
+func (e *Enhancement) WithSmartRouting(enabled bool) *Enhancement {
+	e.SmartRouting = enabled
+	return e
+}
+
+// WithLoadBalancing 启用/禁用负载均衡
+func (e *Enhancement) WithLoadBalancing(enabled bool, algorithm string) *Enhancement {
+	e.LoadBalancing = enabled
+	e.LoadBalanceAlgorithm = algorithm
+	return e
+}
+
+// WithSmartQueue 启用/禁用智能队列
+func (e *Enhancement) WithSmartQueue(enabled bool, maxSize int) *Enhancement {
+	e.SmartQueue = enabled
+	e.MaxQueueSize = maxSize
+	return e
+}
+
+// WithMonitoring 启用/禁用监控
+func (e *Enhancement) WithMonitoring(enabled bool) *Enhancement {
+	e.Monitoring = enabled
+	return e
+}
+
+// WithClusterManagement 启用/禁用集群管理
+func (e *Enhancement) WithClusterManagement(enabled bool) *Enhancement {
+	e.ClusterManagement = enabled
+	return e
+}
+
+// WithRuleEngine 启用/禁用规则引擎
+func (e *Enhancement) WithRuleEngine(enabled bool) *Enhancement {
+	e.RuleEngine = enabled
+	return e
+}
+
+// WithCircuitBreaker 启用/禁用熔断器
+func (e *Enhancement) WithCircuitBreaker(enabled bool, failureThreshold, successThreshold, timeoutSeconds int) *Enhancement {
+	e.CircuitBreaker = enabled
+	e.FailureThreshold = failureThreshold
+	e.SuccessThreshold = successThreshold
+	e.CircuitTimeout = timeoutSeconds
+	return e
+}
+
+// WithMessageFiltering 启用/禁用消息过滤
+func (e *Enhancement) WithMessageFiltering(enabled bool) *Enhancement {
+	e.MessageFiltering = enabled
+	return e
+}
+
+// WithPerformanceTracking 启用/禁用性能追踪
+func (e *Enhancement) WithPerformanceTracking(enabled bool) *Enhancement {
+	e.PerformanceTracking = enabled
+	return e
+}
+
+// WithAdvancedMetrics 启用/禁用高级指标
+func (e *Enhancement) WithAdvancedMetrics(enabled bool) *Enhancement {
+	e.AdvancedMetrics = enabled
+	return e
+}
+
+// WithAlertSystem 启用/禁用警报系统
+func (e *Enhancement) WithAlertSystem(enabled bool) *Enhancement {
+	e.AlertSystem = enabled
+	return e
+}
+
+// WithMetrics 设置指标采集间隔和最大样本数
+func (e *Enhancement) WithMetrics(metricsInterval, maxSamples int) *Enhancement {
+	e.MetricsInterval = metricsInterval
+	e.MaxSamples = maxSamples
+	return e
 }
 

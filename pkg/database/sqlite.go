@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 23:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 22:53:50
+ * @LastEditTime: 2025-11-16 19:03:40
  * @FilePath: \go-config\pkg\database\sqlite.go
  * @Description: SQLite数据库配置
  *
@@ -60,17 +60,17 @@ func (s *SQLite) Set(data interface{}) {
 }
 func (s *SQLite) Validate() error { return internal.ValidateStruct(s) }
 
-// DefaultSQLiteConfig 返回默认SQLite配置
-func DefaultSQLiteConfig() *SQLite {
+// DefaultSQLite 创建默认SQLite配置
+func DefaultSQLite() *SQLite {
 	return &SQLite{
 		ModuleName:      "sqlite",
-		Config:          "cache=shared&mode=rwc",
+		DbPath:          "./data.db",
+		Config:          "_foreign_keys=on",
 		LogLevel:        "info",
-		DbPath:          "./data/sqlite.db",
 		Vacuum:          false,
-		MaxIdleConns:    5,
-		MaxOpenConns:    50,
-		ConnMaxIdleTime: 600,
+		MaxIdleConns:    10,
+		MaxOpenConns:    1, // SQLite 通常使用单连接
+		ConnMaxIdleTime: 300,
 		ConnMaxLifeTime: 3600,
 	}
 }
