@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-11 11:10:56
- * @FilePath: \go-config\pkg\smtp\smtp.go
+ * @LastEditTime: 2025-11-17 14:51:53
+ * @FilePath: \im-access-control-service\go-config\pkg\smtp\smtp.go
  * @Description: 邮箱配置模块
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
@@ -15,6 +15,8 @@ import "github.com/kamalyes/go-config/internal"
 
 // Smtp 邮箱配置
 type Smtp struct {
+	ModuleName  string            `mapstructure:"module_name" yaml:"module-name" json:"module_name"`    // 模块名称
+	Enabled     bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                // 是否启用
 	SMTPHost    string            `mapstructure:"smtp_host" yaml:"smtp-host" json:"smtp_host"`          // SMTP主机
 	SMTPPort    int               `mapstructure:"smtp_port" yaml:"smtp-port" json:"smtp_port"`          // SMTP端口
 	Username    string            `mapstructure:"username" yaml:"username" json:"username"`             // 用户名
@@ -23,11 +25,14 @@ type Smtp struct {
 	ToAddresses []string          `mapstructure:"to_addresses" yaml:"to-addresses" json:"to_addresses"` // 收件人地址列表
 	EnableTLS   bool              `mapstructure:"enable_tls" yaml:"enable-tls" json:"enable_tls"`       // 是否启用TLS
 	Headers     map[string]string `mapstructure:"headers" yaml:"headers" json:"headers"`                // 自定义头部
+	PoolSize    int               `mapstructure:"pool_size" yaml:"pool-size" json:"pool_size"`          // 连接池大小
 }
 
 // Default 创建默认邮箱配置
 func Default() *Smtp {
 	return &Smtp{
+		ModuleName:  "smtp",
+		Enabled:     true,
 		SMTPHost:    "127.0.0.1",
 		SMTPPort:    587,
 		Username:    "",
@@ -36,6 +41,7 @@ func Default() *Smtp {
 		ToAddresses: []string{},
 		EnableTLS:   true,
 		Headers:     make(map[string]string),
+		PoolSize:    5,
 	}
 }
 
@@ -54,6 +60,7 @@ func (e *Smtp) Set(data interface{}) {
 // Clone 返回配置的副本
 func (e *Smtp) Clone() internal.Configurable {
 	clone := &Smtp{
+		ModuleName:  e.ModuleName,
 		SMTPHost:    e.SMTPHost,
 		SMTPPort:    e.SMTPPort,
 		Username:    e.Username,
@@ -61,6 +68,7 @@ func (e *Smtp) Clone() internal.Configurable {
 		FromAddress: e.FromAddress,
 		ToAddresses: make([]string, len(e.ToAddresses)),
 		EnableTLS:   e.EnableTLS,
+		PoolSize:    e.PoolSize,
 	}
 
 	copy(clone.ToAddresses, e.ToAddresses)
@@ -76,6 +84,18 @@ func (e *Smtp) Clone() internal.Configurable {
 // Validate 验证配置
 func (e *Smtp) Validate() error {
 	return internal.ValidateStruct(e)
+}
+
+// WithModuleName 设置模块名称
+func (e *Smtp) WithModuleName(name string) *Smtp {
+	e.ModuleName = name
+	return e
+}
+
+// WithEnabled 设置是否启用
+func (e *Smtp) WithEnabled(enabled bool) *Smtp {
+	e.Enabled = enabled
+	return e
 }
 
 // WithSMTPHost 设置SMTP主机
@@ -105,6 +125,12 @@ func (e *Smtp) WithPassword(password string) *Smtp {
 // WithFromAddress 设置发件人地址
 func (e *Smtp) WithFromAddress(address string) *Smtp {
 	e.FromAddress = address
+	return e
+}
+
+// WithPoolSize 设置连接池大小
+func (e *Smtp) WithPoolSize(size int) *Smtp {
+	e.PoolSize = size
 	return e
 }
 

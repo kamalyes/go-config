@@ -22,65 +22,68 @@ import (
 type OSSType string
 
 const (
-	OSSTypeMinio    OSSType = "minio"
-	OSSTypeS3       OSSType = "s3"
+	OSSTypeMinio     OSSType = "minio"
+	OSSTypeS3        OSSType = "s3"
 	OSSTypeAliyunOSS OSSType = "aliyun"
+	OSSTypeBoltDB    OSSType = "boltdb"
 )
 
 // OSSProvider OSS提供商接口，统一不同OSS服务的操作
 type OSSProvider interface {
 	internal.Configurable
-	
+
 	// GetProviderType 获取提供商类型
 	GetProviderType() OSSType
-	
+
 	// GetEndpoint 获取端点地址
 	GetEndpoint() string
-	
+
 	// GetAccessKey 获取访问密钥
 	GetAccessKey() string
-	
+
 	// GetSecretKey 获取私密密钥
 	GetSecretKey() string
-	
+
 	// GetBucket 获取存储桶名称
 	GetBucket() string
-	
+
 	// IsSSL 是否使用SSL
 	IsSSL() bool
-	
+
 	// GetModuleName 获取模块名称
 	GetModuleName() string
-	
+
 	// SetCredentials 设置凭证
 	SetCredentials(accessKey, secretKey string)
-	
+
 	// SetEndpoint 设置端点
 	SetEndpoint(endpoint string)
-	
+
 	// SetBucket 设置存储桶
 	SetBucket(bucket string)
 }
 
 // OSSConfig OSS统一配置结构
 type OSSConfig struct {
-	Type     OSSType  `mapstructure:"type"     yaml:"type"     json:"type"`         // OSS类型
-	Enabled  bool     `mapstructure:"enabled"  yaml:"enabled"  json:"enabled"`      // 是否启用
-	Default  string   `mapstructure:"default"  yaml:"default"  json:"default"`      // 默认使用的OSS服务
-	Minio    *Minio   `mapstructure:"minio"    yaml:"minio"    json:"minio"`        // Minio配置
-	S3       *S3      `mapstructure:"s3"       yaml:"s3"       json:"s3"`           // AWS S3配置  
-	AliyunOSS *AliyunOss `mapstructure:"aliyun"   yaml:"aliyun"   json:"aliyun_oss"`   // 阿里云OSS配置
+	Type      OSSType    `mapstructure:"type"     yaml:"type"     json:"type"`       // OSS类型
+	Enabled   bool       `mapstructure:"enabled"  yaml:"enabled"  json:"enabled"`    // 是否启用
+	Default   string     `mapstructure:"default"  yaml:"default"  json:"default"`    // 默认使用的OSS服务
+	Minio     *Minio     `mapstructure:"minio"    yaml:"minio"    json:"minio"`      // Minio配置
+	S3        *S3        `mapstructure:"s3"       yaml:"s3"       json:"s3"`         // AWS S3配置
+	AliyunOSS *AliyunOss `mapstructure:"aliyun"   yaml:"aliyun"   json:"aliyun_oss"` // 阿里云OSS配置
+	BoltDB    *BoltDB    `mapstructure:"boltdb"   yaml:"boltdb"   json:"boltdb"`     // BoltDB本地存储配置
 }
 
 // NewOSSConfig 创建新的OSS配置
 func NewOSSConfig() *OSSConfig {
 	return &OSSConfig{
-		Type:    OSSTypeMinio,
-		Enabled: true,
-		Default: string(OSSTypeMinio),
-		Minio:   DefaultMinioConfig(),
-		S3:      DefaultS3Config(),
+		Type:      OSSTypeMinio,
+		Enabled:   true,
+		Default:   string(OSSTypeMinio),
+		Minio:     DefaultMinioConfig(),
+		S3:        DefaultS3Config(),
 		AliyunOSS: DefaultAliyunOSSConfig(),
+		BoltDB:    DefaultBoltDB(),
 	}
 }
 
@@ -102,6 +105,11 @@ func (c *OSSConfig) GetProvider(ossType OSSType) (OSSProvider, error) {
 			return nil, fmt.Errorf("aliyun oss config not found")
 		}
 		return c.AliyunOSS, nil
+	case OSSTypeBoltDB:
+		if c.BoltDB == nil {
+			return nil, fmt.Errorf("boltdb config not found")
+		}
+		return c.BoltDB, nil
 	default:
 		return nil, fmt.Errorf("unsupported oss type: %s", ossType)
 	}
@@ -122,7 +130,7 @@ func (c *OSSConfig) SetDefaultProvider(ossType OSSType) {
 // ListAvailableProviders 列出所有可用的OSS提供商
 func (c *OSSConfig) ListAvailableProviders() []OSSType {
 	var providers []OSSType
-	
+
 	if c.Minio != nil {
 		providers = append(providers, OSSTypeMinio)
 	}
@@ -132,7 +140,10 @@ func (c *OSSConfig) ListAvailableProviders() []OSSType {
 	if c.AliyunOSS != nil {
 		providers = append(providers, OSSTypeAliyunOSS)
 	}
-	
+	if c.BoltDB != nil {
+		providers = append(providers, OSSTypeBoltDB)
+	}
+
 	return providers
 }
 
@@ -142,20 +153,20 @@ func (c *OSSConfig) ValidateProvider(ossType OSSType) error {
 	if err != nil {
 		return err
 	}
-	
+
 	return provider.Validate()
 }
 
 // ValidateAll 验证所有配置的提供商
 func (c *OSSConfig) ValidateAll() error {
 	providers := c.ListAvailableProviders()
-	
+
 	for _, providerType := range providers {
 		if err := c.ValidateProvider(providerType); err != nil {
 			return fmt.Errorf("validation failed for %s: %w", providerType, err)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -166,7 +177,7 @@ func (c *OSSConfig) Clone() internal.Configurable {
 		Enabled: c.Enabled,
 		Default: c.Default,
 	}
-	
+
 	if c.Minio != nil {
 		newConfig.Minio = c.Minio.Clone().(*Minio)
 	}
@@ -176,7 +187,7 @@ func (c *OSSConfig) Clone() internal.Configurable {
 	if c.AliyunOSS != nil {
 		newConfig.AliyunOSS = c.AliyunOSS.Clone().(*AliyunOss)
 	}
-	
+
 	return newConfig
 }
 
@@ -197,17 +208,17 @@ func (c *OSSConfig) Validate() error {
 	if !c.Enabled {
 		return nil
 	}
-	
+
 	// 验证默认提供商设置
 	if c.Default == "" {
 		return fmt.Errorf("default oss provider not specified")
 	}
-	
+
 	defaultType := OSSType(c.Default)
 	if err := c.ValidateProvider(defaultType); err != nil {
 		return fmt.Errorf("default provider validation failed: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -222,7 +233,7 @@ func (c *OSSConfig) EnsureDefaults() {
 	if c.AliyunOSS == nil {
 		c.AliyunOSS = DefaultAliyunOSSConfig()
 	}
-	
+
 	// 如果没有设置默认类型，使用MinIO
 	if c.Default == "" {
 		c.Default = string(OSSTypeMinio)
@@ -250,7 +261,7 @@ func (c *OSSConfig) BeforeLoad() error {
 // AfterLoad 配置加载后的钩子
 func (c *OSSConfig) AfterLoad() error {
 	c.EnsureDefaults()
-	
+
 	// 验证默认提供商配置的有效性
 	if c.Default != "" {
 		if err := c.ValidateProvider(OSSType(c.Default)); err != nil {
@@ -259,7 +270,7 @@ func (c *OSSConfig) AfterLoad() error {
 			c.Type = OSSTypeMinio
 		}
 	}
-	
+
 	return nil
 }
 
