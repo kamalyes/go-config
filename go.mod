@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/kamalyes/go-logger v0.3.0
-	github.com/kamalyes/go-toolbox v0.11.67
+	github.com/kamalyes/go-toolbox v0.11.68
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.11.1
 )
