@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-15 13:29:12
+ * @LastEditTime: 2025-11-18 13:09:55
  * @FilePath: \go-config\pkg\gateway\gateway.go
  * @Description: Gateway网关统一配置模块
  *
@@ -41,6 +41,7 @@ type Gateway struct {
 	Debug         bool                         `mapstructure:"debug" yaml:"debug" json:"debug"`                         // 是否启用调试模式
 	Version       string                       `mapstructure:"version" yaml:"version" json:"version"`                   // 版本号
 	Environment   string                       `mapstructure:"environment" yaml:"environment" json:"environment"`       // 环境 (dev, test, prod)
+	JSON          *JSON                        `mapstructure:"json" yaml:"json" json:"json"`                            // JSON序列化配置
 	HTTPServer    *HTTPServer                  `mapstructure:"http" yaml:"http" json:"http"`                            // HTTP服务器配置
 	GRPC          *GRPC                        `mapstructure:"grpc" yaml:"grpc" json:"grpc"`                            // GRPC配置
 	Cache         *cache.Cache                 `mapstructure:"cache" yaml:"cache" json:"cache"`                         // 缓存配置(包含Redis)
@@ -72,6 +73,7 @@ func Default() *Gateway {
 		Debug:         false,
 		Version:       "v1.0.0",
 		Environment:   "dev",
+		JSON:          DefaultJSON(),
 		HTTPServer:    DefaultHTTPServer(),
 		GRPC:          DefaultGRPC(),
 		Cache:         cache.Default(),
@@ -140,6 +142,7 @@ func (c *Gateway) Clone() internal.Configurable {
 		Debug:         c.Debug,
 		Version:       c.Version,
 		Environment:   c.Environment,
+		JSON:          c.JSON.Clone(),
 		HTTPServer:    c.HTTPServer.Clone(),
 		GRPC:          c.GRPC.Clone(),
 		Cache:         c.Cache.Clone().(*cache.Cache),
@@ -169,6 +172,11 @@ func (c *Gateway) Validate() error {
 	}
 
 	// 验证子配置
+	if c.JSON != nil {
+		if err := c.JSON.Validate(); err != nil {
+			return err
+		}
+	}
 	if c.Cache != nil {
 		if err := c.Cache.Validate(); err != nil {
 			return err
