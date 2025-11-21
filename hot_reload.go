@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 11:10:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 12:00:00
+ * @LastEditTime: 2025-11-21 16:35:10
  * @FilePath: \go-config\hot_reload.go
  * @Description: 配置热更新和回调监听功能模块 - 重构优化版本
  *
@@ -15,11 +15,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"path/filepath"
 	"reflect"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 )
 
@@ -146,7 +149,6 @@ type hotReloadManager struct {
 	cancel        context.CancelFunc       // 取消函数
 	configPath    string                   // 配置文件路径
 	debounceTimer *time.Timer              // 防抖定时器
-	lastModTime   time.Time                // 最后修改时间
 }
 
 // NewHotReloader 创建新的热更新器
@@ -514,8 +516,29 @@ func (h *hotReloadManager) reloadConfig(ctx context.Context, source string) erro
 
 	// 解析到配置结构
 	newConfig := reflect.New(reflect.TypeOf(h.config).Elem()).Interface()
-	if err := h.viper.Unmarshal(newConfig); err != nil {
-		log.Printf("解析配置文件失败: %v", err)
+	// 根据配置文件类型自动选择 tag（YAML用yaml tag，JSON用json tag）
+	tagName := h.detectConfigTag()
+
+	// 使用 mapstructure 直接解码，设置正确的 TagName
+	decoderConfig := &mapstructure.DecoderConfig{
+		TagName:          tagName,
+		WeaklyTypedInput: true,
+		Result:           newConfig,
+		DecodeHook: mapstructure.ComposeDecodeHookFunc(
+			mapstructure.StringToTimeDurationHookFunc(),
+			mapstructure.StringToSliceHookFunc(","),
+		),
+	}
+
+	decoder, err := mapstructure.NewDecoder(decoderConfig)
+	if err != nil {
+		log.Printf("创建解码器失败: %v", err)
+		h.triggerErrorCallback(ctx, err, source)
+		return err
+	}
+
+	if err := decoder.Decode(h.viper.AllSettings()); err != nil {
+		log.Printf("解析配置文件失败 (使用 %s tag): %v", tagName, err)
 		h.triggerErrorCallback(ctx, err, source)
 		return err
 	}
@@ -603,4 +626,31 @@ func (h *hotReloadManager) triggerErrorCallback(ctx context.Context, err error, 
 			log.Printf("触发错误回调失败: %v", triggerErr)
 		}
 	}()
+}
+
+// detectConfigTag 自动检测配置文件类型并返回对应的 tag 名称
+func (h *hotReloadManager) detectConfigTag() string {
+	// 获取配置文件类型
+	configType := h.viper.ConfigFileUsed()
+	if configType == "" {
+		configType = h.configPath
+	}
+
+	// 根据文件扩展名判断
+	ext := strings.ToLower(filepath.Ext(configType))
+	switch ext {
+	case ".json":
+		log.Printf("检测到 JSON 配置文件，使用 json tag")
+		return "json"
+	case ".yaml", ".yml":
+		log.Printf("检测到 YAML 配置文件，使用 yaml tag")
+		return "yaml"
+	case ".toml":
+		log.Printf("检测到 TOML 配置文件，使用 toml tag")
+		return "toml"
+	default:
+		// 默认使用 yaml tag（兼容 kebab-case）
+		log.Printf("未识别配置文件类型 %s,默认使用 yaml tag", ext)
+		return "yaml"
+	}
 }

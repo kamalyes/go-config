@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -430,4 +431,448 @@ func createTempConfigFileB(b *testing.B, content string) string {
 	}
 
 	return configFile
+}
+
+// TestDetectConfigTag_YAML 测试 YAML 文件类型检测和 tag 映射
+func TestDetectConfigTag_YAML(t *testing.T) {
+	// 创建临时 YAML 配置文件（使用 kebab-case）
+	configContent := `
+app:
+  name: "yaml-test-app"
+  version: "2.0.0"
+  debug: false
+
+server:
+  host: "0.0.0.0"
+  port: 9090
+
+database:
+  max-idle-conns: 15
+  max-open-conns: 150
+  timeout: 45s
+`
+	configFile := createTempConfigFile(t, configContent)
+
+	// 创建 Viper 实例
+	v := viper.New()
+	v.SetConfigFile(configFile)
+	err := v.ReadInConfig()
+	require.NoError(t, err)
+
+	// 创建配置结构（包含 kebab-case 字段）
+	type DBConfig struct {
+		MaxIdleConns int           `yaml:"max-idle-conns" json:"maxIdleConns"`
+		MaxOpenConns int           `yaml:"max-open-conns" json:"maxOpenConns"`
+		Timeout      time.Duration `yaml:"timeout" json:"timeout"`
+	}
+
+	type YAMLTestConfig struct {
+		App struct {
+			Name    string `yaml:"name" json:"name"`
+			Version string `yaml:"version" json:"version"`
+			Debug   bool   `yaml:"debug" json:"debug"`
+		} `yaml:"app" json:"app"`
+		Server struct {
+			Host string `yaml:"host" json:"host"`
+			Port int    `yaml:"port" json:"port"`
+		} `yaml:"server" json:"server"`
+		Database DBConfig `yaml:"database" json:"database"`
+	}
+
+	config := &YAMLTestConfig{}
+	reloader, err := NewHotReloader(config, v, configFile, &HotReloadConfig{
+		Enabled: false,
+	})
+	require.NoError(t, err)
+
+	manager := reloader.(*hotReloadManager)
+
+	// 测试 1: 检测文件类型为 YAML
+	tagName := manager.detectConfigTag()
+	assert.Equal(t, "yaml", tagName, "应该检测到 YAML 配置文件")
+
+	// 测试 2: 使用 yaml tag 解析配置
+	err = v.Unmarshal(config, func(dc *mapstructure.DecoderConfig) {
+		dc.TagName = tagName
+		dc.WeaklyTypedInput = true
+	})
+	require.NoError(t, err)
+
+	// 测试 3: 验证 kebab-case 字段正确映射
+	assert.Equal(t, "yaml-test-app", config.App.Name)
+	assert.Equal(t, "2.0.0", config.App.Version)
+	assert.False(t, config.App.Debug)
+	assert.Equal(t, "0.0.0.0", config.Server.Host)
+	assert.Equal(t, 9090, config.Server.Port)
+	assert.Equal(t, 15, config.Database.MaxIdleConns, "max-idle-conns 应该映射到 MaxIdleConns")
+	assert.Equal(t, 150, config.Database.MaxOpenConns, "max-open-conns 应该映射到 MaxOpenConns")
+	assert.Equal(t, 45*time.Second, config.Database.Timeout)
+
+	t.Logf("✅ YAML 文件检测和 kebab-case 映射测试通过")
+}
+
+// TestDetectConfigTag_JSON 测试 JSON 文件类型检测和 tag 映射
+func TestDetectConfigTag_JSON(t *testing.T) {
+	// 创建临时 JSON 配置文件（使用 camelCase）
+	tmpDir := t.TempDir()
+	jsonPath := filepath.Join(tmpDir, "test.json")
+
+	jsonContent := `{
+  "app": {
+    "name": "json-test-app",
+    "version": "3.0.0",
+    "debug": true
+  },
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8888
+  },
+  "database": {
+    "maxIdleConns": 25,
+    "maxOpenConns": 250,
+    "timeout": "60s"
+  }
+}`
+	err := os.WriteFile(jsonPath, []byte(jsonContent), 0644)
+	require.NoError(t, err)
+
+	// 创建 Viper 实例
+	v := viper.New()
+	v.SetConfigFile(jsonPath)
+	err = v.ReadInConfig()
+	require.NoError(t, err)
+
+	// 创建配置结构
+	type DBConfig struct {
+		MaxIdleConns int           `yaml:"max-idle-conns" json:"maxIdleConns"`
+		MaxOpenConns int           `yaml:"max-open-conns" json:"maxOpenConns"`
+		Timeout      time.Duration `yaml:"timeout" json:"timeout"`
+	}
+
+	type JSONTestConfig struct {
+		App struct {
+			Name    string `yaml:"name" json:"name"`
+			Version string `yaml:"version" json:"version"`
+			Debug   bool   `yaml:"debug" json:"debug"`
+		} `yaml:"app" json:"app"`
+		Server struct {
+			Host string `yaml:"host" json:"host"`
+			Port int    `yaml:"port" json:"port"`
+		} `yaml:"server" json:"server"`
+		Database DBConfig `yaml:"database" json:"database"`
+	}
+
+	config := &JSONTestConfig{}
+	reloader, err := NewHotReloader(config, v, jsonPath, &HotReloadConfig{
+		Enabled: false,
+	})
+	require.NoError(t, err)
+
+	manager := reloader.(*hotReloadManager)
+
+	// 测试 1: 检测文件类型为 JSON
+	tagName := manager.detectConfigTag()
+	assert.Equal(t, "json", tagName, "应该检测到 JSON 配置文件")
+
+	// 测试 2: 使用 json tag 解析配置
+	err = v.Unmarshal(config, func(dc *mapstructure.DecoderConfig) {
+		dc.TagName = tagName
+		dc.WeaklyTypedInput = true
+	})
+	require.NoError(t, err)
+
+	// 测试 3: 验证 camelCase 字段正确映射
+	assert.Equal(t, "json-test-app", config.App.Name)
+	assert.Equal(t, "3.0.0", config.App.Version)
+	assert.True(t, config.App.Debug)
+	assert.Equal(t, "127.0.0.1", config.Server.Host)
+	assert.Equal(t, 8888, config.Server.Port)
+	assert.Equal(t, 25, config.Database.MaxIdleConns, "maxIdleConns 应该映射到 MaxIdleConns")
+	assert.Equal(t, 250, config.Database.MaxOpenConns, "maxOpenConns 应该映射到 MaxOpenConns")
+	assert.Equal(t, 60*time.Second, config.Database.Timeout)
+
+	t.Logf("✅ JSON 文件检测和 camelCase 映射测试通过")
+}
+
+// TestDetectConfigTag_YML 测试 .yml 扩展名识别
+func TestDetectConfigTag_YML(t *testing.T) {
+	tmpDir := t.TempDir()
+	ymlPath := filepath.Join(tmpDir, "test.yml")
+
+	ymlContent := `
+app:
+  name: "yml-test"
+server:
+  host: "localhost"
+  port: 3000
+`
+	err := os.WriteFile(ymlPath, []byte(ymlContent), 0644)
+	require.NoError(t, err)
+
+	v := viper.New()
+	v.SetConfigFile(ymlPath)
+	err = v.ReadInConfig()
+	require.NoError(t, err)
+
+	config := &TestConfig{}
+	reloader, err := NewHotReloader(config, v, ymlPath, nil)
+	require.NoError(t, err)
+
+	manager := reloader.(*hotReloadManager)
+	tagName := manager.detectConfigTag()
+
+	assert.Equal(t, "yaml", tagName, ".yml 扩展名应该被识别为 YAML 文件")
+	t.Logf("✅ .yml 扩展名识别测试通过")
+}
+
+// TestDetectConfigTag_TOML 测试 TOML 文件类型检测
+func TestDetectConfigTag_TOML(t *testing.T) {
+	tmpDir := t.TempDir()
+	tomlPath := filepath.Join(tmpDir, "test.toml")
+
+	tomlContent := `
+[app]
+name = "toml-test"
+
+[server]
+host = "localhost"
+port = 8080
+`
+	err := os.WriteFile(tomlPath, []byte(tomlContent), 0644)
+	require.NoError(t, err)
+
+	v := viper.New()
+	v.SetConfigFile(tomlPath)
+	err = v.ReadInConfig()
+	require.NoError(t, err)
+
+	config := &TestConfig{}
+	reloader, err := NewHotReloader(config, v, tomlPath, nil)
+	require.NoError(t, err)
+
+	manager := reloader.(*hotReloadManager)
+	tagName := manager.detectConfigTag()
+
+	assert.Equal(t, "toml", tagName, "应该检测到 TOML 配置文件")
+	t.Logf("✅ TOML 文件类型检测测试通过")
+}
+
+// TestDetectConfigTag_Unknown 测试未知文件类型默认处理
+func TestDetectConfigTag_Unknown(t *testing.T) {
+	tmpDir := t.TempDir()
+	unknownPath := filepath.Join(tmpDir, "test.conf")
+
+	err := os.WriteFile(unknownPath, []byte("test content"), 0644)
+	require.NoError(t, err)
+
+	v := viper.New()
+	config := &TestConfig{}
+
+	reloader, err := NewHotReloader(config, v, unknownPath, nil)
+	require.NoError(t, err)
+
+	manager := reloader.(*hotReloadManager)
+	tagName := manager.detectConfigTag()
+
+	assert.Equal(t, "yaml", tagName, "未知文件类型应该默认使用 yaml tag")
+	t.Logf("✅ 未知文件类型默认处理测试通过")
+}
+
+// TestReloadConfig_AutoDetectYAML 测试 YAML 配置自动重新加载
+func TestReloadConfig_AutoDetectYAML(t *testing.T) {
+	tmpDir := t.TempDir()
+	yamlPath := filepath.Join(tmpDir, "reload.yaml")
+
+	// 初始配置（kebab-case）
+	initialContent := `
+app:
+  name: "initial-app"
+  version: "1.0.0"
+
+server:
+  host: "localhost"
+  port: 8080
+
+database:
+  max-idle-conns: 10
+  max-open-conns: 100
+`
+	err := os.WriteFile(yamlPath, []byte(initialContent), 0644)
+	require.NoError(t, err)
+
+	// 创建 Viper 和配置
+	v := viper.New()
+	v.SetConfigFile(yamlPath)
+	err = v.ReadInConfig()
+	require.NoError(t, err)
+
+	type DBConfig struct {
+		MaxIdleConns int `yaml:"max-idle-conns" json:"maxIdleConns"`
+		MaxOpenConns int `yaml:"max-open-conns" json:"maxOpenConns"`
+	}
+
+	type ReloadTestConfig struct {
+		App struct {
+			Name    string `yaml:"name" json:"name"`
+			Version string `yaml:"version" json:"version"`
+		} `yaml:"app" json:"app"`
+		Server struct {
+			Host string `yaml:"host" json:"host"`
+			Port int    `yaml:"port" json:"port"`
+		} `yaml:"server" json:"server"`
+		Database DBConfig `yaml:"database" json:"database"`
+	}
+
+	config := &ReloadTestConfig{}
+	err = v.Unmarshal(config, func(dc *mapstructure.DecoderConfig) {
+		dc.TagName = "yaml"
+		dc.WeaklyTypedInput = true
+	})
+	require.NoError(t, err)
+
+	// 创建热更新器
+	reloader, err := NewHotReloader(config, v, yamlPath, &HotReloadConfig{
+		Enabled: false,
+	})
+	require.NoError(t, err)
+
+	// 验证初始值
+	currentConfig := reloader.GetConfig().(*ReloadTestConfig)
+	assert.Equal(t, "initial-app", currentConfig.App.Name)
+	assert.Equal(t, "1.0.0", currentConfig.App.Version)
+	assert.Equal(t, "localhost", currentConfig.Server.Host)
+	assert.Equal(t, 8080, currentConfig.Server.Port)
+	assert.Equal(t, 10, currentConfig.Database.MaxIdleConns)
+	assert.Equal(t, 100, currentConfig.Database.MaxOpenConns)
+
+	// 修改配置文件
+	updatedContent := `
+app:
+  name: "updated-app"
+  version: "2.0.0"
+
+server:
+  host: "0.0.0.0"
+  port: 9090
+
+database:
+  max-idle-conns: 20
+  max-open-conns: 200
+`
+	err = os.WriteFile(yamlPath, []byte(updatedContent), 0644)
+	require.NoError(t, err)
+
+	// 手动触发重新加载
+	ctx := context.Background()
+	err = reloader.Reload(ctx)
+	require.NoError(t, err)
+
+	// 验证配置已更新
+	updatedConfig := reloader.GetConfig().(*ReloadTestConfig)
+	assert.Equal(t, "updated-app", updatedConfig.App.Name, "App.Name 应该更新")
+	assert.Equal(t, "2.0.0", updatedConfig.App.Version, "App.Version 应该更新")
+	assert.Equal(t, "0.0.0.0", updatedConfig.Server.Host, "Server.Host 应该更新")
+	assert.Equal(t, 9090, updatedConfig.Server.Port, "Server.Port 应该更新")
+	assert.Equal(t, 20, updatedConfig.Database.MaxIdleConns, "MaxIdleConns 应该更新")
+	assert.Equal(t, 200, updatedConfig.Database.MaxOpenConns, "MaxOpenConns 应该更新")
+
+	t.Logf("✅ YAML 配置自动重新加载测试通过")
+}
+
+// TestReloadConfig_AutoDetectJSON 测试 JSON 配置自动重新加载
+func TestReloadConfig_AutoDetectJSON(t *testing.T) {
+	tmpDir := t.TempDir()
+	jsonPath := filepath.Join(tmpDir, "reload.json")
+
+	// 初始配置（camelCase）
+	initialContent := `{
+  "app": {
+    "name": "initial-json-app",
+    "version": "1.0.0"
+  },
+  "server": {
+    "host": "localhost",
+    "port": 8080
+  },
+  "database": {
+    "maxIdleConns": 10,
+    "maxOpenConns": 100
+  }
+}`
+	err := os.WriteFile(jsonPath, []byte(initialContent), 0644)
+	require.NoError(t, err)
+
+	v := viper.New()
+	v.SetConfigFile(jsonPath)
+	err = v.ReadInConfig()
+	require.NoError(t, err)
+
+	type DBConfig struct {
+		MaxIdleConns int `yaml:"max-idle-conns" json:"maxIdleConns"`
+		MaxOpenConns int `yaml:"max-open-conns" json:"maxOpenConns"`
+	}
+
+	type ReloadTestConfig struct {
+		App struct {
+			Name    string `yaml:"name" json:"name"`
+			Version string `yaml:"version" json:"version"`
+		} `yaml:"app" json:"app"`
+		Server struct {
+			Host string `yaml:"host" json:"host"`
+			Port int    `yaml:"port" json:"port"`
+		} `yaml:"server" json:"server"`
+		Database DBConfig `yaml:"database" json:"database"`
+	}
+
+	config := &ReloadTestConfig{}
+	err = v.Unmarshal(config, func(dc *mapstructure.DecoderConfig) {
+		dc.TagName = "json"
+		dc.WeaklyTypedInput = true
+	})
+	require.NoError(t, err)
+
+	reloader, err := NewHotReloader(config, v, jsonPath, &HotReloadConfig{
+		Enabled: false,
+	})
+	require.NoError(t, err)
+
+	// 验证初始值
+	currentConfig := reloader.GetConfig().(*ReloadTestConfig)
+	assert.Equal(t, "initial-json-app", currentConfig.App.Name)
+	assert.Equal(t, 8080, currentConfig.Server.Port)
+	assert.Equal(t, 10, currentConfig.Database.MaxIdleConns)
+
+	// 修改配置
+	updatedContent := `{
+  "app": {
+    "name": "updated-json-app",
+    "version": "2.0.0"
+  },
+  "server": {
+    "host": "0.0.0.0",
+    "port": 9090
+  },
+  "database": {
+    "maxIdleConns": 25,
+    "maxOpenConns": 250
+  }
+}`
+	err = os.WriteFile(jsonPath, []byte(updatedContent), 0644)
+	require.NoError(t, err)
+
+	// 重新加载
+	ctx := context.Background()
+	err = reloader.Reload(ctx)
+	require.NoError(t, err)
+
+	// 验证更新
+	updatedConfig := reloader.GetConfig().(*ReloadTestConfig)
+	assert.Equal(t, "updated-json-app", updatedConfig.App.Name)
+	assert.Equal(t, "2.0.0", updatedConfig.App.Version)
+	assert.Equal(t, "0.0.0.0", updatedConfig.Server.Host)
+	assert.Equal(t, 9090, updatedConfig.Server.Port)
+	assert.Equal(t, 25, updatedConfig.Database.MaxIdleConns)
+	assert.Equal(t, 250, updatedConfig.Database.MaxOpenConns)
+
+	t.Logf("✅ JSON 配置自动重新加载测试通过")
 }
