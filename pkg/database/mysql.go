@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 23:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-16 19:04:18
+ * @LastEditTime: 2025-11-22 16:54:04
  * @FilePath: \go-config\pkg\database\mysql.go
  * @Description: MySQL数据库配置
  *
@@ -31,17 +31,19 @@ type MySQL struct {
 }
 
 // 为MySQL配置实现DatabaseProvider接口
-func (m *MySQL) GetDBType() DBType { return DBTypeMySQL }
-func (m *MySQL) GetHost() string { return m.Host }
-func (m *MySQL) GetPort() string { return m.Port }
-func (m *MySQL) GetDBName() string { return m.Dbname }
-func (m *MySQL) GetUsername() string { return m.Username }
-func (m *MySQL) GetPassword() string { return m.Password }
-func (m *MySQL) GetConfig() string { return m.Config }
+func (m *MySQL) GetDBType() DBType     { return DBTypeMySQL }
+func (m *MySQL) GetHost() string       { return m.Host }
+func (m *MySQL) GetPort() string       { return m.Port }
+func (m *MySQL) GetDBName() string     { return m.Dbname }
+func (m *MySQL) GetUsername() string   { return m.Username }
+func (m *MySQL) GetPassword() string   { return m.Password }
+func (m *MySQL) GetConfig() string     { return m.Config }
 func (m *MySQL) GetModuleName() string { return m.ModuleName }
-func (m *MySQL) SetCredentials(username, password string) { m.Username, m.Password = username, password }
-func (m *MySQL) SetHost(host string) { m.Host = host }
-func (m *MySQL) SetPort(port string) { m.Port = port }
+func (m *MySQL) SetCredentials(username, password string) {
+	m.Username, m.Password = username, password
+}
+func (m *MySQL) SetHost(host string)     { m.Host = host }
+func (m *MySQL) SetPort(port string)     { m.Port = port }
 func (m *MySQL) SetDBName(dbName string) { m.Dbname = dbName }
 
 func (m *MySQL) Clone() internal.Configurable {
@@ -63,10 +65,11 @@ func (m *MySQL) Clone() internal.Configurable {
 
 func (m *MySQL) Get() interface{} { return m }
 func (m *MySQL) Set(data interface{}) {
-	if cfg, ok := data.(*MySQL); ok { *m = *cfg }
+	if cfg, ok := data.(*MySQL); ok {
+		*m = *cfg
+	}
 }
 func (m *MySQL) Validate() error { return internal.ValidateStruct(m) }
-
 
 // DefaultMySQL 创建默认MySQL配置
 func DefaultMySQL() *MySQL {
@@ -78,10 +81,10 @@ func DefaultMySQL() *MySQL {
 		LogLevel:        "info",
 		Dbname:          "test",
 		Username:        "root",
-		Password:        "",
+		Password:        "mysql_password",
 		MaxIdleConns:    10,
 		MaxOpenConns:    100,
-		ConnMaxIdleTime: 300, // 5分钟
+		ConnMaxIdleTime: 300,  // 5分钟
 		ConnMaxLifeTime: 3600, // 1小时
 	}
 }

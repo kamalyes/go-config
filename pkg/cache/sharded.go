@@ -69,6 +69,12 @@ func DefaultShardedConfig() Sharded {
 	}
 }
 
+// DefaultSharded 返回默认分片缓存配置的指针，支持链式调用
+func DefaultSharded() *Sharded {
+	config := DefaultShardedConfig()
+	return &config
+}
+
 // Validate 验证分片缓存配置
 func (s *Sharded) Validate() error {
 	if s.ShardCount <= 0 {

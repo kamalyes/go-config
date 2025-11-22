@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-08 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-09 00:18:34
+ * @LastEditTime: 2025-11-22 00:05:55
  * @FilePath: \go-config\pkg\cache\ristretto.go
  * @Description: Ristretto 高性能缓存配置
  *
@@ -79,6 +79,12 @@ func DefaultRistrettoConfig() Ristretto {
 		KeyToHash:          true,
 		Cost:               1,
 	}
+}
+
+// DefaultRistretto 返回默认 Ristretto 配置的指针，支持链式调用
+func DefaultRistretto() *Ristretto {
+	config := DefaultRistrettoConfig()
+	return &config
 }
 
 // Validate 验证 Ristretto 配置

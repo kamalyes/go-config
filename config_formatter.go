@@ -12,13 +12,12 @@
 package goconfig
 
 import (
-	"sync"
-	"time"
-
 	"github.com/kamalyes/go-config/pkg/cache"
 	"github.com/kamalyes/go-config/pkg/database"
 	"github.com/kamalyes/go-config/pkg/gateway"
 	"github.com/kamalyes/go-logger"
+	"sync"
+	"time"
 )
 
 var (
@@ -114,7 +113,7 @@ func (cf *ConfigFormatter) LogHTTPServer(httpConfig *gateway.HTTPServer) {
 // LogDatabase 记录数据库配置
 func (cf *ConfigFormatter) LogDatabase(dbConfig *database.Database) {
 	cf.logger.Info("   🗄️ 数据库配置:")
-	
+
 	// 获取默认提供商配置
 	if provider, err := dbConfig.GetDefaultProvider(); err == nil {
 		cf.logger.Info("      📍 类型: %s", provider.GetDBType())

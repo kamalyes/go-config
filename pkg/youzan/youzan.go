@@ -82,10 +82,10 @@ func Default() *YouZan {
 func DefaultYouZan() YouZan {
 	return YouZan{
 		Endpoint:      "https://open.youzan.com",
-		ClientID:      "",
-		ClientSecret:  "",
+		ClientID:      "demo_client_id",
+		ClientSecret:  "demo_client_secret",
 		AuthorizeType: "silent",
-		GrantID:       "",
+		GrantID:       "demo_grant_id",
 		Refresh:       true,
 		ModuleName:    "youzan",
 	}

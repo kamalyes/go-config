@@ -105,8 +105,8 @@ func DefaultMqtt() Mqtt {
 		PingTimeout:          10,  // 10秒
 		WriteTimeout:         10,  // 10秒
 		ConnectTimeout:       30,  // 30秒
-		Username:             "",
-		Password:             "",
+		Username:             "mqtt_user",
+		Password:             "mqtt_password",
 		CleanSession:         true,
 		AutoReconnect:        true,
 		WillTopic:            "",

@@ -1,8 +1,0 @@
-# AliyunSts 配置文件示例
-aliyunsts:
-  modulename: "your_module_name"        # 模块名称
-  region-id: "cn-hangzhou"              # 区域 ID
-  access-key-id: "your_access_key_id"   # 访问密钥 ID
-  access-key-secret: "your_access_key_secret"  # 访问密钥 Secret
-  role-arn: "acs:ram::your_account_id:role/your_role_name"  # 角色 ARN
-  role-session-name: "your_session_name"  # 角色会话名称

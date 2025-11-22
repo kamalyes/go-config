@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 23:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-16 19:03:58
+ * @LastEditTime: 2025-11-22 16:53:36
  * @FilePath: \go-config\pkg\database\postgresql.go
  * @Description: PostgreSQL数据库配置
  *
@@ -31,17 +31,19 @@ type PostgreSQL struct {
 }
 
 // 为PostgreSQL配置实现DatabaseProvider接口
-func (p *PostgreSQL) GetDBType() DBType { return DBTypePostgreSQL }
-func (p *PostgreSQL) GetHost() string { return p.Host }
-func (p *PostgreSQL) GetPort() string { return p.Port }
-func (p *PostgreSQL) GetDBName() string { return p.Dbname }
-func (p *PostgreSQL) GetUsername() string { return p.Username }
-func (p *PostgreSQL) GetPassword() string { return p.Password }
-func (p *PostgreSQL) GetConfig() string { return p.Config }
+func (p *PostgreSQL) GetDBType() DBType     { return DBTypePostgreSQL }
+func (p *PostgreSQL) GetHost() string       { return p.Host }
+func (p *PostgreSQL) GetPort() string       { return p.Port }
+func (p *PostgreSQL) GetDBName() string     { return p.Dbname }
+func (p *PostgreSQL) GetUsername() string   { return p.Username }
+func (p *PostgreSQL) GetPassword() string   { return p.Password }
+func (p *PostgreSQL) GetConfig() string     { return p.Config }
 func (p *PostgreSQL) GetModuleName() string { return p.ModuleName }
-func (p *PostgreSQL) SetCredentials(username, password string) { p.Username, p.Password = username, password }
-func (p *PostgreSQL) SetHost(host string) { p.Host = host }
-func (p *PostgreSQL) SetPort(port string) { p.Port = port }
+func (p *PostgreSQL) SetCredentials(username, password string) {
+	p.Username, p.Password = username, password
+}
+func (p *PostgreSQL) SetHost(host string)     { p.Host = host }
+func (p *PostgreSQL) SetPort(port string)     { p.Port = port }
 func (p *PostgreSQL) SetDBName(dbName string) { p.Dbname = dbName }
 
 func (p *PostgreSQL) Clone() internal.Configurable {
@@ -62,7 +64,9 @@ func (p *PostgreSQL) Clone() internal.Configurable {
 }
 func (p *PostgreSQL) Get() interface{} { return p }
 func (p *PostgreSQL) Set(data interface{}) {
-	if cfg, ok := data.(*PostgreSQL); ok { *p = *cfg }
+	if cfg, ok := data.(*PostgreSQL); ok {
+		*p = *cfg
+	}
 }
 func (p *PostgreSQL) Validate() error { return internal.ValidateStruct(p) }
 
@@ -76,10 +80,10 @@ func DefaultPostgreSQL() *PostgreSQL {
 		LogLevel:        "info",
 		Dbname:          "postgres",
 		Username:        "postgres",
-		Password:        "",
+		Password:        "postgres_password",
 		MaxIdleConns:    10,
 		MaxOpenConns:    100,
-		ConnMaxIdleTime: 300, // 5分钟
+		ConnMaxIdleTime: 300,  // 5分钟
 		ConnMaxLifeTime: 3600, // 1小时
 	}
 }

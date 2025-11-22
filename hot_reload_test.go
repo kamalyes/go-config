@@ -14,16 +14,16 @@ package goconfig
 import (
 	"context"
 	"fmt"
+	"github.com/kamalyes/go-config/pkg/gateway"
+	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"sync"
 	"testing"
 	"time"
-
-	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 // TestConfig 测试配置结构
@@ -260,7 +260,7 @@ server:
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err = manager.ReloadConfig(ctx)
+	err = manager.GetHotReloader().Reload(ctx)
 	require.NoError(t, err)
 
 	// 等待回调触发
@@ -875,4 +875,233 @@ func TestReloadConfig_AutoDetectJSON(t *testing.T) {
 	assert.Equal(t, 250, updatedConfig.Database.MaxOpenConns)
 
 	t.Logf("✅ JSON 配置自动重新加载测试通过")
+}
+
+// TestHTTPServerHotReload_YAML 测试HTTPServer模块的YAML热更新功能
+func TestHTTPServerHotReload_YAML(t *testing.T) {
+	// 创建临时YAML配置文件 - HTTPServer格式
+	initialYAML := `
+module-name: "test-http-server"
+host: "localhost"
+port: 8080
+grpc-port: 9090
+read-timeout: 30
+write-timeout: 30
+idle-timeout: 60
+max-header-bytes: 1048576
+enable-http: true
+enable-grpc: false
+enable-tls: false
+enable-gzip-compress: true
+tls:
+  cert-file: ""
+  key-file: ""
+  ca-file: ""
+headers: {}
+`
+	configFile := createTempConfigFile(t, initialYAML)
+	defer os.Remove(configFile)
+
+	// 使用现有方法创建Viper实例
+	v, err := createViper(configFile)
+	require.NoError(t, err)
+
+	// 创建HTTPServer配置实例
+	config := gateway.DefaultHTTPServer()
+	err = v.Unmarshal(config, func(dc *mapstructure.DecoderConfig) {
+		dc.TagName = "yaml"
+		dc.WeaklyTypedInput = true
+	})
+	require.NoError(t, err)
+
+	// 验证初始配置与DefaultHTTPServer的对比
+	defaultConfig := gateway.DefaultHTTPServer()
+	assert.Equal(t, "test-http-server", config.ModuleName)
+	assert.NotEqual(t, defaultConfig.ModuleName, config.ModuleName) // 验证与默认值不同
+	assert.Equal(t, "localhost", config.Host)
+	assert.Equal(t, 8080, config.Port)
+	assert.Equal(t, 9090, config.GrpcPort)
+	assert.Equal(t, defaultConfig.ReadTimeout, config.ReadTimeout)   // 与默认值相同
+	assert.Equal(t, defaultConfig.WriteTimeout, config.WriteTimeout) // 与默认值相同
+	assert.True(t, config.EnableHttp)
+	assert.False(t, config.EnableGrpc)
+
+	// 创建热更新器
+	hotReloader, err := NewHotReloader(config, v, configFile, &HotReloadConfig{
+		Enabled:       true,
+		DebounceDelay: 100 * time.Millisecond,
+	})
+	require.NoError(t, err)
+
+	// 启动热更新
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = hotReloader.Start(ctx)
+	require.NoError(t, err)
+	defer hotReloader.Stop()
+
+	// 修改YAML配置文件
+	updatedYAML := `
+module-name: "updated-http-server"
+host: "0.0.0.0"
+port: 9090
+grpc-port: 8080
+read-timeout: 60
+write-timeout: 60
+idle-timeout: 120
+max-header-bytes: 2097152
+enable-http: false
+enable-grpc: true
+enable-tls: true
+enable-gzip-compress: false
+tls:
+  cert-file: "/path/to/cert.pem"
+  key-file: "/path/to/key.pem"
+  ca-file: "/path/to/ca.pem"
+headers:
+  X-Custom-Header: "yaml-test-value"
+`
+	err = os.WriteFile(configFile, []byte(updatedYAML), 0644)
+	require.NoError(t, err)
+
+	// 等待热更新触发
+	time.Sleep(300 * time.Millisecond)
+
+	// 验证配置已更新
+	updatedConfig := hotReloader.GetConfig().(*gateway.HTTPServer)
+	assert.Equal(t, "updated-http-server", updatedConfig.ModuleName)
+	assert.Equal(t, "0.0.0.0", updatedConfig.Host)
+	assert.Equal(t, 9090, updatedConfig.Port)
+	assert.Equal(t, 8080, updatedConfig.GrpcPort)
+	assert.Equal(t, 60, updatedConfig.ReadTimeout)
+	assert.NotEqual(t, defaultConfig.ReadTimeout, updatedConfig.ReadTimeout) // 与默认值不同
+	assert.Equal(t, 60, updatedConfig.WriteTimeout)
+	assert.Equal(t, 120, updatedConfig.IdleTimeout)
+	assert.Equal(t, 2097152, updatedConfig.MaxHeaderBytes)
+	assert.False(t, updatedConfig.EnableHttp)
+	assert.True(t, updatedConfig.EnableGrpc)
+	assert.True(t, updatedConfig.EnableTls)
+	assert.False(t, updatedConfig.EnableGzipCompress)
+	assert.Equal(t, "/path/to/cert.pem", updatedConfig.TLS.CertFile)
+	assert.Equal(t, "/path/to/key.pem", updatedConfig.TLS.KeyFile)
+	assert.Equal(t, "/path/to/ca.pem", updatedConfig.TLS.CAFile)
+	assert.Equal(t, "yaml-test-value", updatedConfig.Headers["x-custom-header"]) // YAML会将键名转为小写	t.Logf("✅ HTTPServer YAML热更新测试通过")
+}
+
+// TestHTTPServerHotReload_JSON 测试HTTPServer模块的JSON热更新功能
+func TestHTTPServerHotReload_JSON(t *testing.T) {
+	tmpDir := t.TempDir()
+	jsonPath := filepath.Join(tmpDir, "http_server.json")
+
+	// 创建初始JSON配置文件 - HTTPServer格式
+	initialJSON := `{
+  "module_name": "test-http-server-json",
+  "host": "127.0.0.1",
+  "port": 8888,
+  "grpc_port": 9999,
+  "read_timeout": 45,
+  "write_timeout": 45,
+  "idle_timeout": 90,
+  "max_header_bytes": 1572864,
+  "enable_http": true,
+  "enable_grpc": true,
+  "enable_tls": false,
+  "enable_gzip_compress": true,
+  "tls": {
+    "cert_file": "",
+    "key_file": "",
+    "ca_file": ""
+  },
+  "headers": {
+    "X-Initial-Header": "json-initial-value"
+  }
+}`
+	err := os.WriteFile(jsonPath, []byte(initialJSON), 0644)
+	require.NoError(t, err)
+
+	// 使用现有方法创建Viper实例
+	v, err := createViper(jsonPath)
+	require.NoError(t, err)
+
+	// 创建HTTPServer配置实例
+	config := gateway.DefaultHTTPServer()
+	err = v.Unmarshal(config, func(dc *mapstructure.DecoderConfig) {
+		dc.TagName = "json"
+		dc.WeaklyTypedInput = true
+	})
+	require.NoError(t, err)
+
+	// 验证初始配置与DefaultHTTPServer的对比
+	defaultConfig := gateway.DefaultHTTPServer()
+	assert.Equal(t, "test-http-server-json", config.ModuleName)
+	assert.NotEqual(t, defaultConfig.ModuleName, config.ModuleName)
+	assert.Equal(t, "127.0.0.1", config.Host)
+	assert.NotEqual(t, defaultConfig.Host, config.Host) // 与默认值不同
+	assert.Equal(t, 8888, config.Port)
+	assert.NotEqual(t, defaultConfig.Port, config.Port) // 与默认值不同
+	assert.Equal(t, 9999, config.GrpcPort)
+	assert.Equal(t, 45, config.ReadTimeout)
+	assert.NotEqual(t, defaultConfig.ReadTimeout, config.ReadTimeout) // 与默认值不同
+	assert.True(t, config.EnableHttp)
+	assert.True(t, config.EnableGrpc) // 与默认值不同
+	assert.Equal(t, "json-initial-value", config.Headers["x-initial-header"]) // JSON会将键名转为小写	// 创建热更新器
+	hotReloader, err := NewHotReloader(config, v, jsonPath, &HotReloadConfig{
+		Enabled:       false, // 禁用自动监听，手动触发重载
+		DebounceDelay: 100 * time.Millisecond,
+	})
+	require.NoError(t, err)
+
+	// 修改JSON配置文件
+	updatedJSON := `{
+  "module_name": "updated-http-server-json",
+  "host": "0.0.0.0",
+  "port": 7777,
+  "grpc_port": 6666,
+  "read_timeout": 90,
+  "write_timeout": 90,
+  "idle_timeout": 180,
+  "max_header_bytes": 3145728,
+  "enable_http": false,
+  "enable_grpc": true,
+  "enable_tls": true,
+  "enable_gzip_compress": false,
+  "tls": {
+    "cert_file": "/json/path/to/cert.pem",
+    "key_file": "/json/path/to/key.pem",
+    "ca_file": "/json/path/to/ca.pem"
+  },
+  "headers": {
+    "X-Updated-Header": "json-updated-value",
+    "X-Additional-Header": "json-additional-value"
+  }
+}`
+	err = os.WriteFile(jsonPath, []byte(updatedJSON), 0644)
+	require.NoError(t, err)
+
+	// 手动触发重载
+	ctx := context.Background()
+	err = hotReloader.Reload(ctx)
+	require.NoError(t, err)
+
+	// 验证配置已更新
+	updatedConfig := hotReloader.GetConfig().(*gateway.HTTPServer)
+	assert.Equal(t, "updated-http-server-json", updatedConfig.ModuleName)
+	assert.Equal(t, "0.0.0.0", updatedConfig.Host)
+	assert.Equal(t, 7777, updatedConfig.Port)
+	assert.Equal(t, 6666, updatedConfig.GrpcPort)
+	assert.Equal(t, 90, updatedConfig.ReadTimeout)
+	assert.NotEqual(t, defaultConfig.ReadTimeout, updatedConfig.ReadTimeout) // 与默认值不同
+	assert.Equal(t, 90, updatedConfig.WriteTimeout)
+	assert.Equal(t, 180, updatedConfig.IdleTimeout)
+	assert.Equal(t, 3145728, updatedConfig.MaxHeaderBytes)
+	assert.False(t, updatedConfig.EnableHttp)
+	assert.True(t, updatedConfig.EnableGrpc)
+	assert.True(t, updatedConfig.EnableTls)
+	assert.False(t, updatedConfig.EnableGzipCompress)
+	assert.Equal(t, "/json/path/to/cert.pem", updatedConfig.TLS.CertFile)
+	assert.Equal(t, "/json/path/to/key.pem", updatedConfig.TLS.KeyFile)
+	assert.Equal(t, "/json/path/to/ca.pem", updatedConfig.TLS.CAFile)
+	assert.Equal(t, "json-updated-value", updatedConfig.Headers["x-updated-header"]) // JSON会将键名转为小写
+	assert.Equal(t, "json-additional-value", updatedConfig.Headers["x-additional-header"]) // JSON会将键名转为小写	t.Logf("✅ HTTPServer JSON热更新测试通过")
 }

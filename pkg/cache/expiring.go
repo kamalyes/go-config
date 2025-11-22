@@ -12,9 +12,8 @@
 package cache
 
 import (
-	"time"
-
 	"github.com/kamalyes/go-config/internal"
+	"time"
 )
 
 // Expiring 过期缓存配置
@@ -79,6 +78,12 @@ func DefaultExpiringConfig() Expiring {
 		EnableLazyExpiry: true,
 		MaxMemoryUsage:   100 * 1024 * 1024, // 100MB
 	}
+}
+
+// DefaultExpiring 返回默认过期缓存配置的指针，支持链式调用
+func DefaultExpiring() *Expiring {
+	config := DefaultExpiringConfig()
+	return &config
 }
 
 // Validate 验证过期缓存配置

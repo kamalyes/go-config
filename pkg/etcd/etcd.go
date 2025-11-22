@@ -110,13 +110,13 @@ func DefaultEect() Etcd {
 		Hosts:              []string{"127.0.0.1:2379"},
 		Key:                "app/config",
 		ID:                 1,
-		User:               "",
-		Pass:               "",
-		CertFile:           "",
-		CertKeyFile:        "",
-		CACertFile:         "",
+		User:               "etcd_user",
+		Pass:               "etcd_password",
+		CertFile:           "/etc/etcd/client.crt",
+		CertKeyFile:        "/etc/etcd/client.key",
+		CACertFile:         "/etc/etcd/ca.crt",
 		InsecureSkipVerify: true,
-		Namespace:          "",
+		Namespace:          "default",
 		DialTimeout:        5,
 		RequestTimeout:     10,
 	}
@@ -156,6 +156,62 @@ func (e *Etcd) WithID(id int64) *Etcd {
 func (e *Etcd) WithAuth(user, pass string) *Etcd {
 	e.User = user
 	e.Pass = pass
+	return e
+}
+
+// WithUser 设置用户名
+func (e *Etcd) WithUser(user string) *Etcd {
+	e.User = user
+	return e
+}
+
+// WithPass 设置密码
+func (e *Etcd) WithPass(pass string) *Etcd {
+	e.Pass = pass
+	return e
+}
+
+// WithCertFile 设置证书文件路径
+func (e *Etcd) WithCertFile(certFile string) *Etcd {
+	e.CertFile = certFile
+	return e
+}
+
+// WithCertKeyFile 设置证书密钥文件路径
+func (e *Etcd) WithCertKeyFile(certKeyFile string) *Etcd {
+	e.CertKeyFile = certKeyFile
+	return e
+}
+
+// WithCACertFile 设置CA证书文件路径
+func (e *Etcd) WithCACertFile(caCertFile string) *Etcd {
+	e.CACertFile = caCertFile
+	return e
+}
+
+// WithInsecureSkipVerify 设置是否跳过证书验证
+func (e *Etcd) WithInsecureSkipVerify(skip bool) *Etcd {
+	e.InsecureSkipVerify = skip
+	return e
+}
+
+// WithDialTimeout 设置连接超时时间
+func (e *Etcd) WithDialTimeout(timeout int) *Etcd {
+	e.DialTimeout = timeout
+	return e
+}
+
+// WithRequestTimeout 设置请求超时时间
+func (e *Etcd) WithRequestTimeout(timeout int) *Etcd {
+	e.RequestTimeout = timeout
+	return e
+}
+
+// WithCert 设置证书文件
+func (e *Etcd) WithCert(certFile, certKeyFile, caCertFile string) *Etcd {
+	e.CertFile = certFile
+	e.CertKeyFile = certKeyFile
+	e.CACertFile = caCertFile
 	return e
 }
 

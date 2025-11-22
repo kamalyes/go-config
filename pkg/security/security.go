@@ -111,7 +111,7 @@ func Default() *Security {
 		Enabled:    true,
 		JWT: &JWT{
 			Enabled:   false,
-			Secret:    "",
+			Secret:    "jwt_secret_key_please_change_in_production",
 			Expiry:    24,
 			Issuer:    "go-rpc-gateway",
 			Algorithm: "HS256",

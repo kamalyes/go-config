@@ -208,7 +208,7 @@ func DefaultRpcServer() RpcServer {
 		Health:        true,
 		Auth:          false,
 		StrictControl: false,
-		MetricsUrl:    "",
+		MetricsUrl:    "/metrics",
 		Headers:       make(map[string]string),
 		Middlewares:   []string{},
 		TLS: &TLSConfig{

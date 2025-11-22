@@ -38,7 +38,7 @@ func Default() *Logging {
 		Level:          "info",
 		Format:         "json",
 		Output:         "stdout",
-		FilePath:       "",
+		FilePath:       "/var/log/app.log",
 		MaxSize:        100,
 		MaxBackups:     3,
 		MaxAge:         28,

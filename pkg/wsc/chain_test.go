@@ -1,10 +1,9 @@
 package wsc
 
 import (
-	"testing"
-
 	"github.com/kamalyes/go-config/pkg/cache"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 // TestWSCChainMethods 测试所有链式调用方法
@@ -15,8 +14,7 @@ func TestWSCChainMethods(t *testing.T) {
 		WithNodePort(8080).
 		EnableDistributed().
 		EnableRedis().
-		EnableGroup().
-		EnableTicket()
+		EnableGroup()
 
 	// 验证基础配置
 	assert.Equal(t, "192.168.1.100", config.NodeIP, "NodeIP should be 192.168.1.100")
@@ -34,6 +32,7 @@ func TestWSCChainMethods(t *testing.T) {
 
 	// 测试Enhancement链式调用
 	enhancementConfig := DefaultEnhancement().
+		Enable().
 		WithSmartRouting(true).
 		WithLoadBalancing(true, "round_robin").
 		WithSmartQueue(true, 10000).
@@ -57,51 +56,6 @@ func TestWSCChainMethods(t *testing.T) {
 
 	assert.Equal(t, 500, config.Group.MaxGroupSize, "Group MaxGroupSize should be 500")
 	assert.True(t, config.Group.EnableMessageRecord, "Group EnableMessageRecord should be true")
-
-	// 测试Ticket链式调用
-	ticketConfig := DefaultTicket().
-		WithAck(true, 5000, 3).
-		WithMaxPerAgent(20)
-	config = config.WithTicket(ticketConfig)
-
-	assert.True(t, config.Ticket.EnableAck, "Ticket EnableAck should be true")
-	assert.Equal(t, 5000, config.Ticket.AckTimeoutMs, "Ticket AckTimeoutMs should be 5000")
-	assert.Equal(t, 3, config.Ticket.MaxRetry, "Ticket MaxRetry should be 3")
-	assert.Equal(t, 20, config.Ticket.MaxTicketsPerAgent, "Ticket MaxTicketsPerAgent should be 20")
-}
-
-// TestWSCSafeAccess 测试安全访问模式
-func TestWSCSafeAccess(t *testing.T) {
-	config := Default().
-		WithNodePort(8080).
-		WithVIP(DefaultVIP().
-			WithMaxLevel(5)).
-		WithEnhancement(DefaultEnhancement().
-			WithCircuitBreaker(true, 15, 8, 45))
-
-	safeConfig := config.Safe()
-
-	// 测试安全获取基础配置
-	nodePort := safeConfig.Field("NodePort").Int()
-	if nodePort != 8080 {
-		t.Errorf("Expected SafeConfig NodePort=8080, got %d", nodePort)
-	}
-
-	// 测试安全获取布尔值
-	vipEnabled := safeConfig.VIP().Field("Enabled").Bool()
-	if !vipEnabled {
-		t.Error("Expected SafeConfig VIP.Enabled=true")
-	}
-
-	enhancementEnabled := safeConfig.Enhancement().Field("Enabled").Bool()
-	if !enhancementEnabled {
-		t.Error("Expected SafeConfig Enhancement.Enabled=true")
-	}
-
-	circuitBreakerEnabled := safeConfig.Enhancement().Field("CircuitBreaker").Bool()
-	if !circuitBreakerEnabled {
-		t.Error("Expected SafeConfig Enhancement.CircuitBreaker=true")
-	}
 }
 
 // TestCompleteChainConfiguration 测试完整链式配置
@@ -130,13 +84,9 @@ func TestCompleteChainConfiguration(t *testing.T) {
 			Enable().
 			WithMaxSize(1000).
 			WithMessageRecord(true)).
-		WithTicket(DefaultTicket().
-			Enable().
-			WithAck(true, 3000, 5).
-			WithMaxPerAgent(50)).
 		WithPerformance(&Performance{
-			WriteBufferSize:   8192,
-			ReadBufferSize:    8192,
+			WriteBufferSize: 8192,
+			ReadBufferSize:  8192,
 		}).
 		WithSecurity(&Security{
 			EnableAuth:       true,
@@ -159,17 +109,4 @@ func TestCompleteChainConfiguration(t *testing.T) {
 	if enterpriseConfig.Group.MaxGroupSize != 1000 {
 		t.Errorf("Expected Group.MaxGroupSize=1000, got %d", enterpriseConfig.Group.MaxGroupSize)
 	}
-
-	if enterpriseConfig.Ticket.MaxTicketsPerAgent != 50 {
-		t.Errorf("Expected Ticket.MaxTicketsPerAgent=50, got %d", enterpriseConfig.Ticket.MaxTicketsPerAgent)
-	}
-
-	// 测试安全访问
-	safeConfig := enterpriseConfig.Safe()
-	writeBufferSize := safeConfig.Performance().Field("WriteBufferSize").Int()
-	if writeBufferSize != 8192 {
-		t.Errorf("Expected Performance.WriteBufferSize=8192, got %d", writeBufferSize)
-	}
-
-	t.Logf("✅ Enterprise configuration test passed with %d write buffer size", writeBufferSize)
 }

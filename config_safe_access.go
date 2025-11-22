@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-13 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-15 14:47:38
+ * @LastEditTime: 2025-11-21 23:49:01
  * @FilePath: \go-config\config_safe_access.go
  * @Description: 配置安全访问辅助工具，专门针对配置结构体优化
  *
@@ -12,9 +12,8 @@
 package goconfig
 
 import (
-	"time"
-
 	"github.com/kamalyes/go-toolbox/pkg/safe"
+	"time"
 )
 
 // SafeConfig 专门针对配置的安全访问工具
@@ -31,8 +30,15 @@ func SafeConfig(config interface{}) *ConfigSafe {
 
 // Health 安全访问Health配置
 func (c *ConfigSafe) Health() *ConfigSafe {
+	// 检测当前配置是否已经是Health类型
+	if val := c.SafeAccess.Value(); val != nil {
+		// 通过ModuleName字段判断
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "health" {
+			return c
+		}
+	}
 	return &ConfigSafe{
-		SafeAccess: c.Field("Health"),
+		SafeAccess: c.SafeAccess.Field("Health"),
 	}
 }
 
@@ -108,6 +114,11 @@ func (c *ConfigSafe) Cache() *ConfigSafe {
 
 // WSC 安全访问WSC配置
 func (c *ConfigSafe) WSC() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "wsc" {
+			return c
+		}
+	}
 	return &ConfigSafe{
 		SafeAccess: c.Field("WSC"),
 	}
@@ -122,6 +133,11 @@ func (c *ConfigSafe) Swagger() *ConfigSafe {
 
 // Monitoring 安全访问Monitoring配置
 func (c *ConfigSafe) Monitoring() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "monitoring" {
+			return c
+		}
+	}
 	return &ConfigSafe{
 		SafeAccess: c.Field("Monitoring"),
 	}
@@ -199,6 +215,12 @@ func (c *ConfigSafe) IsRedisHealthEnabled() bool {
 
 // GetRedisHealthTimeout 获取Redis健康检查超时时间
 func (c *ConfigSafe) GetRedisHealthTimeout(defaultTimeout time.Duration) time.Duration {
+	// Health.Redis.Timeout 是 int 类型,单位为秒
+	timeout := c.Health().Redis().Field("Timeout").Int(0)
+	if timeout > 0 {
+		return time.Duration(timeout) * time.Second
+	}
+	// 尝试Duration类型
 	return c.Health().Redis().Timeout(defaultTimeout)
 }
 
@@ -209,6 +231,12 @@ func (c *ConfigSafe) IsMySQLHealthEnabled() bool {
 
 // GetMySQLHealthTimeout 获取MySQL健康检查超时时间
 func (c *ConfigSafe) GetMySQLHealthTimeout(defaultTimeout time.Duration) time.Duration {
+	// Health.MySQL.Timeout 是 int 类型,单位为秒
+	timeout := c.Health().MySQL().Field("Timeout").Int(0)
+	if timeout > 0 {
+		return time.Duration(timeout) * time.Second
+	}
+	// 尝试Duration类型
 	return c.Health().MySQL().Timeout(defaultTimeout)
 }
 
@@ -275,40 +303,46 @@ func (c *ConfigSafe) IsMonitoringEnabled() bool {
 
 // IsMetricsEnabled 检查Metrics是否启用
 func (c *ConfigSafe) IsMetricsEnabled() bool {
-	return c.Field("Monitoring").Field("Metrics").Field("Enabled").Bool(false)
+	return c.Monitoring().Field("Metrics").Field("Enabled").Bool(false)
 }
 
 // GetMetricsEndpoint 获取Metrics端点路径
 func (c *ConfigSafe) GetMetricsEndpoint(defaultEndpoint string) string {
-	return c.Field("Monitoring").Field("Metrics").Field("Endpoint").String(defaultEndpoint)
+	return c.Monitoring().Field("Metrics").Field("Endpoint").String(defaultEndpoint)
 }
 
 // ======= Jaeger链路追踪相关方法 =======
 
 // IsJaegerEnabled 检查Jaeger链路追踪是否启用
 func (c *ConfigSafe) IsJaegerEnabled() bool {
-	return c.Field("Monitoring").Field("Jaeger").Field("Enabled").Bool(false)
+	return c.Monitoring().Field("Jaeger").Field("Enabled").Bool(false)
 }
 
 // GetJaegerServiceName 获取Jaeger服务名称
 func (c *ConfigSafe) GetJaegerServiceName(defaultServiceName string) string {
-	return c.Field("Monitoring").Field("Jaeger").Field("ServiceName").String(defaultServiceName)
+	return c.Monitoring().Field("Jaeger").Field("ServiceName").String(defaultServiceName)
 }
 
 // GetJaegerEndpoint 获取Jaeger端点
 func (c *ConfigSafe) GetJaegerEndpoint(defaultEndpoint string) string {
-	return c.Field("Monitoring").Field("Jaeger").Field("Endpoint").String(defaultEndpoint)
+	return c.Monitoring().Field("Jaeger").Field("Endpoint").String(defaultEndpoint)
 }
 
 // GetJaegerSamplingType 获取Jaeger采样类型
 func (c *ConfigSafe) GetJaegerSamplingType(defaultType string) string {
-	return c.Field("Monitoring").Field("Jaeger").Field("Sampling").Field("Type").String(defaultType)
+	return c.Monitoring().Field("Jaeger").Field("Sampling").Field("Type").String(defaultType)
 }
 
 // ======= JWT认证相关方法 =======
 
 // JWT 安全访问JWT配置
 func (c *ConfigSafe) JWT() *ConfigSafe {
+	// 检测当前配置是否已经是JWT类型
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "jwt" {
+			return c
+		}
+	}
 	return &ConfigSafe{
 		SafeAccess: c.Field("JWT"),
 	}
@@ -321,15 +355,35 @@ func (c *ConfigSafe) IsJWTEnabled() bool {
 
 // GetJWTSecret 获取JWT密钥
 func (c *ConfigSafe) GetJWTSecret(defaultSecret string) string {
-	return c.JWT().Field("Secret").String(defaultSecret)
+	// 直接从根配置获取SigningKey字段
+	secret := c.Field("SigningKey").String("")
+	if secret != "" {
+		return secret
+	}
+	// 尝试从JWT子配置获取
+	secret = c.JWT().Field("SigningKey").String("")
+	if secret == "" {
+		secret = c.JWT().Field("Secret").String(defaultSecret)
+	}
+	return secret
 }
 
 // GetJWTExpiration 获取JWT过期时间
 func (c *ConfigSafe) GetJWTExpiration(defaultExpiration time.Duration) time.Duration {
-	return c.JWT().Field("Expiration").Duration(defaultExpiration)
-}
+	// 直接从根配置获取ExpiresTime字段(int64秒) - SafeAccess的Int64方法会自动处理类型转换
+	expiresTime := c.Field("ExpiresTime").Int64(0)
+	if expiresTime > 0 {
+		return time.Duration(expiresTime) * time.Second
+	}
 
-// ======= 队列相关方法 =======
+	// 尝试从JWT子配置获取
+	expiresTime = c.JWT().Field("ExpiresTime").Int64(0)
+	if expiresTime > 0 {
+		return time.Duration(expiresTime) * time.Second
+	}
+	// 尝试Duration类型
+	return c.JWT().Field("Expiration").Duration(defaultExpiration)
+} // ======= 队列相关方法 =======
 
 // Queue 安全访问Queue配置
 func (c *ConfigSafe) Queue() *ConfigSafe {
@@ -340,6 +394,11 @@ func (c *ConfigSafe) Queue() *ConfigSafe {
 
 // MQTT 安全访问MQTT配置
 func (c *ConfigSafe) MQTT() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "mqtt" {
+			return c
+		}
+	}
 	return &ConfigSafe{
 		SafeAccess: c.Field("MQTT"),
 	}
@@ -352,13 +411,23 @@ func (c *ConfigSafe) IsMQTTEnabled() bool {
 
 // GetMQTTBroker 获取MQTT代理地址
 func (c *ConfigSafe) GetMQTTBroker(defaultBroker string) string {
-	return c.MQTT().Field("Broker").String(defaultBroker)
+	// Queue/MQTT使用Endpoint字段
+	broker := c.MQTT().Field("Endpoint").String("")
+	if broker == "" {
+		broker = c.MQTT().Field("Broker").String(defaultBroker)
+	}
+	return broker
 }
 
 // ======= 日志相关方法 =======
 
 // Logging 安全访问Logging配置
 func (c *ConfigSafe) Logging() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "logging" {
+			return c
+		}
+	}
 	return &ConfigSafe{
 		SafeAccess: c.Field("Logging"),
 	}
@@ -366,6 +435,11 @@ func (c *ConfigSafe) Logging() *ConfigSafe {
 
 // Zap 安全访问Zap日志配置
 func (c *ConfigSafe) Zap() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "zap" {
+			return c
+		}
+	}
 	return &ConfigSafe{
 		SafeAccess: c.Field("Zap"),
 	}
@@ -383,13 +457,23 @@ func (c *ConfigSafe) GetLogLevel(defaultLevel string) string {
 
 // GetLogPath 获取日志文件路径
 func (c *ConfigSafe) GetLogPath(defaultPath string) string {
-	return c.Logging().Field("Path").String(defaultPath)
+	// Logging结构体使用FilePath字段
+	path := c.Logging().Field("FilePath").String("")
+	if path == "" {
+		path = c.Logging().Field("Path").String(defaultPath)
+	}
+	return path
 }
 
 // ======= 对象存储相关方法 =======
 
 // OSS 安全访问OSS配置
 func (c *ConfigSafe) OSS() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "oss" {
+			return c
+		}
+	}
 	return &ConfigSafe{
 		SafeAccess: c.Field("OSS"),
 	}
@@ -423,18 +507,47 @@ func (c *ConfigSafe) IsOSSEnabled() bool {
 
 // GetOSSEndpoint 获取OSS端点
 func (c *ConfigSafe) GetOSSEndpoint(defaultEndpoint string) string {
-	return c.OSS().Field("Endpoint").String(defaultEndpoint)
+	// 先尝试从根OSS配置获取
+	endpoint := c.OSS().Field("Endpoint").String("")
+	if endpoint != "" {
+		return endpoint
+	}
+	// 尝试从AliyunOSS获取
+	endpoint = c.OSS().Field("AliyunOSS").Field("Endpoint").String("")
+	if endpoint != "" {
+		return endpoint
+	}
+	// 尝试从Aliyun获取
+	endpoint = c.OSS().Aliyun().Field("Endpoint").String(defaultEndpoint)
+	return endpoint
 }
 
 // GetOSSBucket 获取OSS存储桶
 func (c *ConfigSafe) GetOSSBucket(defaultBucket string) string {
-	return c.OSS().Field("Bucket").String(defaultBucket)
+	// 先尝试从根OSS配置获取
+	bucket := c.OSS().Field("Bucket").String("")
+	if bucket != "" {
+		return bucket
+	}
+	// 尝试从AliyunOSS获取
+	bucket = c.OSS().Field("AliyunOSS").Field("Bucket").String("")
+	if bucket != "" {
+		return bucket
+	}
+	// 尝试从Aliyun获取
+	bucket = c.OSS().Aliyun().Field("Bucket").String(defaultBucket)
+	return bucket
 }
 
 // ======= 邮件相关方法 =======
 
 // Email 安全访问Email配置
 func (c *ConfigSafe) Email() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "email" {
+			return c
+		}
+	}
 	return &ConfigSafe{
 		SafeAccess: c.Field("Email"),
 	}
@@ -454,12 +567,24 @@ func (c *ConfigSafe) IsEmailEnabled() bool {
 
 // GetSMTPHost 获取SMTP主机
 func (c *ConfigSafe) GetSMTPHost(defaultHost string) string {
-	return c.Email().SMTP().Host(defaultHost)
+	// Email结构体本身就有Host字段,不是SMTP子配置
+	host := c.Email().Host(defaultHost)
+	if host == defaultHost || host == "" {
+		// 尝试SMTP子配置
+		host = c.Email().SMTP().Host(defaultHost)
+	}
+	return host
 }
 
 // GetSMTPPort 获取SMTP端口
 func (c *ConfigSafe) GetSMTPPort(defaultPort int) int {
-	return c.Email().SMTP().Port(defaultPort)
+	// Email结构体本身就有Port字段,不是SMTP子配置
+	port := c.Email().Port(0)
+	if port == 0 {
+		// 尝试SMTP子配置
+		port = c.Email().SMTP().Port(defaultPort)
+	}
+	return port
 }
 
 // ======= 支付相关方法 =======
@@ -542,6 +667,11 @@ func (c *ConfigSafe) GetCaptchaType(defaultType string) string {
 
 // I18n 安全访问国际化配置
 func (c *ConfigSafe) I18n() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "i18n" {
+			return c
+		}
+	}
 	return &ConfigSafe{
 		SafeAccess: c.Field("I18n"),
 	}
@@ -554,7 +684,12 @@ func (c *ConfigSafe) IsI18nEnabled() bool {
 
 // GetI18nDefaultLang 获取默认语言
 func (c *ConfigSafe) GetI18nDefaultLang(defaultLang string) string {
-	return c.I18n().Field("DefaultLang").String(defaultLang)
+	// I18n结构体使用DefaultLanguage字段
+	lang := c.I18n().Field("DefaultLanguage").String("")
+	if lang == "" {
+		lang = c.I18n().Field("DefaultLang").String(defaultLang)
+	}
+	return lang
 }
 
 // ======= 服务发现相关方法 =======
@@ -568,6 +703,11 @@ func (c *ConfigSafe) Consul() *ConfigSafe {
 
 // Etcd 安全访问Etcd配置
 func (c *ConfigSafe) Etcd() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "etcd" {
+			return c
+		}
+	}
 	return &ConfigSafe{
 		SafeAccess: c.Field("Etcd"),
 	}
@@ -591,6 +731,10 @@ func (c *ConfigSafe) GetConsulAddress(defaultAddress string) string {
 // GetEtcdEndpoints 获取Etcd端点列表
 func (c *ConfigSafe) GetEtcdEndpoints(defaultEndpoints []string) []string {
 	endpoints := c.Etcd().Field("Endpoints").Value()
+	if endpoints == nil {
+		// 尝试从Hosts字段获取(兼容不同的配置结构)
+		endpoints = c.Etcd().Field("Hosts").Value()
+	}
 	if endpoints == nil {
 		return defaultEndpoints
 	}
@@ -651,7 +795,9 @@ func (c *ConfigSafe) WithDefault(defaultValue interface{}) *ConfigSafe {
 		}
 	}
 	return c
-} // ======= 通用配置检查方法 =======
+}
+
+// ======= 通用配置检查方法 =======
 
 // HasField 检查是否包含指定字段
 func (c *ConfigSafe) HasField(fieldName string) bool {
@@ -701,4 +847,595 @@ func (c *ConfigSafe) GetDuration(path string, defaultValue ...time.Duration) tim
 		return 0
 	}
 	return c.Field(path).Duration(defaultValue...)
+}
+
+// ======= 更多配置访问器方法 =======
+
+// Database 安全访问Database配置
+func (c *ConfigSafe) Database() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Database"),
+	}
+}
+
+// Banner 安全访问Banner配置
+func (c *ConfigSafe) Banner() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Banner"),
+	}
+}
+
+// PostgreSQL 安全访问PostgreSQL配置
+func (c *ConfigSafe) PostgreSQL() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("PostgreSQL"),
+	}
+}
+
+// SQLite 安全访问SQLite配置
+func (c *ConfigSafe) SQLite() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("SQLite"),
+	}
+}
+
+// Signature 安全访问Signature配置
+func (c *ConfigSafe) Signature() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "signature" {
+			return c
+		}
+	}
+	return &ConfigSafe{
+		SafeAccess: c.Field("Signature"),
+	}
+}
+
+// Tracing 安全访问Tracing配置
+func (c *ConfigSafe) Tracing() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "tracing" {
+			return c
+		}
+	}
+	return &ConfigSafe{
+		SafeAccess: c.Field("Tracing"),
+	}
+}
+
+// TimeoutConfig 安全访问Timeout配置
+func (c *ConfigSafe) TimeoutConfig() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Timeout"),
+	}
+}
+
+// Kafka 安全访问Kafka配置
+func (c *ConfigSafe) Kafka() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "kafka" {
+			return c
+		}
+	}
+	return &ConfigSafe{
+		SafeAccess: c.Field("Kafka"),
+	}
+}
+
+// Access 安全访问Access配置
+func (c *ConfigSafe) Access() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Access"),
+	}
+}
+
+// Alerting 安全访问Alerting配置
+func (c *ConfigSafe) Alerting() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Alerting"),
+	}
+}
+
+// Breaker 安全访问Breaker配置
+func (c *ConfigSafe) Breaker() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Breaker"),
+	}
+}
+
+// CircuitBreaker 安全访问CircuitBreaker配置(Breaker的别名)
+func (c *ConfigSafe) CircuitBreaker() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("CircuitBreaker"),
+	}
+}
+
+// WebSocketBreaker 安全访问WebSocketBreaker配置
+func (c *ConfigSafe) WebSocketBreaker() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("WebSocketBreaker"),
+	}
+}
+
+// Elasticsearch 安全访问Elasticsearch配置
+func (c *ConfigSafe) Elasticsearch() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Elasticsearch"),
+	}
+}
+
+// FTP 安全访问FTP配置
+func (c *ConfigSafe) FTP() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("FTP"),
+	}
+}
+
+// Ftp 安全访问Ftp配置(FTP的别名)
+func (c *ConfigSafe) Ftp() *ConfigSafe {
+	return c.FTP()
+}
+
+// Gateway 安全访问Gateway配置
+func (c *ConfigSafe) Gateway() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "gateway" {
+			return c
+		}
+	}
+	return &ConfigSafe{
+		SafeAccess: c.Field("Gateway"),
+	}
+}
+
+// JSON 安全访问JSON配置
+func (c *ConfigSafe) JSON() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("JSON"),
+	}
+}
+
+// TLS 安全访问TLS配置
+func (c *ConfigSafe) TLS() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("TLS"),
+	}
+}
+
+// Grafana 安全访问Grafana配置
+func (c *ConfigSafe) Grafana() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Grafana"),
+	}
+}
+
+// Request 安全访问Request配置
+func (c *ConfigSafe) Request() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Request"),
+	}
+}
+
+// RequestID 安全访问RequestID配置
+func (c *ConfigSafe) RequestID() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("RequestID"),
+	}
+}
+
+// Recovery 安全访问Recovery配置
+func (c *ConfigSafe) Recovery() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Recovery"),
+	}
+}
+
+// Restful 安全访问Restful配置
+func (c *ConfigSafe) Restful() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Restful"),
+	}
+}
+
+// RESTful 安全访问RESTful配置(Restful的别名)
+func (c *ConfigSafe) RESTful() *ConfigSafe {
+	return c.Restful()
+}
+
+// RPCClient 安全访问RPCClient配置
+func (c *ConfigSafe) RPCClient() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("RPCClient"),
+	}
+}
+
+// RpcClient 安全访问RpcClient配置(RPCClient的别名)
+func (c *ConfigSafe) RpcClient() *ConfigSafe {
+	return c.RPCClient()
+}
+
+// RPCServer 安全访问RPCServer配置
+func (c *ConfigSafe) RPCServer() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("RPCServer"),
+	}
+}
+
+// RpcServer 安全访问RpcServer配置(RPCServer的别名)
+func (c *ConfigSafe) RpcServer() *ConfigSafe {
+	return c.RPCServer()
+}
+
+// Security 安全访问Security配置
+func (c *ConfigSafe) Security() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Security"),
+	}
+}
+
+// Auth 安全访问Auth配置(Security的别名)
+func (c *ConfigSafe) Auth() *ConfigSafe {
+	return c.Security()
+}
+
+// Protection 安全访问Protection配置(Security的别名)
+func (c *ConfigSafe) Protection() *ConfigSafe {
+	return c.Security()
+}
+
+// STS 安全访问STS配置
+func (c *ConfigSafe) STS() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("STS"),
+	}
+}
+
+// Youzan 安全访问Youzan配置
+func (c *ConfigSafe) Youzan() *ConfigSafe {
+	if val := c.SafeAccess.Value(); val != nil {
+		if moduleName := c.Field("ModuleName").String(""); moduleName == "youzan" {
+			return c
+		}
+	}
+	return &ConfigSafe{
+		SafeAccess: c.Field("Youzan"),
+	}
+}
+
+// Distributed 安全访问Distributed配置
+func (c *ConfigSafe) Distributed() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Distributed"),
+	}
+}
+
+// Group 安全访问Group配置
+func (c *ConfigSafe) Group() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Group"),
+	}
+}
+
+// Ticket 安全访问Ticket配置
+func (c *ConfigSafe) Ticket() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Ticket"),
+	}
+}
+
+// Performance 安全访问Performance配置
+func (c *ConfigSafe) Performance() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Performance"),
+	}
+}
+
+// VIP 安全访问VIP配置
+func (c *ConfigSafe) VIP() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("VIP"),
+	}
+}
+
+// Enhancement 安全访问Enhancement配置
+func (c *ConfigSafe) Enhancement() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("Enhancement"),
+	}
+}
+
+// BoltDB 安全访问BoltDB配置
+func (c *ConfigSafe) BoltDB() *ConfigSafe {
+	return &ConfigSafe{
+		SafeAccess: c.Field("BoltDB"),
+	}
+}
+
+// ======= 具体配置项的Getter方法 =======
+
+// GetKafkaTopic 获取Kafka主题
+func (c *ConfigSafe) GetKafkaTopic(defaultTopic string) string {
+	return c.Kafka().Field("Topic").String(defaultTopic)
+}
+
+// GetKafkaBrokers 获取Kafka代理列表
+func (c *ConfigSafe) GetKafkaBrokers(defaultBrokers []string) []string {
+	brokers := c.Kafka().Field("Brokers").Value()
+	if brokers == nil {
+		return defaultBrokers
+	}
+	if slice, ok := brokers.([]string); ok {
+		return slice
+	}
+	if slice, ok := brokers.([]interface{}); ok {
+		result := make([]string, len(slice))
+		for i, v := range slice {
+			if str, ok := v.(string); ok {
+				result[i] = str
+			}
+		}
+		return result
+	}
+	return defaultBrokers
+}
+
+// GetSignatureSecretKey 获取签名密钥
+func (c *ConfigSafe) GetSignatureSecretKey(defaultKey string) string {
+	return c.Signature().Field("SecretKey").String(defaultKey)
+}
+
+// GetSignatureAlgorithm 获取签名算法
+func (c *ConfigSafe) GetSignatureAlgorithm(defaultAlgorithm string) string {
+	return c.Signature().Field("Algorithm").String(defaultAlgorithm)
+}
+
+// GetTimeoutDuration 获取超时时间
+func (c *ConfigSafe) GetTimeoutDuration(defaultDuration time.Duration) time.Duration {
+	return c.TimeoutConfig().Field("Duration").Duration(defaultDuration)
+}
+
+// GetTracingServiceName 获取链路追踪服务名称
+func (c *ConfigSafe) GetTracingServiceName(defaultName string) string {
+	return c.Tracing().Field("ServiceName").String(defaultName)
+}
+
+// GetTracingEndpoint 获取链路追踪端点
+func (c *ConfigSafe) GetTracingEndpoint(defaultEndpoint string) string {
+	return c.Tracing().Field("Endpoint").String(defaultEndpoint)
+}
+
+// GetAccessServiceName 获取访问日志服务名称
+func (c *ConfigSafe) GetAccessServiceName(defaultName string) string {
+	return c.Access().Field("ServiceName").String(defaultName)
+}
+
+// GetAccessRetentionDays 获取访问日志保留天数
+func (c *ConfigSafe) GetAccessRetentionDays(defaultDays int) int {
+	return c.Access().Field("RetentionDays").Int(defaultDays)
+}
+
+// GetBannerTitle 获取Banner标题
+func (c *ConfigSafe) GetBannerTitle(defaultTitle string) string {
+	return c.Banner().Field("Title").String(defaultTitle)
+}
+
+// GetBreakerFailureThreshold 获取熔断器失败阈值
+func (c *ConfigSafe) GetBreakerFailureThreshold(defaultThreshold int) int {
+	breaker := c.CircuitBreaker()
+	if !breaker.IsValid() {
+		breaker = c.Breaker()
+	}
+	return breaker.Field("FailureThreshold").Int(defaultThreshold)
+}
+
+// GetPostgreSQLHost 获取PostgreSQL主机
+func (c *ConfigSafe) GetPostgreSQLHost(defaultHost string) string {
+	return c.Database().PostgreSQL().Host(defaultHost)
+}
+
+// GetSQLitePath 获取SQLite数据库路径
+func (c *ConfigSafe) GetSQLitePath(defaultPath string) string {
+	return c.Database().SQLite().Field("Path").String(defaultPath)
+}
+
+// GetElasticsearchEndpoint 获取Elasticsearch端点
+func (c *ConfigSafe) GetElasticsearchEndpoint(defaultEndpoint string) string {
+	return c.Elasticsearch().Field("Endpoint").String(defaultEndpoint)
+}
+
+// GetFTPEndpoint 获取FTP端点
+func (c *ConfigSafe) GetFTPEndpoint(defaultEndpoint string) string {
+	return c.FTP().Field("Endpoint").String(defaultEndpoint)
+}
+
+// GetGrafanaEndpoint 获取Grafana端点
+func (c *ConfigSafe) GetGrafanaEndpoint(defaultEndpoint string) string {
+	return c.Grafana().Field("Endpoint").String(defaultEndpoint)
+}
+
+// GetRequestTraceID 获取请求跟踪ID
+func (c *ConfigSafe) GetRequestTraceID(defaultID string) string {
+	return c.Request().Field("TraceID").String(defaultID)
+}
+
+// GetRequestIDHeaderName 获取请求ID头名称
+func (c *ConfigSafe) GetRequestIDHeaderName(defaultName string) string {
+	return c.RequestID().Field("HeaderName").String(defaultName)
+}
+
+// GetSTSRegionID 获取STS区域ID
+func (c *ConfigSafe) GetSTSRegionID(defaultRegion string) string {
+	return c.STS().Field("RegionID").String(defaultRegion)
+}
+
+// GetSTSAccessKeyID 获取STS访问密钥ID
+func (c *ConfigSafe) GetSTSAccessKeyID(defaultKeyID string) string {
+	return c.STS().Field("AccessKeyID").String(defaultKeyID)
+}
+
+// GetYouzanEndpoint 获取有赞端点
+func (c *ConfigSafe) GetYouzanEndpoint(defaultEndpoint string) string {
+	return c.Youzan().Field("Endpoint").String(defaultEndpoint)
+}
+
+// GetYouzanClientID 获取有赞客户端ID
+func (c *ConfigSafe) GetYouzanClientID(defaultClientID string) string {
+	return c.Youzan().Field("ClientID").String(defaultClientID)
+}
+
+// GetWSCNodeIP 获取WSC节点IP
+func (c *ConfigSafe) GetWSCNodeIP(defaultIP string) string {
+	return c.WSC().Field("NodeIP").String(defaultIP)
+}
+
+// GetWSCNodePort 获取WSC节点端口
+func (c *ConfigSafe) GetWSCNodePort(defaultPort int) int {
+	return c.WSC().Field("NodePort").Int(defaultPort)
+}
+
+// GetWSCHeartbeatInterval 获取WSC心跳间隔
+func (c *ConfigSafe) GetWSCHeartbeatInterval(defaultInterval time.Duration) time.Duration {
+	// WSC.HeartbeatInterval是int类型,单位为秒
+	interval := c.WSC().Field("HeartbeatInterval").Int(0)
+	if interval > 0 {
+		return time.Duration(interval) * time.Second
+	}
+	// 尝试Duration类型
+	return c.WSC().Field("HeartbeatInterval").Duration(defaultInterval)
+}
+
+// GetZapLevel 获取Zap日志级别
+func (c *ConfigSafe) GetZapLevel(defaultLevel string) string {
+	return c.Zap().Field("Level").String(defaultLevel)
+}
+
+// GetZapFormat 获取Zap日志格式
+func (c *ConfigSafe) GetZapFormat(defaultFormat string) string {
+	return c.Zap().Field("Format").String(defaultFormat)
+}
+
+// GetZapDirector 获取Zap日志目录
+func (c *ConfigSafe) GetZapDirector(defaultDir string) string {
+	return c.Zap().Field("Director").String(defaultDir)
+}
+
+// GetBoltDBPath 获取BoltDB路径
+func (c *ConfigSafe) GetBoltDBPath(defaultPath string) string {
+	return c.BoltDB().Field("Path").String(defaultPath)
+}
+
+// GetBoltDBBucket 获取BoltDB存储桶
+func (c *ConfigSafe) GetBoltDBBucket(defaultBucket string) string {
+	return c.BoltDB().Field("Bucket").String(defaultBucket)
+}
+
+// ======= IsXxxEnabled便捷方法(使用通用Enabled方法) =======
+
+// IsAccessEnabled 检查访问日志是否启用
+func (c *ConfigSafe) IsAccessEnabled() bool {
+	return c.Access().Enabled(false)
+}
+
+// IsAlertingEnabled 检查告警是否启用
+func (c *ConfigSafe) IsAlertingEnabled() bool {
+	return c.Alerting().Enabled(false)
+}
+
+// IsBannerEnabled 检查Banner是否启用
+func (c *ConfigSafe) IsBannerEnabled() bool {
+	return c.Banner().Enabled(false)
+}
+
+// IsBreakerEnabled 检查熔断器是否启用
+func (c *ConfigSafe) IsBreakerEnabled() bool {
+	breaker := c.CircuitBreaker()
+	if !breaker.IsValid() {
+		breaker = c.Breaker()
+	}
+	return breaker.Enabled(false)
+}
+
+// IsWebSocketBreakerEnabled 检查WebSocket熔断器是否启用
+func (c *ConfigSafe) IsWebSocketBreakerEnabled() bool {
+	return c.WebSocketBreaker().Enabled(false)
+}
+
+// IsDatabaseEnabled 检查数据库是否启用
+func (c *ConfigSafe) IsDatabaseEnabled() bool {
+	return c.Database().Enabled(false)
+}
+
+// IsGatewayEnabled 检查网关是否启用
+func (c *ConfigSafe) IsGatewayEnabled() bool {
+	return c.Gateway().Enabled(false)
+}
+
+// IsGrafanaEnabled 检查Grafana是否启用
+func (c *ConfigSafe) IsGrafanaEnabled() bool {
+	return c.Grafana().Enabled(false)
+}
+
+// IsRequestIDEnabled 检查请求ID是否启用
+func (c *ConfigSafe) IsRequestIDEnabled() bool {
+	return c.RequestID().Enabled(false)
+}
+
+// IsRecoveryEnabled 检查恢复中间件是否启用
+func (c *ConfigSafe) IsRecoveryEnabled() bool {
+	return c.Recovery().Enabled(false)
+}
+
+// IsSecurityEnabled 检查安全配置是否启用
+func (c *ConfigSafe) IsSecurityEnabled() bool {
+	return c.Security().Enabled(false)
+}
+
+// IsTracingEnabled 检查链路追踪是否启用
+func (c *ConfigSafe) IsTracingEnabled() bool {
+	return c.Tracing().Enabled(false)
+}
+
+// IsTimeoutEnabled 检查超时配置是否启用
+func (c *ConfigSafe) IsTimeoutEnabled() bool {
+	return c.TimeoutConfig().Enabled(false)
+}
+
+// IsSignatureEnabled 检查签名是否启用
+func (c *ConfigSafe) IsSignatureEnabled() bool {
+	return c.Signature().Enabled(false)
+}
+
+// IsWSCEnabled 检查WSC是否启用
+func (c *ConfigSafe) IsWSCEnabled() bool {
+	return c.WSC().Enabled(false)
+}
+
+// IsDistributedEnabled 检查分布式配置是否启用
+func (c *ConfigSafe) IsDistributedEnabled() bool {
+	return c.WSC().Distributed().Enabled(false)
+}
+
+// IsGroupEnabled 检查群组配置是否启用
+func (c *ConfigSafe) IsGroupEnabled() bool {
+	return c.WSC().Group().Enabled(false)
+}
+
+// IsTicketEnabled 检查票据配置是否启用
+func (c *ConfigSafe) IsTicketEnabled() bool {
+	return c.WSC().Ticket().Enabled(false)
+}
+
+// IsVIPEnabled 检查VIP配置是否启用
+func (c *ConfigSafe) IsVIPEnabled() bool {
+	return c.WSC().VIP().Enabled(false)
+}
+
+// IsEnhancementEnabled 检查增强配置是否启用
+func (c *ConfigSafe) IsEnhancementEnabled() bool {
+	return c.WSC().Enhancement().Enabled(false)
+}
+
+// IsZapEnabled 检查Zap日志是否启用
+func (c *ConfigSafe) IsZapEnabled() bool {
+	return c.Zap().Enabled(true)
 }

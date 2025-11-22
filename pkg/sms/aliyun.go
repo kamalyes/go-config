@@ -78,8 +78,8 @@ func (a *AliyunSms) Validate() error {
 func DefaultAliyunSms() AliyunSms {
 	return AliyunSms{
 		ModuleName:           "aliyun-sms",
-		SecretID:             "",
-		SecretKey:            "",
+		SecretID:             "sms_secret_id",
+		SecretKey:            "sms_secret_key",
 		Sign:                 "",
 		ResourceOwnerAccount: "",
 		ResourceOwnerID:      0,

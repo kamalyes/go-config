@@ -25,3 +25,5 @@ go.work.sum
 .env
 
 ./tests/resources/*
+./pkg/*.json
+./pkg/*.yaml

@@ -71,8 +71,8 @@ func DefaultFtp() Ftp {
 	return Ftp{
 		ModuleName: "ftp",
 		Endpoint:   "127.0.0.1:21",
-		Username:   "",
-		Password:   "",
+		Username:   "ftp_user",
+		Password:   "ftp_password",
 		Cwd:        "/",
 	}
 }

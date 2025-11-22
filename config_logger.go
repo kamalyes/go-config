@@ -13,13 +13,12 @@ package goconfig
 
 import (
 	"fmt"
-	"reflect"
-	"time"
-
 	"github.com/kamalyes/go-config/pkg/cache"
 	"github.com/kamalyes/go-config/pkg/database"
 	"github.com/kamalyes/go-config/pkg/gateway"
 	"github.com/kamalyes/go-logger"
+	"reflect"
+	"time"
 )
 
 // ConfigLogger 配置日志输出器
@@ -176,7 +175,7 @@ func (cl *ConfigLogger) LogDatabaseConfig(dbConfig *database.Database) {
 	cl.logger.Info("   🗄️ 数据库配置:")
 	cl.logger.Info("      🚦 启用: %s", cl.formatEnabledStatus(dbConfig.Enabled))
 	cl.logger.Info("      🏷️ 默认类型: %s", dbConfig.Default)
-	
+
 	// 获取默认提供商配置
 	if provider, err := dbConfig.GetDefaultProvider(); err == nil {
 		cl.logger.Info("      � 当前类型: %s", provider.GetDBType())

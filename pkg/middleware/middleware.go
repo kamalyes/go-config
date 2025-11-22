@@ -42,15 +42,17 @@ type Middleware struct {
 // Default 创建默认中间件配置
 func Default() *Middleware {
 	return &Middleware{
-		ModuleName: "middleware",
-		Enabled:    true,
-		Logging:    logging.Default(),
-		Recovery:   recovery.Default(),
-		Tracing:    tracing.Default(),
-		Metrics:    metrics.Default(),
-		RequestID:  requestid.Default(),
-		I18N:       i18n.Default(),
-		PProf:      pprof.Default(),
+		ModuleName:     "middleware",
+		Enabled:        true,
+		Logging:        logging.Default(),
+		Recovery:       recovery.Default(),
+		Tracing:        tracing.Default(),
+		Metrics:        metrics.Default(),
+		RequestID:      requestid.Default(),
+		I18N:           i18n.Default(),
+		PProf:          pprof.Default(),
+		CircuitBreaker: breaker.Default(),
+		Alerting:       alerting.Default(),
 	}
 }
 

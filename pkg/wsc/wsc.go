@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-13 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-16 23:35:54
- * @FilePath: \go-wsce:\WorkSpaces\IMProjects\go-config\pkg\wsc\wsc.go
+ * @LastEditTime: 2025-11-22 16:42:34
+ * @FilePath: \go-config\pkg\wsc\wsc.go
  * @Description: WebSocket 通信完整配置模块（包含分布式、Redis、群组、广播等）
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
@@ -14,7 +14,6 @@ package wsc
 import (
 	"github.com/kamalyes/go-config/internal"
 	"github.com/kamalyes/go-config/pkg/cache"
-	"github.com/kamalyes/go-toolbox/pkg/safe"
 	"time"
 )
 
@@ -56,9 +55,6 @@ type WSC struct {
 
 	// === 群组/广播配置 ===
 	Group *Group `mapstructure:"group" yaml:"group,omitempty" json:"group,omitempty"` // 群组配置
-
-	// === 工单配置 ===
-	Ticket *Ticket `mapstructure:"ticket" yaml:"ticket,omitempty" json:"ticket,omitempty"` // 工单配置
 
 	// === 性能配置 ===
 	Performance *Performance `mapstructure:"performance" yaml:"performance,omitempty" json:"performance,omitempty"` // 性能配置
@@ -105,25 +101,6 @@ type Group struct {
 	GroupCacheExpire    int  `mapstructure:"group_cache_expire" yaml:"group-cache-expire" json:"group_cache_expire"`          // 群组缓存过期时间(秒)
 	AutoCreateGroup     bool `mapstructure:"auto_create_group" yaml:"auto-create-group" json:"auto_create_group"`             // 是否自动创建群组
 	EnableMessageRecord bool `mapstructure:"enable_message_record" yaml:"enable-message-record" json:"enable_message_record"` // 是否启用消息记录
-}
-
-// Ticket 工单配置
-type Ticket struct {
-	Enabled              bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                              // 是否启用工单功能
-	MaxTicketsPerAgent   int    `mapstructure:"max_tickets_per_agent" yaml:"max-tickets-per-agent" json:"max_tickets_per_agent"`    // 每个客服最大工单数
-	AutoAssign           bool   `mapstructure:"auto_assign" yaml:"auto-assign" json:"auto_assign"`                                  // 是否自动分配工单
-	AssignStrategy       string `mapstructure:"assign_strategy" yaml:"assign-strategy" json:"assign_strategy"`                      // 分配策略: random, load-balance, skill-based
-	TicketTimeout        int    `mapstructure:"ticket_timeout" yaml:"ticket-timeout" json:"ticket_timeout"`                         // 工单超时(秒)
-	EnableQueueing       bool   `mapstructure:"enable_queueing" yaml:"enable-queueing" json:"enable_queueing"`                      // 是否启用排队
-	QueueTimeout         int    `mapstructure:"queue_timeout" yaml:"queue-timeout" json:"queue_timeout"`                            // 排队超时(秒)
-	NotifyTimeout        int    `mapstructure:"notify_timeout" yaml:"notify-timeout" json:"notify_timeout"`                         // 通知超时(秒)
-	EnableTransfer       bool   `mapstructure:"enable_transfer" yaml:"enable-transfer" json:"enable_transfer"`                      // 是否启用工单转接
-	TransferMaxTimes     int    `mapstructure:"transfer_max_times" yaml:"transfer-max-times" json:"transfer_max_times"`             // 最大转接次数
-	EnableOfflineMessage bool   `mapstructure:"enable_offline_message" yaml:"enable-offline-message" json:"enable_offline_message"` // 是否启用离线消息
-	OfflineMessageExpire int    `mapstructure:"offline_message_expire" yaml:"offline-message-expire" json:"offline_message_expire"` // 离线消息过期时间(秒)
-	EnableAck            bool   `mapstructure:"enable_ack" yaml:"enable-ack" json:"enable_ack"`                                     // 是否启用ACK确认
-	AckTimeoutMs         int    `mapstructure:"ack_timeout_ms" yaml:"ack-timeout-ms" json:"ack_timeout_ms"`                         // ACK超时时间(毫秒)
-	MaxRetry             int    `mapstructure:"max_retry" yaml:"max-retry" json:"max_retry"`                                        // 最大重试次数
 }
 
 // Performance 性能配置
@@ -219,7 +196,6 @@ func Default() *WSC {
 		Distributed:          DefaultDistributed(),
 		Redis:                DefaultRedis(),
 		Group:                DefaultGroup(),
-		Ticket:               DefaultTicket(),
 		Performance:          DefaultPerformance(),
 		Security:             DefaultSecurity(),
 		VIP:                  DefaultVIP(),
@@ -245,7 +221,7 @@ func DefaultDistributed() *Distributed {
 
 // Enable 启用分布式功能
 func (d *Distributed) Enable() *Distributed {
-	d.Enabled = true
+	d.Enabled = false
 	return d
 }
 
@@ -310,7 +286,7 @@ func DefaultGroup() *Group {
 
 // Enable 启用群组功能
 func (g *Group) Enable() *Group {
-	g.Enabled = true
+	g.Enabled = false
 	return g
 }
 
@@ -355,95 +331,6 @@ func (g *Group) WithAutoCreate(enabled bool) *Group {
 func (g *Group) WithMessageRecord(enabled bool) *Group {
 	g.EnableMessageRecord = enabled
 	return g
-}
-
-// DefaultTicket 默认工单配置
-func DefaultTicket() *Ticket {
-	return &Ticket{
-		Enabled:              true,
-		MaxTicketsPerAgent:   10,
-		AutoAssign:           true,
-		AssignStrategy:       "load-balance",
-		TicketTimeout:        1800,
-		EnableQueueing:       true,
-		QueueTimeout:         300,
-		NotifyTimeout:        30,
-		EnableTransfer:       true,
-		TransferMaxTimes:     3,
-		EnableOfflineMessage: true,
-		OfflineMessageExpire: 86400,
-		EnableAck:            true,
-		AckTimeoutMs:         5000, // 5秒
-		MaxRetry:             3,
-	}
-}
-
-// ========== Ticket 自身链式调用方法 ==========
-
-// Enable 启用工单功能
-func (t *Ticket) Enable() *Ticket {
-	t.Enabled = true
-	return t
-}
-
-// Disable 禁用工单功能
-func (t *Ticket) Disable() *Ticket {
-	t.Enabled = false
-	return t
-}
-
-// WithMaxPerAgent 设置每个客服最大工单数
-func (t *Ticket) WithMaxPerAgent(maxTickets int) *Ticket {
-	t.MaxTicketsPerAgent = maxTickets
-	return t
-}
-
-// WithAutoAssign 设置是否自动分配工单
-func (t *Ticket) WithAutoAssign(enabled bool, strategy string) *Ticket {
-	t.AutoAssign = enabled
-	t.AssignStrategy = strategy
-	return t
-}
-
-// WithTimeout 设置工单超时
-func (t *Ticket) WithTimeout(ticketTimeoutSeconds int) *Ticket {
-	t.TicketTimeout = ticketTimeoutSeconds
-	return t
-}
-
-// WithQueueing 设置排队功能
-func (t *Ticket) WithQueueing(enabled bool, queueTimeoutSeconds int) *Ticket {
-	t.EnableQueueing = enabled
-	t.QueueTimeout = queueTimeoutSeconds
-	return t
-}
-
-// WithNotifyTimeout 设置通知超时
-func (t *Ticket) WithNotifyTimeout(timeoutSeconds int) *Ticket {
-	t.NotifyTimeout = timeoutSeconds
-	return t
-}
-
-// WithTransfer 设置工单转接功能
-func (t *Ticket) WithTransfer(enabled bool, maxTimes int) *Ticket {
-	t.EnableTransfer = enabled
-	t.TransferMaxTimes = maxTimes
-	return t
-}
-
-// WithOfflineMessage 设置离线消息功能
-func (t *Ticket) WithOfflineMessage(enabled bool, expireSeconds int) *Ticket {
-	t.EnableOfflineMessage = enabled
-	t.OfflineMessageExpire = expireSeconds
-	return t
-}
-
-// WithAck 设置ACK相关配置
-func (t *Ticket) WithAck(enabled bool, timeoutMs, maxRetry int) *Ticket {
-	t.EnableAck = enabled
-	t.AckTimeoutMs = timeoutMs
-	t.MaxRetry = maxRetry
-	return t
 }
 
 // DefaultPerformance 默认性能配置
@@ -616,11 +503,6 @@ func (c *WSC) Clone() internal.Configurable {
 	if c.Group != nil {
 		group := *c.Group
 		cloned.Group = &group
-	}
-
-	if c.Ticket != nil {
-		ticket := *c.Ticket
-		cloned.Ticket = &ticket
 	}
 
 	if c.Performance != nil {
@@ -852,21 +734,6 @@ func (c *WSC) EnableGroup() *WSC {
 	return c
 }
 
-// WithTicket 设置工单配置
-func (c *WSC) WithTicket(ticket *Ticket) *WSC {
-	c.Ticket = ticket
-	return c
-}
-
-// EnableTicket 启用工单功能
-func (c *WSC) EnableTicket() *WSC {
-	if c.Ticket == nil {
-		c.Ticket = DefaultTicket()
-	}
-	c.Ticket.Enabled = true
-	return c
-}
-
 // WithPerformance 设置性能配置
 func (c *WSC) WithPerformance(performance *Performance) *WSC {
 	c.Performance = performance
@@ -907,146 +774,6 @@ func (c *WSC) EnableEnhancement() *WSC {
 	}
 	c.Enhancement.Enabled = true
 	return c
-}
-
-// ========== Safe 安全访问方法 ==========
-
-// WSCSafe WSC 配置安全访问器
-type WSCSafe struct {
-	*safe.SafeAccess
-}
-
-// Safe 创建 WSC 安全访问器
-func (c *WSC) Safe() *WSCSafe {
-	return &WSCSafe{
-		SafeAccess: safe.Safe(c),
-	}
-}
-
-// SafeWSC 创建 WSC 安全访问器（全局函数）
-func SafeWSC(config interface{}) *WSCSafe {
-	return &WSCSafe{
-		SafeAccess: safe.Safe(config),
-	}
-}
-
-// Distributed 安全访问 Distributed 配置
-func (s *WSCSafe) Distributed() *WSCSafe {
-	return &WSCSafe{SafeAccess: s.Field("Distributed")}
-}
-
-// Redis 安全访问 Redis 配置
-func (s *WSCSafe) Redis() *WSCSafe {
-	return &WSCSafe{SafeAccess: s.Field("Redis")}
-}
-
-// Group 安全访问 Group 配置
-func (s *WSCSafe) Group() *WSCSafe {
-	return &WSCSafe{SafeAccess: s.Field("Group")}
-}
-
-// Ticket 安全访问 Ticket 配置
-func (s *WSCSafe) Ticket() *WSCSafe {
-	return &WSCSafe{SafeAccess: s.Field("Ticket")}
-}
-
-// Performance 安全访问 Performance 配置
-func (s *WSCSafe) Performance() *WSCSafe {
-	return &WSCSafe{SafeAccess: s.Field("Performance")}
-}
-
-// Security 安全访问 Security 配置
-func (s *WSCSafe) Security() *WSCSafe {
-	return &WSCSafe{SafeAccess: s.Field("Security")}
-}
-
-// VIP 安全访问 VIP 配置
-func (s *WSCSafe) VIP() *WSCSafe {
-	return &WSCSafe{SafeAccess: s.Field("VIP")}
-}
-
-// Enhancement 安全访问 Enhancement 配置
-func (s *WSCSafe) Enhancement() *WSCSafe {
-	return &WSCSafe{SafeAccess: s.Field("Enhancement")}
-}
-
-// Enabled 安全获取 Enabled 字段
-func (s *WSCSafe) Enabled(defaultValue ...bool) bool {
-	return s.Field("Enabled").Bool(defaultValue...)
-}
-
-// NodeIP 安全获取 NodeIP 字段
-func (s *WSCSafe) NodeIP(defaultValue ...string) string {
-	return s.Field("NodeIP").String(defaultValue...)
-}
-
-// NodePort 安全获取 NodePort 字段
-func (s *WSCSafe) NodePort(defaultValue ...int) int {
-	return s.Field("NodePort").Int(defaultValue...)
-}
-
-// HeartbeatInterval 安全获取 HeartbeatInterval 字段
-func (s *WSCSafe) HeartbeatInterval(defaultValue ...int) int {
-	return s.Field("HeartbeatInterval").Int(defaultValue...)
-}
-
-// ClientTimeout 安全获取 ClientTimeout 字段
-func (s *WSCSafe) ClientTimeout(defaultValue ...int) int {
-	return s.Field("ClientTimeout").Int(defaultValue...)
-}
-
-// MessageBufferSize 安全获取 MessageBufferSize 字段
-func (s *WSCSafe) MessageBufferSize(defaultValue ...int) int {
-	return s.Field("MessageBufferSize").Int(defaultValue...)
-}
-
-// WebSocketOrigins 安全获取 WebSocketOrigins 字段
-func (s *WSCSafe) WebSocketOrigins() []string {
-	val := s.Field("WebSocketOrigins").Value()
-	if slice, ok := val.([]string); ok {
-		return slice
-	}
-	return []string{}
-}
-
-// SSEHeartbeat 安全获取 SSEHeartbeat 字段
-func (s *WSCSafe) SSEHeartbeat(defaultValue ...int) int {
-	return s.Field("SSEHeartbeat").Int(defaultValue...)
-}
-
-// SSETimeout 安全获取 SSETimeout 字段
-func (s *WSCSafe) SSETimeout(defaultValue ...int) int {
-	return s.Field("SSETimeout").Int(defaultValue...)
-}
-
-// SSEMessageBuffer 安全获取 SSEMessageBuffer 字段
-func (s *WSCSafe) SSEMessageBuffer(defaultValue ...int) int {
-	return s.Field("SSEMessageBuffer").Int(defaultValue...)
-}
-
-// MaxGroupSize 安全获取 MaxGroupSize 字段
-func (s *WSCSafe) MaxGroupSize(defaultValue ...int) int {
-	return s.Field("MaxGroupSize").Int(defaultValue...)
-}
-
-// MaxTicketsPerAgent 安全获取 MaxTicketsPerAgent 字段
-func (s *WSCSafe) MaxTicketsPerAgent(defaultValue ...int) int {
-	return s.Field("MaxTicketsPerAgent").Int(defaultValue...)
-}
-
-// AssignStrategy 安全获取 AssignStrategy 字段
-func (s *WSCSafe) AssignStrategy(defaultValue ...string) string {
-	return s.Field("AssignStrategy").String(defaultValue...)
-}
-
-// PubSubChannel 安全获取 PubSubChannel 字段
-func (s *WSCSafe) PubSubChannel(defaultValue ...string) string {
-	return s.Field("PubSubChannel").String(defaultValue...)
-}
-
-// ClusterName 安全获取 ClusterName 字段
-func (s *WSCSafe) ClusterName(defaultValue ...string) string {
-	return s.Field("ClusterName").String(defaultValue...)
 }
 
 // DefaultVIP 创建默认VIP配置
@@ -1129,7 +856,7 @@ func (v *VIP) Disable() *VIP {
 // DefaultEnhancement 创建默认增强功能配置
 func DefaultEnhancement() *Enhancement {
 	return &Enhancement{
-		Enabled:              true,
+		Enabled:              false,
 		SmartRouting:         true,
 		LoadBalancing:        true,
 		SmartQueue:           true,

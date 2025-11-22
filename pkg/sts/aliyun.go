@@ -80,9 +80,9 @@ func DefaultAliyunSts() AliyunSts {
 	return AliyunSts{
 		ModuleName:      "aliyun-sts",
 		RegionID:        "cn-hangzhou",
-		AccessKeyID:     "",
-		AccessKeySecret: "",
-		RoleArn:         "",
+		AccessKeyID:     "demo_access_key_id",
+		AccessKeySecret: "demo_access_key_secret",
+		RoleArn:         "acs:ram::account:role/demo-role",
 		RoleSessionName: "default-session",
 	}
 }

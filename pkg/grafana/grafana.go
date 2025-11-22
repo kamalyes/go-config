@@ -62,16 +62,16 @@ func Default() *Grafana {
 	return &Grafana{
 		ModuleName: "grafana",
 		Enabled:    false,
-		Endpoint:   "",
-		Username:   "",
-		Password:   "",
-		APIKey:     "",
+		Endpoint:   "http://localhost:3000",
+		Username:   "admin",
+		Password:   "admin",
+		APIKey:     "demo_api_key",
 		Datasource: &Datasource{
 			Type:     "prometheus",
 			URL:      "http://localhost:9090",
-			Database: "",
-			Username: "",
-			Password: "",
+			Database: "prometheus",
+			Username: "prometheus_user",
+			Password: "prometheus_password",
 		},
 		Dashboard: &Dashboard{
 			ImportPath:      "",

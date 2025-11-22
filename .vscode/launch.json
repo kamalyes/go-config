@@ -5,13 +5,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "运行基础示例",
+      "name": "complete-integration",
       "type": "go",
       "request": "launch",
       "mode": "auto",
-      "cwd": "${workspaceFolder}/examples",
-      "program": "${workspaceFolder}/examples/gateway_hot_reload_demo.go",
-      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/bootstarp",
       "windows": {
         "env": {
           "GOARCH": "amd64",
@@ -24,6 +23,6 @@
           "GOOS": "darwin"
         }
       }
-    }
+    },
   ]
 }

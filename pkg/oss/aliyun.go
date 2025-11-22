@@ -21,7 +21,7 @@ type AliyunOss struct {
 	SecretKey           string `mapstructure:"secret-key"         yaml:"secret-key"      json:"secret_key"       validate:"required"` // 签名用的钥匙
 	Endpoint            string `mapstructure:"endpoint"           yaml:"endpoint"        json:"endpoint"`                             // 地区
 	Bucket              string `mapstructure:"bucket"             yaml:"bucket"          json:"bucket"`                               // 桶
-	Region       string `mapstructure:"region"        yaml:"region"        json:"region"         validate:"required"` // AWS 区域，如：ap-southeast-1
+	Region              string `mapstructure:"region"        yaml:"region"        json:"region"         validate:"required"`          // AWS 区域，如：ap-southeast-1
 	ReplaceOriginalHost string `mapstructure:"replace-original-host" yaml:"replace-original-host" json:"replace_original_host"`       // 替换的原始主机
 	ReplaceLaterHost    string `mapstructure:"replace-later-host" yaml:"replace-later-host"   json:"replace_later_host"`              // 替换后的主机
 	ModuleName          string `mapstructure:"modulename"         yaml:"modulename" json:"module_name"`                               // 模块名称
@@ -132,13 +132,13 @@ func (m *AliyunOss) Validate() error {
 func DefaultAliyunOss() AliyunOss {
 	return AliyunOss{
 		ModuleName:          "aliyun-oss",
-		AccessKey:           "",
-		SecretKey:           "",
+		AccessKey:           "demo_access_key",
+		SecretKey:           "demo_secret_key",
 		Endpoint:            "oss-cn-hangzhou.aliyuncs.com",
 		Region:              "oss-cn-hangzhou",
-		Bucket:              "",
-		ReplaceOriginalHost: "",
-		ReplaceLaterHost:    "",
+		Bucket:              "demo-bucket",
+		ReplaceOriginalHost: "oss-cn-hangzhou.aliyuncs.com",
+		ReplaceLaterHost:    "cdn.example.com",
 	}
 }
 

@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-08 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 11:53:53
+ * @LastEditTime: 2025-11-22 00:06:09
  * @FilePath: \go-config\pkg\cache\cache.go
  * @Description: 缓存总配置定义
  *

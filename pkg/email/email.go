@@ -76,11 +76,11 @@ func (e *Email) Validate() error {
 func DefaultEmail() Email {
 	return Email{
 		ModuleName: "email",
-		To:         "",
-		From:       "",
+		To:         "recipient@example.com",
+		From:       "sender@example.com",
 		Host:       "smtp.gmail.com",
 		Port:       587,
-		Secret:     "",
+		Secret:     "email_app_password",
 		IsSSL:      true,
 	}
 }

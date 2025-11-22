@@ -13,7 +13,6 @@ package swagger
 
 import (
 	"fmt"
-
 	"github.com/kamalyes/go-config/internal"
 )
 
@@ -105,12 +104,12 @@ func Default() *Swagger {
 		Version:     "1.0.0",
 		Contact: &Contact{
 			Name:  "API Support",
-			URL:   "",
-			Email: "",
+			URL:   "https://example.com/support",
+			Email: "support@example.com",
 		},
 		License: &License{
 			Name: "MIT",
-			URL:  "",
+			URL:  "https://opensource.org/licenses/MIT",
 		},
 		Auth: &AuthConfig{
 			Type: AuthNone,

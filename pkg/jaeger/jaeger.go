@@ -59,7 +59,7 @@ func Default() *Jaeger {
 	return &Jaeger{
 		ModuleName:  "jaeger",
 		Enabled:     false,
-		Endpoint:    "",
+		Endpoint:    "http://localhost:14268/api/traces",
 		ServiceName: "go-rpc-gateway",
 		SampleRate:  0.1,
 		Agent: &Agent{
@@ -67,9 +67,9 @@ func Default() *Jaeger {
 			Port: 6832,
 		},
 		Collector: &Collector{
-			Endpoint: "",
-			Username: "",
-			Password: "",
+			Endpoint: "http://localhost:14268/api/traces",
+			Username: "jaeger_user",
+			Password: "jaeger_password",
 		},
 		Sampling: &Sampling{
 			Type:               "probabilistic",

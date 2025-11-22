@@ -169,10 +169,10 @@ func DefaultRpcClient() RpcClient {
 	return RpcClient{
 		ModuleName:    "rpc-client",
 		Enabled:       false,
-		Endpoints:     []string{},
-		Target:        "",
-		App:           "",
-		Token:         "",
+		Endpoints:     []string{"localhost:8080"},
+		Target:        "demo.service",
+		App:           "demo-app",
+		Token:         "demo_token",
 		NonBlock:      false,
 		Timeout:       5000,
 		KeepaliveTime: 30,
@@ -180,7 +180,7 @@ func DefaultRpcClient() RpcClient {
 		MaxRetries:    3,
 		RetryInterval: 1000,
 		LoadBalance:   "round_robin",
-		Compression:   "",
+		Compression:   "gzip",
 		Headers:       make(map[string]string),
 		TLS: &TLSConfig{
 			Enabled:            false,

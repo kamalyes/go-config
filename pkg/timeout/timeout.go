@@ -12,16 +12,15 @@
 package timeout
 
 import (
-	"time"
-
 	"github.com/kamalyes/go-config/internal"
+	"time"
 )
 
 // Timeout 超时中间件配置
 type Timeout struct {
 	ModuleName string        `mapstructure:"module_name" yaml:"module-name" json:"module_name"` // 模块名称
 	Enabled    bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用超时
-	Duration   time.Duration `mapstructure:"duration" yaml:"duration" json:"duration"`         // 超时时长
+	Duration   time.Duration `mapstructure:"duration" yaml:"duration" json:"duration"`          // 超时时长
 	Message    string        `mapstructure:"message" yaml:"message" json:"message"`             // 超时消息
 }
 
@@ -29,7 +28,7 @@ type Timeout struct {
 func Default() *Timeout {
 	return &Timeout{
 		ModuleName: "timeout",
-		Enabled:    true,
+		Enabled:    false,
 		Duration:   30 * time.Second,
 		Message:    "请求超时",
 	}

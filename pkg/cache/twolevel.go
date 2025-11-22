@@ -12,9 +12,8 @@
 package cache
 
 import (
-	"time"
-
 	"github.com/kamalyes/go-config/internal"
+	"time"
 )
 
 // TwoLevel 二级缓存配置
@@ -87,6 +86,12 @@ func DefaultTwoLevelConfig() TwoLevel {
 		L2Size:           10000,
 		PromoteThreshold: 2,
 	}
+}
+
+// DefaultTwoLevel 返回默认二级缓存配置的指针，支持链式调用
+func DefaultTwoLevel() *TwoLevel {
+	config := DefaultTwoLevelConfig()
+	return &config
 }
 
 // Validate 验证二级缓存配置

@@ -70,7 +70,7 @@ func Default() *Gateway {
 		ModuleName:    "gateway",
 		Name:          "Go RPC Gateway",
 		Enabled:       true,
-		Debug:         false,
+		Debug:         true,
 		Version:       "v1.0.0",
 		Environment:   "dev",
 		JSON:          DefaultJSON(),

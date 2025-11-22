@@ -1,11 +1,11 @@
 module github.com/kamalyes/go-config
 
-go 1.20
+go 1.23.0
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0
-	github.com/kamalyes/go-logger v0.3.0
-	github.com/kamalyes/go-toolbox v0.11.74
+	github.com/kamalyes/go-logger v0.4.0
+	github.com/kamalyes/go-toolbox v0.11.77
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.11.1
 )

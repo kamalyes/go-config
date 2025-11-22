@@ -45,10 +45,10 @@ func Default() *Prometheus {
 		Enabled:    false,
 		Path:       "/metrics",
 		Port:       9090,
-		Endpoint:   "",
+		Endpoint:   "http://localhost:9090",
 		PushGateway: &PushGateway{
 			Enabled:  false,
-			Endpoint: "",
+			Endpoint: "http://localhost:9091",
 			JobName:  "go-rpc-gateway",
 		},
 		Scraping: &Scraping{
