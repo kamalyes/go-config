@@ -1,0 +1,164 @@
+# wsc模块配置文件
+# 模块名称: wsc
+# 包名: wsc  
+# 描述: WebSocket通信模块
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# enabled配置
+enabled: false
+# node ip配置
+node-ip: 0.0.0.0
+# node port配置
+node-port: 8080
+# heartbeat interval配置
+heartbeat-interval: 30
+# client timeout配置
+client-timeout: 90
+# message buffer size配置
+message-buffer-size: 256
+# web socket origins配置
+websocket-origins:
+    - '*'
+# write wait配置
+write-wait: 10s
+# max message size配置
+max-message-size: 512
+# min rec time配置
+min-rec-time: 2s
+# max rec time配置
+max-rec-time: 1m0s
+# rec factor配置
+rec-factor: 1.5
+# auto reconnect配置
+auto-reconnect: true
+# max retries配置
+max-retries: 3
+# base delay配置
+base-delay: 100ms
+# max delay配置
+max-delay: 5s
+# backoff factor配置
+backoff-factor: 2
+# jitter配置
+jitter: true
+# retryable errors配置
+retryable-errors:
+    - queue_full
+    - timeout
+    - conn_error
+    - channel_closed
+# non retryable errors配置
+non-retryable-errors:
+    - user_offline
+    - permission
+    - validation
+# enable circuit breaker配置
+enable-circuit-breaker: false
+# sseheartbeat配置
+sse-heartbeat: 0
+# ssetimeout配置
+sse-timeout: 120
+# ssemessage buffer配置
+sse-message-buffer: 100
+# distributed配置
+distributed:
+    enabled: false
+    node-discovery: redis
+    node-sync-interval: 30
+    message-routing: hash
+    enable-load-balance: true
+    health-check-interval: 10
+    node-timeout: 60
+    cluster-name: wsc-cluster
+# redis配置
+redis:
+    modulename: wsc
+    addr: 127.0.0.1:6379
+    addrs:
+        - 127.0.0.1:6379
+    username: default
+    password: redis123456
+    db: 0
+    max-retries: 3
+    pool-size: 10
+    min-idle-conns: 2
+    max-conn-age: 30m0s
+    pool-timeout: 4s
+    idle-timeout: 5m0s
+    read-timeout: 3s
+    write-timeout: 3s
+    cluster-mode: false
+# group配置
+group:
+    enabled: false
+    max-group-size: 500
+    max-groups-per-user: 100
+    enable-broadcast: true
+    broadcast-rate-limit: 10
+    group-cache-expire: 3600
+    auto-create-group: false
+    enable-message-record: true
+# performance配置
+performance:
+    max-connections-per-node: 10000
+    read-buffer-size: 4
+    write-buffer-size: 4
+    enable-compression: false
+    compression-level: 6
+    enable-metrics: true
+    metrics-interval: 60
+    enable-slow-log: true
+    slow-log-threshold: 1000
+# security配置
+security:
+    enable-auth: true
+    enable-encryption: false
+    enable-rate-limit: true
+    max-message-size: 1024
+    allowed-user-types:
+        - customer
+        - agent
+        - admin
+    blocked-ips: []
+    whitelist-ips: []
+    enable-ip-whitelist: false
+    token-expiration: 3600
+    max-login-attempts: 5
+    login-lock-duration: 300
+# vip配置
+vip:
+    enabled: true
+    max-level: 8
+    default-level: 0
+    priority-multiplier: 2
+    message-priority-bonus: 10
+    queue-priority: true
+    custom-service-priority: true
+    special-features:
+        - priority_queue
+        - dedicated_support
+    upgrade-rules:
+        - spending_based
+        - loyalty_based
+# enhancement配置
+enhancement:
+    enabled: false
+    smart-routing: true
+    load-balancing: true
+    smart-queue: true
+    monitoring: true
+    cluster-management: false
+    rule-engine: true
+    circuit-breaker: true
+    message-filtering: true
+    performance-tracking: true
+    advanced-metrics: false
+    alert-system: true
+    failure-threshold: 5
+    success-threshold: 3
+    circuit-timeout: 30
+    max-queue-size: 1000
+    metrics-interval: 60
+    max-samples: 1000
+    load-balance-algorithm: round-robin

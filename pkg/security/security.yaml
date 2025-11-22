@@ -1,0 +1,80 @@
+# security模块配置文件
+# 模块名称: security
+# 包名: security  
+# 描述: 安全模块
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# module name配置
+module-name: security
+# enabled配置
+enabled: true
+# jwt配置
+jwt:
+    enabled: false
+    secret: jwt_secret_key_please_change_in_production
+    expiry: 24
+    issuer: go-rpc-gateway
+    algorithm: HS256
+# auth配置
+auth:
+    enabled: false
+    type: bearer
+    header-name: Authorization
+    token-prefix: 'Bearer '
+    basic:
+        users: []
+    bearer:
+        tokens: []
+    apikey:
+        keys: []
+        header-name: X-API-Key
+        query-param: api_key
+    custom:
+        header-name: ""
+        expected-value: ""
+        headers: {}
+# protection配置
+protection:
+    swagger:
+        enabled: false
+        auth-required: false
+        auth-type: basic
+        ip-whitelist: []
+        require-https: false
+        username: ""
+        password: ""
+    pprof:
+        enabled: false
+        auth-required: true
+        auth-type: basic
+        ip-whitelist:
+            - 127.0.0.1
+            - ::1
+        require-https: true
+        username: admin
+        password: ""
+    metrics:
+        enabled: false
+        auth-required: false
+        auth-type: ""
+        ip-whitelist: []
+        require-https: false
+        username: ""
+        password: ""
+    health:
+        enabled: false
+        auth-required: false
+        auth-type: ""
+        ip-whitelist: []
+        require-https: false
+        username: ""
+        password: ""
+    api:
+        enabled: true
+        auth-required: false
+        auth-type: ""
+        ip-whitelist: []
+        require-https: false
+        username: ""
+        password: ""

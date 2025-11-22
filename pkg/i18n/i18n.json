@@ -1,0 +1,32 @@
+// i18n模块配置文件
+// 模块名称: i18n
+// 包名: i18n  
+// 描述: 国际化模块
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "module_name": "i18n",
+  "enabled": false,
+  "default_language": "en",
+  "supported_languages": [
+    "en",
+    "zh"
+  ],
+  "language_mapping": {
+    "en-us": "en",
+    "zh-cn": "zh"
+  },
+  "detection_order": [
+    "header",
+    "query",
+    "cookie",
+    "default"
+  ],
+  "language_param": "lang",
+  "language_header": "Accept-Language",
+  "messages_path": "./locales",
+  "custom_message_paths": {},
+  "enable_fallback": true,
+  "cookie_name": "language"
+}

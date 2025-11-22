@@ -1,0 +1,19 @@
+# captcha模块配置文件
+# 模块名称: captcha
+# 包名: captcha  
+# 描述: 验证码模块
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# key len配置
+key-len: 4
+# img width配置
+img-width: 120
+# img height配置
+img-height: 40
+# max skew配置
+max-skew: 0.7
+# dot count配置
+dot-count: 80
+# module name配置
+modulename: captcha

@@ -1,0 +1,39 @@
+# i18n模块配置文件
+# 模块名称: i18n
+# 包名: i18n  
+# 描述: 国际化模块
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# module name配置
+module-name: i18n
+# enabled配置
+enabled: false
+# default language配置
+default-language: en
+# supported languages配置
+supported-languages:
+    - en
+    - zh
+# language mapping配置
+language-mapping:
+    en-us: en
+    zh-cn: zh
+# detection order配置
+detection-order:
+    - header
+    - query
+    - cookie
+    - default
+# language param配置
+language-param: lang
+# language header配置
+language-header: Accept-Language
+# messages path配置
+messages-path: ./locales
+# custom message paths配置
+custom-message-paths: {}
+# enable fallback配置
+enable-fallback: true
+# cookie name配置
+cookie-name: language

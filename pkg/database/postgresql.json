@@ -1,0 +1,21 @@
+// postgresql模块配置文件
+// 模块名称: postgresql
+// 包名: database  
+// 描述: PostgreSQL数据库
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "module_name": "postgresql",
+  "host": "localhost",
+  "port": "5432",
+  "config": "sslmode=disable",
+  "log_level": "info",
+  "db_name": "postgres",
+  "username": "postgres",
+  "password": "postgres_password",
+  "max_idle_conns": 10,
+  "max_open_conns": 100,
+  "conn_max_idle_time": 300,
+  "conn_max_life_time": 3600
+}

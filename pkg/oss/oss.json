@@ -1,0 +1,45 @@
+// oss模块配置文件
+// 模块名称: oss
+// 包名: oss  
+// 描述: 对象存储模块
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "type": "minio",
+  "enabled": true,
+  "default": "minio",
+  "minio": {
+    "endpoint": "localhost",
+    "access_key": "minioadmin",
+    "secret_key": "minioadmin",
+    "bucket": "my-bucket",
+    "module_name": "minio",
+    "use_ssl": false
+  },
+  "s3": {
+    "endpoint": "https://s3.amazonaws.com",
+    "region": "us-east-1",
+    "access_key": "demo_access_key",
+    "secret_key": "s3_secret_key",
+    "bucket_prefix": "demo-bucket",
+    "session_token": "",
+    "use_ssl": true,
+    "path_style": false,
+    "module_name": "s3"
+  },
+  "aliyun_oss": {
+    "access_key": "demo_access_key",
+    "secret_key": "demo_secret_key",
+    "endpoint": "oss-cn-hangzhou.aliyuncs.com",
+    "bucket": "demo-bucket",
+    "region": "oss-cn-hangzhou",
+    "replace_original_host": "oss-cn-hangzhou.aliyuncs.com",
+    "replace_later_host": "cdn.example.com",
+    "module_name": "aliyun-oss"
+  },
+  "boltdb": {
+    "path": "./data/storage.db",
+    "module_name": "boltdb"
+  }
+}

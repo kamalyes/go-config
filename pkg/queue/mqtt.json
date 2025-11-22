@@ -1,0 +1,23 @@
+// mqtt模块配置文件
+// 模块名称: mqtt
+// 包名: queue  
+// 描述: MQTT消息队列
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "endpoint": "tcp://127.0.0.1:1883",
+  "client_id": "go-config-mqtt-client",
+  "protocol_version": 4,
+  "keep_alive": 60,
+  "max_reconnect_interval": 300,
+  "ping_timeout": 10,
+  "write_timeout": 10,
+  "connect_timeout": 30,
+  "username": "mqtt_user",
+  "password": "mqtt_password",
+  "clean_session": true,
+  "auto_reconnect": true,
+  "will_topic": "",
+  "module_name": "mqtt"
+}

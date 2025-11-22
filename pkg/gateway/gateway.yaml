@@ -1,0 +1,821 @@
+# gateway模块配置文件
+# 模块名称: gateway
+# 包名: gateway  
+# 描述: API网关模块
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# module name配置
+module-name: gateway
+# name配置
+name: Go RPC Gateway
+# enabled配置
+enabled: true
+# debug配置
+debug: true
+# version配置
+version: v1.0.0
+# environment配置
+environment: dev
+# json配置
+json:
+    use-proto-names: true
+    emit-unpopulated: true
+    discard-unknown: true
+# httpserver配置
+http:
+    module-name: server
+    host: 0.0.0.0
+    port: 8080
+    grpc-port: 9090
+    read-timeout: 30
+    write-timeout: 30
+    idle-timeout: 60
+    max-header-bytes: 1048576
+    enable-http: true
+# grpc配置
+    enable-grpc: false
+    enable-tls: false
+    tls:
+        cert-file: ""
+        key-file: ""
+        ca-file: ""
+    headers: {}
+    enable-gzip-compress: true
+grpc:
+    server:
+        host: 0.0.0.0
+        port: 9090
+        network: tcp
+        max-recv-msg-size: 4194304
+        max-send-msg-size: 4194304
+        keepalive-time: 30
+        keepalive-timeout: 10
+        connection-timeout: 5
+        enable-reflection: true
+    clients: {}
+# cache配置
+cache:
+    module-name: default
+    type: memory
+    enabled: true
+    default-ttl: 30m0s
+    key-prefix: 'cache:'
+    serializer: json
+    memory:
+        module-name: memory
+        capacity: 1000
+        default-ttl: 30m0s
+        cleanup-size: 100
+        max-size: 0
+    ristretto:
+        module-name: ristretto
+        num-counters: 10000000
+        max-cost: 1073741824
+        buffer-items: 64
+        metrics: true
+        ignore-internal-cost: false
+        key-to-hash: true
+        cost: 1
+    redis:
+        modulename: redis
+        addr: 127.0.0.1:6379
+        addrs:
+            - 127.0.0.1:6379
+        username: default
+        password: redis123456
+        db: 0
+        max-retries: 3
+        pool-size: 10
+        min-idle-conns: 0
+        max-conn-age: 30m0s
+        pool-timeout: 4s
+        idle-timeout: 5m0s
+        read-timeout: 3s
+        write-timeout: 3s
+        cluster-mode: false
+    sharded:
+        module-name: sharded
+        shard-count: 32
+        base-type: memory
+        hash-func: fnv
+        load-balancer: consistent_hash
+    two-level:
+        module-name: twolevel
+        l1-type: memory
+        l2-type: redis
+        l1-ttl: 5m0s
+        l2-ttl: 30m0s
+        sync-strategy: write_through
+        l1-size: 1000
+        l2-size: 10000
+        promote-threshold: 2
+    expiring:
+        module-name: expiring
+        cleanup-interval: 5m0s
+        default-ttl: 30m0s
+        max-size: 10000
+        eviction-policy: lru
+        enable-lazy-expiry: true
+        max-memory-usage: 104857600
+# database配置
+database:
+    type: mysql
+    enabled: true
+    default: mysql
+    mysql:
+        modulename: mysql
+        host: localhost
+        port: "3306"
+        config: charset=utf8mb4&parseTime=True&loc=Local
+        log-level: info
+        db-name: test
+        username: root
+        password: mysql_password
+        max-idle-conns: 10
+        max-open-conns: 100
+        conn-max-idle-time: 300
+        conn-max-life-time: 3600
+    postgresql:
+        modulename: postgresql
+        host: localhost
+        port: "5432"
+        config: sslmode=disable
+        log-level: info
+        db-name: postgres
+        username: postgres
+        password: postgres_password
+        max-idle-conns: 10
+        max-open-conns: 100
+        conn-max-idle-time: 300
+        conn-max-life-time: 3600
+    sqlite:
+        modulename: sqlite
+        config: _foreign_keys=on
+        log-level: info
+        db-path: ./data.db
+        vacuum: false
+        max-idle-conns: 10
+        max-open-conns: 1
+        conn-max-idle-time: 300
+        conn-max-life-time: 3600
+# etcd配置
+etcd:
+    module-name: etcd
+    hosts:
+        - 127.0.0.1:2379
+    key: app/config
+    id: 1
+    user: etcd_user
+    pass: etcd_password
+    cert-file: /etc/etcd/client.crt
+    cert-key-file: /etc/etcd/client.key
+    ca-cert-file: /etc/etcd/ca.crt
+    insecure-skip-verify: true
+    namespace: default
+    dial-timeout: 5
+    request-timeout: 10
+# kafka配置
+kafka:
+    brokers: 127.0.0.1:9092
+    topic: default-topic
+    group-id: default-group
+    username: kafka_user
+    password: kafka_password
+    partition: 0
+    offset: latest
+    try-times: 3
+    sync-es-topic: sync-es-topic
+    modulename: kafka
+# oss配置
+oss:
+    type: minio
+    enabled: true
+    default: minio
+    minio:
+        endpoint: localhost
+        access-key: minioadmin
+        secret-key: minioadmin
+        bucket: my-bucket
+        modulename: minio
+        use-ssl: false
+    s3:
+        endpoint: https://s3.amazonaws.com
+        region: us-east-1
+        access-key: demo_access_key
+        secret-key: s3_secret_key
+        bucket-prefix: demo-bucket
+        session-token: ""
+        use-ssl: true
+        path-style: false
+        modulename: s3
+    aliyun:
+        access-key: demo_access_key
+        secret-key: demo_secret_key
+        endpoint: oss-cn-hangzhou.aliyuncs.com
+        bucket: demo-bucket
+        region: oss-cn-hangzhou
+        replace-original-host: oss-cn-hangzhou.aliyuncs.com
+        replace-later-host: cdn.example.com
+        modulename: aliyun-oss
+    boltdb:
+        path: ./data/storage.db
+        modulename: boltdb
+# mqtt配置
+mqtt:
+    endpoint: tcp://127.0.0.1:1883
+    client-id: go-config-mqtt-client
+    protocol-ver: 4
+    keep-alive: 60
+    max-reconnect-interval: 300
+    ping-timeout: 10
+    write-timeout: 10
+    connect-timeout: 30
+    username: mqtt_user
+    password: mqtt_password
+    clean-session: true
+    auto-reconnect: true
+    will-topic: ""
+    modulename: mqtt
+# elasticsearch配置
+elasticsearch:
+    endpoint: http://127.0.0.1:9200
+    health-check: 10
+    sniff: false
+    gzip: false
+    timeout: 10s
+    modulename: elasticsearch
+# smtp配置
+smtp:
+    module-name: smtp
+    enabled: true
+    smtp-host: 127.0.0.1
+    smtp-port: 587
+    username: smtp_user
+    password: smtp_password
+    from-address: noreply@example.com
+    to-addresses:
+        - admin@example.com
+    enable-tls: true
+    headers: {}
+    pool-size: 5
+# health配置
+health:
+    module-name: health
+    enabled: true
+    path: /health
+    port: 8080
+    timeout: 30
+    redis:
+        enabled: false
+        path: /health/redis
+        timeout: 5
+    mysql:
+        enabled: false
+        path: /health/mysql
+        timeout: 5
+# monitoring配置
+monitoring:
+    module-name: monitoring
+    enabled: false
+    prometheus:
+        module-name: prometheus
+        enabled: false
+        path: /metrics
+        port: 9090
+        endpoint: http://localhost:9090
+        push-gateway:
+            enabled: false
+            endpoint: http://localhost:9091
+            job-name: go-rpc-gateway
+        scraping:
+            interval: 15s
+            timeout: 10s
+            metrics-path: /metrics
+    grafana:
+        module-name: grafana
+        enabled: false
+        endpoint: http://localhost:3000
+        username: admin
+        password: admin
+        api-key: demo_api_key
+        datasource:
+            type: prometheus
+            url: http://localhost:9090
+            database: prometheus
+            username: prometheus_user
+            password: prometheus_password
+        dashboard:
+            import-path: ""
+            auto-import: false
+            templates: []
+            refresh-interval: 30s
+        alerting:
+            enabled: false
+            webhooks: []
+            channels: []
+    jaeger:
+        module-name: jaeger
+        enabled: false
+        endpoint: http://localhost:14268/api/traces
+        service-name: go-rpc-gateway
+        sample-rate: 0.1
+        agent:
+            host: localhost
+            port: 6832
+        collector:
+            endpoint: http://localhost:14268/api/traces
+            username: jaeger_user
+            password: jaeger_password
+        sampling:
+            type: probabilistic
+            param: 0.1
+            max-traces-per-second: 100
+            operation-sampling: []
+        tags: {}
+    metrics:
+        enabled: true
+        request-count: true
+        duration: true
+        response-size: true
+        request-size: true
+        buckets:
+            - 0.001
+            - 0.01
+            - 0.1
+            - 0.3
+            - 0.6
+            - 1
+            - 3
+            - 6
+            - 9
+            - 20
+            - 30
+            - 60
+            - 90
+            - 120
+        enable-open-metrics: false
+        custom-metrics: []
+    alerting:
+        enabled: false
+        rules: []
+        webhooks: []
+        email:
+            enabled: false
+            smtp-host: ""
+            smtp-port: 0
+            username: ""
+            password: ""
+            from: ""
+            to: []
+            tls: false
+        slack:
+            enabled: false
+            token: ""
+            channel: ""
+            username: ""
+            icon-emoji: ""
+# security配置
+security:
+    module-name: security
+    enabled: true
+# jwt配置
+    jwt:
+        enabled: false
+        secret: jwt_secret_key_please_change_in_production
+        expiry: 24
+        issuer: go-rpc-gateway
+        algorithm: HS256
+    auth:
+        enabled: false
+        type: bearer
+        header-name: Authorization
+        token-prefix: 'Bearer '
+        basic:
+            users: []
+        bearer:
+            tokens: []
+        apikey:
+            keys: []
+            header-name: X-API-Key
+            query-param: api_key
+        custom:
+            header-name: ""
+            expected-value: ""
+            headers: {}
+    protection:
+# swagger配置
+        swagger:
+            enabled: false
+            auth-required: false
+            auth-type: basic
+            ip-whitelist: []
+            require-https: false
+            username: ""
+            password: ""
+        pprof:
+            enabled: false
+            auth-required: true
+            auth-type: basic
+            ip-whitelist:
+                - 127.0.0.1
+                - ::1
+            require-https: true
+            username: admin
+            password: ""
+        metrics:
+            enabled: false
+            auth-required: false
+            auth-type: ""
+            ip-whitelist: []
+            require-https: false
+            username: ""
+            password: ""
+        health:
+            enabled: false
+            auth-required: false
+            auth-type: ""
+            ip-whitelist: []
+            require-https: false
+            username: ""
+            password: ""
+        api:
+            enabled: true
+            auth-required: false
+            auth-type: ""
+            ip-whitelist: []
+            require-https: false
+            username: ""
+            password: ""
+# middleware配置
+middleware:
+    module-name: middleware
+    enabled: true
+    logging:
+        module-name: logging
+        enabled: true
+        level: info
+        format: json
+        output: stdout
+        file-path: /var/log/app.log
+        max-size: 100
+        max-backups: 3
+        max-age: 28
+        compress: true
+        skip-paths:
+            - /health
+            - /metrics
+        enable-request: true
+        enable-response: false
+    recovery:
+        module-name: recovery
+        enabled: true
+        enable-stack: true
+        stack-size: 4096
+        enable-debug: false
+        error-message: 服务器内部错误
+        log-level: error
+        enable-notify: false
+        print-stack: true
+    tracing:
+        module-name: tracing
+        enabled: false
+        service-name: go-rpc-gateway
+        service-version: 1.0.0
+        environment: development
+        endpoint: http://localhost:9411/api/v2/spans
+        exporter-type: zipkin
+        exporter-endpoint: http://localhost:9411/api/v2/spans
+        sample-rate: 0.1
+        sampler-type: probability
+        sampler-probability: 0.1
+        sampler-rate: 0.1
+        headers:
+            - Authorization
+            - User-Agent
+        attributes: {}
+    metrics:
+        module-name: metrics
+        enabled: false
+        path: /metrics
+        namespace: gateway
+        subsystem: http
+        skip-paths:
+            - /health
+        buckets:
+            - 0.005
+            - 0.01
+            - 0.025
+            - 0.05
+            - 0.1
+            - 0.25
+            - 0.5
+            - 1
+            - 2.5
+            - 5
+            - 10
+        request-count: true
+        duration: true
+        request-size: true
+        response-size: true
+    request-id:
+        module-name: requestid
+        enabled: true
+        header-name: X-Request-ID
+        generator: uuid
+    i18n:
+        module-name: i18n
+        enabled: false
+        default-language: en
+        supported-languages:
+            - en
+            - zh
+        language-mapping:
+            en-us: en
+            zh-cn: zh
+        detection-order:
+            - header
+            - query
+            - cookie
+            - default
+        language-param: lang
+        language-header: Accept-Language
+        messages-path: ./locales
+        custom-message-paths: {}
+        enable-fallback: true
+        cookie-name: language
+    pprof:
+        module-name: PProf
+        enabled: false
+        path-prefix: /debug/pprof
+        port: 6060
+        enable-profiles:
+            cpu: true
+            memory: true
+            goroutine: true
+            block: false
+            mutex: false
+            heap: true
+            allocs: true
+            threadcreate: false
+            trace: false
+        sampling:
+            cpu-rate: 100
+            memory-rate: 524288
+            block-rate: 1
+            mutex-fraction: 1
+        authentication:
+            enabled: false
+            auth-token: ""
+            allowed-ips: []
+            require-auth: false
+            timeout: 30
+        gateway:
+            enabled: false
+            dev-mode-only: false
+            enable-logging: true
+            register-web-interface: true
+        web-interface:
+            enabled: true
+            title: PProf Performance Analysis
+            description: Go Performance Profiling Interface
+            show-scenarios: true
+    circuit-breaker:
+        module-name: circuit_breaker
+        enabled: true
+        failure-threshold: 5
+        success-threshold: 2
+        timeout: 30000000000
+        volume-threshold: 10
+        sliding-window-size: 100
+        sliding-window-bucket: 1000000000
+        prevention-paths:
+            - /api/
+        exclude-paths:
+            - /health
+            - /metrics
+            - /debug
+    alerting:
+        module-name: alerting
+        enabled: false
+        webhooks: []
+        channels: []
+# cors配置
+cors:
+    allowed-origins:
+        - '*'
+    allowed-methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+    allowed-headers:
+        - Origin
+        - Content-Length
+        - Content-Type
+        - Authorization
+    max-age: "86400"
+    allowed-all-origins: false
+    allowed-all-methods: false
+    exposed-headers: []
+    allow-credentials: true
+    options-response-code: 200
+    modulename: cors
+jwt:
+    modulename: jwt
+    signing-key: go-config-default-key
+    expires-time: 604800
+    buffer-time: 3600
+    use-multipoint: false
+    issuer: go-config
+    audience: go-config-audience
+    algorithm: HS256
+    enable-refresh: true
+    refresh-token-life: 2592000
+    subject: user-token
+    custom-claims: {}
+swagger:
+    module-name: swagger
+    enabled: true
+    json-path: /swagger/doc.json
+    ui-path: /swagger
+    yaml-path: /swagger/doc.yaml
+    spec-path: ./docs/swagger.yaml
+    title: API Documentation
+    description: API Documentation powered by Swagger UI
+    version: 1.0.0
+    contact:
+        name: API Support
+        url: https://example.com/support
+        email: support@example.com
+    license:
+        name: MIT
+        url: https://opensource.org/licenses/MIT
+    auth:
+        type: none
+        username: ""
+        password: ""
+        token: ""
+        header-name: ""
+        header-value: ""
+    aggregate:
+        enabled: false
+        mode: merge
+        services: []
+        ui-layout: tabs
+# banner配置
+banner:
+    module-name: banner
+    enabled: true
+    template: "\n ██████╗  ██████╗       ██████╗ ██████╗  ██████╗     ██████╗  █████╗ ████████╗███████╗██╗    ██╗ █████╗ ██╗   ██╗\n██╔════╝ ██╔═══██╗      ██╔══██╗██╔══██╗██╔════╝    ██╔════╝ ██╔══██╗╚══██╔══╝██╔════╝██║    ██║██╔══██╗╚██╗ ██╔╝\n██║  ███╗██║   ██║█████╗██████╔╝██████╔╝██║         ██║  ███╗███████║   ██║   █████╗  ██║ █╗ ██║███████║ ╚████╔╝ \n██║   ██║██║   ██║╚════╝██╔══██╗██╔═══╝ ██║         ██║   ██║██╔══██║   ██║   ██╔══╝  ██║███╗██║██╔══██║  ╚██╔╝  \n╚██████╔╝╚██████╔╝      ██║  ██║██║     ╚██████╗    ╚██████╔╝██║  ██║   ██║   ███████╗╚███╔███╔╝██║  ██║   ██║   \n ╚═════╝  ╚═════╝       ╚═╝  ╚═╝╚═╝      ╚═════╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝   "
+    title: Go RPC Gateway
+    description: A high-performance RPC gateway service
+    author: kamalyes
+    email: 501893067@qq.com
+    website: https://github.com/kamalyes/go-rpc-gateway
+# rate limit配置
+rate-limit:
+    module-name: ratelimit
+    enabled: true
+    strategy: token-bucket
+    default-scope: global
+    global-limit:
+        requests-per-second: 100
+        burst-size: 200
+        window-size: 1m0s
+        block-duration: 1m0s
+    storage:
+        type: memory
+        key-prefix: 'rate_limit:'
+        clean-interval: 5m0s
+    custom-rule-loader: ""
+    enable-dynamic-rule: false
+# wsc配置
+wsc:
+    enabled: false
+    node-ip: 0.0.0.0
+    node-port: 8080
+    heartbeat-interval: 30
+    client-timeout: 90
+    message-buffer-size: 256
+    websocket-origins:
+        - '*'
+    write-wait: 10s
+    max-message-size: 512
+    min-rec-time: 2s
+    max-rec-time: 1m0s
+    rec-factor: 1.5
+    auto-reconnect: true
+    max-retries: 3
+    base-delay: 100ms
+    max-delay: 5s
+    backoff-factor: 2
+    jitter: true
+    retryable-errors:
+        - queue_full
+        - timeout
+        - conn_error
+        - channel_closed
+    non-retryable-errors:
+        - user_offline
+        - permission
+        - validation
+    enable-circuit-breaker: false
+    sse-heartbeat: 0
+    sse-timeout: 120
+    sse-message-buffer: 100
+    distributed:
+        enabled: false
+        node-discovery: redis
+        node-sync-interval: 30
+        message-routing: hash
+        enable-load-balance: true
+        health-check-interval: 10
+        node-timeout: 60
+        cluster-name: wsc-cluster
+    redis:
+        modulename: wsc
+        addr: 127.0.0.1:6379
+        addrs:
+            - 127.0.0.1:6379
+        username: default
+        password: redis123456
+        db: 0
+        max-retries: 3
+        pool-size: 10
+        min-idle-conns: 2
+        max-conn-age: 30m0s
+        pool-timeout: 4s
+        idle-timeout: 5m0s
+        read-timeout: 3s
+        write-timeout: 3s
+        cluster-mode: false
+    group:
+        enabled: false
+        max-group-size: 500
+        max-groups-per-user: 100
+        enable-broadcast: true
+        broadcast-rate-limit: 10
+        group-cache-expire: 3600
+        auto-create-group: false
+        enable-message-record: true
+    performance:
+        max-connections-per-node: 10000
+        read-buffer-size: 4
+        write-buffer-size: 4
+        enable-compression: false
+        compression-level: 6
+        enable-metrics: true
+        metrics-interval: 60
+        enable-slow-log: true
+        slow-log-threshold: 1000
+    security:
+        enable-auth: true
+        enable-encryption: false
+        enable-rate-limit: true
+        max-message-size: 1024
+        allowed-user-types:
+            - customer
+            - agent
+            - admin
+        blocked-ips: []
+        whitelist-ips: []
+        enable-ip-whitelist: false
+        token-expiration: 3600
+        max-login-attempts: 5
+        login-lock-duration: 300
+    vip:
+        enabled: true
+        max-level: 8
+        default-level: 0
+        priority-multiplier: 2
+        message-priority-bonus: 10
+        queue-priority: true
+        custom-service-priority: true
+        special-features:
+            - priority_queue
+            - dedicated_support
+        upgrade-rules:
+            - spending_based
+            - loyalty_based
+    enhancement:
+        enabled: false
+        smart-routing: true
+        load-balancing: true
+        smart-queue: true
+        monitoring: true
+        cluster-management: false
+        rule-engine: true
+        circuit-breaker: true
+        message-filtering: true
+        performance-tracking: true
+        advanced-metrics: false
+        alert-system: true
+        failure-threshold: 5
+        success-threshold: 3
+        circuit-timeout: 30
+        max-queue-size: 1000
+        metrics-interval: 60
+        max-samples: 1000
+        load-balance-algorithm: round-robin

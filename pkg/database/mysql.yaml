@@ -1,0 +1,31 @@
+# mysql模块配置文件
+# 模块名称: mysql
+# 包名: database  
+# 描述: MySQL数据库
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# module name配置
+modulename: mysql
+# host配置
+host: localhost
+# port配置
+port: "3306"
+# config配置
+config: charset=utf8mb4&parseTime=True&loc=Local
+# log level配置
+log-level: info
+# dbname配置
+db-name: test
+# username配置
+username: root
+# password配置
+password: mysql_password
+# max idle conns配置
+max-idle-conns: 10
+# max open conns配置
+max-open-conns: 100
+# conn max idle time配置
+conn-max-idle-time: 300
+# conn max life time配置
+conn-max-life-time: 3600

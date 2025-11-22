@@ -1,0 +1,43 @@
+// rpcclient模块配置文件
+// 模块名称: rpcclient
+// 包名: rpcclient  
+// 描述: RPC客户端
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "module_name": "rpc-client",
+  "enabled": false,
+  "endpoints": [
+    "localhost:8080"
+  ],
+  "target": "demo.service",
+  "app": "demo-app",
+  "token": "demo_token",
+  "non_block": false,
+  "timeout": 5000,
+  "keepalive_time": 30,
+  "dial_timeout": 3,
+  "max_retries": 3,
+  "retry_interval": 1000,
+  "load_balance": "round_robin",
+  "compression": "gzip",
+  "headers": {},
+  "tls": {
+    "enabled": false,
+    "cert_file": "",
+    "key_file": "",
+    "ca_cert_file": "",
+    "server_name": "",
+    "insecure_skip_verify": true
+  },
+  "circuit_breaker": {
+    "enabled": false,
+    "max_requests": 100,
+    "interval": 60,
+    "timeout": 10,
+    "failure_threshold": 5,
+    "success_threshold": 2,
+    "half_open_max_calls": 3
+  }
+}

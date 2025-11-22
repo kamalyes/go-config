@@ -1,0 +1,25 @@
+# sqlite模块配置文件
+# 模块名称: sqlite
+# 包名: database  
+# 描述: SQLite数据库
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# module name配置
+modulename: sqlite
+# config配置
+config: _foreign_keys=on
+# log level配置
+log-level: info
+# db path配置
+db-path: ./data.db
+# vacuum配置
+vacuum: false
+# max idle conns配置
+max-idle-conns: 10
+# max open conns配置
+max-open-conns: 1
+# conn max idle time配置
+conn-max-idle-time: 300
+# conn max life time配置
+conn-max-life-time: 3600

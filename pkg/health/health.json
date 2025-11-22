@@ -1,0 +1,24 @@
+// health模块配置文件
+// 模块名称: health
+// 包名: health  
+// 描述: 健康检查模块
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "module_name": "health",
+  "enabled": true,
+  "path": "/health",
+  "port": 8080,
+  "timeout": 30,
+  "redis": {
+    "enabled": false,
+    "path": "/health/redis",
+    "timeout": 5
+  },
+  "mysql": {
+    "enabled": false,
+    "path": "/health/mysql",
+    "timeout": 5
+  }
+}

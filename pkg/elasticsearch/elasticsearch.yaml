@@ -1,0 +1,19 @@
+# elasticsearch模块配置文件
+# 模块名称: elasticsearch
+# 包名: elasticsearch  
+# 描述: Elasticsearch搜索引擎
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# endpoint配置
+endpoint: http://127.0.0.1:9200
+# health check配置
+health-check: 10
+# sniff配置
+sniff: false
+# gzip配置
+gzip: false
+# timeout配置
+timeout: 10s
+# module name配置
+modulename: elasticsearch

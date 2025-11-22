@@ -1,0 +1,24 @@
+// redis模块配置文件
+// 模块名称: redis
+// 包名: redis  
+// 描述: Redis缓存
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "module_name": "",
+  "addr": "",
+  "addrs": null,
+  "username": "",
+  "password": "",
+  "db": 0,
+  "max_retries": 0,
+  "pool_size": 0,
+  "min_idle_conns": 0,
+  "max_conn_age": 0,
+  "pool_timeout": 0,
+  "idle_timeout": 0,
+  "read_timeout": 0,
+  "write_timeout": 0,
+  "cluster_mode": false
+}

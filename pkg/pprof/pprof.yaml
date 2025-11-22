@@ -1,0 +1,51 @@
+# pprof模块配置文件
+# 模块名称: pprof
+# 包名: pprof  
+# 描述: 性能分析模块
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# module name配置
+module-name: PProf
+# enabled配置
+enabled: false
+# path prefix配置
+path-prefix: /debug/pprof
+# port配置
+port: 6060
+# enable profiles配置
+enable-profiles:
+    cpu: true
+    memory: true
+    goroutine: true
+    block: false
+    mutex: false
+    heap: true
+    allocs: true
+    threadcreate: false
+    trace: false
+# sampling配置
+sampling:
+    cpu-rate: 100
+    memory-rate: 524288
+    block-rate: 1
+    mutex-fraction: 1
+# authentication配置
+authentication:
+    enabled: false
+    auth-token: ""
+    allowed-ips: []
+    require-auth: false
+    timeout: 30
+# gateway配置
+gateway:
+    enabled: false
+    dev-mode-only: false
+    enable-logging: true
+# web interface配置
+    register-web-interface: true
+web-interface:
+    enabled: true
+    title: PProf Performance Analysis
+    description: Go Performance Profiling Interface
+    show-scenarios: true

@@ -1,0 +1,80 @@
+// restful模块配置文件
+// 模块名称: restful
+// 包名: restful  
+// 描述: RESTful API模块
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "module_name": "restful",
+  "enabled": false,
+  "name": "restful-api",
+  "host": "127.0.0.1",
+  "port": 8080,
+  "mode": "dev",
+  "max_conns": 1000,
+  "max_bytes": 33554432,
+  "timeout": 30,
+  "cpu_threshold": 900,
+  "signature": {
+    "enabled": false,
+    "private_keys": null,
+    "strict": false,
+    "expiry": 300
+  },
+  "auth": false,
+  "print_routes": false,
+  "strict_slash": false,
+  "headers": {},
+  "middlewares": [],
+  "cors": {
+    "enabled": false,
+    "allow_origins": [
+      "*"
+    ],
+    "allow_methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE",
+      "OPTIONS"
+    ],
+    "allow_headers": [
+      "Origin",
+      "Content-Type",
+      "Authorization"
+    ],
+    "expose_headers": null,
+    "allow_credentials": false,
+    "max_age": 3600
+  },
+  "tls": {
+    "enabled": false,
+    "cert_file": "",
+    "key_file": "",
+    "ca_cert_file": ""
+  },
+  "rate_limit": {
+    "enabled": false,
+    "seconds": 1,
+    "quota": 1000
+  },
+  "compression": {
+    "enabled": false,
+    "level": 6,
+    "min_length": 1024,
+    "types": [
+      "application/json",
+      "text/html",
+      "text/css",
+      "text/javascript"
+    ]
+  },
+  "static": {
+    "enabled": false,
+    "root": "./static",
+    "prefix": "/static",
+    "index": "index.html",
+    "browse": false
+  }
+}

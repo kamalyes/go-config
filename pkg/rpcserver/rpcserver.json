@@ -1,0 +1,46 @@
+// rpcserver模块配置文件
+// 模块名称: rpcserver
+// 包名: rpcserver  
+// 描述: RPC服务端
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "module_name": "rpc-server",
+  "enabled": false,
+  "name": "rpc-service",
+  "listen_on": "127.0.0.1:8080",
+  "mode": "dev",
+  "max_conns": 1000,
+  "max_msg_size": 4194304,
+  "timeout": 30,
+  "cpu_threshold": 900,
+  "health": true,
+  "auth": false,
+  "strict_control": false,
+  "metrics_url": "/metrics",
+  "headers": {},
+  "middlewares": [],
+  "tls": {
+    "enabled": false,
+    "cert_file": "",
+    "key_file": "",
+    "ca_cert_file": ""
+  },
+  "rate_limit": {
+    "enabled": false,
+    "seconds": 1,
+    "quota": 1000
+  },
+  "recovery": {
+    "enabled": true,
+    "stack_trace": false,
+    "log_errors": true
+  },
+  "tracing": {
+    "enabled": false,
+    "endpoint": "",
+    "sampler": 0.1,
+    "service_name": "rpc-service"
+  }
+}

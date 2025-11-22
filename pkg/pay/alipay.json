@@ -1,0 +1,17 @@
+// alipay模块配置文件
+// 模块名称: alipay
+// 包名: pay  
+// 描述: 支付宝支付
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "pid": "",
+  "app_id": "",
+  "pri_key": "",
+  "pub_key": "",
+  "sign_type": "RSA2",
+  "notify_url": "",
+  "subject": "默认订单",
+  "module_name": "alipay"
+}

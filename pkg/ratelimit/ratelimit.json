@@ -1,0 +1,26 @@
+// ratelimit模块配置文件
+// 模块名称: ratelimit
+// 包名: ratelimit  
+// 描述: 限流模块
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "module_name": "ratelimit",
+  "enabled": true,
+  "strategy": "token-bucket",
+  "default_scope": "global",
+  "global_limit": {
+    "requests_per_second": 100,
+    "burst_size": 200,
+    "window_size": 60000000000,
+    "block_duration": 60000000000
+  },
+  "storage": {
+    "type": "memory",
+    "key_prefix": "rate_limit:",
+    "clean_interval": 300000000000
+  },
+  "custom_rule_loader": "",
+  "enable_dynamic_rule": false
+}

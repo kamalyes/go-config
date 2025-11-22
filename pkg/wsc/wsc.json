@@ -1,0 +1,149 @@
+// wsc模块配置文件
+// 模块名称: wsc
+// 包名: wsc  
+// 描述: WebSocket通信模块
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "enabled": false,
+  "node_ip": "0.0.0.0",
+  "node_port": 8080,
+  "heartbeat_interval": 30,
+  "client_timeout": 90,
+  "message_buffer_size": 256,
+  "websocket_origins": [
+    "*"
+  ],
+  "write_wait": 10000000000,
+  "max_message_size": 512,
+  "min_rec_time": 2000000000,
+  "max_rec_time": 60000000000,
+  "rec_factor": 1.5,
+  "auto_reconnect": true,
+  "max_retries": 3,
+  "base_delay": 100000000,
+  "max_delay": 5000000000,
+  "backoff_factor": 2,
+  "jitter": true,
+  "retryable_errors": [
+    "queue_full",
+    "timeout",
+    "conn_error",
+    "channel_closed"
+  ],
+  "non_retryable_errors": [
+    "user_offline",
+    "permission",
+    "validation"
+  ],
+  "enable_circuit_breaker": false,
+  "sse_heartbeat": 0,
+  "sse_timeout": 120,
+  "sse_message_buffer": 100,
+  "distributed": {
+    "enabled": false,
+    "node_discovery": "redis",
+    "node_sync_interval": 30,
+    "message_routing": "hash",
+    "enable_load_balance": true,
+    "health_check_interval": 10,
+    "node_timeout": 60,
+    "cluster_name": "wsc-cluster"
+  },
+  "redis": {
+    "module_name": "wsc",
+    "addr": "127.0.0.1:6379",
+    "addrs": [
+      "127.0.0.1:6379"
+    ],
+    "username": "default",
+    "password": "redis123456",
+    "db": 0,
+    "max_retries": 3,
+    "pool_size": 10,
+    "min_idle_conns": 2,
+    "max_conn_age": 1800000000000,
+    "pool_timeout": 4000000000,
+    "idle_timeout": 300000000000,
+    "read_timeout": 3000000000,
+    "write_timeout": 3000000000,
+    "cluster_mode": false
+  },
+  "group": {
+    "enabled": false,
+    "max_group_size": 500,
+    "max_groups_per_user": 100,
+    "enable_broadcast": true,
+    "broadcast_rate_limit": 10,
+    "group_cache_expire": 3600,
+    "auto_create_group": false,
+    "enable_message_record": true
+  },
+  "performance": {
+    "max_connections_per_node": 10000,
+    "read_buffer_size": 4,
+    "write_buffer_size": 4,
+    "enable_compression": false,
+    "compression_level": 6,
+    "enable_metrics": true,
+    "metrics_interval": 60,
+    "enable_slow_log": true,
+    "slow_log_threshold": 1000
+  },
+  "security": {
+    "enable_auth": true,
+    "enable_encryption": false,
+    "enable_rate_limit": true,
+    "max_message_size": 1024,
+    "allowed_user_types": [
+      "customer",
+      "agent",
+      "admin"
+    ],
+    "blocked_ips": [],
+    "whitelist_ips": [],
+    "enable_ip_whitelist": false,
+    "token_expiration": 3600,
+    "max_login_attempts": 5,
+    "login_lock_duration": 300
+  },
+  "vip": {
+    "enabled": true,
+    "max_level": 8,
+    "default_level": 0,
+    "priority_multiplier": 2,
+    "message_priority_bonus": 10,
+    "queue_priority": true,
+    "custom_service_priority": true,
+    "special_features": [
+      "priority_queue",
+      "dedicated_support"
+    ],
+    "upgrade_rules": [
+      "spending_based",
+      "loyalty_based"
+    ]
+  },
+  "enhancement": {
+    "enabled": false,
+    "smart_routing": true,
+    "load_balancing": true,
+    "smart_queue": true,
+    "monitoring": true,
+    "cluster_management": false,
+    "rule_engine": true,
+    "circuit_breaker": true,
+    "message_filtering": true,
+    "performance_tracking": true,
+    "advanced_metrics": false,
+    "alert_system": true,
+    "failure_threshold": 5,
+    "success_threshold": 3,
+    "circuit_timeout": 30,
+    "max_queue_size": 1000,
+    "metrics_interval": 60,
+    "max_samples": 1000,
+    "load_balance_algorithm": "round-robin"
+  }
+}

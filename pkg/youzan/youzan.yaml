@@ -1,0 +1,21 @@
+# youzan模块配置文件
+# 模块名称: youzan
+# 包名: youzan  
+# 描述: 有赞电商模块
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# endpoint配置
+endpoint: https://open.youzan.com
+# client id配置
+client-id: demo_client_id
+# client secret配置
+client-secret: demo_client_secret
+# authorize type配置
+authorize-type: silent
+# grant id配置
+grant-id: demo_grant_id
+# refresh配置
+refresh: true
+# module name配置
+modulename: youzan

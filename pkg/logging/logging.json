@@ -1,0 +1,25 @@
+// logging模块配置文件
+// 模块名称: logging
+// 包名: logging  
+// 描述: 日志记录模块
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "module_name": "logging",
+  "enabled": true,
+  "level": "info",
+  "format": "json",
+  "output": "stdout",
+  "file_path": "/var/log/app.log",
+  "max_size": 100,
+  "max_backups": 3,
+  "max_age": 28,
+  "compress": true,
+  "skip_paths": [
+    "/health",
+    "/metrics"
+  ],
+  "enable_request": true,
+  "enable_response": false
+}

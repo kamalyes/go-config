@@ -1,0 +1,21 @@
+# email模块配置文件
+# 模块名称: email
+# 包名: email  
+# 描述: 邮件发送模块
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# to配置
+to: recipient@example.com
+# from配置
+from: sender@example.com
+# host配置
+host: smtp.gmail.com
+# port配置
+port: 587
+# secret配置
+secret: email_app_password
+# is ssl配置
+is-ssl: true
+# module name配置
+modulename: email

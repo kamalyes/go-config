@@ -1,0 +1,113 @@
+# monitoring模块配置文件
+# 模块名称: monitoring
+# 包名: monitoring  
+# 描述: 监控模块
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# module name配置
+module-name: monitoring
+# enabled配置
+enabled: false
+# prometheus配置
+prometheus:
+    module-name: prometheus
+    enabled: false
+    path: /metrics
+    port: 9090
+    endpoint: http://localhost:9090
+    push-gateway:
+        enabled: false
+        endpoint: http://localhost:9091
+        job-name: go-rpc-gateway
+    scraping:
+        interval: 15s
+        timeout: 10s
+        metrics-path: /metrics
+# grafana配置
+grafana:
+    module-name: grafana
+    enabled: false
+    endpoint: http://localhost:3000
+    username: admin
+    password: admin
+    api-key: demo_api_key
+    datasource:
+        type: prometheus
+        url: http://localhost:9090
+        database: prometheus
+        username: prometheus_user
+        password: prometheus_password
+    dashboard:
+        import-path: ""
+        auto-import: false
+        templates: []
+        refresh-interval: 30s
+# alerting配置
+    alerting:
+        enabled: false
+        webhooks: []
+        channels: []
+# jaeger配置
+jaeger:
+    module-name: jaeger
+    enabled: false
+    endpoint: http://localhost:14268/api/traces
+    service-name: go-rpc-gateway
+    sample-rate: 0.1
+    agent:
+        host: localhost
+        port: 6832
+    collector:
+        endpoint: http://localhost:14268/api/traces
+        username: jaeger_user
+        password: jaeger_password
+    sampling:
+        type: probabilistic
+        param: 0.1
+        max-traces-per-second: 100
+        operation-sampling: []
+    tags: {}
+# metrics配置
+metrics:
+    enabled: true
+    request-count: true
+    duration: true
+    response-size: true
+    request-size: true
+    buckets:
+        - 0.001
+        - 0.01
+        - 0.1
+        - 0.3
+        - 0.6
+        - 1
+        - 3
+        - 6
+        - 9
+        - 20
+        - 30
+        - 60
+        - 90
+        - 120
+    enable-open-metrics: false
+    custom-metrics: []
+alerting:
+    enabled: false
+    rules: []
+    webhooks: []
+    email:
+        enabled: false
+        smtp-host: ""
+        smtp-port: 0
+        username: ""
+        password: ""
+        from: ""
+        to: []
+        tls: false
+    slack:
+        enabled: false
+        token: ""
+        channel: ""
+        username: ""
+        icon-emoji: ""

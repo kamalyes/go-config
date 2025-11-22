@@ -1,0 +1,125 @@
+// monitoring模块配置文件
+// 模块名称: monitoring
+// 包名: monitoring  
+// 描述: 监控模块
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "module_name": "monitoring",
+  "enabled": false,
+  "prometheus": {
+    "module_name": "prometheus",
+    "enabled": false,
+    "path": "/metrics",
+    "port": 9090,
+    "endpoint": "http://localhost:9090",
+    "push_gateway": {
+      "enabled": false,
+      "endpoint": "http://localhost:9091",
+      "job_name": "go-rpc-gateway"
+    },
+    "scraping": {
+      "interval": "15s",
+      "timeout": "10s",
+      "metrics_path": "/metrics"
+    }
+  },
+  "grafana": {
+    "module_name": "grafana",
+    "enabled": false,
+    "endpoint": "http://localhost:3000",
+    "username": "admin",
+    "password": "admin",
+    "api_key": "demo_api_key",
+    "datasource": {
+      "type": "prometheus",
+      "url": "http://localhost:9090",
+      "database": "prometheus",
+      "username": "prometheus_user",
+      "password": "prometheus_password"
+    },
+    "dashboard": {
+      "import_path": "",
+      "auto_import": false,
+      "templates": [],
+      "refresh_interval": "30s"
+    },
+    "alerting": {
+      "enabled": false,
+      "webhooks": [],
+      "channels": []
+    }
+  },
+  "jaeger": {
+    "module_name": "jaeger",
+    "enabled": false,
+    "endpoint": "http://localhost:14268/api/traces",
+    "service_name": "go-rpc-gateway",
+    "sample_rate": 0.1,
+    "agent": {
+      "host": "localhost",
+      "port": 6832
+    },
+    "collector": {
+      "endpoint": "http://localhost:14268/api/traces",
+      "username": "jaeger_user",
+      "password": "jaeger_password"
+    },
+    "sampling": {
+      "type": "probabilistic",
+      "param": 0.1,
+      "max_traces_per_second": 100,
+      "operation_sampling": []
+    },
+    "tags": {}
+  },
+  "metrics": {
+    "enabled": true,
+    "request_count": true,
+    "duration": true,
+    "response_size": true,
+    "request_size": true,
+    "buckets": [
+      0.001,
+      0.01,
+      0.1,
+      0.3,
+      0.6,
+      1,
+      3,
+      6,
+      9,
+      20,
+      30,
+      60,
+      90,
+      120
+    ],
+    "enable_open_metrics": false,
+    "custom_metrics": [],
+    "endpoint": "/metrics"
+  },
+  "alerting": {
+    "enabled": false,
+    "rules": [],
+    "webhooks": [],
+    "email": {
+      "enabled": false,
+      "smtp_host": "",
+      "smtp_port": 0,
+      "username": "",
+      "password": "",
+      "from": "",
+      "to": [],
+      "tls": false
+    },
+    "slack": {
+      "enabled": false,
+      "token": "",
+      "channel": "",
+      "username": "",
+      "icon_emoji": ""
+    }
+  }
+}

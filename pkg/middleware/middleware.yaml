@@ -1,0 +1,169 @@
+# middleware模块配置文件
+# 模块名称: middleware
+# 包名: middleware  
+# 描述: 中间件模块
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# module name配置
+module-name: middleware
+# enabled配置
+enabled: true
+# logging配置
+logging:
+    module-name: logging
+    enabled: true
+    level: info
+    format: json
+    output: stdout
+    file-path: /var/log/app.log
+    max-size: 100
+    max-backups: 3
+    max-age: 28
+    compress: true
+    skip-paths:
+        - /health
+        - /metrics
+    enable-request: true
+    enable-response: false
+# recovery配置
+recovery:
+    module-name: recovery
+    enabled: true
+    enable-stack: true
+    stack-size: 4096
+    enable-debug: false
+    error-message: 服务器内部错误
+    log-level: error
+    enable-notify: false
+    print-stack: true
+# tracing配置
+tracing:
+    module-name: tracing
+    enabled: false
+    service-name: go-rpc-gateway
+    service-version: 1.0.0
+    environment: development
+    endpoint: http://localhost:9411/api/v2/spans
+    exporter-type: zipkin
+    exporter-endpoint: http://localhost:9411/api/v2/spans
+    sample-rate: 0.1
+    sampler-type: probability
+    sampler-probability: 0.1
+    sampler-rate: 0.1
+    headers:
+        - Authorization
+        - User-Agent
+    attributes: {}
+# metrics配置
+metrics:
+    module-name: metrics
+    enabled: false
+    path: /metrics
+    namespace: gateway
+    subsystem: http
+    skip-paths:
+        - /health
+    buckets:
+        - 0.005
+        - 0.01
+        - 0.025
+        - 0.05
+        - 0.1
+        - 0.25
+        - 0.5
+        - 1
+        - 2.5
+        - 5
+        - 10
+    request-count: true
+    duration: true
+    request-size: true
+    response-size: true
+# request id配置
+request-id:
+    module-name: requestid
+    enabled: true
+    header-name: X-Request-ID
+    generator: uuid
+# i18 n配置
+i18n:
+    module-name: i18n
+    enabled: false
+    default-language: en
+    supported-languages:
+        - en
+        - zh
+    language-mapping:
+        en-us: en
+        zh-cn: zh
+    detection-order:
+        - header
+        - query
+        - cookie
+        - default
+    language-param: lang
+    language-header: Accept-Language
+    messages-path: ./locales
+    custom-message-paths: {}
+    enable-fallback: true
+    cookie-name: language
+# pprof配置
+pprof:
+    module-name: PProf
+    enabled: false
+    path-prefix: /debug/pprof
+    port: 6060
+    enable-profiles:
+        cpu: true
+        memory: true
+        goroutine: true
+        block: false
+        mutex: false
+        heap: true
+        allocs: true
+        threadcreate: false
+        trace: false
+    sampling:
+        cpu-rate: 100
+        memory-rate: 524288
+        block-rate: 1
+        mutex-fraction: 1
+    authentication:
+        enabled: false
+        auth-token: ""
+        allowed-ips: []
+        require-auth: false
+        timeout: 30
+    gateway:
+        enabled: false
+        dev-mode-only: false
+        enable-logging: true
+        register-web-interface: true
+    web-interface:
+        enabled: true
+        title: PProf Performance Analysis
+        description: Go Performance Profiling Interface
+        show-scenarios: true
+# circuit breaker配置
+circuit-breaker:
+    module-name: circuit_breaker
+    enabled: true
+    failure-threshold: 5
+    success-threshold: 2
+    timeout: 30000000000
+    volume-threshold: 10
+    sliding-window-size: 100
+    sliding-window-bucket: 1000000000
+    prevention-paths:
+        - /api/
+    exclude-paths:
+        - /health
+        - /metrics
+        - /debug
+# alerting配置
+alerting:
+    module-name: alerting
+    enabled: false
+    webhooks: []
+    channels: []

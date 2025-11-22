@@ -1,0 +1,36 @@
+# signature模块配置文件
+# 模块名称: signature
+# 包名: signature  
+# 描述: 数字签名模块
+# 生成时间: 2025-11-22 18:00:29
+# 注意: 此文件由配置生成器自动生成
+
+# module name配置
+module-name: signature
+# enabled配置
+enabled: false
+# secret key配置
+secret-key: default-secret-key-change-in-production
+# signature header配置
+signature-header: X-Signature
+# timestamp header配置
+timestamp-header: X-Timestamp
+# nonce header配置
+nonce-header: X-Nonce
+# algorithm配置
+algorithm: sha256
+# timeout window配置
+timeout-window: 5m0s
+# ignore paths配置
+ignore-paths:
+    - /health
+    - /metrics
+    - /ping
+# required headers配置
+required-headers:
+    - X-Timestamp
+    - X-Nonce
+# skip query配置
+skip-query: false
+# skip body配置
+skip-body: false

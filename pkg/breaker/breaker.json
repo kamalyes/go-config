@@ -1,0 +1,25 @@
+// breaker模块配置文件
+// 模块名称: breaker
+// 包名: breaker  
+// 描述: 熔断器模块
+// 生成时间: 2025-11-22 18:00:29
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "module_name": "circuit_breaker",
+  "enabled": true,
+  "failure_threshold": 5,
+  "success_threshold": 2,
+  "timeout": 30000000000,
+  "volume_threshold": 10,
+  "sliding_window_size": 100,
+  "sliding_window_bucket": 1000000000,
+  "prevention_paths": [
+    "/api/"
+  ],
+  "exclude_paths": [
+    "/health",
+    "/metrics",
+    "/debug"
+  ]
+}
