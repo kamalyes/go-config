@@ -24,6 +24,12 @@ go.work.sum
 # env file
 .env
 
+# Test resources
 ./tests/resources/*
-./pkg/*.json
-./pkg/*.yaml
+
+# Only ignore local development configs (not the module configs)
+*-local.yaml
+*-local.json
+.env.*
+*.local.json
+*.local.yaml

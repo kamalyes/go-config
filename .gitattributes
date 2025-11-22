@@ -97,3 +97,21 @@ testdata/** binary
 *.sqlite binary
 *.sqlite3 binary
 examples/** binary
+
+# Export ignore for git archive (affects git tag packages)
+# These files will be excluded when creating release archives
+pkg/**/*.json export-ignore
+pkg/**/*.yaml export-ignore
+*.config.json export-ignore
+*.config.yaml export-ignore
+config/*.json export-ignore
+config/*.yaml export-ignore
+configs/*.json export-ignore
+configs/*.yaml export-ignore
+*-local.yaml export-ignore
+*-local.json export-ignore
+
+# Exclude development directories from archives
+examples/** export-ignore
+scripts/** export-ignore
+bootstarp/** export-ignore
