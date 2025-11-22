@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-13 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-22 16:42:34
+ * @LastEditTime: 2025-11-22 19:03:09
  * @FilePath: \go-config\pkg\wsc\wsc.go
  * @Description: WebSocket 通信完整配置模块（包含分布式、Redis、群组、广播等）
  *
@@ -36,6 +36,9 @@ type WSC struct {
 	MaxRetries           int           `mapstructure:"max_retries" yaml:"max-retries" json:"max_retries"`                                  // 最大重试次数
 	BaseDelay            time.Duration `mapstructure:"base_delay" yaml:"base-delay" json:"base_delay"`                                     // 基本重试延迟
 	MaxDelay             time.Duration `mapstructure:"max_delay" yaml:"max-delay" json:"max_delay"`                                        // 最大重试延迟
+	AckTimeoutMs         time.Duration `mapstructure:"ack_timeout_ms" yaml:"ack-timeout-ms" json:"ack_timeout_ms"`                         // 消息确认超时(毫秒)
+	AckMaxRetries        int           `mapstructure:"ack_max_retries" yaml:"ack-max-retries" json:"ack_max_retries"`                      // 消息确认最大重试次数
+	EnableAck            bool          `mapstructure:"enable_ack" yaml:"enable-ack" json:"enable_ack"`                                     // 是否启用消息确认
 	BackoffFactor        float64       `mapstructure:"backoff_factor" yaml:"backoff-factor" json:"backoff_factor"`                         // 重试延迟倍数
 	Jitter               bool          `mapstructure:"jitter" yaml:"jitter" json:"jitter"`                                                 // 是否添加随机抖动
 	RetryableErrors      []string      `mapstructure:"retryable_errors" yaml:"retryable-errors" json:"retryable_errors"`                   // 可重试的错误类型
@@ -186,6 +189,9 @@ func Default() *WSC {
 		MaxRetries:           3,
 		BaseDelay:            100 * time.Millisecond,
 		MaxDelay:             5 * time.Second,
+		AckTimeoutMs:         500 * time.Millisecond,
+		EnableAck:            false,
+		AckMaxRetries:        3,
 		BackoffFactor:        2.0,
 		Jitter:               true,
 		RetryableErrors:      []string{"queue_full", "timeout", "conn_error", "channel_closed"},
@@ -609,6 +615,19 @@ func (c *WSC) WithMinRecTime(d time.Duration) *WSC {
 // WithMaxRecTime 设置最大重连时间并返回当前配置对象
 func (c *WSC) WithMaxRecTime(d time.Duration) *WSC {
 	c.MaxRecTime = d
+	return c
+}
+
+// WithAck 设置消息确认相关配置并返回当前配置对象
+func (c *WSC) WithAck(d time.Duration) *WSC {
+	c.EnableAck = true
+	c.AckTimeoutMs = d
+	return c
+}
+
+// WithAckRetries 设置ACK最大重试次数并返回当前配置对象
+func (c *WSC) WithAckRetries(maxRetries int) *WSC {
+	c.AckMaxRetries = maxRetries
 	return c
 }
 

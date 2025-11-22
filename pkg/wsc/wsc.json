@@ -2,7 +2,7 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-22 19:07:40
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -24,6 +24,9 @@
   "max_retries": 3,
   "base_delay": 100000000,
   "max_delay": 5000000000,
+  "ack_timeout_ms": 500000000,
+  "ack_max_retries": 3,
+  "enable_ack": false,
   "backoff_factor": 2,
   "jitter": true,
   "retryable_errors": [
