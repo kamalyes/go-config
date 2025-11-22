@@ -17,7 +17,7 @@ jobs:
   Build:
     strategy:
       matrix:
-        go-version: [1.21.x, 1.22.x, 1.23.x, 1.24.x, 1.25.x]
+        go-version: [1.21.x, 1.22.x, 1.23.x, 1.24.10, 1.25.4]
         platform: [ubuntu-latest, windows-latest, macos-latest, macos-14]
     runs-on: ${{ matrix.platform }}
     steps:
@@ -29,18 +29,39 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
 
-      - name: Install gotestsum
-        run: go install gotest.tools/gotestsum@latest
+      - name: Update Go dependencies for compatibility
+        run: |
+          # 为Go 1.24+版本特殊处理依赖
+          if [[ "${{ matrix.go-version }}" == "1.24.10" || "${{ matrix.go-version }}" == "1.25.4" ]]; then
+            echo "Updating dependencies for Go ${{ matrix.go-version }}"
+            go get -u golang.org/x/tools@latest
+            go get -u golang.org/x/sys@latest
+            go get -u golang.org/x/net@latest
+          fi
+          go mod tidy
+        continue-on-error: true
+        shell: bash
 
-      - name: Test
-        run: gotestsum -f testname -- ./... -race -count=1 -shuffle=on --timeout=5m
+      - name: Install gotestsum (version compatible with Go)
+        run: |
+          # 根据Go版本选择兼容的gotestsum版本
+          if [[ "${{ matrix.go-version }}" == "1.24.10" || "${{ matrix.go-version }}" == "1.25.4" ]]; then
+            go install gotest.tools/gotestsum@v1.13.0
+          else
+            go install gotest.tools/gotestsum@v1.11.0
+          fi
+        shell: bash
+
+      - name: Test (Basic)
+        run: gotestsum -f testname -- ./... -race -count=1 -shuffle=on -timeout=5m
         continue-on-error: true
 
-      - name: Test
-        run: gotestsum -f testname -- ./... -race -count=1 -coverprofile=coverage.txt -covermode=atomic -shuffle=on --timeout=5m
+      - name: Test (With Coverage)
+        run: gotestsum -f testname -- ./... -race -count=1 -coverprofile=coverage.txt -covermode=atomic -shuffle=on -timeout=5m
         continue-on-error: true
+        
       - name: Upload coverage reports to Codecov
-        if: ${{ matrix.platform == 'ubuntu-latest' && matrix.go-version == '1.22.x' }}
+        if: ${{ matrix.platform == 'ubuntu-latest' && matrix.go-version == '1.23.x' }}
         uses: codecov/codecov-action@v4.5.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
