@@ -2,83 +2,82 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:08
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "gateway",
+  "moduleName": "gateway",
   "name": "Go RPC Gateway",
   "enabled": true,
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
   "json": {
-    "use_proto_names": true,
-    "emit_unpopulated": true,
-    "discard_unknown": true
+    "useProtoNames": true,
+    "emitUnpopulated": true,
+    "discardUnknown": true
   },
   "http": {
-    "module_name": "server",
+    "moduleName": "server",
     "host": "0.0.0.0",
     "port": 8080,
-    "grpc_port": 9090,
-    "read_timeout": 30,
-    "write_timeout": 30,
-    "idle_timeout": 60,
-    "max_header_bytes": 1048576,
-    "enable_http": true,
-    "enable_grpc": false,
-    "enable_tls": false,
+    "readTimeout": 30,
+    "writeTimeout": 30,
+    "idleTimeout": 60,
+    "maxHeaderBytes": 1048576,
+    "enableTls": false,
     "tls": {
-      "cert_file": "",
-      "key_file": "",
-      "ca_file": ""
+      "certFile": "",
+      "keyFile": "",
+      "caFile": ""
     },
-    "headers": {},
-    "endpoint": "http://0.0.0.0:8080",
-    "enable_gzip_compress": true
+    "headers": {
+      "x-server": "go-config"
+    },
+    "Endpoint": "http://0.0.0.0:8080",
+    "enableGzipCompress": true
   },
   "grpc": {
     "server": {
       "host": "0.0.0.0",
       "port": 9090,
       "network": "tcp",
-      "max_recv_msg_size": 4194304,
-      "max_send_msg_size": 4194304,
-      "keepalive_time": 30,
-      "keepalive_timeout": 10,
-      "connection_timeout": 5,
-      "enable_reflection": true,
-      "endpoint": "0.0.0.0:9090"
+      "maxRecvMsgSize": 4194304,
+      "maxSendMsgSize": 4194304,
+      "keepaliveTime": 30,
+      "keepaliveTimeout": 10,
+      "connectionTimeout": 5,
+      "enableReflection": true,
+      "Endpoint": "0.0.0.0:9090"
     },
     "clients": {}
   },
   "cache": {
-    "module_name": "default",
+    "moduleName": "default",
     "type": "memory",
     "enabled": true,
-    "default_ttl": 1800000000000,
-    "key_prefix": "cache:",
+    "defaultTtl": 1800000000000,
+    "keyPrefix": "cache:",
     "serializer": "json",
     "memory": {
-      "module_name": "memory",
+      "moduleName": "memory",
       "capacity": 1000,
-      "default_ttl": 1800000000000,
-      "cleanup_size": 100,
-      "max_size": 0
+      "defaultTtl": 1800000000000,
+      "cleanupSize": 100,
+      "maxSize": 0
     },
     "ristretto": {
-      "module_name": "ristretto",
-      "num_counters": 10000000,
-      "max_cost": 1073741824,
-      "buffer_items": 64,
+      "moduleName": "ristretto",
+      "numCounters": 10000000,
+      "maxCost": 1073741824,
+      "bufferItems": 64,
       "metrics": true,
-      "ignore_internal_cost": false,
-      "key_to_hash": true,
+      "ignoreInternalCost": false,
+      "keyToHash": true,
       "cost": 1
     },
     "redis": {
-      "module_name": "redis",
+      "moduleName": "redis",
       "addr": "127.0.0.1:6379",
       "addrs": [
         "127.0.0.1:6379"
@@ -86,42 +85,42 @@
       "username": "default",
       "password": "redis123456",
       "db": 0,
-      "max_retries": 3,
-      "pool_size": 10,
-      "min_idle_conns": 0,
-      "max_conn_age": 1800000000000,
-      "pool_timeout": 4000000000,
-      "idle_timeout": 300000000000,
-      "read_timeout": 3000000000,
-      "write_timeout": 3000000000,
-      "cluster_mode": false
+      "maxRetries": 3,
+      "poolSize": 10,
+      "minIdleConns": 0,
+      "maxConnAge": 1800000000000,
+      "poolTimeout": 4000000000,
+      "idleTimeout": 300000000000,
+      "readTimeout": 3000000000,
+      "writeTimeout": 3000000000,
+      "clusterMode": false
     },
     "sharded": {
-      "module_name": "sharded",
-      "shard_count": 32,
-      "base_type": "memory",
-      "hash_func": "fnv",
-      "load_balancer": "consistent_hash"
+      "moduleName": "sharded",
+      "shardCount": 32,
+      "baseType": "memory",
+      "hashFunc": "fnv",
+      "loadBalancer": "consistent_hash"
     },
-    "two_level": {
-      "module_name": "twolevel",
+    "twoLevel": {
+      "moduleName": "twolevel",
       "l1_type": "memory",
       "l2_type": "redis",
       "l1_ttl": 300000000000,
       "l2_ttl": 1800000000000,
-      "sync_strategy": "write_through",
+      "syncStrategy": "write_through",
       "l1_size": 1000,
       "l2_size": 10000,
-      "promote_threshold": 2
+      "promoteThreshold": 2
     },
     "expiring": {
-      "module_name": "expiring",
-      "cleanup_interval": 300000000000,
-      "default_ttl": 1800000000000,
-      "max_size": 10000,
-      "eviction_policy": "lru",
-      "enable_lazy_expiry": true,
-      "max_memory_usage": 104857600
+      "moduleName": "expiring",
+      "cleanupInterval": 300000000000,
+      "defaultTtl": 1800000000000,
+      "maxSize": 10000,
+      "evictionPolicy": "lru",
+      "enableLazyExpiry": true,
+      "maxMemoryUsage": 104857600
     }
   },
   "database": {
@@ -129,47 +128,47 @@
     "enabled": true,
     "default": "mysql",
     "mysql": {
-      "module_name": "mysql",
+      "moduleName": "mysql",
       "host": "localhost",
       "port": "3306",
       "config": "charset=utf8mb4\u0026parseTime=True\u0026loc=Local",
-      "log_level": "info",
-      "db_name": "test",
+      "logLevel": "info",
+      "dbName": "test",
       "username": "root",
       "password": "mysql_password",
-      "max_idle_conns": 10,
-      "max_open_conns": 100,
-      "conn_max_idle_time": 300,
-      "conn_max_life_time": 3600
+      "maxIdleConns": 10,
+      "maxOpenConns": 100,
+      "connMaxIdleTime": 300,
+      "connMaxLifeTime": 3600
     },
     "postgresql": {
-      "module_name": "postgresql",
+      "moduleName": "postgresql",
       "host": "localhost",
       "port": "5432",
       "config": "sslmode=disable",
-      "log_level": "info",
-      "db_name": "postgres",
+      "logLevel": "info",
+      "dbName": "postgres",
       "username": "postgres",
       "password": "postgres_password",
-      "max_idle_conns": 10,
-      "max_open_conns": 100,
-      "conn_max_idle_time": 300,
-      "conn_max_life_time": 3600
+      "maxIdleConns": 10,
+      "maxOpenConns": 100,
+      "connMaxIdleTime": 300,
+      "connMaxLifeTime": 3600
     },
     "sqlite": {
-      "module_name": "sqlite",
+      "moduleName": "sqlite",
       "config": "_foreign_keys=on",
-      "log_level": "info",
-      "db_path": "./data.db",
+      "logLevel": "info",
+      "dbPath": "./data.db",
       "vacuum": false,
-      "max_idle_conns": 10,
-      "max_open_conns": 1,
-      "conn_max_idle_time": 300,
-      "conn_max_life_time": 3600
+      "maxIdleConns": 10,
+      "maxOpenConns": 1,
+      "connMaxIdleTime": 300,
+      "connMaxLifeTime": 3600
     }
   },
   "etcd": {
-    "module_name": "etcd",
+    "moduleName": "etcd",
     "hosts": [
       "127.0.0.1:2379"
     ],
@@ -177,25 +176,25 @@
     "id": 1,
     "user": "etcd_user",
     "pass": "etcd_password",
-    "cert_file": "/etc/etcd/client.crt",
-    "cert_key_file": "/etc/etcd/client.key",
-    "ca_cert_file": "/etc/etcd/ca.crt",
-    "insecure_skip_verify": true,
+    "certFile": "/etc/etcd/client.crt",
+    "certKeyFile": "/etc/etcd/client.key",
+    "caCertFile": "/etc/etcd/ca.crt",
+    "insecureSkipVerify": true,
     "namespace": "default",
-    "dial_timeout": 5,
-    "request_timeout": 10
+    "dialTimeout": 5,
+    "requestTimeout": 10
   },
   "kafka": {
     "brokers": "127.0.0.1:9092",
     "topic": "default-topic",
-    "group_id": "default-group",
+    "groupId": "default-group",
     "username": "kafka_user",
     "password": "kafka_password",
     "partition": 0,
     "offset": "latest",
-    "try_times": 3,
-    "sync_es_topic": "sync-es-topic",
-    "module_name": "kafka"
+    "tryTimes": 3,
+    "syncEsTopic": "sync-es-topic",
+    "moduleName": "kafka"
   },
   "oss": {
     "type": "minio",
@@ -203,79 +202,79 @@
     "default": "minio",
     "minio": {
       "endpoint": "localhost",
-      "access_key": "minioadmin",
-      "secret_key": "minioadmin",
+      "accessKey": "minioadmin",
+      "secretKey": "minioadmin",
       "bucket": "my-bucket",
-      "module_name": "minio",
-      "use_ssl": false
+      "moduleName": "minio",
+      "useSsl": false
     },
     "s3": {
       "endpoint": "https://s3.amazonaws.com",
       "region": "us-east-1",
-      "access_key": "demo_access_key",
-      "secret_key": "s3_secret_key",
-      "bucket_prefix": "demo-bucket",
-      "session_token": "",
-      "use_ssl": true,
-      "path_style": false,
-      "module_name": "s3"
+      "accessKey": "demo_access_key",
+      "secretKey": "s3_secret_key",
+      "bucketPrefix": "demo-bucket",
+      "sessionToken": "",
+      "useSsl": true,
+      "pathStyle": false,
+      "moduleName": "s3"
     },
-    "aliyun_oss": {
-      "access_key": "demo_access_key",
-      "secret_key": "demo_secret_key",
+    "aliyun": {
+      "accessKey": "demo_access_key",
+      "secretKey": "demo_secret_key",
       "endpoint": "oss-cn-hangzhou.aliyuncs.com",
       "bucket": "demo-bucket",
       "region": "oss-cn-hangzhou",
-      "replace_original_host": "oss-cn-hangzhou.aliyuncs.com",
-      "replace_later_host": "cdn.example.com",
-      "module_name": "aliyun-oss"
+      "replaceOriginalHost": "oss-cn-hangzhou.aliyuncs.com",
+      "replaceLaterHost": "cdn.example.com",
+      "moduleName": "aliyun-oss"
     },
     "boltdb": {
       "path": "./data/storage.db",
-      "module_name": "boltdb"
+      "moduleName": "boltdb"
     }
   },
   "mqtt": {
     "endpoint": "tcp://127.0.0.1:1883",
-    "client_id": "go-config-mqtt-client",
-    "protocol_version": 4,
-    "keep_alive": 60,
-    "max_reconnect_interval": 300,
-    "ping_timeout": 10,
-    "write_timeout": 10,
-    "connect_timeout": 30,
+    "clientId": "go-config-mqtt-client",
+    "protocolVersion": 4,
+    "keepAlive": 60,
+    "maxReconnectInterval": 300,
+    "pingTimeout": 10,
+    "writeTimeout": 10,
+    "connectTimeout": 30,
     "username": "mqtt_user",
     "password": "mqtt_password",
-    "clean_session": true,
-    "auto_reconnect": true,
-    "will_topic": "",
-    "module_name": "mqtt"
+    "cleanSession": true,
+    "autoReconnect": true,
+    "willTopic": "",
+    "moduleName": "mqtt"
   },
   "elasticsearch": {
     "endpoint": "http://127.0.0.1:9200",
-    "health_check": 10,
+    "healthCheck": 10,
     "sniff": false,
     "gzip": false,
     "timeout": "10s",
-    "module_name": "elasticsearch"
+    "moduleName": "elasticsearch"
   },
   "smtp": {
-    "module_name": "smtp",
+    "moduleName": "smtp",
     "enabled": true,
-    "smtp_host": "127.0.0.1",
-    "smtp_port": 587,
+    "smtpHost": "127.0.0.1",
+    "smtpPort": 587,
     "username": "smtp_user",
     "password": "smtp_password",
-    "from_address": "noreply@example.com",
-    "to_addresses": [
+    "fromAddress": "noreply@example.com",
+    "toAddresses": [
       "admin@example.com"
     ],
-    "enable_tls": true,
+    "enableTls": true,
     "headers": {},
-    "pool_size": 5
+    "poolSize": 5
   },
   "health": {
-    "module_name": "health",
+    "moduleName": "health",
     "enabled": true,
     "path": "/health",
     "port": 8080,
@@ -292,32 +291,32 @@
     }
   },
   "monitoring": {
-    "module_name": "monitoring",
+    "moduleName": "monitoring",
     "enabled": false,
     "prometheus": {
-      "module_name": "prometheus",
+      "moduleName": "prometheus",
       "enabled": false,
       "path": "/metrics",
       "port": 9090,
       "endpoint": "http://localhost:9090",
-      "push_gateway": {
+      "pushGateway": {
         "enabled": false,
         "endpoint": "http://localhost:9091",
-        "job_name": "go-rpc-gateway"
+        "jobName": "go-rpc-gateway"
       },
       "scraping": {
         "interval": "15s",
         "timeout": "10s",
-        "metrics_path": "/metrics"
+        "metricsPath": "/metrics"
       }
     },
     "grafana": {
-      "module_name": "grafana",
+      "moduleName": "grafana",
       "enabled": false,
       "endpoint": "http://localhost:3000",
       "username": "admin",
       "password": "admin",
-      "api_key": "demo_api_key",
+      "apiKey": "demo_api_key",
       "datasource": {
         "type": "prometheus",
         "url": "http://localhost:9090",
@@ -326,10 +325,10 @@
         "password": "prometheus_password"
       },
       "dashboard": {
-        "import_path": "",
-        "auto_import": false,
+        "importPath": "",
+        "autoImport": false,
         "templates": [],
-        "refresh_interval": "30s"
+        "refreshInterval": "30s"
       },
       "alerting": {
         "enabled": false,
@@ -338,11 +337,11 @@
       }
     },
     "jaeger": {
-      "module_name": "jaeger",
+      "moduleName": "jaeger",
       "enabled": false,
       "endpoint": "http://localhost:14268/api/traces",
-      "service_name": "go-rpc-gateway",
-      "sample_rate": 0.1,
+      "serviceName": "go-rpc-gateway",
+      "sampleRate": 0.1,
       "agent": {
         "host": "localhost",
         "port": 6832
@@ -355,17 +354,17 @@
       "sampling": {
         "type": "probabilistic",
         "param": 0.1,
-        "max_traces_per_second": 100,
-        "operation_sampling": []
+        "maxTracesPerSecond": 100,
+        "operationSampling": []
       },
       "tags": {}
     },
     "metrics": {
       "enabled": true,
-      "request_count": true,
+      "requestCount": true,
       "duration": true,
-      "response_size": true,
-      "request_size": true,
+      "responseSize": true,
+      "requestSize": true,
       "buckets": [
         0.001,
         0.01,
@@ -382,9 +381,9 @@
         90,
         120
       ],
-      "enable_open_metrics": false,
-      "custom_metrics": [],
-      "endpoint": "/metrics"
+      "enableOpenMetrics": false,
+      "customMetrics": [],
+      "_": "/metrics"
     },
     "alerting": {
       "enabled": false,
@@ -392,8 +391,8 @@
       "webhooks": [],
       "email": {
         "enabled": false,
-        "smtp_host": "",
-        "smtp_port": 0,
+        "smtpHost": "",
+        "smtpPort": 0,
         "username": "",
         "password": "",
         "from": "",
@@ -405,12 +404,12 @@
         "token": "",
         "channel": "",
         "username": "",
-        "icon_emoji": ""
+        "iconEmoji": ""
       }
     }
   },
   "security": {
-    "module_name": "security",
+    "moduleName": "security",
     "enabled": true,
     "jwt": {
       "enabled": false,
@@ -422,8 +421,8 @@
     "auth": {
       "enabled": false,
       "type": "bearer",
-      "header_name": "Authorization",
-      "token_prefix": "Bearer ",
+      "headerName": "Authorization",
+      "tokenPrefix": "Bearer ",
       "basic": {
         "users": []
       },
@@ -432,111 +431,111 @@
       },
       "apikey": {
         "keys": [],
-        "header_name": "X-API-Key",
-        "query_param": "api_key"
+        "headerName": "X-API-Key",
+        "queryParam": "api_key"
       },
       "custom": {
-        "header_name": "",
-        "expected_value": "",
+        "headerName": "",
+        "expectedValue": "",
         "headers": {}
       }
     },
     "protection": {
       "swagger": {
         "enabled": false,
-        "auth_required": false,
-        "auth_type": "basic",
-        "ip_whitelist": [],
-        "require_https": false,
+        "authRequired": false,
+        "authType": "basic",
+        "ipWhitelist": [],
+        "requireHttps": false,
         "username": "",
         "password": ""
       },
       "pprof": {
         "enabled": false,
-        "auth_required": true,
-        "auth_type": "basic",
-        "ip_whitelist": [
+        "authRequired": true,
+        "authType": "basic",
+        "ipWhitelist": [
           "127.0.0.1",
           "::1"
         ],
-        "require_https": true,
+        "requireHttps": true,
         "username": "admin",
         "password": ""
       },
       "metrics": {
         "enabled": false,
-        "auth_required": false,
-        "auth_type": "",
-        "ip_whitelist": [],
-        "require_https": false,
+        "authRequired": false,
+        "authType": "",
+        "ipWhitelist": [],
+        "requireHttps": false,
         "username": "",
         "password": ""
       },
       "health": {
         "enabled": false,
-        "auth_required": false,
-        "auth_type": "",
-        "ip_whitelist": [],
-        "require_https": false,
+        "authRequired": false,
+        "authType": "",
+        "ipWhitelist": [],
+        "requireHttps": false,
         "username": "",
         "password": ""
       },
       "api": {
         "enabled": true,
-        "auth_required": false,
-        "auth_type": "",
-        "ip_whitelist": [],
-        "require_https": false,
+        "authRequired": false,
+        "authType": "",
+        "ipWhitelist": [],
+        "requireHttps": false,
         "username": "",
         "password": ""
       }
     }
   },
   "middleware": {
-    "module_name": "middleware",
+    "moduleName": "middleware",
     "enabled": true,
     "logging": {
-      "module_name": "logging",
+      "moduleName": "logging",
       "enabled": true,
       "level": "info",
       "format": "json",
       "output": "stdout",
-      "file_path": "/var/log/app.log",
-      "max_size": 100,
-      "max_backups": 3,
-      "max_age": 28,
+      "filePath": "/var/log/app.log",
+      "maxSize": 100,
+      "maxBackups": 3,
+      "maxAge": 28,
       "compress": true,
-      "skip_paths": [
+      "skipPaths": [
         "/health",
         "/metrics"
       ],
-      "enable_request": true,
-      "enable_response": false
+      "enableRequest": true,
+      "enableResponse": false
     },
     "recovery": {
-      "module_name": "recovery",
+      "moduleName": "recovery",
       "enabled": true,
-      "enable_stack": true,
-      "stack_size": 4096,
-      "enable_debug": false,
-      "error_message": "服务器内部错误",
-      "log_level": "error",
-      "enable_notify": false,
-      "print_stack": true
+      "enableStack": true,
+      "stackSize": 4096,
+      "enableDebug": false,
+      "errorMessage": "服务器内部错误",
+      "logLevel": "error",
+      "enableNotify": false,
+      "printStack": true
     },
     "tracing": {
-      "module_name": "tracing",
+      "moduleName": "tracing",
       "enabled": false,
-      "service_name": "go-rpc-gateway",
-      "service_version": "1.0.0",
+      "serviceName": "go-rpc-gateway",
+      "serviceVersion": "1.0.0",
       "environment": "development",
       "endpoint": "http://localhost:9411/api/v2/spans",
-      "exporter_type": "zipkin",
-      "exporter_endpoint": "http://localhost:9411/api/v2/spans",
-      "sample_rate": 0.1,
-      "sampler_type": "probability",
-      "sampler_probability": 0.1,
-      "sampler_rate": 0.1,
+      "exporterType": "zipkin",
+      "exporterEndpoint": "http://localhost:9411/api/v2/spans",
+      "sampleRate": 0.1,
+      "samplerType": "probability",
+      "samplerProbability": 0.1,
+      "samplerRate": 0.1,
       "headers": [
         "Authorization",
         "User-Agent"
@@ -544,12 +543,12 @@
       "attributes": {}
     },
     "metrics": {
-      "module_name": "metrics",
+      "moduleName": "metrics",
       "enabled": false,
       "path": "/metrics",
       "namespace": "gateway",
       "subsystem": "http",
-      "skip_paths": [
+      "skipPaths": [
         "/health"
       ],
       "buckets": [
@@ -565,48 +564,49 @@
         5,
         10
       ],
-      "request_count": true,
+      "requestCount": true,
       "duration": true,
-      "request_size": true,
-      "response_size": true
+      "requestSize": true,
+      "responseSize": true
     },
-    "request_id": {
-      "module_name": "requestid",
+    "requestId": {
+      "moduleName": "requestid",
       "enabled": true,
-      "header_name": "X-Request-ID",
+      "headerName": "X-Request-ID",
       "generator": "uuid"
     },
     "i18n": {
-      "module_name": "i18n",
+      "moduleName": "i18n",
       "enabled": false,
-      "default_language": "en",
-      "supported_languages": [
+      "defaultLanguage": "en",
+      "supportedLanguages": [
         "en",
         "zh"
       ],
-      "language_mapping": {
+      "languageMapping": {
         "en-us": "en",
         "zh-cn": "zh"
       },
-      "detection_order": [
+      "detectionOrder": [
         "header",
         "query",
         "cookie",
         "default"
       ],
-      "language_param": "lang",
-      "language_header": "Accept-Language",
-      "messages_path": "./locales",
-      "custom_message_paths": {},
-      "enable_fallback": true,
-      "cookie_name": "language"
+      "languageParam": "lang",
+      "languageHeader": "Accept-Language",
+      "messagesPath": "./locales",
+      "customMessagePaths": {},
+      "enableFallback": true,
+      "MessageLoader": null,
+      "cookieName": "language"
     },
     "pprof": {
-      "module_name": "PProf",
+      "moduleName": "PProf",
       "enabled": false,
-      "path_prefix": "/debug/pprof",
+      "pathPrefix": "/debug/pprof",
       "port": 6060,
-      "enable_profiles": {
+      "enableProfiles": {
         "cpu": true,
         "memory": true,
         "goroutine": true,
@@ -618,102 +618,102 @@
         "trace": false
       },
       "sampling": {
-        "cpu_rate": 100,
-        "memory_rate": 524288,
-        "block_rate": 1,
-        "mutex_fraction": 1
+        "cpuRate": 100,
+        "memoryRate": 524288,
+        "blockRate": 1,
+        "mutexFraction": 1
       },
       "authentication": {
         "enabled": false,
-        "auth_token": "",
-        "allowed_ips": [],
-        "require_auth": false,
+        "authToken": "",
+        "allowedIps": [],
+        "requireAuth": false,
         "timeout": 30
       },
       "gateway": {
         "enabled": false,
-        "dev_mode_only": false,
-        "enable_logging": true,
-        "register_web_interface": true
+        "devModeOnly": false,
+        "enableLogging": true,
+        "registerWebInterface": true
       },
-      "web_interface": {
+      "webInterface": {
         "enabled": true,
         "title": "PProf Performance Analysis",
         "description": "Go Performance Profiling Interface",
-        "show_scenarios": true
+        "showScenarios": true
       }
     },
-    "circuit_breaker": {
-      "module_name": "circuit_breaker",
+    "circuitBreaker": {
+      "moduleName": "circuit_breaker",
       "enabled": true,
-      "failure_threshold": 5,
-      "success_threshold": 2,
+      "failureThreshold": 5,
+      "successThreshold": 2,
       "timeout": 30000000000,
-      "volume_threshold": 10,
-      "sliding_window_size": 100,
-      "sliding_window_bucket": 1000000000,
-      "prevention_paths": [
+      "volumeThreshold": 10,
+      "slidingWindowSize": 100,
+      "slidingWindowBucket": 1000000000,
+      "preventionPaths": [
         "/api/"
       ],
-      "exclude_paths": [
+      "excludePaths": [
         "/health",
         "/metrics",
         "/debug"
       ]
     },
     "alerting": {
-      "module_name": "alerting",
+      "moduleName": "alerting",
       "enabled": false,
       "webhooks": [],
       "channels": []
     }
   },
   "cors": {
-    "allowed_origins": [
+    "allowedOrigins": [
       "*"
     ],
-    "allowed_methods": [
+    "allowedMethods": [
       "GET",
       "POST",
       "PUT",
       "DELETE",
       "OPTIONS"
     ],
-    "allowed_headers": [
+    "allowedHeaders": [
       "Origin",
       "Content-Length",
       "Content-Type",
       "Authorization"
     ],
-    "max_age": "86400",
-    "allowed_all_origins": false,
-    "allowed_all_methods": false,
-    "exposed_headers": [],
-    "allow_credentials": true,
-    "options_response_code": 200,
-    "module_name": "cors"
+    "maxAge": "86400",
+    "allowedAllOrigins": false,
+    "allowedAllMethods": false,
+    "exposedHeaders": [],
+    "allowCredentials": true,
+    "optionsResponseCode": 200,
+    "moduleName": "cors"
   },
   "jwt": {
-    "module_name": "jwt",
-    "signing_key": "go-config-default-key",
-    "expires_time": 604800,
-    "buffer_time": 3600,
-    "use_multipoint": false,
+    "moduleName": "jwt",
+    "signingKey": "go-config-default-key",
+    "expiresTime": 604800,
+    "bufferTime": 3600,
+    "useMultipoint": false,
     "issuer": "go-config",
     "audience": "go-config-audience",
     "algorithm": "HS256",
-    "enable_refresh": true,
-    "refresh_token_life": 2592000,
+    "enableRefresh": true,
+    "refreshTokenLife": 2592000,
     "subject": "user-token",
-    "custom_claims": {}
+    "customClaims": {}
   },
   "swagger": {
-    "module_name": "swagger",
+    "moduleName": "swagger",
     "enabled": true,
-    "json_path": "/swagger/doc.json",
-    "ui_path": "/swagger",
-    "yaml_path": "/swagger/doc.yaml",
-    "spec_path": "./docs/swagger.yaml",
+    "jsonPath": "/swagger/doc.json",
+    "uiPath": "/swagger",
+    "yamlPath": "/swagger/doc.yaml",
+    "specPath": "./docs/swagger.yaml",
     "title": "API Documentation",
     "description": "API Documentation powered by Swagger UI",
     "version": "1.0.0",
@@ -731,18 +731,18 @@
       "username": "",
       "password": "",
       "token": "",
-      "header_name": "",
-      "header_value": ""
+      "headerName": "",
+      "headerValue": ""
     },
     "aggregate": {
       "enabled": false,
       "mode": "merge",
       "services": [],
-      "ui_layout": "tabs"
+      "uiLayout": "tabs"
     }
   },
   "banner": {
-    "module_name": "banner",
+    "moduleName": "banner",
     "enabled": true,
     "template": "\n ██████╗  ██████╗       ██████╗ ██████╗  ██████╗     ██████╗  █████╗ ████████╗███████╗██╗    ██╗ █████╗ ██╗   ██╗\n██╔════╝ ██╔═══██╗      ██╔══██╗██╔══██╗██╔════╝    ██╔════╝ ██╔══██╗╚══██╔══╝██╔════╝██║    ██║██╔══██╗╚██╗ ██╔╝\n██║  ███╗██║   ██║█████╗██████╔╝██████╔╝██║         ██║  ███╗███████║   ██║   █████╗  ██║ █╗ ██║███████║ ╚████╔╝ \n██║   ██║██║   ██║╚════╝██╔══██╗██╔═══╝ ██║         ██║   ██║██╔══██║   ██║   ██╔══╝  ██║███╗██║██╔══██║  ╚██╔╝  \n╚██████╔╝╚██████╔╝      ██║  ██║██║     ╚██████╗    ╚██████╔╝██║  ██║   ██║   ███████╗╚███╔███╔╝██║  ██║   ██║   \n ╚═════╝  ╚═════╝       ╚═╝  ╚═╝╚═╝      ╚═════╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝   ",
     "title": "Go RPC Gateway",
@@ -751,165 +751,246 @@
     "email": "501893067@qq.com",
     "website": "https://github.com/kamalyes/go-rpc-gateway"
   },
-  "rate_limit": {
-    "module_name": "ratelimit",
+  "rateLimit": {
+    "moduleName": "ratelimit",
     "enabled": true,
     "strategy": "token-bucket",
-    "default_scope": "global",
-    "global_limit": {
-      "requests_per_second": 100,
-      "burst_size": 200,
-      "window_size": 60000000000,
-      "block_duration": 60000000000
+    "defaultScope": "global",
+    "globalLimit": {
+      "requestsPerSecond": 100,
+      "burstSize": 200,
+      "windowSize": 60000000000,
+      "blockDuration": 60000000000
     },
+    "routes": [],
+    "ipRules": [],
+    "userRules": [],
     "storage": {
       "type": "memory",
-      "key_prefix": "rate_limit:",
-      "clean_interval": 300000000000
+      "keyPrefix": "rate_limit:",
+      "cleanInterval": 300000000000,
+      "redis": null
     },
-    "custom_rule_loader": "",
-    "enable_dynamic_rule": false
+    "customRuleLoader": "",
+    "enableDynamicRule": false
   },
   "wsc": {
     "enabled": false,
-    "node_ip": "0.0.0.0",
-    "node_port": 8080,
-    "heartbeat_interval": 30,
-    "client_timeout": 90,
-    "message_buffer_size": 256,
-    "websocket_origins": [
+    "nodeIp": "0.0.0.0",
+    "nodePort": 8080,
+    "heartbeatInterval": 30,
+    "clientTimeout": 90,
+    "messageBufferSize": 256,
+    "websocketOrigins": [
       "*"
     ],
-    "write_wait": 10000000000,
-    "max_message_size": 512,
-    "min_rec_time": 2000000000,
-    "max_rec_time": 60000000000,
-    "rec_factor": 1.5,
-    "auto_reconnect": true,
-    "max_retries": 3,
-    "base_delay": 100000000,
-    "max_delay": 5000000000,
-    "backoff_factor": 2,
+    "readTimeout": 10000000000,
+    "writeTimeout": 10000000000,
+    "idleTimeout": 120000000000,
+    "maxMessageSize": 512,
+    "minRecTime": 2000000000,
+    "maxRecTime": 60000000000,
+    "recFactor": 1.5,
+    "autoReconnect": true,
+    "maxRetries": 3,
+    "baseDelay": 100000000,
+    "maxDelay": 5000000000,
+    "ackTimeoutMs": 500000000,
+    "ackMaxRetries": 3,
+    "enableAck": false,
+    "backoffFactor": 2,
     "jitter": true,
-    "retryable_errors": [
+    "retryableErrors": [
       "queue_full",
       "timeout",
       "conn_error",
       "channel_closed"
     ],
-    "non_retryable_errors": [
+    "nonRetryableErrors": [
       "user_offline",
       "permission",
       "validation"
     ],
-    "enable_circuit_breaker": false,
-    "sse_heartbeat": 0,
-    "sse_timeout": 120,
-    "sse_message_buffer": 100,
+    "enableCircuitBreaker": false,
+    "sseHeartbeat": 0,
+    "sseTimeout": 120,
+    "sseMessageBuffer": 100,
     "distributed": {
       "enabled": false,
-      "node_discovery": "redis",
-      "node_sync_interval": 30,
-      "message_routing": "hash",
-      "enable_load_balance": true,
-      "health_check_interval": 10,
-      "node_timeout": 60,
-      "cluster_name": "wsc-cluster"
-    },
-    "redis": {
-      "module_name": "wsc",
-      "addr": "127.0.0.1:6379",
-      "addrs": [
-        "127.0.0.1:6379"
-      ],
-      "username": "default",
-      "password": "redis123456",
-      "db": 0,
-      "max_retries": 3,
-      "pool_size": 10,
-      "min_idle_conns": 2,
-      "max_conn_age": 1800000000000,
-      "pool_timeout": 4000000000,
-      "idle_timeout": 300000000000,
-      "read_timeout": 3000000000,
-      "write_timeout": 3000000000,
-      "cluster_mode": false
+      "nodeDiscovery": "redis",
+      "nodeSyncInterval": 30,
+      "messageRouting": "hash",
+      "enableLoadBalance": true,
+      "healthCheckInterval": 10,
+      "nodeTimeout": 60,
+      "clusterName": "wsc-cluster"
     },
     "group": {
       "enabled": false,
-      "max_group_size": 500,
-      "max_groups_per_user": 100,
-      "enable_broadcast": true,
-      "broadcast_rate_limit": 10,
-      "group_cache_expire": 3600,
-      "auto_create_group": false,
-      "enable_message_record": true
+      "maxGroupSize": 500,
+      "maxGroupsPerUser": 100,
+      "enableBroadcast": true,
+      "broadcastRateLimit": 10,
+      "groupCacheExpire": 3600,
+      "autoCreateGroup": false,
+      "enableMessageRecord": true
     },
     "performance": {
-      "max_connections_per_node": 10000,
-      "read_buffer_size": 4,
-      "write_buffer_size": 4,
-      "enable_compression": false,
-      "compression_level": 6,
-      "enable_metrics": true,
-      "metrics_interval": 60,
-      "enable_slow_log": true,
-      "slow_log_threshold": 1000
+      "maxConnectionsPerNode": 10000,
+      "readBufferSize": 4,
+      "writeBufferSize": 4,
+      "enableCompression": false,
+      "compressionLevel": 6,
+      "enableMetrics": true,
+      "metricsInterval": 60,
+      "enableSlowLog": true,
+      "slowLogThreshold": 1000
     },
     "security": {
-      "enable_auth": true,
-      "enable_encryption": false,
-      "enable_rate_limit": true,
-      "max_message_size": 1024,
-      "allowed_user_types": [
+      "enableAuth": true,
+      "enableEncryption": false,
+      "enableRateLimit": true,
+      "maxMessageSize": 1024,
+      "allowedUserTypes": [
         "customer",
         "agent",
         "admin"
       ],
-      "blocked_ips": [],
-      "whitelist_ips": [],
-      "enable_ip_whitelist": false,
-      "token_expiration": 3600,
-      "max_login_attempts": 5,
-      "login_lock_duration": 300
-    },
-    "vip": {
-      "enabled": true,
-      "max_level": 8,
-      "default_level": 0,
-      "priority_multiplier": 2,
-      "message_priority_bonus": 10,
-      "queue_priority": true,
-      "custom_service_priority": true,
-      "special_features": [
-        "priority_queue",
-        "dedicated_support"
-      ],
-      "upgrade_rules": [
-        "spending_based",
-        "loyalty_based"
-      ]
+      "blockedIps": [],
+      "whitelistIps": [],
+      "enableIpWhitelist": false,
+      "tokenExpiration": 3600,
+      "maxLoginAttempts": 5,
+      "loginLockDuration": 300
     },
     "enhancement": {
       "enabled": false,
-      "smart_routing": true,
-      "load_balancing": true,
-      "smart_queue": true,
+      "smartRouting": true,
+      "loadBalancing": true,
+      "smartQueue": true,
       "monitoring": true,
-      "cluster_management": false,
-      "rule_engine": true,
-      "circuit_breaker": true,
-      "message_filtering": true,
-      "performance_tracking": true,
-      "advanced_metrics": false,
-      "alert_system": true,
-      "failure_threshold": 5,
-      "success_threshold": 3,
-      "circuit_timeout": 30,
-      "max_queue_size": 1000,
-      "metrics_interval": 60,
-      "max_samples": 1000,
-      "load_balance_algorithm": "round-robin"
+      "clusterManagement": false,
+      "ruleEngine": true,
+      "circuitBreaker": true,
+      "messageFiltering": true,
+      "performanceTracking": true,
+      "advancedMetrics": false,
+      "alertSystem": true,
+      "failureThreshold": 5,
+      "successThreshold": 3,
+      "circuitTimeout": 30,
+      "maxQueueSize": 1000,
+      "metricsInterval": 60,
+      "maxSamples": 1000,
+      "loadBalanceAlgorithm": "round-robin"
+    },
+    "database": {
+      "enabled": true,
+      "autoMigrate": true,
+      "tablePrefix": "wsc_",
+      "logLevel": "warn",
+      "slowThreshold": 200000000
+    },
+    "queue": {
+      "enabled": false,
+      "type": "redis",
+      "batchSize": 10,
+      "maxRetries": 3,
+      "retryInterval": 5000000000,
+      "processTimeout": 30000000000,
+      "prefetchCount": 1,
+      "deadLetterTtl": 86400000000000,
+      "priority": true,
+      "persistent": true
+    },
+    "jobs": {
+      "enabled": false,
+      "tasks": {
+        "cleanup": {
+          "enabled": true,
+          "cron": "",
+          "interval": 300000000000,
+          "timeout": 60000000000,
+          "maxRetries": 3,
+          "description": "清理过期连接和数据",
+          "concurrency": 1,
+          "skipIfRunning": true,
+          "params": null
+        },
+        "message-archive": {
+          "enabled": true,
+          "cron": "0 0 2 * * *",
+          "interval": 0,
+          "timeout": 1800000000000,
+          "maxRetries": 3,
+          "description": "归档旧消息（3天前归档，60天后删除）",
+          "concurrency": 1,
+          "skipIfRunning": true,
+          "params": null
+        },
+        "offline-message": {
+          "enabled": true,
+          "cron": "",
+          "interval": 60000000000,
+          "timeout": 30000000000,
+          "maxRetries": 3,
+          "description": "推送离线消息",
+          "concurrency": 1,
+          "skipIfRunning": true,
+          "params": null
+        },
+        "queue-process": {
+          "enabled": true,
+          "cron": "",
+          "interval": 10000000000,
+          "timeout": 30000000000,
+          "maxRetries": 5,
+          "description": "处理队列任务",
+          "concurrency": 2,
+          "skipIfRunning": true,
+          "params": null
+        },
+        "stats-collect": {
+          "enabled": true,
+          "cron": "0 */5 * * * *",
+          "interval": 0,
+          "timeout": 60000000000,
+          "maxRetries": 3,
+          "description": "收集统计数据",
+          "concurrency": 1,
+          "skipIfRunning": true,
+          "params": null
+        },
+        "status-sync": {
+          "enabled": true,
+          "cron": "",
+          "interval": 30000000000,
+          "timeout": 15000000000,
+          "maxRetries": 3,
+          "description": "同步用户在线状态",
+          "concurrency": 1,
+          "skipIfRunning": true,
+          "params": null
+        }
+      }
+    },
+    "logging": {
+      "moduleName": "wsc",
+      "enabled": true,
+      "level": "info",
+      "format": "json",
+      "output": "stdout",
+      "filePath": "/var/log/wsc.log",
+      "maxSize": 100,
+      "maxBackups": 3,
+      "maxAge": 28,
+      "compress": true,
+      "skipPaths": [
+        "/health",
+        "/metrics"
+      ],
+      "enableRequest": true,
+      "enableResponse": false
     }
   }
 }

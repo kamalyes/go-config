@@ -2,37 +2,37 @@
 # 模块名称: swagger
 # 包名: swagger  
 # 描述: Swagger API文档
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:09
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: swagger
-# enabled配置
+# 是否启用Swagger
 enabled: true
-# jsonpath配置
+# Swagger JSON文件路径
 json-path: /swagger/doc.json
-# uipath配置
+# Swagger UI路由路径
 ui-path: /swagger
-# yaml path配置
+# Swagger YAML文件路径
 yaml-path: /swagger/doc.yaml
-# spec path配置
+# Swagger规范文件路径(自动检测格式)
 spec-path: ./docs/swagger.yaml
-# title配置
+# 文档标题
 title: API Documentation
-# description配置
+# 文档描述
 description: API Documentation powered by Swagger UI
-# version配置
+# Swagger版本
 version: 1.0.0
-# contact配置
+# 联系信息
 contact:
     name: API Support
     url: https://example.com/support
     email: support@example.com
-# license配置
+# 许可证信息
 license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-# auth配置
+# 认证配置
 auth:
     type: none
     username: ""
@@ -40,8 +40,9 @@ auth:
     token: ""
     header-name: ""
     header-value: ""
-# aggregate配置
+# 聚合配置
 aggregate:
+    # 是否启用Swagger
     enabled: false
     mode: merge
     services: []

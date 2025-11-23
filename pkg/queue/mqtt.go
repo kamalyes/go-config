@@ -17,20 +17,20 @@ import (
 
 // Mqtt 结构体用于配置 MQTT 相关参数
 type Mqtt struct {
-	Endpoint             string `mapstructure:"endpoint"                 yaml:"endpoint"        json:"endpoint"        validate:"required,url"`        // Mqtt 代理服务器端点地址
-	ClientID             string `mapstructure:"client-id"                yaml:"client-id"       json:"client_id"`                                      // 客户端标识符
-	ProtocolVersion      uint   `mapstructure:"protocol-version"         yaml:"protocol-ver"    json:"protocol_version" validate:"required"`           // Mqtt 协议版本号，4 是 3.1.1，3 是 3.1
-	KeepAlive            int    `mapstructure:"keep-alive"               yaml:"keep-alive"      json:"keep_alive"      validate:"required,min=1"`      // 保活时间间隔，最小值为 1 秒
-	MaxReconnectInterval int    `mapstructure:"max-reconnect-interval"   yaml:"max-reconnect-interval" json:"max_reconnect_interval" validate:"min=1"` // 最大连接间隔时间，单位：秒，最小值为 1 秒
-	PingTimeout          int    `mapstructure:"ping-timeout"             yaml:"ping-timeout"    json:"ping_timeout"      validate:"min=1"`             // ping 超时时间，单位：秒，最小值为 1 秒
-	WriteTimeout         int    `mapstructure:"write-timeout"            yaml:"write-timeout"   json:"write_timeout"     validate:"min=1"`             // 写超时时间，单位：秒，最小值为 1 秒
-	ConnectTimeout       int    `mapstructure:"connect-timeout"          yaml:"connect-timeout" json:"connect_timeout"   validate:"min=1"`             // 连接超时时间，单位：秒，最小值为 1 秒
-	Username             string `mapstructure:"username"                 yaml:"username"        json:"username"`                                       // 连接到代理服务器的用户名
-	Password             string `mapstructure:"password"                 yaml:"password"        json:"password"`                                       // 密码
-	CleanSession         bool   `mapstructure:"clean-session"            yaml:"clean-session"   json:"clean_session"`                                  // 设置客户端掉线服务端是否清除 session
-	AutoReconnect        bool   `mapstructure:"auto-reconnect"           yaml:"auto-reconnect"  json:"auto_reconnect"`                                 // 断开后是否重新连接
-	WillTopic            string `mapstructure:"will-topic"               yaml:"will-topic"      json:"will_topic"`                                     // 遗言发送的 topic
-	ModuleName           string `mapstructure:"modulename"               yaml:"modulename"      json:"module_name"`                                    // 模块名称
+	Endpoint             string `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"        validate:"required,url"`                           // Mqtt 代理服务器端点地址
+	ClientID             string `mapstructure:"client-id" yaml:"client-id" json:"clientId"`                                                        // 客户端标识符
+	ProtocolVersion      uint   `mapstructure:"protocol-version" yaml:"protocol-version" json:"protocolVersion" validate:"required"`               // Mqtt 协议版本号，4 是 3.1.1，3 是 3.1
+	KeepAlive            int    `mapstructure:"keep-alive" yaml:"keep-alive" json:"keepAlive"      validate:"required,min=1"`                      // 保活时间间隔，最小值为 1 秒
+	MaxReconnectInterval int    `mapstructure:"max-reconnect-interval" yaml:"max-reconnect-interval" json:"maxReconnectInterval" validate:"min=1"` // 最大连接间隔时间，单位：秒，最小值为 1 秒
+	PingTimeout          int    `mapstructure:"ping-timeout" yaml:"ping-timeout" json:"pingTimeout"      validate:"min=1"`                         // ping 超时时间，单位：秒，最小值为 1 秒
+	WriteTimeout         int    `mapstructure:"write-timeout" yaml:"write-timeout" json:"writeTimeout"     validate:"min=1"`                       // 写超时时间，单位：秒，最小值为 1 秒
+	ConnectTimeout       int    `mapstructure:"connect-timeout" yaml:"connect-timeout" json:"connectTimeout"   validate:"min=1"`                   // 连接超时时间，单位：秒，最小值为 1 秒
+	Username             string `mapstructure:"username" yaml:"username" json:"username"`                                                          // 连接到代理服务器的用户名
+	Password             string `mapstructure:"password" yaml:"password" json:"password"`                                                          // 密码
+	CleanSession         bool   `mapstructure:"clean-session" yaml:"clean-session" json:"cleanSession"`                                            // 设置客户端掉线服务端是否清除 session
+	AutoReconnect        bool   `mapstructure:"auto-reconnect" yaml:"auto-reconnect" json:"autoReconnect"`                                         // 断开后是否重新连接
+	WillTopic            string `mapstructure:"will-topic" yaml:"will-topic" json:"willTopic"`                                                     // 遗言发送的 topic
+	ModuleName           string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                                  // 模块名称
 }
 
 // NewMqtt 创建一个新的 Mqtt 实例

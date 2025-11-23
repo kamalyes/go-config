@@ -2,16 +2,16 @@
 # 模块名称: ftp
 # 包名: ftp  
 # 描述: FTP文件传输模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# endpoint配置
+# FTP 服务器端点地址
 endpoint: 127.0.0.1:21
-# username配置
+# 用户
 username: ftp_user
-# password配置
+# 密码
 password: ftp_password
-# cwd配置
+# 指定目录
 cwd: /
-# module name配置
-modulename: ftp
+# 模块名称
+module-name: ftp

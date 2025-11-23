@@ -2,23 +2,23 @@
 // 模块名称: prometheus
 // 包名: prometheus  
 // 描述: Prometheus指标
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:08
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "prometheus",
+  "moduleName": "prometheus",
   "enabled": false,
   "path": "/metrics",
   "port": 9090,
   "endpoint": "http://localhost:9090",
-  "push_gateway": {
+  "pushGateway": {
     "enabled": false,
     "endpoint": "http://localhost:9091",
-    "job_name": "go-rpc-gateway"
+    "jobName": "go-rpc-gateway"
   },
   "scraping": {
     "interval": "15s",
     "timeout": "10s",
-    "metrics_path": "/metrics"
+    "metricsPath": "/metrics"
   }
 }

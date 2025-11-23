@@ -2,35 +2,35 @@
 // 模块名称: cache
 // 包名: cache  
 // 描述: 缓存模块
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:08
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "default",
+  "moduleName": "default",
   "type": "memory",
   "enabled": true,
-  "default_ttl": 1800000000000,
-  "key_prefix": "cache:",
+  "defaultTtl": 1800000000000,
+  "keyPrefix": "cache:",
   "serializer": "json",
   "memory": {
-    "module_name": "memory",
+    "moduleName": "memory",
     "capacity": 1000,
-    "default_ttl": 1800000000000,
-    "cleanup_size": 100,
-    "max_size": 0
+    "defaultTtl": 1800000000000,
+    "cleanupSize": 100,
+    "maxSize": 0
   },
   "ristretto": {
-    "module_name": "ristretto",
-    "num_counters": 10000000,
-    "max_cost": 1073741824,
-    "buffer_items": 64,
+    "moduleName": "ristretto",
+    "numCounters": 10000000,
+    "maxCost": 1073741824,
+    "bufferItems": 64,
     "metrics": true,
-    "ignore_internal_cost": false,
-    "key_to_hash": true,
+    "ignoreInternalCost": false,
+    "keyToHash": true,
     "cost": 1
   },
   "redis": {
-    "module_name": "redis",
+    "moduleName": "redis",
     "addr": "127.0.0.1:6379",
     "addrs": [
       "127.0.0.1:6379"
@@ -38,41 +38,41 @@
     "username": "default",
     "password": "redis123456",
     "db": 0,
-    "max_retries": 3,
-    "pool_size": 10,
-    "min_idle_conns": 0,
-    "max_conn_age": 1800000000000,
-    "pool_timeout": 4000000000,
-    "idle_timeout": 300000000000,
-    "read_timeout": 3000000000,
-    "write_timeout": 3000000000,
-    "cluster_mode": false
+    "maxRetries": 3,
+    "poolSize": 10,
+    "minIdleConns": 0,
+    "maxConnAge": 1800000000000,
+    "poolTimeout": 4000000000,
+    "idleTimeout": 300000000000,
+    "readTimeout": 3000000000,
+    "writeTimeout": 3000000000,
+    "clusterMode": false
   },
   "sharded": {
-    "module_name": "sharded",
-    "shard_count": 32,
-    "base_type": "memory",
-    "hash_func": "fnv",
-    "load_balancer": "consistent_hash"
+    "moduleName": "sharded",
+    "shardCount": 32,
+    "baseType": "memory",
+    "hashFunc": "fnv",
+    "loadBalancer": "consistent_hash"
   },
-  "two_level": {
-    "module_name": "twolevel",
+  "twoLevel": {
+    "moduleName": "twolevel",
     "l1_type": "memory",
     "l2_type": "redis",
     "l1_ttl": 300000000000,
     "l2_ttl": 1800000000000,
-    "sync_strategy": "write_through",
+    "syncStrategy": "write_through",
     "l1_size": 1000,
     "l2_size": 10000,
-    "promote_threshold": 2
+    "promoteThreshold": 2
   },
   "expiring": {
-    "module_name": "expiring",
-    "cleanup_interval": 300000000000,
-    "default_ttl": 1800000000000,
-    "max_size": 10000,
-    "eviction_policy": "lru",
-    "enable_lazy_expiry": true,
-    "max_memory_usage": 104857600
+    "moduleName": "expiring",
+    "cleanupInterval": 300000000000,
+    "defaultTtl": 1800000000000,
+    "maxSize": 10000,
+    "evictionPolicy": "lru",
+    "enableLazyExpiry": true,
+    "maxMemoryUsage": 104857600
   }
 }

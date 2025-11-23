@@ -2,20 +2,20 @@
 // 模块名称: mysql
 // 包名: database  
 // 描述: MySQL数据库
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:08
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "mysql",
+  "moduleName": "mysql",
   "host": "localhost",
   "port": "3306",
   "config": "charset=utf8mb4\u0026parseTime=True\u0026loc=Local",
-  "log_level": "info",
-  "db_name": "test",
+  "logLevel": "info",
+  "dbName": "test",
   "username": "root",
   "password": "mysql_password",
-  "max_idle_conns": 10,
-  "max_open_conns": 100,
-  "conn_max_idle_time": 300,
-  "conn_max_life_time": 3600
+  "maxIdleConns": 10,
+  "maxOpenConns": 100,
+  "connMaxIdleTime": 300,
+  "connMaxLifeTime": 3600
 }

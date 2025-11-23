@@ -2,47 +2,49 @@
 # 模块名称: restful
 # 包名: restful  
 # 描述: RESTful API模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:09
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: restful
-# enabled配置
+# 是否启用
 enabled: false
-# name配置
+# 服务名称
 name: restful-api
-# host配置
+# 主机地址
 host: 127.0.0.1
-# port配置
+# 端口
 port: 8080
-# mode配置
+# 运行模式 (dev, test, prod)
 mode: dev
-# max conns配置
+# 最大连接数
 max-conns: 1000
-# max bytes配置
+# 最大请求大小
 max-bytes: 33554432
-# timeout配置
+# 超时时间(秒)
 timeout: 30
-# cpu threshold配置
+# CPU阈值
 cpu-threshold: 900
-# signature配置
+# 签名配置
 signature:
+    # 是否启用
     enabled: false
     private-keys: []
     strict: false
     expiry: 300
-# auth配置
+# 是否启用认证
 auth: false
-# print routes配置
+# 是否打印路由
 print-routes: false
-# strict slash配置
+# 是否严格斜杠
 strict-slash: false
-# headers配置
+# 自定义头部
 headers: {}
-# middlewares配置
+# 中间件列表
 middlewares: []
-# cors配置
+# CORS配置
 cors:
+    # 是否启用
     enabled: false
     allow-origins:
         - '*'
@@ -59,19 +61,22 @@ cors:
     expose-headers: []
     allow-credentials: false
     max-age: 3600
-# tls配置
+# TLS配置
 tls:
+    # 是否启用
     enabled: false
     cert-file: ""
     key-file: ""
     ca-cert-file: ""
-# rate limit配置
+# 限流配置
 rate-limit:
+    # 是否启用
     enabled: false
     seconds: 1
     quota: 1000
-# compression配置
+# 压缩配置
 compression:
+    # 是否启用
     enabled: false
     level: 6
     min-length: 1024
@@ -80,8 +85,9 @@ compression:
         - text/html
         - text/css
         - text/javascript
-# static配置
+# 静态文件配置
 static:
+    # 是否启用
     enabled: false
     root: ./static
     prefix: /static

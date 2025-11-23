@@ -36,7 +36,7 @@ func TestDefaultHeaders(t *testing.T) {
 
 func TestHeaders_GetHeaderName(t *testing.T) {
 	headers := DefaultHeaders()
-	
+
 	tests := []struct {
 		fieldType string
 		expected  string
@@ -55,7 +55,7 @@ func TestHeaders_GetHeaderName(t *testing.T) {
 		{"acceptLanguage", "Accept-Language"},
 		{"unknown", ""},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.fieldType, func(t *testing.T) {
 			result := headers.GetHeaderName(tt.fieldType)
@@ -132,7 +132,7 @@ func TestBaseRequest_Validate(t *testing.T) {
 func TestBaseRequest_IsEmpty(t *testing.T) {
 	req := &BaseRequest{}
 	assert.True(t, req.IsEmpty())
-	
+
 	req.WithTimestamp("2023-01-01T00:00:00Z")
 	assert.False(t, req.IsEmpty())
 }
@@ -148,7 +148,7 @@ func TestBaseRequest_Clone(t *testing.T) {
 		AppVersion:    "1.0.0",
 		Platform:      "iOS",
 	}
-	
+
 	clone := req.Clone()
 	assert.NotNil(t, clone)
 	assert.Equal(t, req.Timestamp, clone.Timestamp)
@@ -159,7 +159,7 @@ func TestBaseRequest_Clone(t *testing.T) {
 	assert.Equal(t, req.DeviceID, clone.DeviceID)
 	assert.Equal(t, req.AppVersion, clone.AppVersion)
 	assert.Equal(t, req.Platform, clone.Platform)
-	
+
 	// 验证深拷贝
 	clone.Timestamp = "modified"
 	assert.NotEqual(t, req.Timestamp, clone.Timestamp)
@@ -176,7 +176,7 @@ func TestBaseRequest_ChainedCalls(t *testing.T) {
 		WithDeviceID("device-123").
 		WithAppVersion("1.0.0").
 		WithPlatform("iOS")
-	
+
 	assert.Equal(t, "2023-01-01T00:00:00Z", result.Timestamp)
 	assert.Equal(t, "abc123", result.Signature)
 	assert.Equal(t, "trace-123", result.TraceID)

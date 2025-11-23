@@ -17,21 +17,21 @@ import (
 
 // Zap 结构体表示 Zap 日志配置
 type Zap struct {
-	Level         string `mapstructure:"level"                    yaml:"level"               json:"level"                 validate:"required,oneof=debug info warn error fatal"` // 日志级别
-	Format        string `mapstructure:"format"                   yaml:"format"              json:"format"                validate:"required,oneof=json console"`                // 日志格式
-	Prefix        string `mapstructure:"prefix"                   yaml:"prefix"              json:"prefix"`                                                                      // 日志前缀
-	Director      string `mapstructure:"director"                 yaml:"director"            json:"director"              validate:"required"`                                   // 日志目录
-	MaxSize       int    `mapstructure:"max-size"                 yaml:"max-size"            json:"max_size"              validate:"required,min=1"`                             // 日志文件的最大大小（以MB为单位）
-	MaxAge        int    `mapstructure:"max-age"                  yaml:"max-age"             json:"max_age"               validate:"required,min=1"`                             // 日志最大保留时间 单位：天
-	MaxBackups    int    `mapstructure:"max-backups"              yaml:"max-backups"         json:"max_backups"           validate:"required,min=0"`                             // 保留旧文件的最大个数
-	Compress      bool   `mapstructure:"compress"                 yaml:"compress"            json:"compress"`                                                                    // 是否压缩
-	LinkName      string `mapstructure:"link-name"                yaml:"link-name"           json:"link_name"`                                                                   // 日志软连接文件
-	ShowLine      bool   `mapstructure:"show-line"                yaml:"show-line"           json:"show_line"`                                                                   // 是否在日志中输出源码所在的行
-	EncodeLevel   string `mapstructure:"encode-level"             yaml:"encode-level"        json:"encode_level"`                                                                // 日志编码等级，指定不通过等级可以有不同颜色
-	StacktraceKey string `mapstructure:"stacktrace-key"           yaml:"stacktrace-key"      json:"stacktrace_key"`                                                              // 堆栈捕捉标识
-	LogInConsole  bool   `mapstructure:"log-in-console"           yaml:"log-in-console"      json:"log_in_console"`                                                              // 是否在控制台打印日志
-	Development   bool   `mapstructure:"development"              yaml:"development"         json:"development"`                                                                 // 是否为开发者模式
-	ModuleName    string `mapstructure:"modulename"               yaml:"modulename"          json:"module_name"`                                                                 // 模块名称
+	Level         string `mapstructure:"level" yaml:"level" json:"level"                 validate:"required,oneof=debug info warn error fatal"` // 日志级别
+	Format        string `mapstructure:"format" yaml:"format" json:"format"                validate:"required,oneof=json console"`              // 日志格式
+	Prefix        string `mapstructure:"prefix" yaml:"prefix" json:"prefix"`                                                                    // 日志前缀
+	Director      string `mapstructure:"director" yaml:"director" json:"director"              validate:"required"`                             // 日志目录
+	MaxSize       int    `mapstructure:"max-size" yaml:"max-size" json:"maxSize"              validate:"required,min=1"`                        // 日志文件的最大大小（以MB为单位）
+	MaxAge        int    `mapstructure:"max-age" yaml:"max-age" json:"maxAge"               validate:"required,min=1"`                          // 日志最大保留时间 单位：天
+	MaxBackups    int    `mapstructure:"max-backups" yaml:"max-backups" json:"maxBackups"           validate:"required,min=0"`                  // 保留旧文件的最大个数
+	Compress      bool   `mapstructure:"compress" yaml:"compress" json:"compress"`                                                              // 是否压缩
+	LinkName      string `mapstructure:"link-name" yaml:"link-name" json:"linkName"`                                                            // 日志软连接文件
+	ShowLine      bool   `mapstructure:"show-line" yaml:"show-line" json:"showLine"`                                                            // 是否在日志中输出源码所在的行
+	EncodeLevel   string `mapstructure:"encode-level" yaml:"encode-level" json:"encodeLevel"`                                                   // 日志编码等级，指定不通过等级可以有不同颜色
+	StacktraceKey string `mapstructure:"stacktrace-key" yaml:"stacktrace-key" json:"stacktraceKey"`                                             // 堆栈捕捉标识
+	LogInConsole  bool   `mapstructure:"log-in-console" yaml:"log-in-console" json:"logInConsole"`                                              // 是否在控制台打印日志
+	Development   bool   `mapstructure:"development" yaml:"development" json:"development"`                                                     // 是否为开发者模式
+	ModuleName    string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                                      // 模块名称
 }
 
 // NewZap 创建一个新的 Zap 实例

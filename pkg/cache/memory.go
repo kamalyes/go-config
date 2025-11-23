@@ -12,18 +12,17 @@
 package cache
 
 import (
-	"time"
-
 	"github.com/kamalyes/go-config/internal"
+	"time"
 )
 
 // Memory 内存缓存配置
 type Memory struct {
-	ModuleName  string        `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                     // 模块名
-	Capacity    int           `mapstructure:"capacity" yaml:"capacity" json:"capacity" validate:"min=1"`             // 缓存容量
-	DefaultTTL  time.Duration `mapstructure:"default_ttl" yaml:"default-ttl" json:"default_ttl"`                     // 默认过期时间
-	CleanupSize int           `mapstructure:"cleanup_size" yaml:"cleanup-size" json:"cleanup_size" validate:"min=0"` // 清理大小
-	MaxSize     int           `mapstructure:"max_size" yaml:"max-size" json:"max_size" validate:"min=0"`             // 最大大小
+	ModuleName  string        `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                     // 模块名
+	Capacity    int           `mapstructure:"capacity" yaml:"capacity" json:"capacity" validate:"min=1"`            // 缓存容量
+	DefaultTTL  time.Duration `mapstructure:"default-ttl" yaml:"default-ttl" json:"defaultTtl"`                     // 默认过期时间
+	CleanupSize int           `mapstructure:"cleanup-size" yaml:"cleanup-size" json:"cleanupSize" validate:"min=0"` // 清理大小
+	MaxSize     int           `mapstructure:"max-size" yaml:"max-size" json:"maxSize" validate:"min=0"`             // 最大大小
 }
 
 // NewMemory 创建一个新的 Memory 实例

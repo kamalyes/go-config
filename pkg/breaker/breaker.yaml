@@ -2,29 +2,29 @@
 # 模块名称: breaker
 # 包名: breaker  
 # 描述: 熔断器模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: circuit_breaker
-# enabled配置
+# 是否启用断路器
 enabled: true
-# failure threshold配置
+# 失败阈值
 failure-threshold: 5
-# success threshold配置
+# 成功阈值
 success-threshold: 2
-# timeout配置
+# 熔断后恢复时间
 timeout: 30000000000
-# volume threshold配置
+# 最小请求量阈值
 volume-threshold: 10
-# sliding window size配置
+# 滑动窗口大小
 sliding-window-size: 100
-# sliding window bucket配置
+# 滑动窗口桶大小
 sliding-window-bucket: 1000000000
-# prevention paths配置
+# 需要保护的路径
 prevention-paths:
     - /api/
-# exclude paths配置
+# 排除的路径
 exclude-paths:
     - /health
     - /metrics

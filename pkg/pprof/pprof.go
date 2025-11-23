@@ -15,40 +15,40 @@ import "github.com/kamalyes/go-config/internal"
 
 // PProf 性能分析配置
 type PProf struct {
-	ModuleName     string          `mapstructure:"module_name" yaml:"module-name" json:"module_name"`             // 模块名称
-	Enabled        bool            `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                         // 是否启用PProf
-	PathPrefix     string          `mapstructure:"path_prefix" yaml:"path-prefix" json:"path_prefix"`             // PProf路径前缀
-	Port           int             `mapstructure:"port" yaml:"port" json:"port"`                                  // PProf服务端口
-	EnableProfiles *ProfilesConfig `mapstructure:"enable_profiles" yaml:"enable-profiles" json:"enable_profiles"` // 启用的性能分析
-	Sampling       *SamplingConfig `mapstructure:"sampling" yaml:"sampling" json:"sampling"`                      // 采样配置
-	Authentication *AuthConfig     `mapstructure:"authentication" yaml:"authentication" json:"authentication"`    // 认证配置
-	Gateway        *GatewayConfig  `mapstructure:"gateway" yaml:"gateway" json:"gateway"`                         // Gateway特定配置
-	WebInterface   *WebConfig      `mapstructure:"web_interface" yaml:"web-interface" json:"web_interface"`       // Web界面配置
+	ModuleName     string          `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`             // 模块名称
+	Enabled        bool            `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                        // 是否启用PProf
+	PathPrefix     string          `mapstructure:"path-prefix" yaml:"path-prefix" json:"pathPrefix"`             // PProf路径前缀
+	Port           int             `mapstructure:"port" yaml:"port" json:"port"`                                 // PProf服务端口
+	EnableProfiles *ProfilesConfig `mapstructure:"enable-profiles" yaml:"enable-profiles" json:"enableProfiles"` // 启用的性能分析
+	Sampling       *SamplingConfig `mapstructure:"sampling" yaml:"sampling" json:"sampling"`                     // 采样配置
+	Authentication *AuthConfig     `mapstructure:"authentication" yaml:"authentication" json:"authentication"`   // 认证配置
+	Gateway        *GatewayConfig  `mapstructure:"gateway" yaml:"gateway" json:"gateway"`                        // Gateway特定配置
+	WebInterface   *WebConfig      `mapstructure:"web-interface" yaml:"web-interface" json:"webInterface"`       // Web界面配置
 }
 
 // AuthConfig 认证配置
 type AuthConfig struct {
-	Enabled     bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                // 是否启用认证
-	AuthToken   string   `mapstructure:"auth_token" yaml:"auth-token" json:"auth_token"`       // 认证令牌
-	AllowedIPs  []string `mapstructure:"allowed_ips" yaml:"allowed-ips" json:"allowed_ips"`    // 允许的IP列表
-	RequireAuth bool     `mapstructure:"require_auth" yaml:"require-auth" json:"require_auth"` // 是否需要认证
-	Timeout     int      `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                // 认证超时时间(秒)
+	Enabled     bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`               // 是否启用认证
+	AuthToken   string   `mapstructure:"auth-token" yaml:"auth-token" json:"authToken"`       // 认证令牌
+	AllowedIPs  []string `mapstructure:"allowed-ips" yaml:"allowed-ips" json:"allowedIps"`    // 允许的IP列表
+	RequireAuth bool     `mapstructure:"require-auth" yaml:"require-auth" json:"requireAuth"` // 是否需要认证
+	Timeout     int      `mapstructure:"timeout" yaml:"timeout" json:"timeout"`               // 认证超时时间(秒)
 }
 
 // GatewayConfig Gateway特定配置
 type GatewayConfig struct {
-	Enabled              bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                              // 是否启用Gateway集成
-	DevModeOnly          bool `mapstructure:"dev_mode_only" yaml:"dev-mode-only" json:"dev_mode_only"`                            // 仅在开发模式启用
-	EnableLogging        bool `mapstructure:"enable_logging" yaml:"enable-logging" json:"enable_logging"`                         // 是否启用日志
-	RegisterWebInterface bool `mapstructure:"register_web_interface" yaml:"register-web-interface" json:"register_web_interface"` // 是否注册Web界面
+	Enabled              bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                            // 是否启用Gateway集成
+	DevModeOnly          bool `mapstructure:"dev-mode-only" yaml:"dev-mode-only" json:"devModeOnly"`                            // 仅在开发模式启用
+	EnableLogging        bool `mapstructure:"enable-logging" yaml:"enable-logging" json:"enableLogging"`                        // 是否启用日志
+	RegisterWebInterface bool `mapstructure:"register-web-interface" yaml:"register-web-interface" json:"registerWebInterface"` // 是否注册Web界面
 }
 
 // WebConfig Web界面配置
 type WebConfig struct {
-	Enabled       bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                      // 是否启用Web界面
-	Title         string `mapstructure:"title" yaml:"title" json:"title"`                            // Web界面标题
-	Description   string `mapstructure:"description" yaml:"description" json:"description"`          // 描述
-	ShowScenarios bool   `mapstructure:"show_scenarios" yaml:"show-scenarios" json:"show_scenarios"` // 是否显示性能测试场景
+	Enabled       bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                     // 是否启用Web界面
+	Title         string `mapstructure:"title" yaml:"title" json:"title"`                           // Web界面标题
+	Description   string `mapstructure:"description" yaml:"description" json:"description"`         // 描述
+	ShowScenarios bool   `mapstructure:"show-scenarios" yaml:"show-scenarios" json:"showScenarios"` // 是否显示性能测试场景
 }
 
 // ProfilesConfig 性能分析配置
@@ -66,10 +66,10 @@ type ProfilesConfig struct {
 
 // SamplingConfig 采样配置
 type SamplingConfig struct {
-	CPURate       int `mapstructure:"cpu_rate" yaml:"cpu-rate" json:"cpu_rate"`                   // CPU采样率(Hz)
-	MemoryRate    int `mapstructure:"memory_rate" yaml:"memory-rate" json:"memory_rate"`          // 内存采样率
-	BlockRate     int `mapstructure:"block_rate" yaml:"block-rate" json:"block_rate"`             // 阻塞采样率
-	MutexFraction int `mapstructure:"mutex_fraction" yaml:"mutex-fraction" json:"mutex_fraction"` // 互斥锁采样比例
+	CPURate       int `mapstructure:"cpu-rate" yaml:"cpu-rate" json:"cpuRate"`                   // CPU采样率(Hz)
+	MemoryRate    int `mapstructure:"memory-rate" yaml:"memory-rate" json:"memoryRate"`          // 内存采样率
+	BlockRate     int `mapstructure:"block-rate" yaml:"block-rate" json:"blockRate"`             // 阻塞采样率
+	MutexFraction int `mapstructure:"mutex-fraction" yaml:"mutex-fraction" json:"mutexFraction"` // 互斥锁采样比例
 }
 
 // Default 创建默认PProf配置

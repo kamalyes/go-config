@@ -2,59 +2,59 @@
 // 模块名称: restful
 // 包名: restful  
 // 描述: RESTful API模块
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:09
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "restful",
+  "moduleName": "restful",
   "enabled": false,
   "name": "restful-api",
   "host": "127.0.0.1",
   "port": 8080,
   "mode": "dev",
-  "max_conns": 1000,
-  "max_bytes": 33554432,
+  "maxConns": 1000,
+  "maxBytes": 33554432,
   "timeout": 30,
-  "cpu_threshold": 900,
+  "cpuThreshold": 900,
   "signature": {
     "enabled": false,
-    "private_keys": null,
+    "privateKeys": null,
     "strict": false,
     "expiry": 300
   },
   "auth": false,
-  "print_routes": false,
-  "strict_slash": false,
+  "printRoutes": false,
+  "strictSlash": false,
   "headers": {},
   "middlewares": [],
   "cors": {
     "enabled": false,
-    "allow_origins": [
+    "allowOrigins": [
       "*"
     ],
-    "allow_methods": [
+    "allowMethods": [
       "GET",
       "POST",
       "PUT",
       "DELETE",
       "OPTIONS"
     ],
-    "allow_headers": [
+    "allowHeaders": [
       "Origin",
       "Content-Type",
       "Authorization"
     ],
-    "expose_headers": null,
-    "allow_credentials": false,
-    "max_age": 3600
+    "exposeHeaders": null,
+    "allowCredentials": false,
+    "maxAge": 3600
   },
   "tls": {
     "enabled": false,
-    "cert_file": "",
-    "key_file": "",
-    "ca_cert_file": ""
+    "certFile": "",
+    "keyFile": "",
+    "caCertFile": ""
   },
-  "rate_limit": {
+  "rateLimit": {
     "enabled": false,
     "seconds": 1,
     "quota": 1000
@@ -62,7 +62,7 @@
   "compression": {
     "enabled": false,
     "level": 6,
-    "min_length": 1024,
+    "minLength": 1024,
     "types": [
       "application/json",
       "text/html",

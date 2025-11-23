@@ -2,26 +2,32 @@
 # 模块名称: health
 # 包名: health  
 # 描述: 健康检查模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: health
-# enabled配置
+# 是否启用健康检查
 enabled: true
-# path配置
+# 健康检查路径
 path: /health
-# port配置
+# 健康检查端口
 port: 8080
-# timeout配置
+# 超时时间(秒)
 timeout: 30
-# redis配置
+# Redis健康检查配置
 redis:
+    # 是否启用健康检查
     enabled: false
+    # 健康检查路径
     path: /health/redis
+    # 超时时间(秒)
     timeout: 5
-# my sql配置
+# MySQL健康检查配置
 mysql:
+    # 是否启用健康检查
     enabled: false
+    # 健康检查路径
     path: /health/mysql
+    # 超时时间(秒)
     timeout: 5

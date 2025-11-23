@@ -2,21 +2,24 @@
 # 模块名称: monitoring
 # 包名: monitoring  
 # 描述: 监控模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: monitoring
-# enabled配置
+# 是否启用监控
 enabled: false
-# prometheus配置
+# Prometheus配置
 prometheus:
+    # 模块名称
     module-name: prometheus
+    # 是否启用监控
     enabled: false
     path: /metrics
     port: 9090
     endpoint: http://localhost:9090
     push-gateway:
+        # 是否启用监控
         enabled: false
         endpoint: http://localhost:9091
         job-name: go-rpc-gateway
@@ -24,9 +27,11 @@ prometheus:
         interval: 15s
         timeout: 10s
         metrics-path: /metrics
-# grafana配置
+# Grafana配置
 grafana:
+    # 模块名称
     module-name: grafana
+    # 是否启用监控
     enabled: false
     endpoint: http://localhost:3000
     username: admin
@@ -43,14 +48,17 @@ grafana:
         auto-import: false
         templates: []
         refresh-interval: 30s
-# alerting配置
+    # 告警配置
     alerting:
+        # 是否启用监控
         enabled: false
         webhooks: []
         channels: []
-# jaeger配置
+# Jaeger配置
 jaeger:
+    # 模块名称
     module-name: jaeger
+    # 是否启用监控
     enabled: false
     endpoint: http://localhost:14268/api/traces
     service-name: go-rpc-gateway
@@ -68,8 +76,9 @@ jaeger:
         max-traces-per-second: 100
         operation-sampling: []
     tags: {}
-# metrics配置
+# 指标配置
 metrics:
+    # 是否启用监控
     enabled: true
     request-count: true
     duration: true
@@ -92,11 +101,14 @@ metrics:
         - 120
     enable-open-metrics: false
     custom-metrics: []
+# 告警配置
 alerting:
+    # 是否启用监控
     enabled: false
     rules: []
     webhooks: []
     email:
+        # 是否启用监控
         enabled: false
         smtp-host: ""
         smtp-port: 0
@@ -106,6 +118,7 @@ alerting:
         to: []
         tls: false
     slack:
+        # 是否启用监控
         enabled: false
         token: ""
         channel: ""

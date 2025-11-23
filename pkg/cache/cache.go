@@ -12,9 +12,8 @@
 package cache
 
 import (
-	"time"
-
 	"github.com/kamalyes/go-config/internal"
+	"time"
 )
 
 // CacheType 缓存类型
@@ -31,13 +30,13 @@ const (
 
 // Cache 总缓存配置
 type Cache struct {
-	ModuleName string    `mapstructure:"module_name" yaml:"module-name" json:"module_name"`
+	ModuleName string    `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`
 	Type       CacheType `mapstructure:"type" yaml:"type" json:"type"`
 	Enabled    bool      `mapstructure:"enabled" yaml:"enabled" json:"enabled"`
 
 	// 基础配置
-	DefaultTTL time.Duration `mapstructure:"default_ttl" yaml:"default-ttl" json:"default_ttl"`
-	KeyPrefix  string        `mapstructure:"key_prefix" yaml:"key-prefix" json:"key_prefix"`
+	DefaultTTL time.Duration `mapstructure:"default-ttl" yaml:"default-ttl" json:"defaultTtl"`
+	KeyPrefix  string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`
 	Serializer string        `mapstructure:"serializer" yaml:"serializer" json:"serializer"` // json, gob, msgpack
 
 	// 各种缓存实现的配置（按需使用）
@@ -45,7 +44,7 @@ type Cache struct {
 	Ristretto Ristretto `mapstructure:"ristretto" yaml:"ristretto" json:"ristretto"`
 	Redis     Redis     `mapstructure:"redis" yaml:"redis" json:"redis"`
 	Sharded   Sharded   `mapstructure:"sharded" yaml:"sharded" json:"sharded"`
-	TwoLevel  TwoLevel  `mapstructure:"two_level" yaml:"two-level" json:"two_level"`
+	TwoLevel  TwoLevel  `mapstructure:"two-level" yaml:"two-level" json:"twoLevel"`
 	Expiring  Expiring  `mapstructure:"expiring" yaml:"expiring" json:"expiring"`
 }
 

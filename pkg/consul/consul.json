@@ -2,11 +2,11 @@
 // 模块名称: consul
 // 包名: consul  
 // 描述: Consul服务发现模块
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:08
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "consul",
+  "moduleName": "consul",
   "endpoint": "http://127.0.0.1:8500",
-  "register_interval": 10
+  "registerInterval": 10
 }

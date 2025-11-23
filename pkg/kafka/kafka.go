@@ -14,16 +14,16 @@ import "github.com/kamalyes/go-config/internal"
 
 // Kafka 结构体
 type Kafka struct {
-	Brokers     string `mapstructure:"brokers"        yaml:"brokers"        json:"brokers"           validate:"required"`       // Kafka brokers地址
-	Topic       string `mapstructure:"topic"          yaml:"topic"          json:"topic"             validate:"required"`       // Kafka主题
-	GroupID     string `mapstructure:"group-id"       yaml:"group-id"       json:"group_id"`                                    // 消费者组ID
-	Username    string `mapstructure:"username"       yaml:"username"       json:"username"`                                    // SASL用户名
-	Password    string `mapstructure:"password"       yaml:"password"       json:"password"`                                    // SASL密码
-	Partition   int    `mapstructure:"partition"      yaml:"partition"      json:"partition"`                                   // 分区号
-	Offset      string `mapstructure:"offset"         yaml:"offset"         json:"offset"`                                      // 偏移量策略(earliest/latest)
-	TryTimes    int    `mapstructure:"try-times"      yaml:"try-times"      json:"try_times"         validate:"required,min=1"` // 尝试次数
-	SyncESTopic string `mapstructure:"sync-es-topic"  yaml:"sync-es-topic"  json:"sync_es_topic"     validate:"required"`       // 同步到 ES 的主题
-	ModuleName  string `mapstructure:"modulename"     yaml:"modulename"     json:"module_name"`                                 // 模块名称
+	Brokers     string `mapstructure:"brokers" yaml:"brokers" json:"brokers"           validate:"required"`           // Kafka brokers地址
+	Topic       string `mapstructure:"topic" yaml:"topic" json:"topic"             validate:"required"`               // Kafka主题
+	GroupID     string `mapstructure:"group-id" yaml:"group-id" json:"groupId"`                                       // 消费者组ID
+	Username    string `mapstructure:"username" yaml:"username" json:"username"`                                      // SASL用户名
+	Password    string `mapstructure:"password" yaml:"password" json:"password"`                                      // SASL密码
+	Partition   int    `mapstructure:"partition" yaml:"partition" json:"partition"`                                   // 分区号
+	Offset      string `mapstructure:"offset" yaml:"offset" json:"offset"`                                            // 偏移量策略(earliest/latest)
+	TryTimes    int    `mapstructure:"try-times" yaml:"try-times" json:"tryTimes"         validate:"required,min=1"`  // 尝试次数
+	SyncESTopic string `mapstructure:"sync-es-topic" yaml:"sync-es-topic" json:"syncEsTopic"     validate:"required"` // 同步到 ES 的主题
+	ModuleName  string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                              // 模块名称
 }
 
 // NewKafka 创建一个新的 Kafka 实例

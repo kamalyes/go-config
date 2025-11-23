@@ -2,28 +2,28 @@
 // 模块名称: access
 // 包名: access  
 // 描述: 访问控制模块
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:08
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "access",
+  "moduleName": "access",
   "enabled": true,
-  "service_name": "rpc-gateway",
-  "retention_days": 60,
-  "include_body": true,
-  "include_response": true,
-  "include_headers": [
+  "serviceName": "rpc-gateway",
+  "retentionDays": 60,
+  "includeBody": true,
+  "includeResponse": true,
+  "includeHeaders": [
     "User-Agent",
     "X-Request-ID",
     "X-Trace-ID",
     "Authorization",
     "Content-Type"
   ],
-  "exclude_paths": [
+  "excludePaths": [
     "/health",
     "/metrics",
     "/debug"
   ],
-  "max_body_size": 1048576,
-  "max_response_size": 5242880
+  "maxBodySize": 1048576,
+  "maxResponseSize": 5242880
 }

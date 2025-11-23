@@ -17,33 +17,33 @@ import (
 
 // RpcServer 结构体表示 RPC 服务器配置
 type RpcServer struct {
-	ModuleName    string            `mapstructure:"module_name" yaml:"module-name" json:"module_name"`          // 模块名称
-	Enabled       bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                      // 是否启用
-	Name          string            `mapstructure:"name" yaml:"name" json:"name"`                               // 服务名称
-	ListenOn      string            `mapstructure:"listen_on" yaml:"listen-on" json:"listen_on"`                // 监听地址
-	Mode          string            `mapstructure:"mode" yaml:"mode" json:"mode"`                               // 运行模式 (dev, test, prod)
-	MaxConns      int               `mapstructure:"max_conns" yaml:"max-conns" json:"max_conns"`                // 最大连接数
-	MaxMsgSize    int               `mapstructure:"max_msg_size" yaml:"max-msg-size" json:"max_msg_size"`       // 最大消息大小
-	Timeout       int               `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                      // 超时时间(秒)
-	CpuThreshold  int64             `mapstructure:"cpu_threshold" yaml:"cpu-threshold" json:"cpu_threshold"`    // CPU阈值
-	Health        bool              `mapstructure:"health" yaml:"health" json:"health"`                         // 是否启用健康检查
-	Auth          bool              `mapstructure:"auth" yaml:"auth" json:"auth"`                               // 是否启用认证
-	StrictControl bool              `mapstructure:"strict_control" yaml:"strict-control" json:"strict_control"` // 是否启用严格控制
-	MetricsUrl    string            `mapstructure:"metrics_url" yaml:"metrics-url" json:"metrics_url"`          // 指标 URL
-	Headers       map[string]string `mapstructure:"headers" yaml:"headers" json:"headers"`                      // 自定义头部
-	Middlewares   []string          `mapstructure:"middlewares" yaml:"middlewares" json:"middlewares"`          // 中间件列表
-	TLS           *TLSConfig        `mapstructure:"tls" yaml:"tls" json:"tls"`                                  // TLS配置
-	RateLimit     *RateLimit        `mapstructure:"rate_limit" yaml:"rate-limit" json:"rate_limit"`             // 限流配置
-	Recovery      *Recovery         `mapstructure:"recovery" yaml:"recovery" json:"recovery"`                   // 恢复配置
-	Tracing       *Tracing          `mapstructure:"tracing" yaml:"tracing" json:"tracing"`                      // 链路追踪配置
+	ModuleName    string            `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`          // 模块名称
+	Enabled       bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                     // 是否启用
+	Name          string            `mapstructure:"name" yaml:"name" json:"name"`                              // 服务名称
+	ListenOn      string            `mapstructure:"listen-on" yaml:"listen-on" json:"listenOn"`                // 监听地址
+	Mode          string            `mapstructure:"mode" yaml:"mode" json:"mode"`                              // 运行模式 (dev, test, prod)
+	MaxConns      int               `mapstructure:"max-conns" yaml:"max-conns" json:"maxConns"`                // 最大连接数
+	MaxMsgSize    int               `mapstructure:"max-msg-size" yaml:"max-msg-size" json:"maxMsgSize"`        // 最大消息大小
+	Timeout       int               `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                     // 超时时间(秒)
+	CpuThreshold  int64             `mapstructure:"cpu-threshold" yaml:"cpu-threshold" json:"cpuThreshold"`    // CPU阈值
+	Health        bool              `mapstructure:"health" yaml:"health" json:"health"`                        // 是否启用健康检查
+	Auth          bool              `mapstructure:"auth" yaml:"auth" json:"auth"`                              // 是否启用认证
+	StrictControl bool              `mapstructure:"strict-control" yaml:"strict-control" json:"strictControl"` // 是否启用严格控制
+	MetricsUrl    string            `mapstructure:"metrics-url" yaml:"metrics-url" json:"metricsUrl"`          // 指标 URL
+	Headers       map[string]string `mapstructure:"headers" yaml:"headers" json:"headers"`                     // 自定义头部
+	Middlewares   []string          `mapstructure:"middlewares" yaml:"middlewares" json:"middlewares"`         // 中间件列表
+	TLS           *TLSConfig        `mapstructure:"tls" yaml:"tls" json:"tls"`                                 // TLS配置
+	RateLimit     *RateLimit        `mapstructure:"rate-limit" yaml:"rate-limit" json:"rateLimit"`             // 限流配置
+	Recovery      *Recovery         `mapstructure:"recovery" yaml:"recovery" json:"recovery"`                  // 恢复配置
+	Tracing       *Tracing          `mapstructure:"tracing" yaml:"tracing" json:"tracing"`                     // 链路追踪配置
 }
 
 // TLSConfig TLS配置
 type TLSConfig struct {
-	Enabled    bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                // 是否启用TLS
-	CertFile   string `mapstructure:"cert_file" yaml:"cert-file" json:"cert_file"`          // 证书文件
-	KeyFile    string `mapstructure:"key_file" yaml:"key-file" json:"key_file"`             // 私钥文件
-	CACertFile string `mapstructure:"ca_cert_file" yaml:"ca-cert-file" json:"ca_cert_file"` // CA证书文件
+	Enabled    bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`              // 是否启用TLS
+	CertFile   string `mapstructure:"cert-file" yaml:"cert-file" json:"certFile"`         // 证书文件
+	KeyFile    string `mapstructure:"key-file" yaml:"key-file" json:"keyFile"`            // 私钥文件
+	CACertFile string `mapstructure:"ca-cert-file" yaml:"ca-cert-file" json:"caCertFile"` // CA证书文件
 }
 
 // RateLimit 限流配置
@@ -55,17 +55,17 @@ type RateLimit struct {
 
 // Recovery 恢复配置
 type Recovery struct {
-	Enabled    bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用恢复
-	StackTrace bool `mapstructure:"stack_trace" yaml:"stack-trace" json:"stack_trace"` // 是否打印堆栈
-	LogErrors  bool `mapstructure:"log_errors" yaml:"log-errors" json:"log_errors"`    // 是否记录错误
+	Enabled    bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"`            // 是否启用恢复
+	StackTrace bool `mapstructure:"stack-trace" yaml:"stack-trace" json:"stackTrace"` // 是否打印堆栈
+	LogErrors  bool `mapstructure:"log-errors" yaml:"log-errors" json:"logErrors"`    // 是否记录错误
 }
 
 // Tracing 链路追踪配置
 type Tracing struct {
-	Enabled     bool    `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                // 是否启用链路追踪
-	Endpoint    string  `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"`             // 追踪端点
-	Sampler     float64 `mapstructure:"sampler" yaml:"sampler" json:"sampler"`                // 采样率
-	ServiceName string  `mapstructure:"service_name" yaml:"service-name" json:"service_name"` // 服务名称
+	Enabled     bool    `mapstructure:"enabled" yaml:"enabled" json:"enabled"`               // 是否启用链路追踪
+	Endpoint    string  `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"`            // 追踪端点
+	Sampler     float64 `mapstructure:"sampler" yaml:"sampler" json:"sampler"`               // 采样率
+	ServiceName string  `mapstructure:"service-name" yaml:"service-name" json:"serviceName"` // 服务名称
 }
 
 // NewRpcServer 创建一个新的 RpcServer 实例

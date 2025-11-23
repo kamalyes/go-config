@@ -2,26 +2,26 @@
 # 模块名称: kafka
 # 包名: kafka  
 # 描述: Kafka消息队列
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# brokers配置
+# Kafka brokers地址
 brokers: 127.0.0.1:9092
-# topic配置
+# Kafka主题
 topic: default-topic
-# group id配置
+# 消费者组ID
 group-id: default-group
-# username配置
+# SASL用户名
 username: kafka_user
-# password配置
+# SASL密码
 password: kafka_password
-# partition配置
+# 分区号
 partition: 0
-# offset配置
+# 偏移量策略(earliest/latest)
 offset: latest
-# try times配置
+# 尝试次数
 try-times: 3
-# sync estopic配置
+# 同步到 ES 的主题
 sync-es-topic: sync-es-topic
-# module name配置
-modulename: kafka
+# 模块名称
+module-name: kafka

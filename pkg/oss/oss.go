@@ -65,13 +65,13 @@ type OSSProvider interface {
 
 // OSSConfig OSS统一配置结构
 type OSSConfig struct {
-	Type      OSSType    `mapstructure:"type"     yaml:"type"     json:"type"`       // OSS类型
-	Enabled   bool       `mapstructure:"enabled"  yaml:"enabled"  json:"enabled"`    // 是否启用
-	Default   string     `mapstructure:"default"  yaml:"default"  json:"default"`    // 默认使用的OSS服务
-	Minio     *Minio     `mapstructure:"minio"    yaml:"minio"    json:"minio"`      // Minio配置
-	S3        *S3        `mapstructure:"s3"       yaml:"s3"       json:"s3"`         // AWS S3配置
-	AliyunOSS *AliyunOss `mapstructure:"aliyun"   yaml:"aliyun"   json:"aliyun_oss"` // 阿里云OSS配置
-	BoltDB    *BoltDB    `mapstructure:"boltdb"   yaml:"boltdb"   json:"boltdb"`     // BoltDB本地存储配置
+	Type      OSSType    `mapstructure:"type" yaml:"type" json:"type"`          // OSS类型
+	Enabled   bool       `mapstructure:"enabled" yaml:"enabled" json:"enabled"` // 是否启用
+	Default   string     `mapstructure:"default" yaml:"default" json:"default"` // 默认使用的OSS服务
+	Minio     *Minio     `mapstructure:"minio" yaml:"minio" json:"minio"`       // Minio配置
+	S3        *S3        `mapstructure:"s3" yaml:"s3" json:"s3"`                // AWS S3配置
+	AliyunOSS *AliyunOss `mapstructure:"aliyun" yaml:"aliyun" json:"aliyun"`    // 阿里云OSS配置
+	BoltDB    *BoltDB    `mapstructure:"boltdb" yaml:"boltdb" json:"boltdb"`    // BoltDB本地存储配置
 }
 
 // NewOSSConfig 创建新的OSS配置

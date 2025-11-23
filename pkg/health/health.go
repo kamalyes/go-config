@@ -15,13 +15,13 @@ import "github.com/kamalyes/go-config/internal"
 
 // Health 健康检查配置
 type Health struct {
-	ModuleName string       `mapstructure:"module_name" yaml:"module-name" json:"module_name"` // 模块名称
-	Enabled    bool         `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用健康检查
-	Path       string       `mapstructure:"path" yaml:"path" json:"path"`                      // 健康检查路径
-	Port       int          `mapstructure:"port" yaml:"port" json:"port"`                      // 健康检查端口
-	Timeout    int          `mapstructure:"timeout" yaml:"timeout" json:"timeout"`             // 超时时间(秒)
-	Redis      *RedisConfig `mapstructure:"redis" yaml:"redis" json:"redis"`                   // Redis健康检查配置
-	MySQL      *MySQLConfig `mapstructure:"mysql" yaml:"mysql" json:"mysql"`                   // MySQL健康检查配置
+	ModuleName string       `mapstructure:"module-name" yaml:"module-name" json:"moduleName"` // 模块名称
+	Enabled    bool         `mapstructure:"enabled" yaml:"enabled" json:"enabled"`            // 是否启用健康检查
+	Path       string       `mapstructure:"path" yaml:"path" json:"path"`                     // 健康检查路径
+	Port       int          `mapstructure:"port" yaml:"port" json:"port"`                     // 健康检查端口
+	Timeout    int          `mapstructure:"timeout" yaml:"timeout" json:"timeout"`            // 超时时间(秒)
+	Redis      *RedisConfig `mapstructure:"redis" yaml:"redis" json:"redis"`                  // Redis健康检查配置
+	MySQL      *MySQLConfig `mapstructure:"mysql" yaml:"mysql" json:"mysql"`                  // MySQL健康检查配置
 }
 
 // RedisConfig Redis健康检查配置

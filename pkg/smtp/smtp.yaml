@@ -2,29 +2,29 @@
 # 模块名称: smtp
 # 包名: smtp  
 # 描述: SMTP邮件模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:09
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: smtp
-# enabled配置
+# 是否启用
 enabled: true
-# smtphost配置
+# SMTP主机
 smtp-host: 127.0.0.1
-# smtpport配置
+# SMTP端口
 smtp-port: 587
-# username配置
+# 用户名
 username: smtp_user
-# password配置
+# 密码
 password: smtp_password
-# from address配置
+# 发件人地址
 from-address: noreply@example.com
-# to addresses配置
+# 收件人地址列表
 to-addresses:
     - admin@example.com
-# enable tls配置
+# 是否启用TLS
 enable-tls: true
-# headers配置
+# 自定义头部
 headers: {}
-# pool size配置
+# 连接池大小
 pool-size: 5

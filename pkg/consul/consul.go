@@ -17,9 +17,9 @@ import (
 
 // Consul 结构体用于配置 Consul 注册中心相关参数
 type Consul struct {
-	ModuleName       string `mapstructure:"modulename"              yaml:"modulename"        json:"module_name"       validate:"required"`     // 模块名称
-	Endpoint         string `mapstructure:"endpoint"                yaml:"endpoint"          json:"endpoint"          validate:"required,url"` // 注册中心端点地址
-	RegisterInterval int    `mapstructure:"register-interval"        yaml:"register-interval" json:"register_interval" validate:"min=1"`       // 注册间隔，单位秒，最小值为 1 秒
+	ModuleName       string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"       validate:"required"`          // 模块名称
+	Endpoint         string `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"          validate:"required,url"`           // 注册中心端点地址
+	RegisterInterval int    `mapstructure:"register-interval" yaml:"register-interval" json:"registerInterval" validate:"min=1"` // 注册间隔，单位秒，最小值为 1 秒
 }
 
 // NewConsul 创建一个新的 Consul 实例

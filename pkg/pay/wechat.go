@@ -17,12 +17,12 @@ import (
 
 // WechatPay 结构体用于配置微信支付相关参数
 type WechatPay struct {
-	AppId       string `mapstructure:"app-id"             yaml:"app-id"         json:"app_id"          validate:"required"`     // 应用 ID
-	MchId       string `mapstructure:"mch-id"             yaml:"mch-id"         json:"mch_id"          validate:"required"`     // 微信商户号
-	NotifyUrl   string `mapstructure:"notify-url"         yaml:"notify-url"     json:"notify_url"      validate:"required,url"` // 微信回调的 URL
-	ApiKey      string `mapstructure:"api-key"            yaml:"api-key"        json:"api_key"         validate:"required"`     // 签名用的 key
-	CertP12Path string `mapstructure:"cert-p12-path"      yaml:"cert-p12-path"  json:"cert_p12_path"   validate:"required"`     // 微信 P12 密钥文件存放位置
-	ModuleName  string `mapstructure:"modulename"         yaml:"modulename"     json:"module_name"`                             // 模块名称
+	AppId       string `mapstructure:"app-id" yaml:"app-id" json:"appId"          validate:"required"`                // 应用 ID
+	MchId       string `mapstructure:"mch-id" yaml:"mch-id" json:"mchId"          validate:"required"`                // 微信商户号
+	NotifyUrl   string `mapstructure:"notify-url" yaml:"notify-url" json:"notifyUrl"      validate:"required,url"`    // 微信回调的 URL
+	ApiKey      string `mapstructure:"api-key" yaml:"api-key" json:"apiKey"         validate:"required"`              // 签名用的 key
+	CertP12Path string `mapstructure:"cert_p12_path" yaml:"cert-p12-path" json:"cert_p12_path"   validate:"required"` // 微信 P12 密钥文件存放位置
+	ModuleName  string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                              // 模块名称
 }
 
 // NewWechatPay 创建一个新的 Wechat 实例

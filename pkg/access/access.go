@@ -15,16 +15,16 @@ import "github.com/kamalyes/go-config/internal"
 
 // Access 访问记录中间件配置
 type Access struct {
-	ModuleName      string   `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                      // 模块名称
-	Enabled         bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                 // 是否启用访问记录
-	ServiceName     string   `mapstructure:"service_name" yaml:"service-name" json:"service_name"`                   // 服务名称
-	RetentionDays   int      `mapstructure:"retention_days" yaml:"retention-days" json:"retention_days"`             // 保留天数
-	IncludeBody     bool     `mapstructure:"include_body" yaml:"include-body" json:"include_body"`                   // 是否记录请求体
-	IncludeResponse bool     `mapstructure:"include_response" yaml:"include-response" json:"include_response"`       // 是否记录响应体
-	IncludeHeaders  []string `mapstructure:"include_headers" yaml:"include-headers" json:"include_headers"`          // 要记录的头部
-	ExcludePaths    []string `mapstructure:"exclude_paths" yaml:"exclude-paths" json:"exclude_paths"`                // 排除的路径
-	MaxBodySize     int64    `mapstructure:"max_body_size" yaml:"max-body-size" json:"max_body_size"`                // 最大请求体大小
-	MaxResponseSize int64    `mapstructure:"max_response_size" yaml:"max-response-size" json:"max_response_size"`    // 最大响应体大小
+	ModuleName      string   `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                  // 模块名称
+	Enabled         bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                             // 是否启用访问记录
+	ServiceName     string   `mapstructure:"service-name" yaml:"service-name" json:"serviceName"`               // 服务名称
+	RetentionDays   int      `mapstructure:"retention-days" yaml:"retention-days" json:"retentionDays"`         // 保留天数
+	IncludeBody     bool     `mapstructure:"include-body" yaml:"include-body" json:"includeBody"`               // 是否记录请求体
+	IncludeResponse bool     `mapstructure:"include-response" yaml:"include-response" json:"includeResponse"`   // 是否记录响应体
+	IncludeHeaders  []string `mapstructure:"include-headers" yaml:"include-headers" json:"includeHeaders"`      // 要记录的头部
+	ExcludePaths    []string `mapstructure:"exclude-paths" yaml:"exclude-paths" json:"excludePaths"`            // 排除的路径
+	MaxBodySize     int64    `mapstructure:"max-body-size" yaml:"max-body-size" json:"maxBodySize"`             // 最大请求体大小
+	MaxResponseSize int64    `mapstructure:"max-response-size" yaml:"max-response-size" json:"maxResponseSize"` // 最大响应体大小
 }
 
 // Default 创建默认访问记录配置

@@ -2,57 +2,61 @@
 # 模块名称: rpcserver
 # 包名: rpcserver  
 # 描述: RPC服务端
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:09
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: rpc-server
-# enabled配置
+# 是否启用
 enabled: false
-# name配置
+# 服务名称
 name: rpc-service
-# listen on配置
+# 监听地址
 listen-on: 127.0.0.1:8080
-# mode配置
+# 运行模式 (dev, test, prod)
 mode: dev
-# max conns配置
+# 最大连接数
 max-conns: 1000
-# max msg size配置
+# 最大消息大小
 max-msg-size: 4194304
-# timeout配置
+# 超时时间(秒)
 timeout: 30
-# cpu threshold配置
+# CPU阈值
 cpu-threshold: 900
-# health配置
+# 是否启用健康检查
 health: true
-# auth配置
+# 是否启用认证
 auth: false
-# strict control配置
+# 是否启用严格控制
 strict-control: false
-# metrics url配置
+# 指标 URL
 metrics-url: /metrics
-# headers配置
+# 自定义头部
 headers: {}
-# middlewares配置
+# 中间件列表
 middlewares: []
-# tls配置
+# TLS配置
 tls:
+    # 是否启用
     enabled: false
     cert-file: ""
     key-file: ""
     ca-cert-file: ""
-# rate limit配置
+# 限流配置
 rate-limit:
+    # 是否启用
     enabled: false
     seconds: 1
     quota: 1000
-# recovery配置
+# 恢复配置
 recovery:
+    # 是否启用
     enabled: true
     stack-trace: false
     log-errors: true
-# tracing配置
+# 链路追踪配置
 tracing:
+    # 是否启用
     enabled: false
     endpoint: ""
     sampler: 0.1

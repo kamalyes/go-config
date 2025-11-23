@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 00:00:00
+ * @LastEditTime: 2025-11-27 00:20:55
  * @FilePath: \go-config\pkg\gateway\grpc.go
  * @Description: GRPC配置
  *
@@ -13,7 +13,6 @@ package gateway
 
 import (
 	"fmt"
-
 	"github.com/kamalyes/go-config/internal"
 )
 
@@ -25,34 +24,34 @@ type GRPC struct {
 
 // GRPCServer GRPC服务端配置
 type GRPCServer struct {
-	Host              string `mapstructure:"host" yaml:"host" json:"host"`                                           // 主机地址
-	Port              int    `mapstructure:"port" yaml:"port" json:"port"`                                           // 端口
-	Network           string `mapstructure:"network" yaml:"network" json:"network"`                                  // 网络类型 (tcp, tcp4, tcp6, unix)
-	MaxRecvMsgSize    int    `mapstructure:"max_recv_msg_size" yaml:"max-recv-msg-size" json:"max_recv_msg_size"`    // 最大接收消息大小(字节)
-	MaxSendMsgSize    int    `mapstructure:"max_send_msg_size" yaml:"max-send-msg-size" json:"max_send_msg_size"`    // 最大发送消息大小(字节)
-	KeepaliveTime     int    `mapstructure:"keepalive_time" yaml:"keepalive-time" json:"keepalive_time"`             // Keepalive时间(秒)
-	KeepaliveTimeout  int    `mapstructure:"keepalive_timeout" yaml:"keepalive-timeout" json:"keepalive_timeout"`    // Keepalive超时(秒)
-	ConnectionTimeout int    `mapstructure:"connection_timeout" yaml:"connection-timeout" json:"connection_timeout"` // 连接超时(秒)
-	EnableReflection  bool   `mapstructure:"enable_reflection" yaml:"enable-reflection" json:"enable_reflection"`    // 是否启用反射
-	Endpoint          string `mapstructure:"-" yaml:"-" json:"endpoint"`                                             // 完整的服务端点地址（自动计算）
+	Host              string `mapstructure:"host" yaml:"host" json:"host"`                                          // 主机地址
+	Port              int    `mapstructure:"port" yaml:"port" json:"port"`                                          // 端口
+	Network           string `mapstructure:"network" yaml:"network" json:"network"`                                 // 网络类型 (tcp, tcp4, tcp6, unix)
+	MaxRecvMsgSize    int    `mapstructure:"max-recv-msg-size" yaml:"max-recv-msg-size" json:"maxRecvMsgSize"`      // 最大接收消息大小(字节)
+	MaxSendMsgSize    int    `mapstructure:"max-send-msg-size" yaml:"max-send-msg-size" json:"maxSendMsgSize"`      // 最大发送消息大小(字节)
+	KeepaliveTime     int    `mapstructure:"keepalive-time" yaml:"keepalive-time" json:"keepaliveTime"`             // Keepalive时间(秒)
+	KeepaliveTimeout  int    `mapstructure:"keepalive-timeout" yaml:"keepalive-timeout" json:"keepaliveTimeout"`    // Keepalive超时(秒)
+	ConnectionTimeout int    `mapstructure:"connection-timeout" yaml:"connection-timeout" json:"connectionTimeout"` // 连接超时(秒)
+	EnableReflection  bool   `mapstructure:"enable-reflection" yaml:"enable-reflection" json:"enableReflection"`    // 是否启用反射
+	Endpoint          string `mapstructure:"-" yaml:"-" json:""`                                                    // 完整的服务端点地址（自动计算）
 }
 
 // GRPCClient GRPC客户端配置
 type GRPCClient struct {
-	ServiceName       string   `mapstructure:"service_name" yaml:"service-name" json:"service_name"`                      // 服务名称
-	Endpoints         []string `mapstructure:"endpoints" yaml:"endpoints" json:"endpoints"`                               // 服务端点列表
-	MaxRecvMsgSize    int      `mapstructure:"max_recv_msg_size" yaml:"max-recv-msg-size" json:"max_recv_msg_size"`       // 最大接收消息大小(字节)
-	MaxSendMsgSize    int      `mapstructure:"max_send_msg_size" yaml:"max-send-msg-size" json:"max_send_msg_size"`       // 最大发送消息大小(字节)
-	KeepaliveTime     int      `mapstructure:"keepalive_time" yaml:"keepalive-time" json:"keepalive_time"`                // Keepalive时间(秒)
-	KeepaliveTimeout  int      `mapstructure:"keepalive_timeout" yaml:"keepalive-timeout" json:"keepalive_timeout"`       // Keepalive超时(秒)
-	Timeout           int      `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                                     // 请求超时(秒)
-	RetryTimes        int      `mapstructure:"retry_times" yaml:"retry-times" json:"retry_times"`                         // 重试次数
-	EnableLoadBalance bool     `mapstructure:"enable_load_balance" yaml:"enable-load-balance" json:"enable_load_balance"` // 是否启用负载均衡
-	LoadBalancePolicy string   `mapstructure:"load_balance_policy" yaml:"load-balance-policy" json:"load_balance_policy"` // 负载均衡策略
-	EnableTLS         bool     `mapstructure:"enable_tls" yaml:"enable-tls" json:"enable_tls"`                            // 是否启用TLS
-	TLSCertFile       string   `mapstructure:"tls_cert_file" yaml:"tls-cert-file" json:"tls_cert_file"`                   // TLS证书文件
-	TLSKeyFile        string   `mapstructure:"tls_key_file" yaml:"tls-key-file" json:"tls_key_file"`                      // TLS密钥文件
-	TLSCAFile         string   `mapstructure:"tls_ca_file" yaml:"tls-ca-file" json:"tls_ca_file"`                         // TLS CA文件
+	ServiceName       string   `mapstructure:"service-name" yaml:"service-name" json:"serviceName"`                     // 服务名称
+	Endpoints         []string `mapstructure:"endpoints" yaml:"endpoints" json:"endpoints"`                             // 服务端点列表
+	MaxRecvMsgSize    int      `mapstructure:"max-recv-msg-size" yaml:"max-recv-msg-size" json:"maxRecvMsgSize"`        // 最大接收消息大小(字节)
+	MaxSendMsgSize    int      `mapstructure:"max-send-msg-size" yaml:"max-send-msg-size" json:"maxSendMsgSize"`        // 最大发送消息大小(字节)
+	KeepaliveTime     int      `mapstructure:"keepalive-time" yaml:"keepalive-time" json:"keepaliveTime"`               // Keepalive时间(秒)
+	KeepaliveTimeout  int      `mapstructure:"keepalive-timeout" yaml:"keepalive-timeout" json:"keepaliveTimeout"`      // Keepalive超时(秒)
+	Timeout           int      `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                                   // 请求超时(秒)
+	RetryTimes        int      `mapstructure:"retry-times" yaml:"retry-times" json:"retryTimes"`                        // 重试次数
+	EnableLoadBalance bool     `mapstructure:"enable-load-balance" yaml:"enable-load-balance" json:"enableLoadBalance"` // 是否启用负载均衡
+	LoadBalancePolicy string   `mapstructure:"load-balance-policy" yaml:"load-balance-policy" json:"loadBalancePolicy"` // 负载均衡策略
+	EnableTLS         bool     `mapstructure:"enable-tls" yaml:"enable-tls" json:"enableTls"`                           // 是否启用TLS
+	TLSCertFile       string   `mapstructure:"tls-cert-file" yaml:"tls-cert-file" json:"tlsCertFile"`                   // TLS证书文件
+	TLSKeyFile        string   `mapstructure:"tls-key-file" yaml:"tls-key-file" json:"tlsKeyFile"`                      // TLS密钥文件
+	TLSCAFile         string   `mapstructure:"tls-ca-file" yaml:"tls-ca-file" json:"tlsCaFile"`                         // TLS CA文件
 }
 
 // DefaultGRPC 创建默认GRPC配置

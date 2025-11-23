@@ -2,45 +2,45 @@
 // 模块名称: rpcserver
 // 包名: rpcserver  
 // 描述: RPC服务端
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:09
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "rpc-server",
+  "moduleName": "rpc-server",
   "enabled": false,
   "name": "rpc-service",
-  "listen_on": "127.0.0.1:8080",
+  "listenOn": "127.0.0.1:8080",
   "mode": "dev",
-  "max_conns": 1000,
-  "max_msg_size": 4194304,
+  "maxConns": 1000,
+  "maxMsgSize": 4194304,
   "timeout": 30,
-  "cpu_threshold": 900,
+  "cpuThreshold": 900,
   "health": true,
   "auth": false,
-  "strict_control": false,
-  "metrics_url": "/metrics",
+  "strictControl": false,
+  "metricsUrl": "/metrics",
   "headers": {},
   "middlewares": [],
   "tls": {
     "enabled": false,
-    "cert_file": "",
-    "key_file": "",
-    "ca_cert_file": ""
+    "certFile": "",
+    "keyFile": "",
+    "caCertFile": ""
   },
-  "rate_limit": {
+  "rateLimit": {
     "enabled": false,
     "seconds": 1,
     "quota": 1000
   },
   "recovery": {
     "enabled": true,
-    "stack_trace": false,
-    "log_errors": true
+    "stackTrace": false,
+    "logErrors": true
   },
   "tracing": {
     "enabled": false,
     "endpoint": "",
     "sampler": 0.1,
-    "service_name": "rpc-service"
+    "serviceName": "rpc-service"
   }
 }

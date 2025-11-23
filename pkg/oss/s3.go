@@ -17,15 +17,15 @@ import (
 
 // S3 结构体用于配置 AWS S3 服务器的相关参数
 type S3 struct {
-	Endpoint     string `mapstructure:"endpoint"      yaml:"endpoint"      json:"endpoint"       validate:"required"` // S3 端点地址，如：https://s3.ap-southeast-1.amazonaws.com
-	Region       string `mapstructure:"region"        yaml:"region"        json:"region"         validate:"required"` // AWS 区域，如：ap-southeast-1
-	AccessKey    string `mapstructure:"access-key"    yaml:"access-key"    json:"access_key"     validate:"required"` // AWS Access Key ID
-	SecretKey    string `mapstructure:"secret-key"    yaml:"secret-key"    json:"secret_key"     validate:"required"` // AWS Secret Access Key
-	BucketPrefix string `mapstructure:"bucket-prefix" yaml:"bucket-prefix" json:"bucket_prefix"`                      // 存储桶前缀，如：aicsqa
-	SessionToken string `mapstructure:"session-token" yaml:"session-token" json:"session_token"`                      // 会话令牌（用于临时凭证）
-	UseSSL       bool   `mapstructure:"use-ssl"       yaml:"use-ssl"       json:"use_ssl"`                            // 是否使用 HTTPS
-	PathStyle    bool   `mapstructure:"path-style"    yaml:"path-style"    json:"path_style"`                         // 是否使用路径样式访问
-	ModuleName   string `mapstructure:"modulename"    yaml:"modulename"    json:"module_name"`                        // 模块名称
+	Endpoint     string `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"       validate:"required"`    // S3 端点地址，如：https://s3.ap-southeast-1.amazonaws.com
+	Region       string `mapstructure:"region" yaml:"region" json:"region"         validate:"required"`        // AWS 区域，如：ap-southeast-1
+	AccessKey    string `mapstructure:"access-key" yaml:"access-key" json:"accessKey"     validate:"required"` // AWS Access Key ID
+	SecretKey    string `mapstructure:"secret-key" yaml:"secret-key" json:"secretKey"     validate:"required"` // AWS Secret Access Key
+	BucketPrefix string `mapstructure:"bucket-prefix" yaml:"bucket-prefix" json:"bucketPrefix"`                // 存储桶前缀，如：aicsqa
+	SessionToken string `mapstructure:"session-token" yaml:"session-token" json:"sessionToken"`                // 会话令牌（用于临时凭证）
+	UseSSL       bool   `mapstructure:"use-ssl" yaml:"use-ssl" json:"useSsl"`                                  // 是否使用 HTTPS
+	PathStyle    bool   `mapstructure:"path-style" yaml:"path-style" json:"pathStyle"`                         // 是否使用路径样式访问
+	ModuleName   string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                      // 模块名称
 }
 
 // NewS3 创建一个新的 S3 实例

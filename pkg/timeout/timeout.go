@@ -18,10 +18,10 @@ import (
 
 // Timeout 超时中间件配置
 type Timeout struct {
-	ModuleName string        `mapstructure:"module_name" yaml:"module-name" json:"module_name"` // 模块名称
-	Enabled    bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用超时
-	Duration   time.Duration `mapstructure:"duration" yaml:"duration" json:"duration"`          // 超时时长
-	Message    string        `mapstructure:"message" yaml:"message" json:"message"`             // 超时消息
+	ModuleName string        `mapstructure:"module-name" yaml:"module-name" json:"moduleName"` // 模块名称
+	Enabled    bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`            // 是否启用超时
+	Duration   time.Duration `mapstructure:"duration" yaml:"duration" json:"duration"`         // 超时时长
+	Message    string        `mapstructure:"message" yaml:"message" json:"message"`            // 超时消息
 }
 
 // Default 创建默认超时配置

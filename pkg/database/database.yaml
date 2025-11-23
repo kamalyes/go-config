@@ -2,18 +2,18 @@
 # 模块名称: database
 # 包名: database  
 # 描述: 数据库模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# type配置
+# 数据库类型
 type: mysql
-# enabled配置
+# 是否启用
 enabled: true
-# default配置
+# 默认使用的数据库
 default: mysql
-# my sql配置
+# MySQL配置
 mysql:
-    modulename: mysql
+    module-name: mysql
     host: localhost
     port: "3306"
     config: charset=utf8mb4&parseTime=True&loc=Local
@@ -25,9 +25,9 @@ mysql:
     max-open-conns: 100
     conn-max-idle-time: 300
     conn-max-life-time: 3600
-# postgre sql配置
+# PostgreSQL配置
 postgresql:
-    modulename: postgresql
+    module-name: postgresql
     host: localhost
     port: "5432"
     config: sslmode=disable
@@ -39,9 +39,9 @@ postgresql:
     max-open-conns: 100
     conn-max-idle-time: 300
     conn-max-life-time: 3600
-# sqlite配置
+# SQLite配置
 sqlite:
-    modulename: sqlite
+    module-name: sqlite
     config: _foreign_keys=on
     log-level: info
     db-path: ./data.db

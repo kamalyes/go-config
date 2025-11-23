@@ -2,16 +2,16 @@
 // 模块名称: sms
 // 包名: sms  
 // 描述: 短信发送模块
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:09
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "secret_id": "sms_secret_id",
-  "secret_key": "sms_secret_key",
+  "secretId": "sms_secret_id",
+  "secretKey": "sms_secret_key",
   "sign": "",
-  "resource_owner_account": "",
-  "resource_owner_id": 0,
-  "template_code_verify": "",
+  "resourceOwnerAccount": "",
+  "resourceOwnerId": 0,
+  "templateCodeVerify": "",
   "endpoint": "https://dysmsapi.aliyuncs.com",
-  "module_name": "aliyun-sms"
+  "moduleName": "aliyun-sms"
 }

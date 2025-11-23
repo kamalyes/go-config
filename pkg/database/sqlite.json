@@ -2,17 +2,17 @@
 // 模块名称: sqlite
 // 包名: database  
 // 描述: SQLite数据库
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:09
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "sqlite",
+  "moduleName": "sqlite",
   "config": "_foreign_keys=on",
-  "log_level": "info",
-  "db_path": "./data.db",
+  "logLevel": "info",
+  "dbPath": "./data.db",
   "vacuum": false,
-  "max_idle_conns": 10,
-  "max_open_conns": 1,
-  "conn_max_idle_time": 300,
-  "conn_max_life_time": 3600
+  "maxIdleConns": 10,
+  "maxOpenConns": 1,
+  "connMaxIdleTime": 300,
+  "connMaxLifeTime": 3600
 }

@@ -4,9 +4,9 @@ import os
 import glob
 from collections import defaultdict
 
-def is_kebab_case(tag):
-    """检查是否符合kebab-case规范"""
-    # kebab-case规则：全小写，用连字符分隔，不能有下划线或大写字母
+def is_snake_case(tag):
+    """检查是否符合snake_case规范"""
+    # snake_case规则：全小写，用下划线分隔，不能有连字符或大写字母
     if not tag:
         return True  # 空标签认为是合法的
     
@@ -14,14 +14,14 @@ def is_kebab_case(tag):
     if ',' in tag:
         # 分割并检查主要部分
         main_tag = tag.split(',')[0].strip()
-        return is_kebab_case(main_tag)
+        return is_snake_case(main_tag)
     
-    # 检查是否包含大写字母或下划线
-    if re.search(r'[A-Z_]', tag):
+    # 检查是否包含大写字母或连字符
+    if re.search(r'[A-Z-]', tag):
         return False
     
-    # 检查是否全是小写字母、数字和连字符
-    if re.match(r'^[a-z0-9-]+$', tag):
+    # 检查是否全是小写字母、数字和下划线
+    if re.match(r'^[a-z0-9_]+$', tag):
         return True
     
     return False
@@ -32,30 +32,30 @@ def categorize_violation(tag):
         main_tag = tag.split(',')[0].strip()
         return categorize_violation(main_tag)
     
-    if '_' in tag:
-        return "使用下划线"
+    if '-' in tag:
+        return "使用连字符"
     elif re.search(r'[A-Z]', tag):
         return "包含大写字母"
-    elif re.search(r'[^a-z0-9-]', tag):
+    elif re.search(r'[^a-z0-9_]', tag):
         return "包含特殊字符"
     else:
         return "其他"
 
-def suggest_kebab_case(tag):
-    """建议kebab-case格式"""
+def suggest_snake_case(tag):
+    """建议snake_case格式"""
     if ',' in tag:
         parts = tag.split(',')
         main_tag = parts[0].strip()
         other_parts = ','.join(parts[1:])
-        suggested_main = suggest_kebab_case(main_tag)
+        suggested_main = suggest_snake_case(main_tag)
         return suggested_main + (',' + other_parts if other_parts else '')
     
-    # 将下划线替换为连字符，转为小写
-    suggested = tag.replace('_', '-').lower()
+    # 将连字符替换为下划线，转为小写
+    suggested = tag.replace('-', '_').lower()
     
-    # 处理驼峰命名法，在大写字母前加连字符
-    suggested = re.sub(r'([a-z])([A-Z])', r'\1-\2', tag).lower()
-    suggested = suggested.replace('_', '-')
+    # 处理驼峰命名法，在大写字母前加下划线
+    suggested = re.sub(r'([a-z])([A-Z])', r'\1_\2', tag).lower()
+    suggested = suggested.replace('-', '_')
     
     return suggested
 
@@ -87,7 +87,7 @@ def analyze_yaml_tags():
                 for match in matches:
                     all_tags.append(match)
                     
-                    if not is_kebab_case(match):
+                    if not is_snake_case(match):
                         violation_type = categorize_violation(match)
                         violation_types[violation_type] += 1
                         
@@ -95,7 +95,7 @@ def analyze_yaml_tags():
                             'file': go_file,
                             'line': line_num,
                             'tag': match,
-                            'suggested': suggest_kebab_case(match),
+                            'suggested': suggest_snake_case(match),
                             'type': violation_type,
                             'context': line.strip()
                         }
@@ -110,11 +110,11 @@ def analyze_yaml_tags():
     total_violations = len(violations)
     compliance_rate = ((total_tags - total_violations) / total_tags * 100) if total_tags > 0 else 100
     
-    print("🔍 Go项目YAML标签kebab-case规范分析报告")
+    print("🔍 Go项目YAML标签snake_case规范分析报告")
     print("=" * 60)
     print(f"📊 总体统计：")
     print(f"   • 总YAML标签数量: {total_tags}")
-    print(f"   • 不符合kebab-case规范: {total_violations}")
+    print(f"   • 不符合snake_case规范: {total_violations}")
     print(f"   • 符合规范: {total_tags - total_violations}")
     print(f"   • 合规率: {compliance_rate:.1f}%")
     print()

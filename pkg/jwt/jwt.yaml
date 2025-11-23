@@ -2,30 +2,30 @@
 # 模块名称: jwt
 # 包名: jwt  
 # 描述: JWT认证模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
-modulename: jwt
-# signing key配置
+# 模块名称
+module-name: jwt
+# jwt 签名
 signing-key: go-config-default-key
-# expires time配置
+# 过期时间（单位：秒）
 expires-time: 604800
-# buffer time配置
+# 缓冲时间（单位：秒）
 buffer-time: 3600
-# use multipoint配置
+# 多地登录拦截，true 表示拦截，false 表示不拦截
 use-multipoint: false
-# issuer配置
+# JWT 发行者
 issuer: go-config
-# audience配置
+# JWT 接收者
 audience: go-config-audience
-# algorithm配置
+# 签名算法，例如 HMAC, RSA, etc.
 algorithm: HS256
-# enable refresh配置
+# 是否启用刷新 token
 enable-refresh: true
-# refresh token life配置
+# 刷新 token 生命周期（单位：秒）
 refresh-token-life: 2592000
-# subject配置
+# JWT 主题
 subject: user-token
-# custom claims配置
+# 自定义声明
 custom-claims: {}

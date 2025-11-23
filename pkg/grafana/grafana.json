@@ -2,16 +2,16 @@
 // 模块名称: grafana
 // 包名: grafana  
 // 描述: Grafana监控面板
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:08
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "grafana",
+  "moduleName": "grafana",
   "enabled": false,
   "endpoint": "http://localhost:3000",
   "username": "admin",
   "password": "admin",
-  "api_key": "demo_api_key",
+  "apiKey": "demo_api_key",
   "datasource": {
     "type": "prometheus",
     "url": "http://localhost:9090",
@@ -20,10 +20,10 @@
     "password": "prometheus_password"
   },
   "dashboard": {
-    "import_path": "",
-    "auto_import": false,
+    "importPath": "",
+    "autoImport": false,
     "templates": [],
-    "refresh_interval": "30s"
+    "refreshInterval": "30s"
   },
   "alerting": {
     "enabled": false,

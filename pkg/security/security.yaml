@@ -2,22 +2,24 @@
 # 模块名称: security
 # 包名: security  
 # 描述: 安全模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:09
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: security
-# enabled配置
+# 是否启用安全功能
 enabled: true
-# jwt配置
+# JWT配置
 jwt:
+    # 是否启用安全功能
     enabled: false
     secret: jwt_secret_key_please_change_in_production
     expiry: 24
     issuer: go-rpc-gateway
     algorithm: HS256
-# auth配置
+# 通用认证配置
 auth:
+    # 是否启用安全功能
     enabled: false
     type: bearer
     header-name: Authorization
@@ -34,9 +36,10 @@ auth:
         header-name: ""
         expected-value: ""
         headers: {}
-# protection配置
+# 服务保护配置
 protection:
     swagger:
+        # 是否启用安全功能
         enabled: false
         auth-required: false
         auth-type: basic
@@ -45,6 +48,7 @@ protection:
         username: ""
         password: ""
     pprof:
+        # 是否启用安全功能
         enabled: false
         auth-required: true
         auth-type: basic
@@ -55,6 +59,7 @@ protection:
         username: admin
         password: ""
     metrics:
+        # 是否启用安全功能
         enabled: false
         auth-required: false
         auth-type: ""
@@ -63,6 +68,7 @@ protection:
         username: ""
         password: ""
     health:
+        # 是否启用安全功能
         enabled: false
         auth-required: false
         auth-type: ""
@@ -71,6 +77,7 @@ protection:
         username: ""
         password: ""
     api:
+        # 是否启用安全功能
         enabled: true
         auth-required: false
         auth-type: ""

@@ -17,18 +17,18 @@ import (
 
 // JWT 结构体用于配置 JSON Web Token 的相关参数
 type JWT struct {
-	ModuleName       string                 `mapstructure:"modulename"        yaml:"modulename"      json:"module_name"`                                // 模块名称
-	SigningKey       string                 `mapstructure:"signing-key"       yaml:"signing-key"     json:"signing_key"      validate:"required"`       // jwt 签名
-	ExpiresTime      int64                  `mapstructure:"expires-time"      yaml:"expires-time"    json:"expires_time"     validate:"required,min=1"` // 过期时间（单位：秒）
-	BufferTime       int64                  `mapstructure:"buffer-time"       yaml:"buffer-time"     json:"buffer_time"      validate:"required,min=0"` // 缓冲时间（单位：秒）
-	UseMultipoint    bool                   `mapstructure:"use-multipoint"    yaml:"use-multipoint"  json:"use_multipoint"`                             // 多地登录拦截，true 表示拦截，false 表示不拦截
-	Issuer           string                 `mapstructure:"issuer"            yaml:"issuer"          json:"issuer"`                                     // JWT 发行者
-	Audience         string                 `mapstructure:"audience"          yaml:"audience"        json:"audience"`                                   // JWT 接收者
-	Algorithm        string                 `mapstructure:"algorithm"         yaml:"algorithm"       json:"algorithm"      validate:"required"`         // 签名算法，例如 HMAC, RSA, etc.
-	EnableRefresh    bool                   `mapstructure:"enable-refresh"    yaml:"enable-refresh"  json:"enable_refresh"`                             // 是否启用刷新 token
-	RefreshTokenLife int64                  `mapstructure:"refresh-token-life" yaml:"refresh-token-life" json:"refresh_token_life" validate:"min=1"`    // 刷新 token 生命周期（单位：秒）
-	Subject          string                 `mapstructure:"subject"           yaml:"subject"         json:"subject"`                                    // JWT 主题
-	CustomClaims     map[string]interface{} `mapstructure:"custom-claims" yaml:"custom-claims" json:"custom_claims"`                                    // 自定义声明
+	ModuleName       string                 `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                      // 模块名称
+	SigningKey       string                 `mapstructure:"signing-key" yaml:"signing-key" json:"signingKey"      validate:"required"`             // jwt 签名
+	ExpiresTime      int64                  `mapstructure:"expires-time" yaml:"expires-time" json:"expiresTime"     validate:"required,min=1"`     // 过期时间（单位：秒）
+	BufferTime       int64                  `mapstructure:"buffer-time" yaml:"buffer-time" json:"bufferTime"      validate:"required,min=0"`       // 缓冲时间（单位：秒）
+	UseMultipoint    bool                   `mapstructure:"use-multipoint" yaml:"use-multipoint" json:"useMultipoint"`                             // 多地登录拦截，true 表示拦截，false 表示不拦截
+	Issuer           string                 `mapstructure:"issuer" yaml:"issuer" json:"issuer"`                                                    // JWT 发行者
+	Audience         string                 `mapstructure:"audience" yaml:"audience" json:"audience"`                                              // JWT 接收者
+	Algorithm        string                 `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"      validate:"required"`                  // 签名算法，例如 HMAC, RSA, etc.
+	EnableRefresh    bool                   `mapstructure:"enable-refresh" yaml:"enable-refresh" json:"enableRefresh"`                             // 是否启用刷新 token
+	RefreshTokenLife int64                  `mapstructure:"refresh-token-life" yaml:"refresh-token-life" json:"refreshTokenLife" validate:"min=1"` // 刷新 token 生命周期（单位：秒）
+	Subject          string                 `mapstructure:"subject" yaml:"subject" json:"subject"`                                                 // JWT 主题
+	CustomClaims     map[string]interface{} `mapstructure:"custom-claims" yaml:"custom-claims" json:"customClaims"`                                // 自定义声明
 }
 
 // NewJWT 创建一个新的 JWT 实例

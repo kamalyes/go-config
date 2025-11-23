@@ -15,11 +15,11 @@ import "github.com/kamalyes/go-config/internal"
 
 // Sharded 分片缓存配置
 type Sharded struct {
-	ModuleName   string    `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                  // 模块名
-	ShardCount   int       `mapstructure:"shard_count" yaml:"shard-count" json:"shard_count" validate:"min=1"` // 分片数量
-	BaseType     CacheType `mapstructure:"base_type" yaml:"base-type" json:"base_type"`                        // 基础缓存类型
-	HashFunc     string    `mapstructure:"hash_func" yaml:"hash-func" json:"hash_func"`                        // 哈希函数: fnv, crc32, md5
-	LoadBalancer string    `mapstructure:"load_balancer" yaml:"load-balancer" json:"load_balancer"`            // 负载均衡策略: consistent_hash, round_robin
+	ModuleName   string    `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                  // 模块名
+	ShardCount   int       `mapstructure:"shard-count" yaml:"shard-count" json:"shardCount" validate:"min=1"` // 分片数量
+	BaseType     CacheType `mapstructure:"base-type" yaml:"base-type" json:"baseType"`                        // 基础缓存类型
+	HashFunc     string    `mapstructure:"hash-func" yaml:"hash-func" json:"hashFunc"`                        // 哈希函数: fnv, crc32, md5
+	LoadBalancer string    `mapstructure:"load-balancer" yaml:"load-balancer" json:"loadBalancer"`            // 负载均衡策略: consistent_hash, round_robin
 }
 
 // NewSharded 创建一个新的 Sharded 实例

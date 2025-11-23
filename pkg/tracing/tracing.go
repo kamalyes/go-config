@@ -15,20 +15,20 @@ import "github.com/kamalyes/go-config/internal"
 
 // Tracing 追踪中间件配置
 type Tracing struct {
-	ModuleName         string            `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                         // 模块名称
-	Enabled            bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                     // 是否启用追踪
-	ServiceName        string            `mapstructure:"service_name" yaml:"service-name" json:"service_name"`                      // 服务名称
-	ServiceVersion     string            `mapstructure:"service_version" yaml:"service-version" json:"service_version"`             // 服务版本
-	Environment        string            `mapstructure:"environment" yaml:"environment" json:"environment"`                         // 环境
-	Endpoint           string            `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"`                                  // 追踪端点
-	ExporterType       string            `mapstructure:"exporter_type" yaml:"exporter-type" json:"exporter_type"`                   // 导出器类型 (zipkin, otlp, console, noop)
-	ExporterEndpoint   string            `mapstructure:"exporter_endpoint" yaml:"exporter-endpoint" json:"exporter_endpoint"`       // 导出器端点
-	SampleRate         float64           `mapstructure:"sample_rate" yaml:"sample-rate" json:"sample_rate"`                         // 采样率
-	SamplerType        string            `mapstructure:"sampler_type" yaml:"sampler-type" json:"sampler_type"`                      // 采样器类型 (always, never, probability, parentBased)
-	SamplerProbability float64           `mapstructure:"sampler_probability" yaml:"sampler-probability" json:"sampler_probability"` // 采样概率
-	SamplerRate        float64           `mapstructure:"sampler_rate" yaml:"sampler-rate" json:"sampler_rate"`                      // 采样速率
-	Headers            []string          `mapstructure:"headers" yaml:"headers" json:"headers"`                                     // 需要记录的头部
-	Attributes         map[string]string `mapstructure:"attributes" yaml:"attributes" json:"attributes"`                            // 自定义属性
+	ModuleName         string            `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                         // 模块名称
+	Enabled            bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                    // 是否启用追踪
+	ServiceName        string            `mapstructure:"service-name" yaml:"service-name" json:"serviceName"`                      // 服务名称
+	ServiceVersion     string            `mapstructure:"service-version" yaml:"service-version" json:"serviceVersion"`             // 服务版本
+	Environment        string            `mapstructure:"environment" yaml:"environment" json:"environment"`                        // 环境
+	Endpoint           string            `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"`                                 // 追踪端点
+	ExporterType       string            `mapstructure:"exporter-type" yaml:"exporter-type" json:"exporterType"`                   // 导出器类型 (zipkin, otlp, console, noop)
+	ExporterEndpoint   string            `mapstructure:"exporter-endpoint" yaml:"exporter-endpoint" json:"exporterEndpoint"`       // 导出器端点
+	SampleRate         float64           `mapstructure:"sample-rate" yaml:"sample-rate" json:"sampleRate"`                         // 采样率
+	SamplerType        string            `mapstructure:"sampler-type" yaml:"sampler-type" json:"samplerType"`                      // 采样器类型 (always, never, probability, parentBased)
+	SamplerProbability float64           `mapstructure:"sampler-probability" yaml:"sampler-probability" json:"samplerProbability"` // 采样概率
+	SamplerRate        float64           `mapstructure:"sampler-rate" yaml:"sampler-rate" json:"samplerRate"`                      // 采样速率
+	Headers            []string          `mapstructure:"headers" yaml:"headers" json:"headers"`                                    // 需要记录的头部
+	Attributes         map[string]string `mapstructure:"attributes" yaml:"attributes" json:"attributes"`                           // 自定义属性
 }
 
 // Default 创建默认追踪配置

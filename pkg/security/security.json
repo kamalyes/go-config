@@ -2,11 +2,11 @@
 // 模块名称: security
 // 包名: security  
 // 描述: 安全模块
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:09
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "security",
+  "moduleName": "security",
   "enabled": true,
   "jwt": {
     "enabled": false,
@@ -18,8 +18,8 @@
   "auth": {
     "enabled": false,
     "type": "bearer",
-    "header_name": "Authorization",
-    "token_prefix": "Bearer ",
+    "headerName": "Authorization",
+    "tokenPrefix": "Bearer ",
     "basic": {
       "users": []
     },
@@ -28,61 +28,61 @@
     },
     "apikey": {
       "keys": [],
-      "header_name": "X-API-Key",
-      "query_param": "api_key"
+      "headerName": "X-API-Key",
+      "queryParam": "api_key"
     },
     "custom": {
-      "header_name": "",
-      "expected_value": "",
+      "headerName": "",
+      "expectedValue": "",
       "headers": {}
     }
   },
   "protection": {
     "swagger": {
       "enabled": false,
-      "auth_required": false,
-      "auth_type": "basic",
-      "ip_whitelist": [],
-      "require_https": false,
+      "authRequired": false,
+      "authType": "basic",
+      "ipWhitelist": [],
+      "requireHttps": false,
       "username": "",
       "password": ""
     },
     "pprof": {
       "enabled": false,
-      "auth_required": true,
-      "auth_type": "basic",
-      "ip_whitelist": [
+      "authRequired": true,
+      "authType": "basic",
+      "ipWhitelist": [
         "127.0.0.1",
         "::1"
       ],
-      "require_https": true,
+      "requireHttps": true,
       "username": "admin",
       "password": ""
     },
     "metrics": {
       "enabled": false,
-      "auth_required": false,
-      "auth_type": "",
-      "ip_whitelist": [],
-      "require_https": false,
+      "authRequired": false,
+      "authType": "",
+      "ipWhitelist": [],
+      "requireHttps": false,
       "username": "",
       "password": ""
     },
     "health": {
       "enabled": false,
-      "auth_required": false,
-      "auth_type": "",
-      "ip_whitelist": [],
-      "require_https": false,
+      "authRequired": false,
+      "authType": "",
+      "ipWhitelist": [],
+      "requireHttps": false,
       "username": "",
       "password": ""
     },
     "api": {
       "enabled": true,
-      "auth_required": false,
-      "auth_type": "",
-      "ip_whitelist": [],
-      "require_https": false,
+      "authRequired": false,
+      "authType": "",
+      "ipWhitelist": [],
+      "requireHttps": false,
       "username": "",
       "password": ""
     }

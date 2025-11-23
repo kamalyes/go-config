@@ -2,30 +2,30 @@
 # 模块名称: postgresql
 # 包名: database  
 # 描述: PostgreSQL数据库
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
-modulename: postgresql
-# host配置
+# 模块名称
+module-name: postgresql
+# 数据库 IP 地址
 host: localhost
-# port配置
+# 端口
 port: "5432"
-# config配置
+# 后缀配置
 config: sslmode=disable
-# log level配置
+# SQL 日志等级
 log-level: info
-# dbname配置
+# 数据库名称
 db-name: postgres
-# username配置
+# 数据库用户名
 username: postgres
-# password配置
+# 数据库密码
 password: postgres_password
-# max idle conns配置
+# 最大空闲连接数
 max-idle-conns: 10
-# max open conns配置
+# 最大连接数
 max-open-conns: 100
-# conn max idle time配置
+# 连接最大空闲时间 单位：秒
 conn-max-idle-time: 300
-# conn max life time配置
+# 连接最大生命周期 单位：秒
 conn-max-life-time: 3600

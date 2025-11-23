@@ -2,23 +2,23 @@
 # 模块名称: metrics
 # 包名: metrics  
 # 描述: 指标收集模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: metrics
-# enabled配置
+# 是否启用指标
 enabled: false
-# path配置
+# 指标路径
 path: /metrics
-# namespace配置
+# 命名空间
 namespace: gateway
-# subsystem配置
+# 子系统名称
 subsystem: http
-# skip paths配置
+# 跳过的路径
 skip-paths:
     - /health
-# buckets配置
+# 直方图桶
 buckets:
     - 0.005
     - 0.01
@@ -31,11 +31,11 @@ buckets:
     - 2.5
     - 5
     - 10
-# request count配置
+# 请求计数
 request-count: true
-# duration配置
+# 请求时长
 duration: true
-# request size配置
+# 请求大小
 request-size: true
-# response size配置
+# 响应大小
 response-size: true

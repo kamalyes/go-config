@@ -2,16 +2,18 @@
 # 模块名称: middleware
 # 包名: middleware  
 # 描述: 中间件模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: middleware
-# enabled配置
+# 是否启用中间件
 enabled: true
-# logging配置
+# 日志中间件
 logging:
+    # 模块名称
     module-name: logging
+    # 是否启用中间件
     enabled: true
     level: info
     format: json
@@ -26,9 +28,11 @@ logging:
         - /metrics
     enable-request: true
     enable-response: false
-# recovery配置
+# 恢复中间件
 recovery:
+    # 模块名称
     module-name: recovery
+    # 是否启用中间件
     enabled: true
     enable-stack: true
     stack-size: 4096
@@ -37,9 +41,11 @@ recovery:
     log-level: error
     enable-notify: false
     print-stack: true
-# tracing配置
+# 追踪中间件
 tracing:
+    # 模块名称
     module-name: tracing
+    # 是否启用中间件
     enabled: false
     service-name: go-rpc-gateway
     service-version: 1.0.0
@@ -55,9 +61,11 @@ tracing:
         - Authorization
         - User-Agent
     attributes: {}
-# metrics配置
+# 指标中间件
 metrics:
+    # 模块名称
     module-name: metrics
+    # 是否启用中间件
     enabled: false
     path: /metrics
     namespace: gateway
@@ -80,15 +88,19 @@ metrics:
     duration: true
     request-size: true
     response-size: true
-# request id配置
+# 请求ID中间件
 request-id:
+    # 模块名称
     module-name: requestid
+    # 是否启用中间件
     enabled: true
     header-name: X-Request-ID
     generator: uuid
-# i18 n配置
+# 国际化中间件
 i18n:
+    # 模块名称
     module-name: i18n
+    # 是否启用中间件
     enabled: false
     default-language: en
     supported-languages:
@@ -108,9 +120,11 @@ i18n:
     custom-message-paths: {}
     enable-fallback: true
     cookie-name: language
-# pprof配置
+# PProf中间件
 pprof:
+    # 模块名称
     module-name: PProf
+    # 是否启用中间件
     enabled: false
     path-prefix: /debug/pprof
     port: 6060
@@ -130,24 +144,29 @@ pprof:
         block-rate: 1
         mutex-fraction: 1
     authentication:
+        # 是否启用中间件
         enabled: false
         auth-token: ""
         allowed-ips: []
         require-auth: false
         timeout: 30
     gateway:
+        # 是否启用中间件
         enabled: false
         dev-mode-only: false
         enable-logging: true
         register-web-interface: true
     web-interface:
+        # 是否启用中间件
         enabled: true
         title: PProf Performance Analysis
         description: Go Performance Profiling Interface
         show-scenarios: true
-# circuit breaker配置
+# 断路器配置
 circuit-breaker:
+    # 模块名称
     module-name: circuit_breaker
+    # 是否启用中间件
     enabled: true
     failure-threshold: 5
     success-threshold: 2
@@ -161,9 +180,11 @@ circuit-breaker:
         - /health
         - /metrics
         - /debug
-# alerting配置
+# 告警配置
 alerting:
+    # 模块名称
     module-name: alerting
+    # 是否启用中间件
     enabled: false
     webhooks: []
     channels: []

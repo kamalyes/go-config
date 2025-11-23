@@ -2,33 +2,33 @@
 # 模块名称: etcd
 # 包名: etcd  
 # 描述: Etcd分布式键值存储
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: etcd
-# hosts配置
+# Etcd 主机列表
 hosts:
     - 127.0.0.1:2379
-# key配置
+# 注册的键
 key: app/config
-# id配置
+# ID
 id: 1
-# user配置
+# 用户名
 user: etcd_user
-# pass配置
+# 密码
 pass: etcd_password
-# cert file配置
+# 证书文件
 cert-file: /etc/etcd/client.crt
-# cert key file配置
+# 证书密钥文件
 cert-key-file: /etc/etcd/client.key
-# cacert file配置
+# CA 证书文件
 ca-cert-file: /etc/etcd/ca.crt
-# insecure skip verify配置
+# 是否跳过证书验证
 insecure-skip-verify: true
-# namespace配置
+# 命名空间
 namespace: default
-# dial timeout配置
+# 连接超时时间(秒)
 dial-timeout: 5
-# request timeout配置
+# 请求超时时间(秒)
 request-timeout: 10

@@ -17,13 +17,13 @@ import (
 
 // YouZan 结构体表示 YouZan 配置
 type YouZan struct {
-	Endpoint      string `mapstructure:"endpoint"                 yaml:"endpoint"            json:"endpoint"              validate:"required,url"` // API端点地址，必须是有效的 URL
-	ClientID      string `mapstructure:"client-id"                yaml:"client-id"           json:"client_id"             validate:"required"`     // 客户端 ID
-	ClientSecret  string `mapstructure:"client-secret"            yaml:"client-secret"       json:"client_secret"         validate:"required"`     // 客户端密钥
-	AuthorizeType string `mapstructure:"authorize-type"           yaml:"authorize-type"      json:"authorize_type"        validate:"required"`     // 授权类型
-	GrantID       string `mapstructure:"grant-id"                 yaml:"grant-id"            json:"grant_id"              validate:"required"`     // 授权 ID
-	Refresh       bool   `mapstructure:"refresh"                  yaml:"refresh"             json:"refresh"`                                       // 是否刷新
-	ModuleName    string `mapstructure:"modulename"               yaml:"modulename"          json:"module_name"`                                   // 模块名称
+	Endpoint      string `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"              validate:"required,url"`        // API端点地址，必须是有效的 URL
+	ClientID      string `mapstructure:"client-id" yaml:"client-id" json:"clientId"             validate:"required"`           // 客户端 ID
+	ClientSecret  string `mapstructure:"client-secret" yaml:"client-secret" json:"clientSecret"         validate:"required"`   // 客户端密钥
+	AuthorizeType string `mapstructure:"authorize-type" yaml:"authorize-type" json:"authorizeType"        validate:"required"` // 授权类型
+	GrantID       string `mapstructure:"grant-id" yaml:"grant-id" json:"grantId"              validate:"required"`             // 授权 ID
+	Refresh       bool   `mapstructure:"refresh" yaml:"refresh" json:"refresh"`                                                // 是否刷新
+	ModuleName    string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                     // 模块名称
 }
 
 // NewYouZan 创建一个新的 YouZan 实例

@@ -2,15 +2,15 @@
 // 模块名称: jaeger
 // 包名: jaeger  
 // 描述: Jaeger链路追踪
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:08
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "jaeger",
+  "moduleName": "jaeger",
   "enabled": false,
   "endpoint": "http://localhost:14268/api/traces",
-  "service_name": "go-rpc-gateway",
-  "sample_rate": 0.1,
+  "serviceName": "go-rpc-gateway",
+  "sampleRate": 0.1,
   "agent": {
     "host": "localhost",
     "port": 6832
@@ -23,8 +23,8 @@
   "sampling": {
     "type": "probabilistic",
     "param": 0.1,
-    "max_traces_per_second": 100,
-    "operation_sampling": []
+    "maxTracesPerSecond": 100,
+    "operationSampling": []
   },
   "tags": {}
 }

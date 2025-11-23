@@ -16,30 +16,30 @@ import (
 
 // SQLite SQLite数据库配置
 type SQLite struct {
-	ModuleName      string `mapstructure:"modulename"          yaml:"modulename"          json:"module_name"`                         // 模块名称
-	Config          string `mapstructure:"config"              yaml:"config"              json:"config"          validate:"required"` // 后缀配置
-	LogLevel        string `mapstructure:"log-level"           yaml:"log-level"           json:"log_level"       validate:"required"` // SQL 日志等级
-	DbPath          string `mapstructure:"db-path"             yaml:"db-path"             json:"db_path"`                             // SQLite 文件存放位置
-	Vacuum          bool   `mapstructure:"vacuum"              yaml:"vacuum"              json:"vacuum"`                              // 是否执行清除命令
-	MaxIdleConns    int    `mapstructure:"max-idle-conns"      yaml:"max-idle-conns"      json:"max_idle_conns"  validate:"min=0"`    // 最大空闲连接数
-	MaxOpenConns    int    `mapstructure:"max-open-conns"      yaml:"max-open-conns"      json:"max_open_conns"  validate:"min=0"`    // 最大连接数
-	ConnMaxIdleTime int    `mapstructure:"conn-max-idle-time"  yaml:"conn-max-idle-time"  json:"conn_max_idle_time" validate:"min=0"` // 连接最大空闲时间 单位：秒
-	ConnMaxLifeTime int    `mapstructure:"conn-max-life-time"  yaml:"conn-max-life-time"  json:"conn_max_life_time" validate:"min=0"` // 连接最大生命周期 单位：秒
+	ModuleName      string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                     // 模块名称
+	Config          string `mapstructure:"config" yaml:"config" json:"config"          validate:"required"`                      // 后缀配置
+	LogLevel        string `mapstructure:"log-level" yaml:"log-level" json:"logLevel"       validate:"required"`                 // SQL 日志等级
+	DbPath          string `mapstructure:"db-path" yaml:"db-path" json:"dbPath"`                                                 // SQLite 文件存放位置
+	Vacuum          bool   `mapstructure:"vacuum" yaml:"vacuum" json:"vacuum"`                                                   // 是否执行清除命令
+	MaxIdleConns    int    `mapstructure:"max-idle-conns" yaml:"max-idle-conns" json:"maxIdleConns"  validate:"min=0"`           // 最大空闲连接数
+	MaxOpenConns    int    `mapstructure:"max-open-conns" yaml:"max-open-conns" json:"maxOpenConns"  validate:"min=0"`           // 最大连接数
+	ConnMaxIdleTime int    `mapstructure:"conn-max-idle-time" yaml:"conn-max-idle-time" json:"connMaxIdleTime" validate:"min=0"` // 连接最大空闲时间 单位：秒
+	ConnMaxLifeTime int    `mapstructure:"conn-max-life-time" yaml:"conn-max-life-time" json:"connMaxLifeTime" validate:"min=0"` // 连接最大生命周期 单位：秒
 }
 
 // 为SQLite配置实现DatabaseProvider接口
-func (s *SQLite) GetDBType() DBType { return DBTypeSQLite }
-func (s *SQLite) GetHost() string { return "" }  // SQLite无需host
-func (s *SQLite) GetPort() string { return "" }  // SQLite无需port
-func (s *SQLite) GetDBName() string { return s.DbPath }  // SQLite使用文件路径
-func (s *SQLite) GetUsername() string { return "" }      // SQLite无需用户名
-func (s *SQLite) GetPassword() string { return "" }      // SQLite无需密码
-func (s *SQLite) GetConfig() string { return s.Config }
-func (s *SQLite) GetModuleName() string { return s.ModuleName }
+func (s *SQLite) GetDBType() DBType                        { return DBTypeSQLite }
+func (s *SQLite) GetHost() string                          { return "" }       // SQLite无需host
+func (s *SQLite) GetPort() string                          { return "" }       // SQLite无需port
+func (s *SQLite) GetDBName() string                        { return s.DbPath } // SQLite使用文件路径
+func (s *SQLite) GetUsername() string                      { return "" }       // SQLite无需用户名
+func (s *SQLite) GetPassword() string                      { return "" }       // SQLite无需密码
+func (s *SQLite) GetConfig() string                        { return s.Config }
+func (s *SQLite) GetModuleName() string                    { return s.ModuleName }
 func (s *SQLite) SetCredentials(username, password string) {} // SQLite不支持凭证
-func (s *SQLite) SetHost(host string) {}                      // SQLite不支持host
-func (s *SQLite) SetPort(port string) {}                      // SQLite不支持port
-func (s *SQLite) SetDBName(dbName string) { s.DbPath = dbName }
+func (s *SQLite) SetHost(host string)                      {} // SQLite不支持host
+func (s *SQLite) SetPort(port string)                      {} // SQLite不支持port
+func (s *SQLite) SetDBName(dbName string)                  { s.DbPath = dbName }
 
 func (s *SQLite) Clone() internal.Configurable {
 	return &SQLite{
@@ -56,7 +56,9 @@ func (s *SQLite) Clone() internal.Configurable {
 }
 func (s *SQLite) Get() interface{} { return s }
 func (s *SQLite) Set(data interface{}) {
-	if cfg, ok := data.(*SQLite); ok { *s = *cfg }
+	if cfg, ok := data.(*SQLite); ok {
+		*s = *cfg
+	}
 }
 func (s *SQLite) Validate() error { return internal.ValidateStruct(s) }
 

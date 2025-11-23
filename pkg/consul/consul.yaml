@@ -2,12 +2,12 @@
 # 模块名称: consul
 # 包名: consul  
 # 描述: Consul服务发现模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
-modulename: consul
-# endpoint配置
+# 模块名称
+module-name: consul
+# 注册中心端点地址
 endpoint: http://127.0.0.1:8500
-# register interval配置
+# 注册间隔，单位秒，最小值为 1 秒
 register-interval: 10

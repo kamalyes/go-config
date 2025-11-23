@@ -2,14 +2,14 @@
 # 模块名称: requestid
 # 包名: requestid  
 # 描述: 请求ID模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:09
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: requestid
-# enabled配置
+# 是否启用请求ID
 enabled: true
-# header name配置
+# 头部名称
 header-name: X-Request-ID
-# generator配置
+# 生成器类型 (uuid, nanoid)
 generator: uuid

@@ -3,7 +3,7 @@
  * @Date: 2025-11-18 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
  * @LastEditTime: 2025-11-18 13:07:56
- * @FilePath: \engine-im-service\go-config\pkg\gateway\json.go
+ * @FilePath: \go-config\pkg\gateway\json.go
  * @Description: JSON序列化配置模块
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
@@ -17,9 +17,9 @@ import (
 
 // JSON JSON序列化配置
 type JSON struct {
-	UseProtoNames   bool `mapstructure:"use_proto_names" yaml:"use-proto-names" json:"use_proto_names"`    // 使用proto字段名(snake_case)，如 snake_case 而不是 snakeCase
-	EmitUnpopulated bool `mapstructure:"emit_unpopulated" yaml:"emit-unpopulated" json:"emit_unpopulated"` // 输出所有字段，包括零值字段
-	DiscardUnknown  bool `mapstructure:"discard_unknown" yaml:"discard-unknown" json:"discard_unknown"`    // 反序列化时忽略未知字段
+	UseProtoNames   bool `mapstructure:"use-proto-names" yaml:"use-proto-names" json:"useProtoNames"`     // 使用proto字段名(snake_case)，如 snake_case 而不是 snakeCase
+	EmitUnpopulated bool `mapstructure:"emit-unpopulated" yaml:"emit-unpopulated" json:"emitUnpopulated"` // 输出所有字段，包括零值字段
+	DiscardUnknown  bool `mapstructure:"discard-unknown" yaml:"discard-unknown" json:"discardUnknown"`    // 反序列化时忽略未知字段
 }
 
 // DefaultJSON 创建默认JSON配置

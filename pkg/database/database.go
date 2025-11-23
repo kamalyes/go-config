@@ -29,52 +29,52 @@ const (
 // DatabaseProvider 数据库提供商接口，统一不同数据库的操作
 type DatabaseProvider interface {
 	internal.Configurable
-	
+
 	// GetDBType 获取数据库类型
 	GetDBType() DBType
-	
+
 	// GetHost 获取主机地址
 	GetHost() string
-	
+
 	// GetPort 获取端口
 	GetPort() string
-	
+
 	// GetDBName 获取数据库名称
 	GetDBName() string
-	
+
 	// GetUsername 获取用户名
 	GetUsername() string
-	
+
 	// GetPassword 获取密码
 	GetPassword() string
-	
+
 	// GetConfig 获取额外配置
 	GetConfig() string
-	
+
 	// GetModuleName 获取模块名称
 	GetModuleName() string
-	
+
 	// SetCredentials 设置凭证
 	SetCredentials(username, password string)
-	
+
 	// SetHost 设置主机地址
 	SetHost(host string)
-	
+
 	// SetPort 设置端口
 	SetPort(port string)
-	
+
 	// SetDBName 设置数据库名称
 	SetDBName(dbName string)
 }
 
 // Database 数据库统一配置结构
 type Database struct {
-	Type       DBType     `mapstructure:"type"       yaml:"type"       json:"type"`           // 数据库类型
-	Enabled    bool       `mapstructure:"enabled"    yaml:"enabled"    json:"enabled"`        // 是否启用
-	Default    string     `mapstructure:"default"    yaml:"default"    json:"default"`        // 默认使用的数据库
-	MySQL      *MySQL     `mapstructure:"mysql"      yaml:"mysql"      json:"mysql"`          // MySQL配置
-	PostgreSQL *PostgreSQL `mapstructure:"postgresql" yaml:"postgresql" json:"postgresql"`     // PostgreSQL配置
-	SQLite     *SQLite    `mapstructure:"sqlite"     yaml:"sqlite"     json:"sqlite"`         // SQLite配置
+	Type       DBType      `mapstructure:"type" yaml:"type" json:"type"`                   // 数据库类型
+	Enabled    bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`          // 是否启用
+	Default    string      `mapstructure:"default" yaml:"default" json:"default"`          // 默认使用的数据库
+	MySQL      *MySQL      `mapstructure:"mysql" yaml:"mysql" json:"mysql"`                // MySQL配置
+	PostgreSQL *PostgreSQL `mapstructure:"postgresql" yaml:"postgresql" json:"postgresql"` // PostgreSQL配置
+	SQLite     *SQLite     `mapstructure:"sqlite" yaml:"sqlite" json:"sqlite"`             // SQLite配置
 }
 
 // NewDatabase 创建新的数据库配置管理器
@@ -127,7 +127,7 @@ func (c *Database) SetDefaultProvider(dbType DBType) {
 // ListAvailableProviders 列出所有可用的数据库提供商
 func (c *Database) ListAvailableProviders() []DBType {
 	var providers []DBType
-	
+
 	if c.MySQL != nil {
 		providers = append(providers, DBTypeMySQL)
 	}
@@ -137,7 +137,7 @@ func (c *Database) ListAvailableProviders() []DBType {
 	if c.SQLite != nil {
 		providers = append(providers, DBTypeSQLite)
 	}
-	
+
 	return providers
 }
 
@@ -147,20 +147,20 @@ func (c *Database) ValidateProvider(dbType DBType) error {
 	if err != nil {
 		return err
 	}
-	
+
 	return provider.Validate()
 }
 
 // ValidateAll 验证所有配置的提供商
 func (c *Database) ValidateAll() error {
 	providers := c.ListAvailableProviders()
-	
+
 	for _, providerType := range providers {
 		if err := c.ValidateProvider(providerType); err != nil {
 			return fmt.Errorf("validation failed for %s: %w", providerType, err)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -171,7 +171,7 @@ func (c *Database) Clone() internal.Configurable {
 		Enabled: c.Enabled,
 		Default: c.Default,
 	}
-	
+
 	if c.MySQL != nil {
 		newConfig.MySQL = c.MySQL.Clone().(*MySQL)
 	}
@@ -181,7 +181,7 @@ func (c *Database) Clone() internal.Configurable {
 	if c.SQLite != nil {
 		newConfig.SQLite = c.SQLite.Clone().(*SQLite)
 	}
-	
+
 	return newConfig
 }
 
@@ -202,17 +202,17 @@ func (c *Database) Validate() error {
 	if !c.Enabled {
 		return nil
 	}
-	
+
 	// 验证默认提供商设置
 	if c.Default == "" {
 		return fmt.Errorf("default database provider not specified")
 	}
-	
+
 	defaultType := DBType(c.Default)
 	if err := c.ValidateProvider(defaultType); err != nil {
 		return fmt.Errorf("default provider validation failed: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -227,7 +227,7 @@ func (c *Database) EnsureDefaults() {
 	if c.SQLite == nil {
 		c.SQLite = DefaultSQLite()
 	}
-	
+
 	// 如果没有设置默认类型，使用MySQL
 	if c.Default == "" {
 		c.Default = string(DBTypeMySQL)
@@ -255,7 +255,7 @@ func (c *Database) BeforeLoad() error {
 // AfterLoad 配置加载后的钩子
 func (c *Database) AfterLoad() error {
 	c.EnsureDefaults()
-	
+
 	// 验证默认提供商配置的有效性
 	if c.Default != "" {
 		if err := c.ValidateProvider(DBType(c.Default)); err != nil {
@@ -264,7 +264,7 @@ func (c *Database) AfterLoad() error {
 			c.Type = DBTypeMySQL
 		}
 	}
-	
+
 	return nil
 }
 

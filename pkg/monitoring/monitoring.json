@@ -2,36 +2,36 @@
 // 模块名称: monitoring
 // 包名: monitoring  
 // 描述: 监控模块
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:08
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "monitoring",
+  "moduleName": "monitoring",
   "enabled": false,
   "prometheus": {
-    "module_name": "prometheus",
+    "moduleName": "prometheus",
     "enabled": false,
     "path": "/metrics",
     "port": 9090,
     "endpoint": "http://localhost:9090",
-    "push_gateway": {
+    "pushGateway": {
       "enabled": false,
       "endpoint": "http://localhost:9091",
-      "job_name": "go-rpc-gateway"
+      "jobName": "go-rpc-gateway"
     },
     "scraping": {
       "interval": "15s",
       "timeout": "10s",
-      "metrics_path": "/metrics"
+      "metricsPath": "/metrics"
     }
   },
   "grafana": {
-    "module_name": "grafana",
+    "moduleName": "grafana",
     "enabled": false,
     "endpoint": "http://localhost:3000",
     "username": "admin",
     "password": "admin",
-    "api_key": "demo_api_key",
+    "apiKey": "demo_api_key",
     "datasource": {
       "type": "prometheus",
       "url": "http://localhost:9090",
@@ -40,10 +40,10 @@
       "password": "prometheus_password"
     },
     "dashboard": {
-      "import_path": "",
-      "auto_import": false,
+      "importPath": "",
+      "autoImport": false,
       "templates": [],
-      "refresh_interval": "30s"
+      "refreshInterval": "30s"
     },
     "alerting": {
       "enabled": false,
@@ -52,11 +52,11 @@
     }
   },
   "jaeger": {
-    "module_name": "jaeger",
+    "moduleName": "jaeger",
     "enabled": false,
     "endpoint": "http://localhost:14268/api/traces",
-    "service_name": "go-rpc-gateway",
-    "sample_rate": 0.1,
+    "serviceName": "go-rpc-gateway",
+    "sampleRate": 0.1,
     "agent": {
       "host": "localhost",
       "port": 6832
@@ -69,17 +69,17 @@
     "sampling": {
       "type": "probabilistic",
       "param": 0.1,
-      "max_traces_per_second": 100,
-      "operation_sampling": []
+      "maxTracesPerSecond": 100,
+      "operationSampling": []
     },
     "tags": {}
   },
   "metrics": {
     "enabled": true,
-    "request_count": true,
+    "requestCount": true,
     "duration": true,
-    "response_size": true,
-    "request_size": true,
+    "responseSize": true,
+    "requestSize": true,
     "buckets": [
       0.001,
       0.01,
@@ -96,9 +96,9 @@
       90,
       120
     ],
-    "enable_open_metrics": false,
-    "custom_metrics": [],
-    "endpoint": "/metrics"
+    "enableOpenMetrics": false,
+    "customMetrics": [],
+    "_": "/metrics"
   },
   "alerting": {
     "enabled": false,
@@ -106,8 +106,8 @@
     "webhooks": [],
     "email": {
       "enabled": false,
-      "smtp_host": "",
-      "smtp_port": 0,
+      "smtpHost": "",
+      "smtpPort": 0,
       "username": "",
       "password": "",
       "from": "",
@@ -119,7 +119,7 @@
       "token": "",
       "channel": "",
       "username": "",
-      "icon_emoji": ""
+      "iconEmoji": ""
     }
   }
 }

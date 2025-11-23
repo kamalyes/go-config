@@ -15,7 +15,7 @@ import "github.com/kamalyes/go-config/internal"
 
 // Banner Banner配置
 type Banner struct {
-	ModuleName  string `mapstructure:"module_name" yaml:"module-name" json:"module_name"` // 模块名称
+	ModuleName  string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`  // 模块名称
 	Enabled     bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用Banner
 	Template    string `mapstructure:"template" yaml:"template" json:"template"`          // 自定义模板
 	Title       string `mapstructure:"title" yaml:"title" json:"title"`                   // 标题

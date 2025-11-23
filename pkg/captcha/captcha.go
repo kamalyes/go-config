@@ -17,12 +17,12 @@ import (
 
 // Captcha 结构体
 type Captcha struct {
-	KeyLen     int     `mapstructure:"key-len"     yaml:"key-len"     json:"key_len"      validate:"required,min=1"`           // 数字或字符串长度
-	ImgWidth   int     `mapstructure:"img-width"   yaml:"img-width"   json:"img_width"    validate:"required,min=1"`           // 验证码宽度
-	ImgHeight  int     `mapstructure:"img-height"  yaml:"img-height"  json:"img_height"   validate:"required,min=1"`           // 验证码高度
-	MaxSkew    float64 `mapstructure:"max-skew"    yaml:"max-skew"    json:"max_skew"     validate:"required,min=0.5,max=1.0"` // 最大歪曲度 0.5-1.0
-	DotCount   int     `mapstructure:"dot-count"   yaml:"dot-count"   json:"dot_count"    validate:"required,min=1"`           // 分布的点的数量 推荐设置 100左右
-	ModuleName string  `mapstructure:"modulename"  yaml:"modulename"  json:"module_name"  `                                    // 模块名称
+	KeyLen     int     `mapstructure:"key-len" yaml:"key-len" json:"keyLen"      validate:"required,min=1"`             // 数字或字符串长度
+	ImgWidth   int     `mapstructure:"img-width" yaml:"img-width" json:"imgWidth"    validate:"required,min=1"`         // 验证码宽度
+	ImgHeight  int     `mapstructure:"img-height" yaml:"img-height" json:"imgHeight"   validate:"required,min=1"`       // 验证码高度
+	MaxSkew    float64 `mapstructure:"max-skew" yaml:"max-skew" json:"maxSkew"     validate:"required,min=0.5,max=1.0"` // 最大歪曲度 0.5-1.0
+	DotCount   int     `mapstructure:"dot-count" yaml:"dot-count" json:"dotCount"    validate:"required,min=1"`         // 分布的点的数量 推荐设置 100左右
+	ModuleName string  `mapstructure:"module-name" yaml:"module-name" json:"moduleName"  `                              // 模块名称
 }
 
 // NewCaptcha 创建一个新的 Captcha 实例

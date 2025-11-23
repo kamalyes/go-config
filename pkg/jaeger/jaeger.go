@@ -15,15 +15,15 @@ import "github.com/kamalyes/go-config/internal"
 
 // Jaeger Jaeger配置
 type Jaeger struct {
-	ModuleName  string            `mapstructure:"module_name" yaml:"module-name" json:"module_name"`    // 模块名称
-	Enabled     bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                // 是否启用Jaeger
-	Endpoint    string            `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"`             // Jaeger端点
-	ServiceName string            `mapstructure:"service_name" yaml:"service-name" json:"service_name"` // 服务名称
-	SampleRate  float64           `mapstructure:"sample_rate" yaml:"sample-rate" json:"sample_rate"`    // 采样率
-	Agent       *Agent            `mapstructure:"agent" yaml:"agent" json:"agent"`                      // Agent配置
-	Collector   *Collector        `mapstructure:"collector" yaml:"collector" json:"collector"`          // Collector配置
-	Sampling    *Sampling         `mapstructure:"sampling" yaml:"sampling" json:"sampling"`             // 采样配置
-	Tags        map[string]string `mapstructure:"tags" yaml:"tags" json:"tags"`                         // 全局标签
+	ModuleName  string            `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`    // 模块名称
+	Enabled     bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`               // 是否启用Jaeger
+	Endpoint    string            `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"`            // Jaeger端点
+	ServiceName string            `mapstructure:"service-name" yaml:"service-name" json:"serviceName"` // 服务名称
+	SampleRate  float64           `mapstructure:"sample-rate" yaml:"sample-rate" json:"sampleRate"`    // 采样率
+	Agent       *Agent            `mapstructure:"agent" yaml:"agent" json:"agent"`                     // Agent配置
+	Collector   *Collector        `mapstructure:"collector" yaml:"collector" json:"collector"`         // Collector配置
+	Sampling    *Sampling         `mapstructure:"sampling" yaml:"sampling" json:"sampling"`            // 采样配置
+	Tags        map[string]string `mapstructure:"tags" yaml:"tags" json:"tags"`                        // 全局标签
 }
 
 // Agent Agent配置
@@ -41,17 +41,17 @@ type Collector struct {
 
 // Sampling 采样配置
 type Sampling struct {
-	Type               string              `mapstructure:"type" yaml:"type" json:"type"`                                                    // 采样类型
-	Param              float64             `mapstructure:"param" yaml:"param" json:"param"`                                                 // 采样参数
-	MaxTracesPerSecond int                 `mapstructure:"max_traces_per_second" yaml:"max-traces-per-second" json:"max_traces_per_second"` // 每秒最大追踪数
-	OperationSampling  []OperationSampling `mapstructure:"operation_sampling" yaml:"operation-sampling" json:"operation_sampling"`          // 操作采样
+	Type               string              `mapstructure:"type" yaml:"type" json:"type"`                                                 // 采样类型
+	Param              float64             `mapstructure:"param" yaml:"param" json:"param"`                                              // 采样参数
+	MaxTracesPerSecond int                 `mapstructure:"max-traces-per-second" yaml:"max-traces-per-second" json:"maxTracesPerSecond"` // 每秒最大追踪数
+	OperationSampling  []OperationSampling `mapstructure:"operation-sampling" yaml:"operation-sampling" json:"operationSampling"`        // 操作采样
 }
 
 // OperationSampling 操作采样配置
 type OperationSampling struct {
-	Operation             string  `mapstructure:"operation" yaml:"operation" json:"operation"`                                        // 操作名称
-	MaxTracesPerSecond    int     `mapstructure:"max_traces_per_second" yaml:"max-traces-per-second" json:"max_traces_per_second"`    // 每秒最大追踪数
-	ProbabilisticSampling float64 `mapstructure:"probabilistic_sampling" yaml:"probabilistic-sampling" json:"probabilistic_sampling"` // 概率采样
+	Operation             string  `mapstructure:"operation" yaml:"operation" json:"operation"`                                       // 操作名称
+	MaxTracesPerSecond    int     `mapstructure:"max-traces-per-second" yaml:"max-traces-per-second" json:"maxTracesPerSecond"`      // 每秒最大追踪数
+	ProbabilisticSampling float64 `mapstructure:"probabilistic-sampling" yaml:"probabilistic-sampling" json:"probabilisticSampling"` // 概率采样
 }
 
 // Default 创建默认Jaeger配置

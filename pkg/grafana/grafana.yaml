@@ -2,36 +2,39 @@
 # 模块名称: grafana
 # 包名: grafana  
 # 描述: Grafana监控面板
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: grafana
-# enabled配置
+# 是否启用Grafana
 enabled: false
-# endpoint配置
+# Grafana端点
 endpoint: http://localhost:3000
-# username配置
+# 用户名
 username: admin
-# password配置
+# 密码
 password: admin
-# apikey配置
+# API Key
 api-key: demo_api_key
-# datasource配置
+# 数据源配置
 datasource:
     type: prometheus
     url: http://localhost:9090
     database: prometheus
+    # 用户名
     username: prometheus_user
+    # 密码
     password: prometheus_password
-# dashboard配置
+# 仪表盘配置
 dashboard:
     import-path: ""
     auto-import: false
     templates: []
     refresh-interval: 30s
-# alerting配置
+# 告警配置
 alerting:
+    # 是否启用Grafana
     enabled: false
     webhooks: []
     channels: []

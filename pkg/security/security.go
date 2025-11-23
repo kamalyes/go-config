@@ -15,11 +15,11 @@ import "github.com/kamalyes/go-config/internal"
 
 // Security 统一安全配置 - 直接使用Security而不是SecurityConfig
 type Security struct {
-	ModuleName string      `mapstructure:"module_name" yaml:"module-name" json:"module_name"` // 模块名称
-	Enabled    bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用安全功能
-	JWT        *JWT        `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                         // JWT配置
-	Auth       *Auth       `mapstructure:"auth" yaml:"auth" json:"auth"`                      // 通用认证配置
-	Protection *Protection `mapstructure:"protection" yaml:"protection" json:"protection"`    // 服务保护配置
+	ModuleName string      `mapstructure:"module-name" yaml:"module-name" json:"moduleName"` // 模块名称
+	Enabled    bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`            // 是否启用安全功能
+	JWT        *JWT        `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                        // JWT配置
+	Auth       *Auth       `mapstructure:"auth" yaml:"auth" json:"auth"`                     // 通用认证配置
+	Protection *Protection `mapstructure:"protection" yaml:"protection" json:"protection"`   // 服务保护配置
 }
 
 // JWT JWT配置
@@ -33,14 +33,14 @@ type JWT struct {
 
 // Auth 通用认证配置 - 支持多种认证方式
 type Auth struct {
-	Enabled     bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                // 是否启用认证
-	Type        string      `mapstructure:"type" yaml:"type" json:"type"`                         // 认证类型 (basic, bearer, custom, apikey)
-	HeaderName  string      `mapstructure:"header_name" yaml:"header-name" json:"header_name"`    // 认证头名称
-	TokenPrefix string      `mapstructure:"token_prefix" yaml:"token-prefix" json:"token_prefix"` // 令牌前缀
-	Basic       *BasicAuth  `mapstructure:"basic" yaml:"basic" json:"basic"`                      // Basic认证
-	Bearer      *BearerAuth `mapstructure:"bearer" yaml:"bearer" json:"bearer"`                   // Bearer认证
-	APIKey      *APIKeyAuth `mapstructure:"apikey" yaml:"apikey" json:"apikey"`                   // APIKey认证
-	Custom      *CustomAuth `mapstructure:"custom" yaml:"custom" json:"custom"`                   // 自定义认证
+	Enabled     bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`               // 是否启用认证
+	Type        string      `mapstructure:"type" yaml:"type" json:"type"`                        // 认证类型 (basic, bearer, custom, apikey)
+	HeaderName  string      `mapstructure:"header-name" yaml:"header-name" json:"headerName"`    // 认证头名称
+	TokenPrefix string      `mapstructure:"token-prefix" yaml:"token-prefix" json:"tokenPrefix"` // 令牌前缀
+	Basic       *BasicAuth  `mapstructure:"basic" yaml:"basic" json:"basic"`                     // Basic认证
+	Bearer      *BearerAuth `mapstructure:"bearer" yaml:"bearer" json:"bearer"`                  // Bearer认证
+	APIKey      *APIKeyAuth `mapstructure:"apikey" yaml:"apikey" json:"apikey"`                  // APIKey认证
+	Custom      *CustomAuth `mapstructure:"custom" yaml:"custom" json:"custom"`                  // 自定义认证
 }
 
 // BasicAuth Basic认证配置
@@ -55,16 +55,16 @@ type BearerAuth struct {
 
 // APIKeyAuth API Key认证配置
 type APIKeyAuth struct {
-	Keys       []string `mapstructure:"keys" yaml:"keys" json:"keys"`                      // 有效API Key列表
-	HeaderName string   `mapstructure:"header_name" yaml:"header-name" json:"header_name"` // API Key头名称
-	QueryParam string   `mapstructure:"query_param" yaml:"query-param" json:"query_param"` // API Key查询参数名
+	Keys       []string `mapstructure:"keys" yaml:"keys" json:"keys"`                     // 有效API Key列表
+	HeaderName string   `mapstructure:"header-name" yaml:"header-name" json:"headerName"` // API Key头名称
+	QueryParam string   `mapstructure:"query-param" yaml:"query-param" json:"queryParam"` // API Key查询参数名
 }
 
 // CustomAuth 自定义认证配置
 type CustomAuth struct {
-	HeaderName    string            `mapstructure:"header_name" yaml:"header-name" json:"header_name"`          // 自定义头名称
-	ExpectedValue string            `mapstructure:"expected_value" yaml:"expected-value" json:"expected_value"` // 期望值
-	Headers       map[string]string `mapstructure:"headers" yaml:"headers" json:"headers"`                      // 自定义头部验证
+	HeaderName    string            `mapstructure:"header-name" yaml:"header-name" json:"headerName"`          // 自定义头名称
+	ExpectedValue string            `mapstructure:"expected-value" yaml:"expected-value" json:"expectedValue"` // 期望值
+	Headers       map[string]string `mapstructure:"headers" yaml:"headers" json:"headers"`                     // 自定义头部验证
 }
 
 // User 用户信息
@@ -86,22 +86,22 @@ type Protection struct {
 
 // Pprof 安全配置
 type Pprof struct {
-	Enabled      bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用安全认证
-	Username     string   `mapstructure:"username" yaml:"username" json:"username"`                // 用户名
-	Password     string   `mapstructure:"password" yaml:"password" json:"password"`                // 密码
-	AllowedIPs   []string `mapstructure:"allowed_ips" yaml:"allowed-ips" json:"allowed_ips"`       // 允许的IP地址
-	RequireHTTPS bool     `mapstructure:"require_https" yaml:"require-https" json:"require_https"` // 是否要求HTTPS
+	Enabled      bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                  // 是否启用安全认证
+	Username     string   `mapstructure:"username" yaml:"username" json:"username"`               // 用户名
+	Password     string   `mapstructure:"password" yaml:"password" json:"password"`               // 密码
+	AllowedIPs   []string `mapstructure:"allowed-ips" yaml:"allowed-ips" json:"allowedIps"`       // 允许的IP地址
+	RequireHTTPS bool     `mapstructure:"require-https" yaml:"require-https" json:"requireHttps"` // 是否要求HTTPS
 }
 
 // ServiceProtection 服务保护配置 - 统一的服务安全配置
 type ServiceProtection struct {
-	Enabled      bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用保护
-	AuthRequired bool     `mapstructure:"auth_required" yaml:"auth-required" json:"auth_required"` // 是否需要认证
-	AuthType     string   `mapstructure:"auth_type" yaml:"auth-type" json:"auth_type"`             // 认证类型
-	IPWhitelist  []string `mapstructure:"ip_whitelist" yaml:"ip-whitelist" json:"ip_whitelist"`    // IP白名单
-	RequireHTTPS bool     `mapstructure:"require_https" yaml:"require-https" json:"require_https"` // 是否要求HTTPS
-	Username     string   `mapstructure:"username" yaml:"username" json:"username"`                // 用户名
-	Password     string   `mapstructure:"password" yaml:"password" json:"password"`                // 密码
+	Enabled      bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                  // 是否启用保护
+	AuthRequired bool     `mapstructure:"auth-required" yaml:"auth-required" json:"authRequired"` // 是否需要认证
+	AuthType     string   `mapstructure:"auth-type" yaml:"auth-type" json:"authType"`             // 认证类型
+	IPWhitelist  []string `mapstructure:"ip-whitelist" yaml:"ip-whitelist" json:"ipWhitelist"`    // IP白名单
+	RequireHTTPS bool     `mapstructure:"require-https" yaml:"require-https" json:"requireHttps"` // 是否要求HTTPS
+	Username     string   `mapstructure:"username" yaml:"username" json:"username"`               // 用户名
+	Password     string   `mapstructure:"password" yaml:"password" json:"password"`               // 密码
 }
 
 // Default 创建默认安全配置

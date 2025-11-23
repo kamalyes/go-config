@@ -2,7 +2,7 @@
 // 模块名称: ftp
 // 包名: ftp  
 // 描述: FTP文件传输模块
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:08
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -10,5 +10,5 @@
   "username": "ftp_user",
   "password": "ftp_password",
   "cwd": "/",
-  "module_name": "ftp"
+  "moduleName": "ftp"
 }

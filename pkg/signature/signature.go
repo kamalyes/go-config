@@ -12,25 +12,24 @@
 package signature
 
 import (
-	"time"
-
 	"github.com/kamalyes/go-config/internal"
+	"time"
 )
 
 // Signature 签名验证中间件配置
 type Signature struct {
-	ModuleName      string        `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                // 模块名称
+	ModuleName      string        `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                // 模块名称
 	Enabled         bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                           // 是否启用签名验证
-	SecretKey       string        `mapstructure:"secret_key" yaml:"secret-key" json:"secret_key"`                   // 签名密钥
-	SignatureHeader string        `mapstructure:"signature_header" yaml:"signature-header" json:"signature_header"` // 签名请求头
-	TimestampHeader string        `mapstructure:"timestamp_header" yaml:"timestamp-header" json:"timestamp_header"` // 时间戳请求头
-	NonceHeader     string        `mapstructure:"nonce_header" yaml:"nonce-header" json:"nonce_header"`             // 随机数请求头
-	Algorithm       string        `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"`                      // 签名算法 (md5, sha1, sha256)
-	TimeoutWindow   time.Duration `mapstructure:"timeout_window" yaml:"timeout-window" json:"timeout_window"`       // 请求时间窗口
-	IgnorePaths     []string      `mapstructure:"ignore_paths" yaml:"ignore-paths" json:"ignore_paths"`             // 忽略签名验证的路径
-	RequiredHeaders []string      `mapstructure:"required_headers" yaml:"required-headers" json:"required_headers"` // 必需的请求头参与签名
-	SkipQuery       bool          `mapstructure:"skip_query" yaml:"skip-query" json:"skip_query"`                   // 是否跳过查询参数
-	SkipBody        bool          `mapstructure:"skip_body" yaml:"skip-body" json:"skip_body"`                      // 是否跳过请求体
+	SecretKey       string        `mapstructure:"secret-key" yaml:"secret-key" json:"secretKey"`                   // 签名密钥
+	SignatureHeader string        `mapstructure:"signature-header" yaml:"signature-header" json:"signatureHeader"` // 签名请求头
+	TimestampHeader string        `mapstructure:"timestamp-header" yaml:"timestamp-header" json:"timestampHeader"` // 时间戳请求头
+	NonceHeader     string        `mapstructure:"nonce-header" yaml:"nonce-header" json:"nonceHeader"`             // 随机数请求头
+	Algorithm       string        `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"`                     // 签名算法 (md5, sha1, sha256)
+	TimeoutWindow   time.Duration `mapstructure:"timeout-window" yaml:"timeout-window" json:"timeoutWindow"`       // 请求时间窗口
+	IgnorePaths     []string      `mapstructure:"ignore-paths" yaml:"ignore-paths" json:"ignorePaths"`             // 忽略签名验证的路径
+	RequiredHeaders []string      `mapstructure:"required-headers" yaml:"required-headers" json:"requiredHeaders"` // 必需的请求头参与签名
+	SkipQuery       bool          `mapstructure:"skip-query" yaml:"skip-query" json:"skipQuery"`                   // 是否跳过查询参数
+	SkipBody        bool          `mapstructure:"skip-body" yaml:"skip-body" json:"skipBody"`                      // 是否跳过请求体
 }
 
 // Default 创建默认签名验证配置
@@ -74,7 +73,7 @@ func (s *Signature) Set(data interface{}) {
 func (s *Signature) Clone() internal.Configurable {
 	ignorePaths := make([]string, len(s.IgnorePaths))
 	copy(ignorePaths, s.IgnorePaths)
-	
+
 	requiredHeaders := make([]string, len(s.RequiredHeaders))
 	copy(requiredHeaders, s.RequiredHeaders)
 

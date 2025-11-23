@@ -2,31 +2,31 @@
 // 模块名称: cors
 // 包名: cors  
 // 描述: CORS跨域模块
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:08
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "allowed_origins": [
+  "allowedOrigins": [
     "*"
   ],
-  "allowed_methods": [
+  "allowedMethods": [
     "GET",
     "POST",
     "PUT",
     "DELETE",
     "OPTIONS"
   ],
-  "allowed_headers": [
+  "allowedHeaders": [
     "Origin",
     "Content-Length",
     "Content-Type",
     "Authorization"
   ],
-  "max_age": "86400",
-  "allowed_all_origins": false,
-  "allowed_all_methods": false,
-  "exposed_headers": [],
-  "allow_credentials": true,
-  "options_response_code": 200,
-  "module_name": "cors"
+  "maxAge": "86400",
+  "allowedAllOrigins": false,
+  "allowedAllMethods": false,
+  "exposedHeaders": [],
+  "allowCredentials": true,
+  "optionsResponseCode": 200,
+  "moduleName": "cors"
 }

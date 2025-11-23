@@ -2,16 +2,16 @@
 // 模块名称: swagger
 // 包名: swagger  
 // 描述: Swagger API文档
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:09
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "swagger",
+  "moduleName": "swagger",
   "enabled": true,
-  "json_path": "/swagger/doc.json",
-  "ui_path": "/swagger",
-  "yaml_path": "/swagger/doc.yaml",
-  "spec_path": "./docs/swagger.yaml",
+  "jsonPath": "/swagger/doc.json",
+  "uiPath": "/swagger",
+  "yamlPath": "/swagger/doc.yaml",
+  "specPath": "./docs/swagger.yaml",
   "title": "API Documentation",
   "description": "API Documentation powered by Swagger UI",
   "version": "1.0.0",
@@ -29,13 +29,13 @@
     "username": "",
     "password": "",
     "token": "",
-    "header_name": "",
-    "header_value": ""
+    "headerName": "",
+    "headerValue": ""
   },
   "aggregate": {
     "enabled": false,
     "mode": "merge",
     "services": [],
-    "ui_layout": "tabs"
+    "uiLayout": "tabs"
   }
 }

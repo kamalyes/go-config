@@ -2,36 +2,36 @@
 # 模块名称: redis
 # 包名: redis  
 # 描述: Redis缓存
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:09
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
-modulename: ""
-# addr配置
+# 模块名
+module-name: ""
+# Redis 数据服务器 IP 和端口（兼容旧版）
 addr: ""
-# addrs配置
+# Redis服务器地址列表（集群模式）
 addrs: []
-# username配置
+# 用户名
 username: ""
-# password配置
+# 连接密码
 password: ""
-# db配置
+# 指定连接的数据库，默认连数据库 0
 db: 0
-# max retries配置
+# 最大重试次数，最小值为 0
 max-retries: 0
-# pool size配置
+# 连接池大小，最小值为 1
 pool-size: 0
-# min idle conns配置
+# 最小空闲连接数，最小值为 0
 min-idle-conns: 0
-# max conn age配置
+# 连接最大存活时间
 max-conn-age: 0s
-# pool timeout配置
+# 连接池超时
 pool-timeout: 0s
-# idle timeout配置
+# 空闲超时
 idle-timeout: 0s
-# read timeout配置
+# 读取超时
 read-timeout: 0s
-# write timeout配置
+# 写入超时
 write-timeout: 0s
-# cluster mode配置
+# 是否集群模式
 cluster-mode: false

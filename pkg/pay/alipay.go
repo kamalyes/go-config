@@ -17,14 +17,14 @@ import (
 
 // AliPay 结构体用于配置支付宝支付相关参数
 type AliPay struct {
-	Pid        string `mapstructure:"pid"                yaml:"pid"            json:"pid"             validate:"required"`                // 商户 PID，即商户的账号 ID
-	AppId      string `mapstructure:"app-id"             yaml:"app-id"         json:"app_id"          validate:"required"`                // 应用 ID
-	PriKey     string `mapstructure:"pri-key"            yaml:"pri-key"        json:"pri_key"         validate:"required"`                // 私钥
-	PubKey     string `mapstructure:"pub-key"            yaml:"pub-key"        json:"pub_key"         validate:"required"`                // 公钥，主要是回调验签用
-	SignType   string `mapstructure:"sign-type"          yaml:"sign-type"      json:"sign_type"       validate:"required,oneof=RSA2 RSA"` // 签名方式，支持 RSA2 和 RSA
-	NotifyUrl  string `mapstructure:"notify-url"         yaml:"notify-url"     json:"notify_url"      validate:"required,url"`            // 支付宝回调的 URL
-	Subject    string `mapstructure:"subject"            yaml:"subject"        json:"subject"`                                            // 默认订单标题
-	ModuleName string `mapstructure:"modulename"         yaml:"modulename"     json:"module_name"`                                        // 模块名称
+	Pid        string `mapstructure:"pid" yaml:"pid" json:"pid"             validate:"required"`                           // 商户 PID，即商户的账号 ID
+	AppId      string `mapstructure:"app-id" yaml:"app-id" json:"appId"          validate:"required"`                      // 应用 ID
+	PriKey     string `mapstructure:"pri-key" yaml:"pri-key" json:"priKey"         validate:"required"`                    // 私钥
+	PubKey     string `mapstructure:"pub-key" yaml:"pub-key" json:"pubKey"         validate:"required"`                    // 公钥，主要是回调验签用
+	SignType   string `mapstructure:"sign-type" yaml:"sign-type" json:"signType"       validate:"required,oneof=RSA2 RSA"` // 签名方式，支持 RSA2 和 RSA
+	NotifyUrl  string `mapstructure:"notify-url" yaml:"notify-url" json:"notifyUrl"      validate:"required,url"`          // 支付宝回调的 URL
+	Subject    string `mapstructure:"subject" yaml:"subject" json:"subject"`                                               // 默认订单标题
+	ModuleName string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                    // 模块名称
 }
 
 // NewAliPay 创建一个新的 AliPay 实例

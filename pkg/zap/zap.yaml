@@ -2,36 +2,36 @@
 # 模块名称: zap
 # 包名: zap  
 # 描述: Zap日志模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:09
 # 注意: 此文件由配置生成器自动生成
 
-# level配置
+# 日志级别
 level: info
-# format配置
+# 日志格式
 format: console
-# prefix配置
+# 日志前缀
 prefix: '[GO-CONFIG]'
-# director配置
+# 日志目录
 director: ./logs
-# max size配置
+# 日志文件的最大大小（以MB为单位）
 max-size: 10
-# max age配置
+# 日志最大保留时间 单位：天
 max-age: 30
-# max backups配置
+# 保留旧文件的最大个数
 max-backups: 5
-# compress配置
+# 是否压缩
 compress: false
-# link name配置
+# 日志软连接文件
 link-name: latest_log
-# show line配置
+# 是否在日志中输出源码所在的行
 show-line: true
-# encode level配置
+# 日志编码等级，指定不通过等级可以有不同颜色
 encode-level: capitalColor
-# stacktrace key配置
+# 堆栈捕捉标识
 stacktrace-key: stacktrace
-# log in console配置
+# 是否在控制台打印日志
 log-in-console: true
-# development配置
+# 是否为开发者模式
 development: false
-# module name配置
-modulename: zap
+# 模块名称
+module-name: zap

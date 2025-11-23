@@ -15,15 +15,15 @@ import "github.com/kamalyes/go-config/internal"
 
 // Grafana Grafana配置
 type Grafana struct {
-	ModuleName string      `mapstructure:"module_name" yaml:"module-name" json:"module_name"` // 模块名称
-	Enabled    bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用Grafana
-	Endpoint   string      `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"`          // Grafana端点
-	Username   string      `mapstructure:"username" yaml:"username" json:"username"`          // 用户名
-	Password   string      `mapstructure:"password" yaml:"password" json:"password"`          // 密码
-	APIKey     string      `mapstructure:"api_key" yaml:"api-key" json:"api_key"`             // API Key
-	Datasource *Datasource `mapstructure:"datasource" yaml:"datasource" json:"datasource"`    // 数据源配置
-	Dashboard  *Dashboard  `mapstructure:"dashboard" yaml:"dashboard" json:"dashboard"`       // 仪表盘配置
-	Alerting   *Alerting   `mapstructure:"alerting" yaml:"alerting" json:"alerting"`          // 告警配置
+	ModuleName string      `mapstructure:"module-name" yaml:"module-name" json:"moduleName"` // 模块名称
+	Enabled    bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`            // 是否启用Grafana
+	Endpoint   string      `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"`         // Grafana端点
+	Username   string      `mapstructure:"username" yaml:"username" json:"username"`         // 用户名
+	Password   string      `mapstructure:"password" yaml:"password" json:"password"`         // 密码
+	APIKey     string      `mapstructure:"api-key" yaml:"api-key" json:"apiKey"`             // API Key
+	Datasource *Datasource `mapstructure:"datasource" yaml:"datasource" json:"datasource"`   // 数据源配置
+	Dashboard  *Dashboard  `mapstructure:"dashboard" yaml:"dashboard" json:"dashboard"`      // 仪表盘配置
+	Alerting   *Alerting   `mapstructure:"alerting" yaml:"alerting" json:"alerting"`         // 告警配置
 }
 
 // Datasource 数据源配置
@@ -37,10 +37,10 @@ type Datasource struct {
 
 // Dashboard 仪表盘配置
 type Dashboard struct {
-	ImportPath      string   `mapstructure:"import_path" yaml:"import-path" json:"import_path"`                // 导入路径
-	AutoImport      bool     `mapstructure:"auto_import" yaml:"auto-import" json:"auto_import"`                // 自动导入
-	Templates       []string `mapstructure:"templates" yaml:"templates" json:"templates"`                      // 模板列表
-	RefreshInterval string   `mapstructure:"refresh_interval" yaml:"refresh-interval" json:"refresh_interval"` // 刷新间隔
+	ImportPath      string   `mapstructure:"import-path" yaml:"import-path" json:"importPath"`                // 导入路径
+	AutoImport      bool     `mapstructure:"auto-import" yaml:"auto-import" json:"autoImport"`                // 自动导入
+	Templates       []string `mapstructure:"templates" yaml:"templates" json:"templates"`                     // 模板列表
+	RefreshInterval string   `mapstructure:"refresh-interval" yaml:"refresh-interval" json:"refreshInterval"` // 刷新间隔
 }
 
 // Alerting 告警配置

@@ -2,34 +2,34 @@
 # 模块名称: mqtt
 # 包名: queue  
 # 描述: MQTT消息队列
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# endpoint配置
+# Mqtt 代理服务器端点地址
 endpoint: tcp://127.0.0.1:1883
-# client id配置
+# 客户端标识符
 client-id: go-config-mqtt-client
-# protocol version配置
-protocol-ver: 4
-# keep alive配置
+# Mqtt 协议版本号，4 是 3.1.1，3 是 3.1
+protocol-version: 4
+# 保活时间间隔，最小值为 1 秒
 keep-alive: 60
-# max reconnect interval配置
+# 最大连接间隔时间，单位：秒，最小值为 1 秒
 max-reconnect-interval: 300
-# ping timeout配置
+# ping 超时时间，单位：秒，最小值为 1 秒
 ping-timeout: 10
-# write timeout配置
+# 写超时时间，单位：秒，最小值为 1 秒
 write-timeout: 10
-# connect timeout配置
+# 连接超时时间，单位：秒，最小值为 1 秒
 connect-timeout: 30
-# username配置
+# 连接到代理服务器的用户名
 username: mqtt_user
-# password配置
+# 密码
 password: mqtt_password
-# clean session配置
+# 设置客户端掉线服务端是否清除 session
 clean-session: true
-# auto reconnect配置
+# 断开后是否重新连接
 auto-reconnect: true
-# will topic配置
+# 遗言发送的 topic
 will-topic: ""
-# module name配置
-modulename: mqtt
+# 模块名称
+module-name: mqtt

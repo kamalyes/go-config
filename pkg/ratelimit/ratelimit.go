@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-14 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-14 00:00:00
+ * @LastEditTime: 2025-11-27 00:21:50
  * @FilePath: \go-config\pkg\ratelimit\ratelimit.go
  * @Description: 增强的限流配置（支持路由级别、用户级别、IP级别等）
  *
@@ -12,9 +12,8 @@
 package ratelimit
 
 import (
-	"time"
-
 	"github.com/kamalyes/go-config/internal"
+	"time"
 )
 
 // Strategy 限流策略类型
@@ -39,74 +38,74 @@ const (
 
 // RateLimit 增强限流配置
 type RateLimit struct {
-	ModuleName        string        `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                      // 模块名称
-	Enabled           bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                  // 是否启用
-	Strategy          Strategy      `mapstructure:"strategy" yaml:"strategy" json:"strategy"`                               // 限流策略
-	DefaultScope      Scope         `mapstructure:"default_scope" yaml:"default-scope" json:"default_scope"`                // 默认作用域
-	GlobalLimit       *LimitRule    `mapstructure:"global_limit" yaml:"global-limit,omitempty" json:"global_limit,omitempty"` // 全局限流规则
-	Routes            []RouteLimit  `mapstructure:"routes" yaml:"routes,omitempty" json:"routes,omitempty"`                 // 路由级别限流
-	IPRules           []IPRule      `mapstructure:"ip_rules" yaml:"ip-rules,omitempty" json:"ip_rules,omitempty"`           // IP规则
-	UserRules         []UserRule    `mapstructure:"user_rules" yaml:"user-rules,omitempty" json:"user_rules,omitempty"`     // 用户规则
-	Storage           StorageConfig `mapstructure:"storage" yaml:"storage" json:"storage"`                                  // 存储配置
-	CustomRuleLoader  string        `mapstructure:"custom_rule_loader" yaml:"custom-rule-loader" json:"custom_rule_loader"` // 自定义规则加载器名称
-	EnableDynamicRule bool          `mapstructure:"enable_dynamic_rule" yaml:"enable-dynamic-rule" json:"enable_dynamic_rule"` // 是否启用动态规则
+	ModuleName        string        `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                        // 模块名称
+	Enabled           bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                   // 是否启用
+	Strategy          Strategy      `mapstructure:"strategy" yaml:"strategy" json:"strategy"`                                // 限流策略
+	DefaultScope      Scope         `mapstructure:"default-scope" yaml:"default-scope" json:"defaultScope"`                  // 默认作用域
+	GlobalLimit       *LimitRule    `mapstructure:"global-limit" yaml:"global-limit" json:"globalLimit"`                     // 全局限流规则
+	Routes            []RouteLimit  `mapstructure:"routes" yaml:"routes" json:"routes"`                                      // 路由级别限流
+	IPRules           []IPRule      `mapstructure:"ip-rules" yaml:"ip-rules" json:"ipRules"`                                 // IP规则
+	UserRules         []UserRule    `mapstructure:"user-rules" yaml:"user-rules" json:"userRules"`                           // 用户规则
+	Storage           StorageConfig `mapstructure:"storage" yaml:"storage" json:"storage"`                                   // 存储配置
+	CustomRuleLoader  string        `mapstructure:"custom-rule-loader" yaml:"custom-rule-loader" json:"customRuleLoader"`    // 自定义规则加载器名称
+	EnableDynamicRule bool          `mapstructure:"enable-dynamic-rule" yaml:"enable-dynamic-rule" json:"enableDynamicRule"` // 是否启用动态规则
 }
 
 // LimitRule 限流规则
 type LimitRule struct {
-	RequestsPerSecond int           `mapstructure:"requests_per_second" yaml:"requests-per-second" json:"requests_per_second"` // 每秒请求数
-	BurstSize         int           `mapstructure:"burst_size" yaml:"burst-size" json:"burst_size"`                            // 突发大小
-	WindowSize        time.Duration `mapstructure:"window_size" yaml:"window-size" json:"window_size"`                         // 时间窗口
-	BlockDuration     time.Duration `mapstructure:"block_duration" yaml:"block-duration" json:"block_duration"`                // 阻塞时长
+	RequestsPerSecond int           `mapstructure:"requests-per-second" yaml:"requests-per-second" json:"requestsPerSecond"` // 每秒请求数
+	BurstSize         int           `mapstructure:"burst-size" yaml:"burst-size" json:"burstSize"`                           // 突发大小
+	WindowSize        time.Duration `mapstructure:"window-size" yaml:"window-size" json:"windowSize"`                        // 时间窗口
+	BlockDuration     time.Duration `mapstructure:"block-duration" yaml:"block-duration" json:"blockDuration"`               // 阻塞时长
 }
 
 // RouteLimit 路由级别限流
 type RouteLimit struct {
-	Path      string     `mapstructure:"path" yaml:"path" json:"path"`                                        // 路由路径（支持通配符）
-	Methods   []string   `mapstructure:"methods" yaml:"methods,omitempty" json:"methods,omitempty"`           // HTTP方法
-	Limit     *LimitRule `mapstructure:"limit" yaml:"limit" json:"limit"`                                     // 限流规则
-	PerUser   bool       `mapstructure:"per_user" yaml:"per-user" json:"per_user"`                            // 是否按用户限流
-	PerIP     bool       `mapstructure:"per_ip" yaml:"per-ip" json:"per_ip"`                                  // 是否按IP限流
-	Whitelist []string   `mapstructure:"whitelist" yaml:"whitelist,omitempty" json:"whitelist,omitempty"`     // 白名单
-	Blacklist []string   `mapstructure:"blacklist" yaml:"blacklist,omitempty" json:"blacklist,omitempty"`     // 黑名单
+	Path      string     `mapstructure:"path" yaml:"path" json:"path"`                // 路由路径（支持通配符）
+	Methods   []string   `mapstructure:"methods" yaml:"methods" json:"methods"`       // HTTP方法
+	Limit     *LimitRule `mapstructure:"limit" yaml:"limit" json:"limit"`             // 限流规则
+	PerUser   bool       `mapstructure:"per-user" yaml:"per-user" json:"perUser"`     // 是否按用户限流
+	PerIP     bool       `mapstructure:"per-ip" yaml:"per-ip" json:"perIp"`           // 是否按IP限流
+	Whitelist []string   `mapstructure:"whitelist" yaml:"whitelist" json:"whitelist"` // 白名单
+	Blacklist []string   `mapstructure:"blacklist" yaml:"blacklist" json:"blacklist"` // 黑名单
 }
 
 // IPRule IP限流规则
 type IPRule struct {
-	IP       string     `mapstructure:"ip" yaml:"ip" json:"ip"`                               // IP地址（支持CIDR）
-	Limit    *LimitRule `mapstructure:"limit" yaml:"limit" json:"limit"`                      // 限流规则
-	Type     string     `mapstructure:"type" yaml:"type" json:"type"`                         // 类型: whitelist, blacklist, custom
-	Priority int        `mapstructure:"priority" yaml:"priority" json:"priority"`             // 优先级
+	IP       string     `mapstructure:"ip" yaml:"ip" json:"ip"`                   // IP地址（支持CIDR）
+	Limit    *LimitRule `mapstructure:"limit" yaml:"limit" json:"limit"`          // 限流规则
+	Type     string     `mapstructure:"type" yaml:"type" json:"type"`             // 类型: whitelist, blacklist, custom
+	Priority int        `mapstructure:"priority" yaml:"priority" json:"priority"` // 优先级
 }
 
 // UserRule 用户限流规则
 type UserRule struct {
-	UserID   string     `mapstructure:"user_id" yaml:"user-id" json:"user_id"`       // 用户ID（支持通配符）
-	UserType string     `mapstructure:"user_type" yaml:"user-type" json:"user_type"` // 用户类型
-	Role     string     `mapstructure:"role" yaml:"role" json:"role"`                // 用户角色
-	Limit    *LimitRule `mapstructure:"limit" yaml:"limit" json:"limit"`             // 限流规则
-	Priority int        `mapstructure:"priority" yaml:"priority" json:"priority"`    // 优先级
+	UserID   string     `mapstructure:"user-id" yaml:"user-id" json:"userId"`       // 用户ID（支持通配符）
+	UserType string     `mapstructure:"user-type" yaml:"user-type" json:"userType"` // 用户类型
+	Role     string     `mapstructure:"role" yaml:"role" json:"role"`               // 用户角色
+	Limit    *LimitRule `mapstructure:"limit" yaml:"limit" json:"limit"`            // 限流规则
+	Priority int        `mapstructure:"priority" yaml:"priority" json:"priority"`   // 优先级
 }
 
 // StorageConfig 存储配置
 type StorageConfig struct {
-	Type          string        `mapstructure:"type" yaml:"type" json:"type"`                                       // 存储类型: memory, redis
-	KeyPrefix     string        `mapstructure:"key_prefix" yaml:"key-prefix" json:"key_prefix"`                     // Key前缀
-	CleanInterval time.Duration `mapstructure:"clean_interval" yaml:"clean-interval" json:"clean_interval"`         // 清理间隔
-	RedisConfig   *RedisStorage `mapstructure:"redis" yaml:"redis,omitempty" json:"redis,omitempty"`                // Redis配置（可选）
+	Type          string        `mapstructure:"type" yaml:"type" json:"type"`                              // 存储类型: memory, redis
+	KeyPrefix     string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`             // Key前缀
+	CleanInterval time.Duration `mapstructure:"clean-interval" yaml:"clean-interval" json:"cleanInterval"` // 清理间隔
+	RedisConfig   *RedisStorage `mapstructure:"redis" yaml:"redis" json:"redis"`                           // Redis配置（可选）
 }
 
 // RedisStorage Redis存储配置（复用cache.Redis字段）
 type RedisStorage struct {
-	Addresses    []string      `mapstructure:"addresses" yaml:"addresses" json:"addresses"`                         // Redis地址
-	Password     string        `mapstructure:"password" yaml:"password" json:"password"`                            // 密码
-	DB           int           `mapstructure:"db" yaml:"db" json:"db"`                                              // 数据库
-	PoolSize     int           `mapstructure:"pool_size" yaml:"pool-size" json:"pool_size"`                         // 连接池
-	MinIdleConns int           `mapstructure:"min_idle_conns" yaml:"min-idle-conns" json:"min_idle_conns"`          // 最小空闲连接
-	MaxRetries   int           `mapstructure:"max_retries" yaml:"max-retries" json:"max_retries"`                   // 最大重试
-	ReadTimeout  time.Duration `mapstructure:"read_timeout" yaml:"read-timeout" json:"read_timeout"`                // 读超时
-	WriteTimeout time.Duration `mapstructure:"write_timeout" yaml:"write-timeout" json:"write_timeout"`             // 写超时
-	ClusterMode  bool          `mapstructure:"cluster_mode" yaml:"cluster-mode" json:"cluster_mode"`                // 集群模式
+	Addresses    []string      `mapstructure:"addresses" yaml:"addresses" json:"addresses"`              // Redis地址
+	Password     string        `mapstructure:"password" yaml:"password" json:"password"`                 // 密码
+	DB           int           `mapstructure:"db" yaml:"db" json:"db"`                                   // 数据库
+	PoolSize     int           `mapstructure:"pool-size" yaml:"pool-size" json:"poolSize"`               // 连接池
+	MinIdleConns int           `mapstructure:"min-idle-conns" yaml:"min-idle-conns" json:"minIdleConns"` // 最小空闲连接
+	MaxRetries   int           `mapstructure:"max-retries" yaml:"max-retries" json:"maxRetries"`         // 最大重试
+	ReadTimeout  time.Duration `mapstructure:"read-timeout" yaml:"read-timeout" json:"readTimeout"`      // 读超时
+	WriteTimeout time.Duration `mapstructure:"write-timeout" yaml:"write-timeout" json:"writeTimeout"`   // 写超时
+	ClusterMode  bool          `mapstructure:"cluster-mode" yaml:"cluster-mode" json:"clusterMode"`      // 集群模式
 }
 
 // Default 默认限流配置

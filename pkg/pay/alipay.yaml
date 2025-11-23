@@ -2,22 +2,22 @@
 # 模块名称: alipay
 # 包名: pay  
 # 描述: 支付宝支付
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# pid配置
+# 商户 PID，即商户的账号 ID
 pid: ""
-# app id配置
+# 应用 ID
 app-id: ""
-# pri key配置
+# 私钥
 pri-key: ""
-# pub key配置
+# 公钥，主要是回调验签用
 pub-key: ""
-# sign type配置
+# 签名方式，支持 RSA2 和 RSA
 sign-type: RSA2
-# notify url配置
+# 支付宝回调的 URL
 notify-url: ""
-# subject配置
+# 默认订单标题
 subject: 默认订单
-# module name配置
-modulename: alipay
+# 模块名称
+module-name: alipay

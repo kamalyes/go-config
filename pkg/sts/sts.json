@@ -2,14 +2,14 @@
 // 模块名称: sts
 // 包名: sts  
 // 描述: STS临时凭证
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:09
 // 注意: 此文件由配置生成器自动生成
 
 {
-  "module_name": "aliyun-sts",
-  "region_id": "cn-hangzhou",
-  "access_key_id": "demo_access_key_id",
-  "access_key_secret": "demo_access_key_secret",
-  "role_arn": "acs:ram::account:role/demo-role",
-  "role_session_name": "default-session"
+  "moduleName": "aliyun-sts",
+  "regionId": "cn-hangzhou",
+  "accessKeyId": "demo_access_key_id",
+  "accessKeySecret": "demo_access_key_secret",
+  "roleArn": "acs:ram::account:role/demo-role",
+  "roleSessionName": "default-session"
 }

@@ -15,10 +15,10 @@ import "github.com/kamalyes/go-config/internal"
 
 // Alerting 告警配置
 type Alerting struct {
-	ModuleName string                `mapstructure:"module_name" yaml:"module-name" json:"module_name"` // 模块名称
-	Enabled    bool                  `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用告警
-	Webhooks   []string              `mapstructure:"webhooks" yaml:"webhooks" json:"webhooks"`          // Webhook列表
-	Channels   []NotificationChannel `mapstructure:"channels" yaml:"channels" json:"channels"`          // 通知渠道
+	ModuleName string                `mapstructure:"module-name" yaml:"module-name" json:"moduleName"` // 模块名称
+	Enabled    bool                  `mapstructure:"enabled" yaml:"enabled" json:"enabled"`            // 是否启用告警
+	Webhooks   []string              `mapstructure:"webhooks" yaml:"webhooks" json:"webhooks"`         // Webhook列表
+	Channels   []NotificationChannel `mapstructure:"channels" yaml:"channels" json:"channels"`         // 通知渠道
 }
 
 // NotificationChannel 通知渠道配置

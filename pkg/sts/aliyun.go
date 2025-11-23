@@ -17,12 +17,12 @@ import (
 
 // AliyunSts 结构体表示 STS 配置
 type AliyunSts struct {
-	ModuleName      string `mapstructure:"modulename"                yaml:"modulename"           json:"module_name"           validate:"required"` // 模块名称
-	RegionID        string `mapstructure:"region-id"                 yaml:"region-id"            json:"region_id"             validate:"required"` // 区域 ID
-	AccessKeyID     string `mapstructure:"access-key-id"             yaml:"access-key-id"        json:"access_key_id"         validate:"required"` // 访问密钥 ID
-	AccessKeySecret string `mapstructure:"access-key-secret"         yaml:"access-key-secret"    json:"access_key_secret"     validate:"required"` // 访问密钥 Secret
-	RoleArn         string `mapstructure:"role-arn"                  yaml:"role-arn"             json:"role_arn"              validate:"required"` // 角色 ARN
-	RoleSessionName string `mapstructure:"role-session-name"         yaml:"role-session-name"    json:"role_session_name"     validate:"required"` // 角色会话名称
+	ModuleName      string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"           validate:"required"`            // 模块名称
+	RegionID        string `mapstructure:"region-id" yaml:"region-id" json:"regionId"             validate:"required"`                // 区域 ID
+	AccessKeyID     string `mapstructure:"access-key-id" yaml:"access-key-id" json:"accessKeyId"         validate:"required"`         // 访问密钥 ID
+	AccessKeySecret string `mapstructure:"access-key-secret" yaml:"access-key-secret" json:"accessKeySecret"     validate:"required"` // 访问密钥 Secret
+	RoleArn         string `mapstructure:"role-arn" yaml:"role-arn" json:"roleArn"              validate:"required"`                  // 角色 ARN
+	RoleSessionName string `mapstructure:"role-session-name" yaml:"role-session-name" json:"roleSessionName"     validate:"required"` // 角色会话名称
 }
 
 // NewAliyunSts 创建一个新的 AliyunSts 实例

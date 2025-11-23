@@ -2,7 +2,7 @@
 // 模块名称: zap
 // 包名: zap  
 // 描述: Zap日志模块
-// 生成时间: 2025-11-22 18:00:29
+// 生成时间: 2025-11-28 00:26:09
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -10,15 +10,15 @@
   "format": "console",
   "prefix": "[GO-CONFIG]",
   "director": "./logs",
-  "max_size": 10,
-  "max_age": 30,
-  "max_backups": 5,
+  "maxSize": 10,
+  "maxAge": 30,
+  "maxBackups": 5,
   "compress": false,
-  "link_name": "latest_log",
-  "show_line": true,
-  "encode_level": "capitalColor",
-  "stacktrace_key": "stacktrace",
-  "log_in_console": true,
+  "linkName": "latest_log",
+  "showLine": true,
+  "encodeLevel": "capitalColor",
+  "stacktraceKey": "stacktrace",
+  "logInConsole": true,
   "development": false,
-  "module_name": "zap"
+  "moduleName": "zap"
 }

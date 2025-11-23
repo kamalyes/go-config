@@ -2,30 +2,33 @@
 # 模块名称: cache
 # 包名: cache  
 # 描述: 缓存模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块标识名称 (字符串)
 module-name: default
-# type配置
+# type (字符串)
 type: memory
-# enabled配置
+# 是否启用该功能 (true/false)
 enabled: true
-# default ttl配置
+# default ttl (时间间隔: 如 30s, 5m, 1h)
 default-ttl: 30m0s
-# key prefix配置
+# key prefix (字符串)
 key-prefix: 'cache:'
-# serializer配置
+# json, gob, msgpack
 serializer: json
-# memory配置
+# 嵌套配置
 memory:
+    # 模块标识名称 (字符串)
     module-name: memory
     capacity: 1000
+    # default ttl (时间间隔: 如 30s, 5m, 1h)
     default-ttl: 30m0s
     cleanup-size: 100
     max-size: 0
-# ristretto配置
+# 嵌套配置
 ristretto:
+    # 模块标识名称 (字符串)
     module-name: ristretto
     num-counters: 10000000
     max-cost: 1073741824
@@ -34,9 +37,10 @@ ristretto:
     ignore-internal-cost: false
     key-to-hash: true
     cost: 1
-# redis配置
+# 嵌套配置
 redis:
-    modulename: redis
+    # 模块标识名称 (字符串)
+    module-name: redis
     addr: 127.0.0.1:6379
     addrs:
         - 127.0.0.1:6379
@@ -52,15 +56,17 @@ redis:
     read-timeout: 3s
     write-timeout: 3s
     cluster-mode: false
-# sharded配置
+# 嵌套配置
 sharded:
+    # 模块标识名称 (字符串)
     module-name: sharded
     shard-count: 32
     base-type: memory
     hash-func: fnv
     load-balancer: consistent_hash
-# two level配置
+# 嵌套配置
 two-level:
+    # 模块标识名称 (字符串)
     module-name: twolevel
     l1-type: memory
     l2-type: redis
@@ -70,10 +76,12 @@ two-level:
     l1-size: 1000
     l2-size: 10000
     promote-threshold: 2
-# expiring配置
+# 嵌套配置
 expiring:
+    # 模块标识名称 (字符串)
     module-name: expiring
     cleanup-interval: 5m0s
+    # default ttl (时间间隔: 如 30s, 5m, 1h)
     default-ttl: 30m0s
     max-size: 10000
     eviction-policy: lru

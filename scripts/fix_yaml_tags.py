@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-修复Go项目中yaml标签的kebab-case格式
+修复Go项目中yaml标签，将kebab-case格式改为snake_case
 只修改yaml标签部分，不动mapstructure和json标签
 """
 
@@ -16,17 +16,17 @@ def fix_yaml_tags_in_file(file_path):
         
         original_content = content
         
-        # 查找并替换yaml标签中的下划线
-        # 匹配模式：yaml:"xxx_yyy"
-        pattern = r'yaml:"([^"]*_[^"]*)"'
+        # 查找并替换yaml标签中的连字符
+        # 匹配模式：yaml:"xxx-yyy"
+        pattern = r'yaml:"([^"]*-[^"]*)"'
         
-        def replace_underscores(match):
+        def replace_hyphens(match):
             yaml_value = match.group(1)
-            # 将下划线替换为连字符
-            kebab_case = yaml_value.replace('_', '-')
-            return f'yaml:"{kebab_case}"'
+            # 将连字符替换为下划线
+            snake_case = yaml_value.replace('-', '_')
+            return f'yaml:"{snake_case}"'
         
-        content = re.sub(pattern, replace_underscores, content)
+        content = re.sub(pattern, replace_hyphens, content)
         
         # 如果内容发生了变化，写回文件
         if content != original_content:
@@ -44,7 +44,7 @@ def fix_yaml_tags_in_file(file_path):
 def main():
     """主函数"""
     # 项目根目录
-    project_root = r"c:\Users\yuyq\Desktop\压缩\IMProjects\IMProjects\go-config"
+    project_root = r"E:\WorkSpaces\GoProjects\go-config"
     
     # 查找所有Go文件
     go_files = []

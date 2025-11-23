@@ -2,14 +2,14 @@
 # 模块名称: alerting
 # 包名: alerting  
 # 描述: 告警模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: alerting
-# enabled配置
+# 是否启用告警
 enabled: false
-# webhooks配置
+# Webhook列表
 webhooks: []
-# channels配置
+# 通知渠道
 channels: []

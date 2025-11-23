@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-22 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-22 16:58:04
+ * @LastEditTime: 2025-11-28 00:37:13
  * @FilePath: \go-config\config_init_generator.go
  * @Description: 配置文件自动生成器 - 智能生成和更新所有模块的配置文件
  *
@@ -62,6 +62,9 @@ import (
 	"github.com/kamalyes/go-config/pkg/youzan"
 	"github.com/kamalyes/go-config/pkg/zap"
 	gologger "github.com/kamalyes/go-logger"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
@@ -87,15 +90,16 @@ type ModuleConfig struct {
 
 // SmartConfigGenerator 智能配置生成器
 type SmartConfigGenerator struct {
-	BaseOutputDir     string                  // 基础输出目录
-	Logger            *gologger.Logger        // 日志记录器
-	ModuleRegistry    map[string]ModuleConfig // 模块注册表
-	ForceRegenerate   bool                    // 是否强制重新生成
-	IncludeComments   bool                    // 是否包含注释
-	GenerateJSON      bool                    // 是否生成JSON
-	GenerateYAML      bool                    // 是否生成YAML
-	BackupExisting    bool                    // 是否备份现有文件
-	OverwriteExisting bool                    // 是否覆盖现有文件
+	BaseOutputDir     string                       // 基础输出目录
+	Logger            *gologger.Logger             // 日志记录器
+	ModuleRegistry    map[string]ModuleConfig      // 模块注册表
+	ForceRegenerate   bool                         // 是否强制重新生成
+	IncludeComments   bool                         // 是否包含注释
+	GenerateJSON      bool                         // 是否生成JSON
+	GenerateYAML      bool                         // 是否生成YAML
+	BackupExisting    bool                         // 是否备份现有文件
+	OverwriteExisting bool                         // 是否覆盖现有文件
+	commentCache      map[string]map[string]string // 注释缓存: packagePath -> fieldName -> comment
 }
 
 // NewSmartConfigGenerator 创建新的智能配置生成器
@@ -113,6 +117,7 @@ func NewSmartConfigGenerator(baseOutputDir string) *SmartConfigGenerator {
 		GenerateYAML:      true,
 		BackupExisting:    true,
 		OverwriteExisting: true,
+		commentCache:      make(map[string]map[string]string),
 	}
 
 	// 自动注册所有模块
@@ -357,10 +362,10 @@ func (sg *SmartConfigGenerator) generateYAMLConfig(config interface{}, filePath 
 		return nil
 	}
 
-	// 序列化为YAML
+	// 序列化为YAML（函数类型字段会被自动跳过，因为它们应该有 yaml:"-" 标签）
 	yamlData, err := yaml.Marshal(config)
 	if err != nil {
-		return fmt.Errorf("序列化YAML失败: %w", err)
+		return fmt.Errorf("序列化YAML失败（可能包含未标记为 yaml:\"-\" 的函数字段）: %w", err)
 	}
 
 	// 添加文件头注释
@@ -439,9 +444,8 @@ func (sg *SmartConfigGenerator) generateFileHeader(module ModuleConfig, format s
 	return header
 }
 
-// addFieldComments 为YAML字段添加注释
+// addFieldComments 为YAML字段添加注释(改进版)
 func (sg *SmartConfigGenerator) addFieldComments(content string, config interface{}) string {
-	// 通过反射分析结构体字段，添加注释
 	v := reflect.ValueOf(config)
 	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
@@ -453,7 +457,10 @@ func (sg *SmartConfigGenerator) addFieldComments(content string, config interfac
 
 	t := v.Type()
 	lines := strings.Split(content, "\n")
+	result := make([]string, 0, len(lines)*2) // 预留空间给注释行
 
+	// 构建字段注释映射
+	fieldComments := make(map[string]string)
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 		yamlTag := field.Tag.Get("yaml")
@@ -462,28 +469,63 @@ func (sg *SmartConfigGenerator) addFieldComments(content string, config interfac
 			continue
 		}
 
-		// 提取字段名
 		yamlName := strings.Split(yamlTag, ",")[0]
 		if yamlName == "" {
-			yamlName = strings.ToLower(field.Name)
+			yamlName = sg.toKebabCase(field.Name)
 		}
 
-		// 在对应行添加注释
-		for j, line := range lines {
-			if strings.Contains(line, yamlName+":") && !strings.HasPrefix(strings.TrimSpace(line), "#") {
-				// 尝试从注释中提取描述信息
-				if comment := sg.extractFieldComment(field); comment != "" {
-					lines[j] = "# " + comment + "\n" + line
-				}
-				break
-			}
+		comment := sg.extractDetailedComment(field, config)
+		if comment != "" {
+			fieldComments[yamlName] = comment
 		}
 	}
 
-	return strings.Join(lines, "\n")
+	// 处理每一行
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+
+		// 跳过空行和已有注释
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
+			result = append(result, line)
+			continue
+		}
+
+		// 检查是否是配置行
+		if colonIdx := strings.Index(trimmed, ":"); colonIdx > 0 {
+			fieldName := strings.TrimSpace(trimmed[:colonIdx])
+
+			// 查找对应的注释
+			if comment, exists := fieldComments[fieldName]; exists {
+				// 计算缩进
+				indent := ""
+				if len(line) > len(trimmed) {
+					indent = line[:len(line)-len(trimmed)]
+				}
+
+				// 添加注释行
+				result = append(result, indent+"# "+comment)
+			}
+		}
+
+		result = append(result, line)
+	}
+
+	return strings.Join(result, "\n")
 }
 
-// extractFieldComment 从结构体字段提取注释
+// toKebabCase 将驼峰转换为短横线命名
+func (sg *SmartConfigGenerator) toKebabCase(s string) string {
+	var result []rune
+	for i, r := range s {
+		if i > 0 && r >= 'A' && r <= 'Z' {
+			result = append(result, '-')
+		}
+		result = append(result, r)
+	}
+	return strings.ToLower(string(result))
+}
+
+// extractFieldComment 从结构体字段提取注释(改进版)
 func (sg *SmartConfigGenerator) extractFieldComment(field reflect.StructField) string {
 	// 尝试从tag中提取注释信息
 	if comment := field.Tag.Get("comment"); comment != "" {
@@ -494,8 +536,155 @@ func (sg *SmartConfigGenerator) extractFieldComment(field reflect.StructField) s
 		return description
 	}
 
-	// 根据字段名生成通用注释
-	return sg.generateGenericComment(field.Name)
+	if doc := field.Tag.Get("doc"); doc != "" {
+		return doc
+	}
+
+	// 根据字段名生成更详细的注释
+	return sg.generateDetailedComment(field.Name, field.Type)
+}
+
+// extractDetailedComment 提取详细注释(优先从源代码,包含类型信息)
+func (sg *SmartConfigGenerator) extractDetailedComment(field reflect.StructField, config interface{}) string {
+	parts := []string{}
+
+	// 1. 优先从源代码注释提取
+	sourceComment := sg.getFieldCommentFromSource(config, field.Name)
+	if sourceComment != "" {
+		parts = append(parts, sourceComment)
+		return sourceComment // 如果有源代码注释,直接返回,最准确
+	}
+
+	// 2. 从tag提取注释
+	if comment := field.Tag.Get("comment"); comment != "" {
+		parts = append(parts, comment)
+	} else if desc := field.Tag.Get("description"); desc != "" {
+		parts = append(parts, desc)
+	} else if doc := field.Tag.Get("doc"); doc != "" {
+		parts = append(parts, doc)
+	}
+
+	// 添加类型信息
+	typeInfo := sg.getTypeInfo(field.Type)
+	if typeInfo != "" {
+		parts = append(parts, typeInfo)
+	}
+
+	// 如果没有注释,生成描述性注释
+	if len(parts) == 0 {
+		parts = append(parts, sg.generateDetailedComment(field.Name, field.Type))
+	}
+
+	return strings.Join(parts, " | ")
+}
+
+// generateDetailedComment 生成详细注释(包含类型信息)
+func (sg *SmartConfigGenerator) generateDetailedComment(fieldName string, fieldType reflect.Type) string {
+	// 将驼峰命名转换为可读文本
+	re := regexp.MustCompile("([a-z0-9])([A-Z])")
+	readable := re.ReplaceAllString(fieldName, "${1} ${2}")
+	readable = strings.ToLower(readable)
+
+	// 特殊字段名称映射
+	fieldDescriptions := map[string]string{
+		"modulename":    "模块标识名称",
+		"module-name":   "模块标识名称",
+		"name":          "服务名称",
+		"enabled":       "是否启用该功能",
+		"debug":         "是否启用调试模式",
+		"version":       "版本号",
+		"environment":   "运行环境 (dev/test/prod)",
+		"host":          "主机地址",
+		"port":          "端口号",
+		"timeout":       "超时时间",
+		"password":      "密码",
+		"username":      "用户名",
+		"endpoint":      "服务端点地址",
+		"database":      "数据库名称",
+		"maxretries":    "最大重试次数",
+		"max-retries":   "最大重试次数",
+		"idletimeout":   "空闲超时时间",
+		"idle-timeout":  "空闲超时时间",
+		"readtimeout":   "读取超时时间",
+		"read-timeout":  "读取超时时间",
+		"writetimeout":  "写入超时时间",
+		"write-timeout": "写入超时时间",
+		"poolsize":      "连接池大小",
+		"pool-size":     "连接池大小",
+	}
+
+	// 检查是否有预定义的描述
+	key := strings.ToLower(strings.ReplaceAll(fieldName, "-", ""))
+	if desc, exists := fieldDescriptions[key]; exists {
+		readable = desc
+	}
+
+	// 根据类型添加额外信息
+	typeHint := ""
+	switch fieldType.Kind() {
+	case reflect.Bool:
+		typeHint = "(true/false)"
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		if fieldType.String() == "time.Duration" {
+			typeHint = "(时间间隔: 如 30s, 5m, 1h)"
+		} else {
+			typeHint = "(整数)"
+		}
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		typeHint = "(正整数)"
+	case reflect.Float32, reflect.Float64:
+		typeHint = "(浮点数)"
+	case reflect.String:
+		typeHint = "(字符串)"
+	case reflect.Slice:
+		elem := fieldType.Elem()
+		elemType := elem.Kind().String()
+		if elem.Kind() == reflect.String {
+			typeHint = "(字符串数组)"
+		} else {
+			typeHint = fmt.Sprintf("(%s数组)", elemType)
+		}
+	case reflect.Map:
+		typeHint = "(键值对映射)"
+	case reflect.Struct:
+		if fieldType.String() == "time.Duration" {
+			typeHint = "(时间间隔: 如 30s, 5m, 1h)"
+		} else if fieldType.String() == "time.Time" {
+			typeHint = "(时间: 如 2006-01-02 15:04:05)"
+		} else {
+			typeHint = "(嵌套配置对象)"
+		}
+	case reflect.Ptr:
+		elem := fieldType.Elem()
+		if elem.Kind() == reflect.Struct {
+			typeHint = "(嵌套配置对象)"
+		}
+	}
+
+	if typeHint != "" {
+		return readable + " " + typeHint
+	}
+	return readable
+} // getTypeInfo 获取类型信息提示
+func (sg *SmartConfigGenerator) getTypeInfo(t reflect.Type) string {
+	switch t.Kind() {
+	case reflect.Slice:
+		elem := t.Elem()
+		return fmt.Sprintf("数组[%s]", elem.Kind().String())
+	case reflect.Map:
+		key := t.Key()
+		val := t.Elem()
+		return fmt.Sprintf("映射<%s, %s>", key.Kind().String(), val.Kind().String())
+	case reflect.Struct:
+		if t.String() == "time.Duration" {
+			return "时间间隔(如: 30s, 5m, 1h)"
+		}
+		if t.String() == "time.Time" {
+			return "时间(如: 2006-01-02 15:04:05)"
+		}
+		return "嵌套配置"
+	}
+	return ""
 }
 
 // generateGenericComment 根据字段名生成通用注释
@@ -743,4 +932,103 @@ func (sg *SmartConfigGenerator) UpdateModuleConfig(moduleName string, updates ma
 	sg.ModuleRegistry[moduleName] = module
 	sg.Logger.DebugKV("模块配置已更新", "module", moduleName)
 	return nil
+}
+
+// parseSourceComments 从Go源代码中解析字段注释
+func (sg *SmartConfigGenerator) parseSourceComments(packagePath string, structName string) map[string]string {
+	// 检查缓存
+	cacheKey := packagePath + "." + structName
+	if comments, exists := sg.commentCache[cacheKey]; exists {
+		return comments
+	}
+
+	comments := make(map[string]string)
+
+	// 查找包的源代码目录
+	pkgDir := filepath.Join(sg.BaseOutputDir, "pkg", packagePath)
+
+	// 解析目录中的所有Go文件
+	fset := token.NewFileSet()
+	pkgs, err := parser.ParseDir(fset, pkgDir, nil, parser.ParseComments)
+	if err != nil {
+		sg.Logger.WarnKV("解析源代码失败", "package", packagePath, "error", err.Error())
+		return comments
+	}
+
+	// 遍历所有包和文件
+	for _, pkg := range pkgs {
+		for _, file := range pkg.Files {
+			ast.Inspect(file, func(n ast.Node) bool {
+				// 查找结构体定义
+				typeSpec, ok := n.(*ast.TypeSpec)
+				if !ok || typeSpec.Name.Name != structName {
+					return true
+				}
+
+				// 确保是结构体
+				structType, ok := typeSpec.Type.(*ast.StructType)
+				if !ok {
+					return true
+				}
+
+				// 遍历结构体字段
+				for _, field := range structType.Fields.List {
+					if field.Comment == nil || len(field.Names) == 0 {
+						continue
+					}
+
+					// 提取注释文本
+					comment := strings.TrimSpace(field.Comment.Text())
+					comment = strings.TrimPrefix(comment, "//")
+					comment = strings.TrimSpace(comment)
+
+					// 保存到map
+					for _, name := range field.Names {
+						comments[name.Name] = comment
+					}
+				}
+
+				return false
+			})
+		}
+	}
+
+	// 缓存结果
+	sg.commentCache[cacheKey] = comments
+	sg.Logger.DebugKV("解析源代码注释", "package", packagePath, "struct", structName, "count", len(comments))
+
+	return comments
+}
+
+// getFieldCommentFromSource 从源代码获取字段注释
+func (sg *SmartConfigGenerator) getFieldCommentFromSource(config interface{}, fieldName string) string {
+	t := reflect.TypeOf(config)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	if t.Kind() != reflect.Struct {
+		return ""
+	}
+
+	// 获取包路径和结构体名称
+	pkgPath := t.PkgPath()
+	structName := t.Name()
+
+	// 从包路径提取相对路径
+	// 例如: github.com/kamalyes/go-config/pkg/gateway -> gateway
+	parts := strings.Split(pkgPath, "/")
+	if len(parts) > 0 {
+		pkgPath = parts[len(parts)-1]
+	}
+
+	// 解析源代码注释
+	comments := sg.parseSourceComments(pkgPath, structName)
+
+	// 查找字段注释
+	if comment, exists := comments[fieldName]; exists {
+		return comment
+	}
+
+	return ""
 }

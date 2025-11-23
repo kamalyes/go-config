@@ -2,34 +2,34 @@
 # 模块名称: access
 # 包名: access  
 # 描述: 访问控制模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-28 00:26:08
 # 注意: 此文件由配置生成器自动生成
 
-# module name配置
+# 模块名称
 module-name: access
-# enabled配置
+# 是否启用访问记录
 enabled: true
-# service name配置
+# 服务名称
 service-name: rpc-gateway
-# retention days配置
+# 保留天数
 retention-days: 60
-# include body配置
+# 是否记录请求体
 include-body: true
-# include response配置
+# 是否记录响应体
 include-response: true
-# include headers配置
+# 要记录的头部
 include-headers:
     - User-Agent
     - X-Request-ID
     - X-Trace-ID
     - Authorization
     - Content-Type
-# exclude paths配置
+# 排除的路径
 exclude-paths:
     - /health
     - /metrics
     - /debug
-# max body size配置
+# 最大请求体大小
 max-body-size: 1048576
-# max response size配置
+# 最大响应体大小
 max-response-size: 5242880
