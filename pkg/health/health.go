@@ -15,7 +15,7 @@ import "github.com/kamalyes/go-config/internal"
 
 // Health 健康检查配置
 type Health struct {
-	ModuleName string       `mapstructure:"module_name" yaml:"module-name" json:"module_name"` // 模块名称
+	ModuleName string       `mapstructure:"module_name" yaml:"module_name" json:"module_name"` // 模块名称
 	Enabled    bool         `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用健康检查
 	Path       string       `mapstructure:"path" yaml:"path" json:"path"`                      // 健康检查路径
 	Port       int          `mapstructure:"port" yaml:"port" json:"port"`                      // 健康检查端口

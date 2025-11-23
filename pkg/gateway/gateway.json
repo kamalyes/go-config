@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2025-11-23 13:56:06
+// 生成时间: 2025-11-23 23:53:28
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -780,7 +780,9 @@
     "websocket_origins": [
       "*"
     ],
-    "write_wait": 10000000000,
+    "read_timeout": 10000000000,
+    "write_timeout": 10000000000,
+    "idle_timeout": 120000000000,
     "max_message_size": 512,
     "min_rec_time": 2000000000,
     "max_rec_time": 60000000000,
@@ -828,6 +830,34 @@
       "group_cache_expire": 3600,
       "auto_create_group": false,
       "enable_message_record": true
+    },
+    "performance": {
+      "max_connections_per_node": 10000,
+      "read_buffer_size": 4,
+      "write_buffer_size": 4,
+      "enable_compression": false,
+      "compression_level": 6,
+      "enable_metrics": true,
+      "metrics_interval": 60,
+      "enable_slow_log": true,
+      "slow_log_threshold": 1000
+    },
+    "security": {
+      "enable_auth": true,
+      "enable_encryption": false,
+      "enable_rate_limit": true,
+      "max_message_size": 1024,
+      "allowed_user_types": [
+        "customer",
+        "agent",
+        "admin"
+      ],
+      "blocked_ips": [],
+      "whitelist_ips": [],
+      "enable_ip_whitelist": false,
+      "token_expiration": 3600,
+      "max_login_attempts": 5,
+      "login_lock_duration": 300
     },
     "enhancement": {
       "enabled": false,

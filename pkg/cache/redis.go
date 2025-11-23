@@ -26,15 +26,15 @@ type Redis struct {
 	Username     string        `mapstructure:"username" yaml:"username" json:"username"`                                    // 用户名
 	Password     string        `mapstructure:"password" yaml:"password" json:"password"`                                    // 连接密码
 	DB           int           `mapstructure:"db" yaml:"db" json:"db" validate:"min=0"`                                     // 指定连接的数据库，默认连数据库 0
-	MaxRetries   int           `mapstructure:"max-retries" yaml:"max-retries" json:"max_retries" validate:"min=0"`          // 最大重试次数，最小值为 0
-	PoolSize     int           `mapstructure:"pool-size" yaml:"pool-size" json:"pool_size" validate:"min=1"`                // 连接池大小，最小值为 1
-	MinIdleConns int           `mapstructure:"min-idle-conns" yaml:"min-idle-conns" json:"min_idle_conns" validate:"min=0"` // 最小空闲连接数，最小值为 0
-	MaxConnAge   time.Duration `mapstructure:"max-conn-age" yaml:"max-conn-age" json:"max_conn_age"`                        // 连接最大存活时间
-	PoolTimeout  time.Duration `mapstructure:"pool-timeout" yaml:"pool-timeout" json:"pool_timeout"`                        // 连接池超时
-	IdleTimeout  time.Duration `mapstructure:"idle-timeout" yaml:"idle-timeout" json:"idle_timeout"`                        // 空闲超时
-	ReadTimeout  time.Duration `mapstructure:"read-timeout" yaml:"read-timeout" json:"read_timeout"`                        // 读取超时
-	WriteTimeout time.Duration `mapstructure:"write-timeout" yaml:"write-timeout" json:"write_timeout"`                     // 写入超时
-	ClusterMode  bool          `mapstructure:"cluster-mode" yaml:"cluster-mode" json:"cluster_mode"`                        // 是否集群模式
+	MaxRetries   int           `mapstructure:"max-retries" yaml:"max_retries" json:"max_retries" validate:"min=0"`          // 最大重试次数，最小值为 0
+	PoolSize     int           `mapstructure:"pool-size" yaml:"pool_size" json:"pool_size" validate:"min=1"`                // 连接池大小，最小值为 1
+	MinIdleConns int           `mapstructure:"min-idle-conns" yaml:"min_idle_conns" json:"min_idle_conns" validate:"min=0"` // 最小空闲连接数，最小值为 0
+	MaxConnAge   time.Duration `mapstructure:"max-conn-age" yaml:"max_conn_age" json:"max_conn_age"`                        // 连接最大存活时间
+	PoolTimeout  time.Duration `mapstructure:"pool-timeout" yaml:"pool_timeout" json:"pool_timeout"`                        // 连接池超时
+	IdleTimeout  time.Duration `mapstructure:"idle-timeout" yaml:"idle_timeout" json:"idle_timeout"`                        // 空闲超时
+	ReadTimeout  time.Duration `mapstructure:"read-timeout" yaml:"read_timeout" json:"read_timeout"`                        // 读取超时
+	WriteTimeout time.Duration `mapstructure:"write-timeout" yaml:"write_timeout" json:"write_timeout"`                     // 写入超时
+	ClusterMode  bool          `mapstructure:"cluster-mode" yaml:"cluster_mode" json:"cluster_mode"`                        // 是否集群模式
 }
 
 // NewRedis 创建一个新的 Redis 实例

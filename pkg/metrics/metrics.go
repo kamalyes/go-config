@@ -15,17 +15,17 @@ import "github.com/kamalyes/go-config/internal"
 
 // Metrics 指标中间件配置
 type Metrics struct {
-	ModuleName   string    `mapstructure:"module_name" yaml:"module-name" json:"module_name"`       // 模块名称
+	ModuleName   string    `mapstructure:"module_name" yaml:"module_name" json:"module_name"`       // 模块名称
 	Enabled      bool      `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用指标
 	Path         string    `mapstructure:"path" yaml:"path" json:"path"`                            // 指标路径
 	Namespace    string    `mapstructure:"namespace" yaml:"namespace" json:"namespace"`             // 命名空间
 	Subsystem    string    `mapstructure:"subsystem" yaml:"subsystem" json:"subsystem"`             // 子系统名称
-	SkipPaths    []string  `mapstructure:"skip_paths" yaml:"skip-paths" json:"skip_paths"`          // 跳过的路径
+	SkipPaths    []string  `mapstructure:"skip_paths" yaml:"skip_paths" json:"skip_paths"`          // 跳过的路径
 	Buckets      []float64 `mapstructure:"buckets" yaml:"buckets" json:"buckets"`                   // 直方图桶
-	RequestCount bool      `mapstructure:"request_count" yaml:"request-count" json:"request_count"` // 请求计数
+	RequestCount bool      `mapstructure:"request_count" yaml:"request_count" json:"request_count"` // 请求计数
 	Duration     bool      `mapstructure:"duration" yaml:"duration" json:"duration"`                // 请求时长
-	RequestSize  bool      `mapstructure:"request_size" yaml:"request-size" json:"request_size"`    // 请求大小
-	ResponseSize bool      `mapstructure:"response_size" yaml:"response-size" json:"response_size"` // 响应大小
+	RequestSize  bool      `mapstructure:"request_size" yaml:"request_size" json:"request_size"`    // 请求大小
+	ResponseSize bool      `mapstructure:"response_size" yaml:"response_size" json:"response_size"` // 响应大小
 }
 
 // Default 创建默认指标配置

@@ -2,18 +2,18 @@
 # 模块名称: wechatpay
 # 包名: pay  
 # 描述: 微信支付
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-23 23:53:28
 # 注意: 此文件由配置生成器自动生成
 
 # app id配置
-app-id: ""
+app_id: ""
 # mch id配置
-mch-id: ""
+mch_id: ""
 # notify url配置
-notify-url: ""
+notify_url: ""
 # api key配置
-api-key: ""
+api_key: ""
 # cert p12 path配置
-cert-p12-path: ""
+cert_p12_path: ""
 # module name配置
 modulename: wechatpay

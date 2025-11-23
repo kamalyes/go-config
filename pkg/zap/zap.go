@@ -21,15 +21,15 @@ type Zap struct {
 	Format        string `mapstructure:"format"                   yaml:"format"              json:"format"                validate:"required,oneof=json console"`                // 日志格式
 	Prefix        string `mapstructure:"prefix"                   yaml:"prefix"              json:"prefix"`                                                                      // 日志前缀
 	Director      string `mapstructure:"director"                 yaml:"director"            json:"director"              validate:"required"`                                   // 日志目录
-	MaxSize       int    `mapstructure:"max-size"                 yaml:"max-size"            json:"max_size"              validate:"required,min=1"`                             // 日志文件的最大大小（以MB为单位）
-	MaxAge        int    `mapstructure:"max-age"                  yaml:"max-age"             json:"max_age"               validate:"required,min=1"`                             // 日志最大保留时间 单位：天
-	MaxBackups    int    `mapstructure:"max-backups"              yaml:"max-backups"         json:"max_backups"           validate:"required,min=0"`                             // 保留旧文件的最大个数
+	MaxSize       int    `mapstructure:"max-size"                 yaml:"max_size"            json:"max_size"              validate:"required,min=1"`                             // 日志文件的最大大小（以MB为单位）
+	MaxAge        int    `mapstructure:"max-age"                  yaml:"max_age"             json:"max_age"               validate:"required,min=1"`                             // 日志最大保留时间 单位：天
+	MaxBackups    int    `mapstructure:"max-backups"              yaml:"max_backups"         json:"max_backups"           validate:"required,min=0"`                             // 保留旧文件的最大个数
 	Compress      bool   `mapstructure:"compress"                 yaml:"compress"            json:"compress"`                                                                    // 是否压缩
-	LinkName      string `mapstructure:"link-name"                yaml:"link-name"           json:"link_name"`                                                                   // 日志软连接文件
-	ShowLine      bool   `mapstructure:"show-line"                yaml:"show-line"           json:"show_line"`                                                                   // 是否在日志中输出源码所在的行
-	EncodeLevel   string `mapstructure:"encode-level"             yaml:"encode-level"        json:"encode_level"`                                                                // 日志编码等级，指定不通过等级可以有不同颜色
-	StacktraceKey string `mapstructure:"stacktrace-key"           yaml:"stacktrace-key"      json:"stacktrace_key"`                                                              // 堆栈捕捉标识
-	LogInConsole  bool   `mapstructure:"log-in-console"           yaml:"log-in-console"      json:"log_in_console"`                                                              // 是否在控制台打印日志
+	LinkName      string `mapstructure:"link-name"                yaml:"link_name"           json:"link_name"`                                                                   // 日志软连接文件
+	ShowLine      bool   `mapstructure:"show-line"                yaml:"show_line"           json:"show_line"`                                                                   // 是否在日志中输出源码所在的行
+	EncodeLevel   string `mapstructure:"encode-level"             yaml:"encode_level"        json:"encode_level"`                                                                // 日志编码等级，指定不通过等级可以有不同颜色
+	StacktraceKey string `mapstructure:"stacktrace-key"           yaml:"stacktrace_key"      json:"stacktrace_key"`                                                              // 堆栈捕捉标识
+	LogInConsole  bool   `mapstructure:"log-in-console"           yaml:"log_in_console"      json:"log_in_console"`                                                              // 是否在控制台打印日志
 	Development   bool   `mapstructure:"development"              yaml:"development"         json:"development"`                                                                 // 是否为开发者模式
 	ModuleName    string `mapstructure:"modulename"               yaml:"modulename"          json:"module_name"`                                                                 // 模块名称
 }

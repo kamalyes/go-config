@@ -2,11 +2,11 @@
 # 模块名称: rpcclient
 # 包名: rpcclient  
 # 描述: RPC客户端
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-23 23:53:28
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
-module-name: rpc-client
+module_name: rpc-client
 # enabled配置
 enabled: false
 # endpoints配置
@@ -19,19 +19,19 @@ app: demo-app
 # token配置
 token: demo_token
 # non block配置
-non-block: false
+non_block: false
 # timeout配置
 timeout: 5000
 # keepalive time配置
-keepalive-time: 30
+keepalive_time: 30
 # dial timeout配置
-dial-timeout: 3
+dial_timeout: 3
 # max retries配置
-max-retries: 3
+max_retries: 3
 # retry interval配置
-retry-interval: 1000
+retry_interval: 1000
 # load balance配置
-load-balance: round_robin
+load_balance: round_robin
 # compression配置
 compression: gzip
 # headers配置
@@ -39,17 +39,17 @@ headers: {}
 # tls配置
 tls:
     enabled: false
-    cert-file: ""
-    key-file: ""
-    ca-cert-file: ""
-    server-name: ""
-    insecure-skip-verify: true
+    cert_file: ""
+    key_file: ""
+    ca_cert_file: ""
+    server_name: ""
+    insecure_skip_verify: true
 # circuit breaker配置
-circuit-breaker:
+circuit_breaker:
     enabled: false
-    max-requests: 100
+    max_requests: 100
     interval: 60
     timeout: 10
-    failure-threshold: 5
-    success-threshold: 2
-    half-open-max-calls: 3
+    failure_threshold: 5
+    success_threshold: 2
+    half_open_max_calls: 3

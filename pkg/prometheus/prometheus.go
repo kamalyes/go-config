@@ -15,12 +15,12 @@ import "github.com/kamalyes/go-config/internal"
 
 // Prometheus Prometheus配置
 type Prometheus struct {
-	ModuleName  string       `mapstructure:"module_name" yaml:"module-name" json:"module_name"`    // 模块名称
+	ModuleName  string       `mapstructure:"module_name" yaml:"module_name" json:"module_name"`    // 模块名称
 	Enabled     bool         `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                // 是否启用Prometheus
 	Path        string       `mapstructure:"path" yaml:"path" json:"path"`                         // Prometheus路径
 	Port        int          `mapstructure:"port" yaml:"port" json:"port"`                         // Prometheus端口
 	Endpoint    string       `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"`             // Prometheus端点
-	PushGateway *PushGateway `mapstructure:"push_gateway" yaml:"push-gateway" json:"push_gateway"` // PushGateway配置
+	PushGateway *PushGateway `mapstructure:"push_gateway" yaml:"push_gateway" json:"push_gateway"` // PushGateway配置
 	Scraping    *Scraping    `mapstructure:"scraping" yaml:"scraping" json:"scraping"`             // 抓取配置
 }
 
@@ -28,14 +28,14 @@ type Prometheus struct {
 type PushGateway struct {
 	Enabled  bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`    // 是否启用PushGateway
 	Endpoint string `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"` // PushGateway端点
-	JobName  string `mapstructure:"job_name" yaml:"job-name" json:"job_name"` // Job名称
+	JobName  string `mapstructure:"job_name" yaml:"job_name" json:"job_name"` // Job名称
 }
 
 // Scraping 抓取配置
 type Scraping struct {
 	Interval    string `mapstructure:"interval" yaml:"interval" json:"interval"`             // 抓取间隔
 	Timeout     string `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                // 超时时间
-	MetricsPath string `mapstructure:"metrics_path" yaml:"metrics-path" json:"metrics_path"` // 指标路径
+	MetricsPath string `mapstructure:"metrics_path" yaml:"metrics_path" json:"metrics_path"` // 指标路径
 }
 
 // Default 创建默认Prometheus配置

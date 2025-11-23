@@ -18,10 +18,10 @@ import (
 // YouZan 结构体表示 YouZan 配置
 type YouZan struct {
 	Endpoint      string `mapstructure:"endpoint"                 yaml:"endpoint"            json:"endpoint"              validate:"required,url"` // API端点地址，必须是有效的 URL
-	ClientID      string `mapstructure:"client-id"                yaml:"client-id"           json:"client_id"             validate:"required"`     // 客户端 ID
-	ClientSecret  string `mapstructure:"client-secret"            yaml:"client-secret"       json:"client_secret"         validate:"required"`     // 客户端密钥
-	AuthorizeType string `mapstructure:"authorize-type"           yaml:"authorize-type"      json:"authorize_type"        validate:"required"`     // 授权类型
-	GrantID       string `mapstructure:"grant-id"                 yaml:"grant-id"            json:"grant_id"              validate:"required"`     // 授权 ID
+	ClientID      string `mapstructure:"client-id"                yaml:"client_id"           json:"client_id"             validate:"required"`     // 客户端 ID
+	ClientSecret  string `mapstructure:"client-secret"            yaml:"client_secret"       json:"client_secret"         validate:"required"`     // 客户端密钥
+	AuthorizeType string `mapstructure:"authorize-type"           yaml:"authorize_type"      json:"authorize_type"        validate:"required"`     // 授权类型
+	GrantID       string `mapstructure:"grant-id"                 yaml:"grant_id"            json:"grant_id"              validate:"required"`     // 授权 ID
 	Refresh       bool   `mapstructure:"refresh"                  yaml:"refresh"             json:"refresh"`                                       // 是否刷新
 	ModuleName    string `mapstructure:"modulename"               yaml:"modulename"          json:"module_name"`                                   // 模块名称
 }

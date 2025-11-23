@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-13 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-23 13:00:25
- * @FilePath: \go-config\pkg\wsc\wsc.go
+ * @LastEditTime: 2025-11-24 14:23:00
+ * @FilePath: \engine-im-service\go-config\pkg\wsc\wsc.go
  * @Description: WebSocket 通信完整配置模块（包含分布式、Redis、群组、广播等）
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
@@ -12,43 +12,46 @@
 package wsc
 
 import (
+	"time"
+
 	"github.com/kamalyes/go-config/internal"
 	"github.com/kamalyes/go-config/pkg/logging"
-	"time"
 )
 
 // WSC WebSocket 通信完整配置
 type WSC struct {
 	// === 基础配置 ===
 	Enabled              bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                              // 是否启用
-	NodeIP               string        `mapstructure:"node_ip" yaml:"node-ip" json:"node_ip"`                                              // 节点IP
-	NodePort             int           `mapstructure:"node_port" yaml:"node-port" json:"node_port"`                                        // 节点端口
-	HeartbeatInterval    int           `mapstructure:"heartbeat_interval" yaml:"heartbeat-interval" json:"heartbeat_interval"`             // 心跳间隔(秒)
-	ClientTimeout        int           `mapstructure:"client_timeout" yaml:"client-timeout" json:"client_timeout"`                         // 客户端超时(秒)
-	MessageBufferSize    int           `mapstructure:"message_buffer_size" yaml:"message-buffer-size" json:"message_buffer_size"`          // 消息缓冲区大小
-	WebSocketOrigins     []string      `mapstructure:"websocket_origins" yaml:"websocket-origins" json:"websocket_origins"`                // 允许的WebSocket Origin
-	WriteWait            time.Duration `mapstructure:"write_wait" yaml:"write-wait" json:"write_wait"`                                     // 写超时
-	MaxMessageSize       int64         `mapstructure:"max_message_size" yaml:"max-message-size" json:"max_message_size"`                   // 最大消息长度
-	MinRecTime           time.Duration `mapstructure:"min_rec_time" yaml:"min-rec-time" json:"min_rec_time"`                               // 最小重连时间
-	MaxRecTime           time.Duration `mapstructure:"max_rec_time" yaml:"max-rec-time" json:"max_rec_time"`                               // 最大重连时间
-	RecFactor            float64       `mapstructure:"rec_factor" yaml:"rec-factor" json:"rec_factor"`                                     // 重连因子
-	AutoReconnect        bool          `mapstructure:"auto_reconnect" yaml:"auto-reconnect" json:"auto_reconnect"`                         // 是否自动重连
-	MaxRetries           int           `mapstructure:"max_retries" yaml:"max-retries" json:"max_retries"`                                  // 最大重试次数
-	BaseDelay            time.Duration `mapstructure:"base_delay" yaml:"base-delay" json:"base_delay"`                                     // 基本重试延迟
-	MaxDelay             time.Duration `mapstructure:"max_delay" yaml:"max-delay" json:"max_delay"`                                        // 最大重试延迟
-	AckTimeoutMs         time.Duration `mapstructure:"ack_timeout_ms" yaml:"ack-timeout-ms" json:"ack_timeout_ms"`                         // 消息确认超时(毫秒)
-	AckMaxRetries        int           `mapstructure:"ack_max_retries" yaml:"ack-max-retries" json:"ack_max_retries"`                      // 消息确认最大重试次数
-	EnableAck            bool          `mapstructure:"enable_ack" yaml:"enable-ack" json:"enable_ack"`                                     // 是否启用消息确认
-	BackoffFactor        float64       `mapstructure:"backoff_factor" yaml:"backoff-factor" json:"backoff_factor"`                         // 重试延迟倍数
+	NodeIP               string        `mapstructure:"node_ip" yaml:"node_ip" json:"node_ip"`                                              // 节点IP
+	NodePort             int           `mapstructure:"node_port" yaml:"node_port" json:"node_port"`                                        // 节点端口
+	HeartbeatInterval    int           `mapstructure:"heartbeat_interval" yaml:"heartbeat_interval" json:"heartbeat_interval"`             // 心跳间隔(秒)
+	ClientTimeout        int           `mapstructure:"client_timeout" yaml:"client_timeout" json:"client_timeout"`                         // 客户端超时(秒)
+	MessageBufferSize    int           `mapstructure:"message_buffer_size" yaml:"message_buffer_size" json:"message_buffer_size"`          // 消息缓冲区大小
+	WebSocketOrigins     []string      `mapstructure:"websocket_origins" yaml:"websocket_origins" json:"websocket_origins"`                // 允许的WebSocket Origin
+	ReadTimeout          time.Duration `mapstructure:"read_timeout" yaml:"read_timeout" json:"read_timeout"`                               // 读取超时(秒)
+	WriteTimeout         time.Duration `mapstructure:"write_timeout" yaml:"write_timeout" json:"write_timeout"`                            // 写入超时(秒)
+	IdleTimeout          time.Duration `mapstructure:"idle_timeout" yaml:"idle_timeout" json:"idle_timeout"`                               // 空闲超时(秒)
+	MaxMessageSize       int64         `mapstructure:"max_message_size" yaml:"max_message_size" json:"max_message_size"`                   // 最大消息长度
+	MinRecTime           time.Duration `mapstructure:"min_rec_time" yaml:"min_rec_time" json:"min_rec_time"`                               // 最小重连时间
+	MaxRecTime           time.Duration `mapstructure:"max_rec_time" yaml:"max_rec_time" json:"max_rec_time"`                               // 最大重连时间
+	RecFactor            float64       `mapstructure:"rec_factor" yaml:"rec_factor" json:"rec_factor"`                                     // 重连因子
+	AutoReconnect        bool          `mapstructure:"auto_reconnect" yaml:"auto_reconnect" json:"auto_reconnect"`                         // 是否自动重连
+	MaxRetries           int           `mapstructure:"max_retries" yaml:"max_retries" json:"max_retries"`                                  // 最大重试次数
+	BaseDelay            time.Duration `mapstructure:"base_delay" yaml:"base_delay" json:"base_delay"`                                     // 基本重试延迟
+	MaxDelay             time.Duration `mapstructure:"max_delay" yaml:"max_delay" json:"max_delay"`                                        // 最大重试延迟
+	AckTimeoutMs         time.Duration `mapstructure:"ack_timeout_ms" yaml:"ack_timeout_ms" json:"ack_timeout_ms"`                         // 消息确认超时(毫秒)
+	AckMaxRetries        int           `mapstructure:"ack_max_retries" yaml:"ack_max_retries" json:"ack_max_retries"`                      // 消息确认最大重试次数
+	EnableAck            bool          `mapstructure:"enable_ack" yaml:"enable_ack" json:"enable_ack"`                                     // 是否启用消息确认
+	BackoffFactor        float64       `mapstructure:"backoff_factor" yaml:"backoff_factor" json:"backoff_factor"`                         // 重试延迟倍数
 	Jitter               bool          `mapstructure:"jitter" yaml:"jitter" json:"jitter"`                                                 // 是否添加随机抖动
-	RetryableErrors      []string      `mapstructure:"retryable_errors" yaml:"retryable-errors" json:"retryable_errors"`                   // 可重试的错误类型
-	NonRetryableErrors   []string      `mapstructure:"non_retryable_errors" yaml:"non-retryable-errors" json:"non_retryable_errors"`       // 不可重试的错误类型
-	EnableCircuitBreaker bool          `mapstructure:"enable_circuit_breaker" yaml:"enable-circuit-breaker" json:"enable_circuit_breaker"` // 是否启用熔断器
+	RetryableErrors      []string      `mapstructure:"retryable_errors" yaml:"retryable_errors" json:"retryable_errors"`                   // 可重试的错误类型
+	NonRetryableErrors   []string      `mapstructure:"non_retryable_errors" yaml:"non_retryable_errors" json:"non_retryable_errors"`       // 不可重试的错误类型
+	EnableCircuitBreaker bool          `mapstructure:"enable_circuit_breaker" yaml:"enable_circuit_breaker" json:"enable_circuit_breaker"` // 是否启用熔断器
 
 	// === SSE 配置 ===
-	SSEHeartbeat     int `mapstructure:"sse_heartbeat" yaml:"sse-heartbeat" json:"sse_heartbeat"`                // SSE心跳间隔(秒)
-	SSETimeout       int `mapstructure:"sse_timeout" yaml:"sse-timeout" json:"sse_timeout"`                      // SSE超时(秒)
-	SSEMessageBuffer int `mapstructure:"sse_message_buffer" yaml:"sse-message-buffer" json:"sse_message_buffer"` // SSE消息缓冲区大小
+	SSEHeartbeat     int `mapstructure:"sse_heartbeat" yaml:"sse_heartbeat" json:"sse_heartbeat"`                // SSE心跳间隔(秒)
+	SSETimeout       int `mapstructure:"sse_timeout" yaml:"sse_timeout" json:"sse_timeout"`                      // SSE超时(秒)
+	SSEMessageBuffer int `mapstructure:"sse_message_buffer" yaml:"sse_message_buffer" json:"sse_message_buffer"` // SSE消息缓冲区大小
 
 	// === 分布式节点配置 ===
 	Distributed *Distributed `mapstructure:"distributed" yaml:"distributed,omitempty" json:"distributed,omitempty"` // 分布式配置
@@ -81,74 +84,74 @@ type WSC struct {
 // Distributed 分布式节点配置
 type Distributed struct {
 	Enabled             bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                           // 是否启用分布式
-	NodeDiscovery       string `mapstructure:"node_discovery" yaml:"node-discovery" json:"node_discovery"`                      // 节点发现方式: redis, etcd, consul
-	NodeSyncInterval    int    `mapstructure:"node_sync_interval" yaml:"node-sync-interval" json:"node_sync_interval"`          // 节点同步间隔(秒)
-	MessageRouting      string `mapstructure:"message_routing" yaml:"message-routing" json:"message_routing"`                   // 消息路由策略: hash, random, round-robin
-	EnableLoadBalance   bool   `mapstructure:"enable_load_balance" yaml:"enable-load-balance" json:"enable_load_balance"`       // 是否启用负载均衡
-	HealthCheckInterval int    `mapstructure:"health_check_interval" yaml:"health-check-interval" json:"health_check_interval"` // 健康检查间隔(秒)
-	NodeTimeout         int    `mapstructure:"node_timeout" yaml:"node-timeout" json:"node_timeout"`                            // 节点超时(秒)
-	ClusterName         string `mapstructure:"cluster_name" yaml:"cluster-name" json:"cluster_name"`                            // 集群名称
+	NodeDiscovery       string `mapstructure:"node_discovery" yaml:"node_discovery" json:"node_discovery"`                      // 节点发现方式: redis, etcd, consul
+	NodeSyncInterval    int    `mapstructure:"node_sync_interval" yaml:"node_sync_interval" json:"node_sync_interval"`          // 节点同步间隔(秒)
+	MessageRouting      string `mapstructure:"message_routing" yaml:"message_routing" json:"message_routing"`                   // 消息路由策略: hash, random, round-robin
+	EnableLoadBalance   bool   `mapstructure:"enable_load_balance" yaml:"enable_load_balance" json:"enable_load_balance"`       // 是否启用负载均衡
+	HealthCheckInterval int    `mapstructure:"health_check_interval" yaml:"health_check_interval" json:"health_check_interval"` // 健康检查间隔(秒)
+	NodeTimeout         int    `mapstructure:"node_timeout" yaml:"node_timeout" json:"node_timeout"`                            // 节点超时(秒)
+	ClusterName         string `mapstructure:"cluster_name" yaml:"cluster_name" json:"cluster_name"`                            // 集群名称
 }
 
 // Group 群组/广播配置
 type Group struct {
 	Enabled             bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                           // 是否启用群组功能
-	MaxGroupSize        int  `mapstructure:"max_group_size" yaml:"max-group-size" json:"max_group_size"`                      // 最大群组人数
-	MaxGroupsPerUser    int  `mapstructure:"max_groups_per_user" yaml:"max-groups-per-user" json:"max_groups_per_user"`       // 每个用户最大群组数
-	EnableBroadcast     bool `mapstructure:"enable_broadcast" yaml:"enable-broadcast" json:"enable_broadcast"`                // 是否启用全局广播
-	BroadcastRateLimit  int  `mapstructure:"broadcast_rate_limit" yaml:"broadcast-rate-limit" json:"broadcast_rate_limit"`    // 广播频率限制(次/分钟)
-	GroupCacheExpire    int  `mapstructure:"group_cache_expire" yaml:"group-cache-expire" json:"group_cache_expire"`          // 群组缓存过期时间(秒)
-	AutoCreateGroup     bool `mapstructure:"auto_create_group" yaml:"auto-create-group" json:"auto_create_group"`             // 是否自动创建群组
-	EnableMessageRecord bool `mapstructure:"enable_message_record" yaml:"enable-message-record" json:"enable_message_record"` // 是否启用消息记录
+	MaxGroupSize        int  `mapstructure:"max_group_size" yaml:"max_group_size" json:"max_group_size"`                      // 最大群组人数
+	MaxGroupsPerUser    int  `mapstructure:"max_groups_per_user" yaml:"max_groups_per_user" json:"max_groups_per_user"`       // 每个用户最大群组数
+	EnableBroadcast     bool `mapstructure:"enable_broadcast" yaml:"enable_broadcast" json:"enable_broadcast"`                // 是否启用全局广播
+	BroadcastRateLimit  int  `mapstructure:"broadcast_rate_limit" yaml:"broadcast_rate_limit" json:"broadcast_rate_limit"`    // 广播频率限制(次/分钟)
+	GroupCacheExpire    int  `mapstructure:"group_cache_expire" yaml:"group_cache_expire" json:"group_cache_expire"`          // 群组缓存过期时间(秒)
+	AutoCreateGroup     bool `mapstructure:"auto_create_group" yaml:"auto_create_group" json:"auto_create_group"`             // 是否自动创建群组
+	EnableMessageRecord bool `mapstructure:"enable_message_record" yaml:"enable_message_record" json:"enable_message_record"` // 是否启用消息记录
 }
 
 // Performance 性能配置
 type Performance struct {
-	MaxConnectionsPerNode int  `mapstructure:"max_connections_per_node" yaml:"max-connections-per-node" json:"max_connections_per_node"` // 每个节点最大连接数
-	ReadBufferSize        int  `mapstructure:"read_buffer_size" yaml:"read-buffer-size" json:"read_buffer_size"`                         // 读缓冲区大小(KB)
-	WriteBufferSize       int  `mapstructure:"write_buffer_size" yaml:"write-buffer-size" json:"write_buffer_size"`                      // 写缓冲区大小(KB)
-	EnableCompression     bool `mapstructure:"enable_compression" yaml:"enable-compression" json:"enable_compression"`                   // 是否启用压缩
-	CompressionLevel      int  `mapstructure:"compression_level" yaml:"compression-level" json:"compression_level"`                      // 压缩级别(1-9)
-	EnableMetrics         bool `mapstructure:"enable_metrics" yaml:"enable-metrics" json:"enable_metrics"`                               // 是否启用性能指标
-	MetricsInterval       int  `mapstructure:"metrics_interval" yaml:"metrics-interval" json:"metrics_interval"`                         // 指标采集间隔(秒)
-	EnableSlowLog         bool `mapstructure:"enable_slow_log" yaml:"enable-slow-log" json:"enable_slow_log"`                            // 是否启用慢日志
-	SlowLogThreshold      int  `mapstructure:"slow_log_threshold" yaml:"slow-log-threshold" json:"slow_log_threshold"`                   // 慢日志阈值(毫秒)
+	MaxConnectionsPerNode int  `mapstructure:"max_connections_per_node" yaml:"max_connections_per_node" json:"max_connections_per_node"` // 每个节点最大连接数
+	ReadBufferSize        int  `mapstructure:"read_buffer_size" yaml:"read_buffer_size" json:"read_buffer_size"`                         // 读缓冲区大小(KB)
+	WriteBufferSize       int  `mapstructure:"write_buffer_size" yaml:"write_buffer_size" json:"write_buffer_size"`                      // 写缓冲区大小(KB)
+	EnableCompression     bool `mapstructure:"enable_compression" yaml:"enable_compression" json:"enable_compression"`                   // 是否启用压缩
+	CompressionLevel      int  `mapstructure:"compression_level" yaml:"compression_level" json:"compression_level"`                      // 压缩级别(1-9)
+	EnableMetrics         bool `mapstructure:"enable_metrics" yaml:"enable_metrics" json:"enable_metrics"`                               // 是否启用性能指标
+	MetricsInterval       int  `mapstructure:"metrics_interval" yaml:"metrics_interval" json:"metrics_interval"`                         // 指标采集间隔(秒)
+	EnableSlowLog         bool `mapstructure:"enable_slow_log" yaml:"enable_slow_log" json:"enable_slow_log"`                            // 是否启用慢日志
+	SlowLogThreshold      int  `mapstructure:"slow_log_threshold" yaml:"slow_log_threshold" json:"slow_log_threshold"`                   // 慢日志阈值(毫秒)
 }
 
 // Security 安全配置
 type Security struct {
-	EnableAuth        bool     `mapstructure:"enable_auth" yaml:"enable-auth" json:"enable_auth"`                         // 是否启用认证
-	EnableEncryption  bool     `mapstructure:"enable_encryption" yaml:"enable-encryption" json:"enable_encryption"`       // 是否启用加密
-	EnableRateLimit   bool     `mapstructure:"enable_rate_limit" yaml:"enable-rate-limit" json:"enable_rate_limit"`       // 是否启用限流
-	MaxMessageSize    int      `mapstructure:"max_message_size" yaml:"max-message-size" json:"max_message_size"`          // 最大消息大小(KB)
-	AllowedUserTypes  []string `mapstructure:"allowed_user_types" yaml:"allowed-user-types" json:"allowed_user_types"`    // 允许的用户类型
-	BlockedIPs        []string `mapstructure:"blocked_ips" yaml:"blocked-ips" json:"blocked_ips"`                         // 黑名单IP
-	WhitelistIPs      []string `mapstructure:"whitelist_ips" yaml:"whitelist-ips" json:"whitelist_ips"`                   // 白名单IP
-	EnableIPWhitelist bool     `mapstructure:"enable_ip_whitelist" yaml:"enable-ip-whitelist" json:"enable_ip_whitelist"` // 是否启用IP白名单
-	TokenExpiration   int      `mapstructure:"token_expiration" yaml:"token-expiration" json:"token_expiration"`          // Token过期时间(秒)
-	MaxLoginAttempts  int      `mapstructure:"max_login_attempts" yaml:"max-login-attempts" json:"max_login_attempts"`    // 最大登录尝试次数
-	LoginLockDuration int      `mapstructure:"login_lock_duration" yaml:"login-lock-duration" json:"login_lock_duration"` // 登录锁定时长(秒)
+	EnableAuth        bool     `mapstructure:"enable_auth" yaml:"enable_auth" json:"enable_auth"`                         // 是否启用认证
+	EnableEncryption  bool     `mapstructure:"enable_encryption" yaml:"enable_encryption" json:"enable_encryption"`       // 是否启用加密
+	EnableRateLimit   bool     `mapstructure:"enable_rate_limit" yaml:"enable_rate_limit" json:"enable_rate_limit"`       // 是否启用限流
+	MaxMessageSize    int      `mapstructure:"max_message_size" yaml:"max_message_size" json:"max_message_size"`          // 最大消息大小(KB)
+	AllowedUserTypes  []string `mapstructure:"allowed_user_types" yaml:"allowed_user_types" json:"allowed_user_types"`    // 允许的用户类型
+	BlockedIPs        []string `mapstructure:"blocked_ips" yaml:"blocked_ips" json:"blocked_ips"`                         // 黑名单IP
+	WhitelistIPs      []string `mapstructure:"whitelist_ips" yaml:"whitelist_ips" json:"whitelist_ips"`                   // 白名单IP
+	EnableIPWhitelist bool     `mapstructure:"enable_ip_whitelist" yaml:"enable_ip_whitelist" json:"enable_ip_whitelist"` // 是否启用IP白名单
+	TokenExpiration   int      `mapstructure:"token_expiration" yaml:"token_expiration" json:"token_expiration"`          // Token过期时间(秒)
+	MaxLoginAttempts  int      `mapstructure:"max_login_attempts" yaml:"max_login_attempts" json:"max_login_attempts"`    // 最大登录尝试次数
+	LoginLockDuration int      `mapstructure:"login_lock_duration" yaml:"login_lock_duration" json:"login_lock_duration"` // 登录锁定时长(秒)
 }
 
 // Database 数据库持久化配置
 type Database struct {
 	Enabled       bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                      // 是否启用数据库持久化
-	AutoMigrate   bool          `mapstructure:"auto_migrate" yaml:"auto-migrate" json:"auto_migrate"`       // 是否自动迁移表结构
-	TablePrefix   string        `mapstructure:"table_prefix" yaml:"table-prefix" json:"table_prefix"`       // 表前缀
-	LogLevel      string        `mapstructure:"log_level" yaml:"log-level" json:"log_level"`                // 日志级别
-	SlowThreshold time.Duration `mapstructure:"slow_threshold" yaml:"slow-threshold" json:"slow_threshold"` // 慢查询阈值
+	AutoMigrate   bool          `mapstructure:"auto_migrate" yaml:"auto_migrate" json:"auto_migrate"`       // 是否自动迁移表结构
+	TablePrefix   string        `mapstructure:"table_prefix" yaml:"table_prefix" json:"table_prefix"`       // 表前缀
+	LogLevel      string        `mapstructure:"log_level" yaml:"log_level" json:"log_level"`                // 日志级别
+	SlowThreshold time.Duration `mapstructure:"slow_threshold" yaml:"slow_threshold" json:"slow_threshold"` // 慢查询阈值
 }
 
 // Queue 消息队列配置
 type Queue struct {
 	Enabled        bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                         // 是否启用队列
 	Type           string        `mapstructure:"type" yaml:"type" json:"type"`                                  // 队列类型: redis, rabbitmq, kafka
-	BatchSize      int           `mapstructure:"batch_size" yaml:"batch-size" json:"batch_size"`                // 批处理大小
-	MaxRetries     int           `mapstructure:"max_retries" yaml:"max-retries" json:"max_retries"`             // 最大重试次数
-	RetryInterval  time.Duration `mapstructure:"retry_interval" yaml:"retry-interval" json:"retry_interval"`    // 重试间隔
-	ProcessTimeout time.Duration `mapstructure:"process_timeout" yaml:"process-timeout" json:"process_timeout"` // 处理超时时间
-	PrefetchCount  int           `mapstructure:"prefetch_count" yaml:"prefetch-count" json:"prefetch_count"`    // 预取数量
-	DeadLetterTTL  time.Duration `mapstructure:"dead_letter_ttl" yaml:"dead-letter-ttl" json:"dead_letter_ttl"` // 死信队列TTL
+	BatchSize      int           `mapstructure:"batch_size" yaml:"batch_size" json:"batch_size"`                // 批处理大小
+	MaxRetries     int           `mapstructure:"max_retries" yaml:"max_retries" json:"max_retries"`             // 最大重试次数
+	RetryInterval  time.Duration `mapstructure:"retry_interval" yaml:"retry_interval" json:"retry_interval"`    // 重试间隔
+	ProcessTimeout time.Duration `mapstructure:"process_timeout" yaml:"process_timeout" json:"process_timeout"` // 处理超时时间
+	PrefetchCount  int           `mapstructure:"prefetch_count" yaml:"prefetch_count" json:"prefetch_count"`    // 预取数量
+	DeadLetterTTL  time.Duration `mapstructure:"dead_letter_ttl" yaml:"dead_letter_ttl" json:"dead_letter_ttl"` // 死信队列TTL
 	Priority       bool          `mapstructure:"priority" yaml:"priority" json:"priority"`                      // 是否支持优先级
 	Persistent     bool          `mapstructure:"persistent" yaml:"persistent" json:"persistent"`                // 是否持久化
 }
@@ -165,33 +168,33 @@ type JobTask struct {
 	Cron          string        `mapstructure:"cron" yaml:"cron" json:"cron"`                                  // Cron表达式
 	Interval      time.Duration `mapstructure:"interval" yaml:"interval" json:"interval"`                      // 执行间隔(与cron二选一)
 	Timeout       time.Duration `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                         // 执行超时时间
-	MaxRetries    int           `mapstructure:"max_retries" yaml:"max-retries" json:"max_retries"`             // 最大重试次数
+	MaxRetries    int           `mapstructure:"max_retries" yaml:"max_retries" json:"max_retries"`             // 最大重试次数
 	Description   string        `mapstructure:"description" yaml:"description" json:"description"`             // 任务描述
 	Concurrency   int           `mapstructure:"concurrency" yaml:"concurrency" json:"concurrency"`             // 并发数
-	SkipIfRunning bool          `mapstructure:"skip_if_running" yaml:"skip-if-running" json:"skip_if_running"` // 如果正在运行则跳过
+	SkipIfRunning bool          `mapstructure:"skip_if_running" yaml:"skip_if_running" json:"skip_if_running"` // 如果正在运行则跳过
 }
 
 // Enhancement 增强功能配置
 type Enhancement struct {
 	Enabled              bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                              // 是否启用增强功能
-	SmartRouting         bool   `mapstructure:"smart_routing" yaml:"smart-routing" json:"smart_routing"`                            // 启用智能路由
-	LoadBalancing        bool   `mapstructure:"load_balancing" yaml:"load-balancing" json:"load_balancing"`                         // 启用负载均衡
-	SmartQueue           bool   `mapstructure:"smart_queue" yaml:"smart-queue" json:"smart_queue"`                                  // 启用智能队列
+	SmartRouting         bool   `mapstructure:"smart_routing" yaml:"smart_routing" json:"smart_routing"`                            // 启用智能路由
+	LoadBalancing        bool   `mapstructure:"load_balancing" yaml:"load_balancing" json:"load_balancing"`                         // 启用负载均衡
+	SmartQueue           bool   `mapstructure:"smart_queue" yaml:"smart_queue" json:"smart_queue"`                                  // 启用智能队列
 	Monitoring           bool   `mapstructure:"monitoring" yaml:"monitoring" json:"monitoring"`                                     // 启用监控
-	ClusterManagement    bool   `mapstructure:"cluster_management" yaml:"cluster-management" json:"cluster_management"`             // 启用集群管理
-	RuleEngine           bool   `mapstructure:"rule_engine" yaml:"rule-engine" json:"rule_engine"`                                  // 启用规则引擎
-	CircuitBreaker       bool   `mapstructure:"circuit_breaker" yaml:"circuit-breaker" json:"circuit_breaker"`                      // 启用熔断器
-	MessageFiltering     bool   `mapstructure:"message_filtering" yaml:"message-filtering" json:"message_filtering"`                // 启用消息过滤
-	PerformanceTracking  bool   `mapstructure:"performance_tracking" yaml:"performance-tracking" json:"performance_tracking"`       // 启用性能追踪
-	AdvancedMetrics      bool   `mapstructure:"advanced_metrics" yaml:"advanced-metrics" json:"advanced_metrics"`                   // 启用高级指标
-	AlertSystem          bool   `mapstructure:"alert_system" yaml:"alert-system" json:"alert_system"`                               // 启用警报系统
-	FailureThreshold     int    `mapstructure:"failure_threshold" yaml:"failure-threshold" json:"failure_threshold"`                // 熔断器失败阈值
-	SuccessThreshold     int    `mapstructure:"success_threshold" yaml:"success-threshold" json:"success_threshold"`                // 熔断器成功阈值
-	CircuitTimeout       int    `mapstructure:"circuit_timeout" yaml:"circuit-timeout" json:"circuit_timeout"`                      // 熔断器超时(秒)
-	MaxQueueSize         int    `mapstructure:"max_queue_size" yaml:"max-queue-size" json:"max_queue_size"`                         // 智能队列最大大小
-	MetricsInterval      int    `mapstructure:"metrics_interval" yaml:"metrics-interval" json:"metrics_interval"`                   // 指标采集间隔(秒)
-	MaxSamples           int    `mapstructure:"max_samples" yaml:"max-samples" json:"max_samples"`                                  // 性能样本最大数量
-	LoadBalanceAlgorithm string `mapstructure:"load_balance_algorithm" yaml:"load-balance-algorithm" json:"load_balance_algorithm"` // 负载均衡算法: round-robin, least-connections, weighted-random, consistent-hash
+	ClusterManagement    bool   `mapstructure:"cluster_management" yaml:"cluster_management" json:"cluster_management"`             // 启用集群管理
+	RuleEngine           bool   `mapstructure:"rule_engine" yaml:"rule_engine" json:"rule_engine"`                                  // 启用规则引擎
+	CircuitBreaker       bool   `mapstructure:"circuit_breaker" yaml:"circuit_breaker" json:"circuit_breaker"`                      // 启用熔断器
+	MessageFiltering     bool   `mapstructure:"message_filtering" yaml:"message_filtering" json:"message_filtering"`                // 启用消息过滤
+	PerformanceTracking  bool   `mapstructure:"performance_tracking" yaml:"performance_tracking" json:"performance_tracking"`       // 启用性能追踪
+	AdvancedMetrics      bool   `mapstructure:"advanced_metrics" yaml:"advanced_metrics" json:"advanced_metrics"`                   // 启用高级指标
+	AlertSystem          bool   `mapstructure:"alert_system" yaml:"alert_system" json:"alert_system"`                               // 启用警报系统
+	FailureThreshold     int    `mapstructure:"failure_threshold" yaml:"failure_threshold" json:"failure_threshold"`                // 熔断器失败阈值
+	SuccessThreshold     int    `mapstructure:"success_threshold" yaml:"success_threshold" json:"success_threshold"`                // 熔断器成功阈值
+	CircuitTimeout       int    `mapstructure:"circuit_timeout" yaml:"circuit_timeout" json:"circuit_timeout"`                      // 熔断器超时(秒)
+	MaxQueueSize         int    `mapstructure:"max_queue_size" yaml:"max_queue_size" json:"max_queue_size"`                         // 智能队列最大大小
+	MetricsInterval      int    `mapstructure:"metrics_interval" yaml:"metrics_interval" json:"metrics_interval"`                   // 指标采集间隔(秒)
+	MaxSamples           int    `mapstructure:"max_samples" yaml:"max_samples" json:"max_samples"`                                  // 性能样本最大数量
+	LoadBalanceAlgorithm string `mapstructure:"load_balance_algorithm" yaml:"load_balance_algorithm" json:"load_balance_algorithm"` // 负载均衡算法: round-robin, least-connections, weighted-random, consistent-hash
 }
 
 // Default 创建默认 WSC 配置
@@ -204,7 +207,9 @@ func Default() *WSC {
 		ClientTimeout:        90,
 		MessageBufferSize:    256,
 		WebSocketOrigins:     []string{"*"},
-		WriteWait:            10 * time.Second,
+		WriteTimeout:         10 * time.Second,
+		ReadTimeout:          10 * time.Second,
+		IdleTimeout:          120 * time.Second,
 		MaxMessageSize:       512,
 		MinRecTime:           2 * time.Second,
 		MaxRecTime:           60 * time.Second,
@@ -637,9 +642,21 @@ func (c *WSC) WithMessageBufferSize(size int) *WSC {
 	return c
 }
 
-// WithWriteWait 设置写超时并返回当前配置对象
-func (c *WSC) WithWriteWait(d time.Duration) *WSC {
-	c.WriteWait = d
+// WithWriteTimeout 设置写超时并返回当前配置对象
+func (c *WSC) WithWriteTimeout(timeout time.Duration) *WSC {
+	c.WriteTimeout = timeout
+	return c
+}
+
+// WithReadTimeout 设置读超时并返回当前配置对象
+func (c *WSC) WithReadTimeout(timeout time.Duration) *WSC {
+	c.ReadTimeout = timeout
+	return c
+}
+
+// WithIdleTimeout 设置空闲超时并返回当前配置对象
+func (c *WSC) WithIdleTimeout(timeout time.Duration) *WSC {
+	c.IdleTimeout = timeout
 	return c
 }
 

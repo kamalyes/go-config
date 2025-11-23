@@ -17,19 +17,19 @@ import (
 
 // Etcd 结构体表示 Etcd 的配置
 type Etcd struct {
-	ModuleName         string   `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                            // 模块名称
+	ModuleName         string   `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                            // 模块名称
 	Hosts              []string `mapstructure:"hosts" yaml:"hosts" json:"hosts" validate:"required,dive,required"`            // Etcd 主机列表
 	Key                string   `mapstructure:"key" yaml:"key" json:"key" validate:"required"`                                // 注册的键
 	ID                 int64    `mapstructure:"id" yaml:"id" json:"id" validate:"required"`                                   // ID
 	User               string   `mapstructure:"user" yaml:"user" json:"user"`                                                 // 用户名
 	Pass               string   `mapstructure:"pass" yaml:"pass" json:"pass"`                                                 // 密码
-	CertFile           string   `mapstructure:"cert_file" yaml:"cert-file" json:"cert_file"`                                  // 证书文件
-	CertKeyFile        string   `mapstructure:"cert_key_file" yaml:"cert-key-file" json:"cert_key_file"`                      // 证书密钥文件
-	CACertFile         string   `mapstructure:"ca_cert_file" yaml:"ca-cert-file" json:"ca_cert_file"`                         // CA 证书文件
-	InsecureSkipVerify bool     `mapstructure:"insecure_skip_verify" yaml:"insecure-skip-verify" json:"insecure_skip_verify"` // 是否跳过证书验证
+	CertFile           string   `mapstructure:"cert_file" yaml:"cert_file" json:"cert_file"`                                  // 证书文件
+	CertKeyFile        string   `mapstructure:"cert_key_file" yaml:"cert_key_file" json:"cert_key_file"`                      // 证书密钥文件
+	CACertFile         string   `mapstructure:"ca_cert_file" yaml:"ca_cert_file" json:"ca_cert_file"`                         // CA 证书文件
+	InsecureSkipVerify bool     `mapstructure:"insecure_skip_verify" yaml:"insecure_skip_verify" json:"insecure_skip_verify"` // 是否跳过证书验证
 	Namespace          string   `mapstructure:"namespace" yaml:"namespace" json:"namespace"`                                  // 命名空间
-	DialTimeout        int      `mapstructure:"dial_timeout" yaml:"dial-timeout" json:"dial_timeout"`                         // 连接超时时间(秒)
-	RequestTimeout     int      `mapstructure:"request_timeout" yaml:"request-timeout" json:"request_timeout"`                // 请求超时时间(秒)
+	DialTimeout        int      `mapstructure:"dial_timeout" yaml:"dial_timeout" json:"dial_timeout"`                         // 连接超时时间(秒)
+	RequestTimeout     int      `mapstructure:"request_timeout" yaml:"request_timeout" json:"request_timeout"`                // 请求超时时间(秒)
 }
 
 // NewEtcd 创建一个新的 Etcd 实例

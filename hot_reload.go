@@ -13,25 +13,23 @@ package goconfig
 import (
 	"context"
 	"fmt"
-	"github.com/fsnotify/fsnotify"
-	"github.com/kamalyes/go-logger"
-	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/viper"
-	"path/filepath"
 	"reflect"
-	"strings"
 	"sync"
 	"time"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/kamalyes/go-logger"
+	"github.com/spf13/viper"
 )
 
 // HotReloadConfig 热更新配置
 type HotReloadConfig struct {
 	Enabled         bool          `yaml:"enabled" json:"enabled"`                   // 是否启用热更新
-	WatchInterval   time.Duration `yaml:"watch-interval" json:"watch_interval"`     // 监控间隔
-	DebounceDelay   time.Duration `yaml:"debounce-delay" json:"debounce_delay"`     // 防抖延迟
-	MaxRetries      int           `yaml:"max-retries" json:"max_retries"`           // 最大重试次数
-	CallbackTimeout time.Duration `yaml:"callback-timeout" json:"callback_timeout"` // 回调超时
-	EnableEnvWatch  bool          `yaml:"enable-env-watch" json:"enable_env_watch"` // 是否监控环境变量
+	WatchInterval   time.Duration `yaml:"watch_interval" json:"watch_interval"`     // 监控间隔
+	DebounceDelay   time.Duration `yaml:"debounce_delay" json:"debounce_delay"`     // 防抖延迟
+	MaxRetries      int           `yaml:"max_retries" json:"max_retries"`           // 最大重试次数
+	CallbackTimeout time.Duration `yaml:"callback_timeout" json:"callback_timeout"` // 回调超时
+	EnableEnvWatch  bool          `yaml:"enable_env_watch" json:"enable_env_watch"` // 是否监控环境变量
 }
 
 // DefaultHotReloadConfig 默认热更新配置
@@ -322,18 +320,10 @@ func (h *hotReloadManager) reloadConfig(ctx context.Context, source string) erro
 
 	// 解析到配置结构
 	newConfig := reflect.New(reflect.TypeOf(h.config).Elem()).Interface()
-	tagName := h.detectConfigTag()
 
 	// 使用 viper 的 Unmarshal 方法，它能更好地处理各种数据类型
-	if err := h.viper.Unmarshal(newConfig, func(dc *mapstructure.DecoderConfig) {
-		dc.TagName = tagName
-		dc.WeaklyTypedInput = true
-		dc.DecodeHook = mapstructure.ComposeDecodeHookFunc(
-			mapstructure.StringToTimeDurationHookFunc(),
-			mapstructure.StringToSliceHookFunc(","),
-		)
-	}); err != nil {
-		logger.GetGlobalLogger().Error("解析配置文件失败 (使用 %s tag): %v", tagName, err)
+	if err := h.viper.Unmarshal(newConfig); err != nil {
+		logger.GetGlobalLogger().Error("解析配置文件失败: %v", err)
 		h.triggerErrorCallback(ctx, err, source)
 		return err
 	}
@@ -345,7 +335,6 @@ func (h *hotReloadManager) reloadConfig(ctx context.Context, source string) erro
 	event := CreateEvent(CallbackTypeConfigChanged, source, oldConfig, newConfig)
 	event.WithMetadata("config_path", h.configPath)
 	event.WithMetadata("duration", duration)
-	event.WithMetadata("tag_name", tagName)
 
 	go func() {
 		if err := h.TriggerCallbacks(ctx, event); err != nil {
@@ -404,28 +393,4 @@ func (h *hotReloadManager) triggerErrorCallback(ctx context.Context, err error, 
 			logger.GetGlobalLogger().Error("触发错误回调失败: %v", triggerErr)
 		}
 	}()
-}
-
-// detectConfigTag 自动检测配置文件类型并返回对应的 tag 名称
-func (h *hotReloadManager) detectConfigTag() string {
-	configType := h.viper.ConfigFileUsed()
-	if configType == "" {
-		configType = h.configPath
-	}
-
-	ext := strings.ToLower(filepath.Ext(configType))
-	switch ext {
-	case ".json":
-		logger.GetGlobalLogger().Debug("检测到 JSON 配置文件，使用 json tag")
-		return "json"
-	case ".yaml", ".yml":
-		logger.GetGlobalLogger().Debug("检测到 YAML 配置文件，使用 yaml tag")
-		return "yaml"
-	case ".toml":
-		logger.GetGlobalLogger().Debug("检测到 TOML 配置文件，使用 toml tag")
-		return "toml"
-	default:
-		logger.GetGlobalLogger().Debug("未识别配置文件类型 %s, 默认使用 yaml tag", ext)
-		return "yaml"
-	}
 }

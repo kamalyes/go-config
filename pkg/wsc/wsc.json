@@ -2,7 +2,7 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2025-11-23 19:01:21
+// 生成时间: 2025-11-23 23:53:28
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -15,7 +15,9 @@
   "websocket_origins": [
     "*"
   ],
-  "write_wait": 10000000000,
+  "read_timeout": 10000000000,
+  "write_timeout": 10000000000,
+  "idle_timeout": 120000000000,
   "max_message_size": 512,
   "min_rec_time": 2000000000,
   "max_rec_time": 60000000000,

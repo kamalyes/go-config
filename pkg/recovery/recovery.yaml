@@ -2,24 +2,24 @@
 # 模块名称: recovery
 # 包名: recovery  
 # 描述: 错误恢复模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-23 23:53:28
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
-module-name: recovery
+module_name: recovery
 # enabled配置
 enabled: true
 # enable stack配置
-enable-stack: true
+enable_stack: true
 # stack size配置
-stack-size: 4096
+stack_size: 4096
 # enable debug配置
-enable-debug: false
+enable_debug: false
 # error message配置
-error-message: 服务器内部错误
+error_message: 服务器内部错误
 # log level配置
-log-level: error
+log_level: error
 # enable notify配置
-enable-notify: false
+enable_notify: false
 # print stack配置
-print-stack: true
+print_stack: true

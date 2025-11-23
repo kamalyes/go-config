@@ -15,13 +15,13 @@ import "github.com/kamalyes/go-config/internal"
 
 // Ristretto缓存配置
 type Ristretto struct {
-	ModuleName         string `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                            // 模块名
-	NumCounters        int64  `mapstructure:"num_counters" yaml:"num-counters" json:"num_counters" validate:"min=1"`        // 计数器数量，用于跟踪访问频率
-	MaxCost            int64  `mapstructure:"max_cost" yaml:"max-cost" json:"max_cost" validate:"min=1"`                    // 最大缓存成本
-	BufferItems        int64  `mapstructure:"buffer_items" yaml:"buffer-items" json:"buffer_items" validate:"min=1"`        // Get 缓存的大小
+	ModuleName         string `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                            // 模块名
+	NumCounters        int64  `mapstructure:"num_counters" yaml:"num_counters" json:"num_counters" validate:"min=1"`        // 计数器数量，用于跟踪访问频率
+	MaxCost            int64  `mapstructure:"max_cost" yaml:"max_cost" json:"max_cost" validate:"min=1"`                    // 最大缓存成本
+	BufferItems        int64  `mapstructure:"buffer_items" yaml:"buffer_items" json:"buffer_items" validate:"min=1"`        // Get 缓存的大小
 	Metrics            bool   `mapstructure:"metrics" yaml:"metrics" json:"metrics"`                                        // 是否启用缓存统计
-	IgnoreInternalCost bool   `mapstructure:"ignore_internal_cost" yaml:"ignore-internal-cost" json:"ignore_internal_cost"` // 是否忽略内部成本计算
-	KeyToHash          bool   `mapstructure:"key_to_hash" yaml:"key-to-hash" json:"key_to_hash"`                            // 是否将键转换为哈希
+	IgnoreInternalCost bool   `mapstructure:"ignore_internal_cost" yaml:"ignore_internal_cost" json:"ignore_internal_cost"` // 是否忽略内部成本计算
+	KeyToHash          bool   `mapstructure:"key_to_hash" yaml:"key_to_hash" json:"key_to_hash"`                            // 是否将键转换为哈希
 	Cost               int64  `mapstructure:"cost" yaml:"cost" json:"cost" validate:"min=0"`                                // 每个条目的默认成本
 }
 

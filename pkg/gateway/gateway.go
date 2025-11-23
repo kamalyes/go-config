@@ -35,7 +35,7 @@ import (
 
 // Gateway网关统一配置
 type Gateway struct {
-	ModuleName    string                       `mapstructure:"module_name" yaml:"module-name" json:"module_name"`       // 模块名称
+	ModuleName    string                       `mapstructure:"module_name" yaml:"module_name" json:"module_name"`       // 模块名称
 	Name          string                       `mapstructure:"name" yaml:"name" json:"name"`                            // 网关名称
 	Enabled       bool                         `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用网关
 	Debug         bool                         `mapstructure:"debug" yaml:"debug" json:"debug"`                         // 是否启用调试模式
@@ -60,7 +60,7 @@ type Gateway struct {
 	JWT           *jwt.JWT                     `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                               // JWT配置
 	Swagger       *swagger.Swagger             `mapstructure:"swagger" yaml:"swagger" json:"swagger"`                   // Swagger配置
 	Banner        *banner.Banner               `mapstructure:"banner" yaml:"banner" json:"banner"`                      // Banner配置
-	RateLimit     *ratelimit.RateLimit         `mapstructure:"rate_limit" yaml:"rate-limit" json:"rate_limit"`          // 限流配置
+	RateLimit     *ratelimit.RateLimit         `mapstructure:"rate_limit" yaml:"rate_limit" json:"rate_limit"`          // 限流配置
 	WSC           *wsc.WSC                     `mapstructure:"wsc" yaml:"wsc" json:"wsc"`                               // WebSocket通信配置
 }
 

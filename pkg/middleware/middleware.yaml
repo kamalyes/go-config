@@ -2,67 +2,67 @@
 # 模块名称: middleware
 # 包名: middleware  
 # 描述: 中间件模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-23 23:53:28
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
-module-name: middleware
+module_name: middleware
 # enabled配置
 enabled: true
 # logging配置
 logging:
-    module-name: logging
+    module_name: logging
     enabled: true
     level: info
     format: json
     output: stdout
-    file-path: /var/log/app.log
-    max-size: 100
-    max-backups: 3
-    max-age: 28
+    file_path: /var/log/app.log
+    max_size: 100
+    max_backups: 3
+    max_age: 28
     compress: true
-    skip-paths:
+    skip_paths:
         - /health
         - /metrics
-    enable-request: true
-    enable-response: false
+    enable_request: true
+    enable_response: false
 # recovery配置
 recovery:
-    module-name: recovery
+    module_name: recovery
     enabled: true
-    enable-stack: true
-    stack-size: 4096
-    enable-debug: false
-    error-message: 服务器内部错误
-    log-level: error
-    enable-notify: false
-    print-stack: true
+    enable_stack: true
+    stack_size: 4096
+    enable_debug: false
+    error_message: 服务器内部错误
+    log_level: error
+    enable_notify: false
+    print_stack: true
 # tracing配置
 tracing:
-    module-name: tracing
+    module_name: tracing
     enabled: false
-    service-name: go-rpc-gateway
-    service-version: 1.0.0
+    service_name: go-rpc-gateway
+    service_version: 1.0.0
     environment: development
     endpoint: http://localhost:9411/api/v2/spans
-    exporter-type: zipkin
-    exporter-endpoint: http://localhost:9411/api/v2/spans
-    sample-rate: 0.1
-    sampler-type: probability
-    sampler-probability: 0.1
-    sampler-rate: 0.1
+    exporter_type: zipkin
+    exporter_endpoint: http://localhost:9411/api/v2/spans
+    sample_rate: 0.1
+    sampler_type: probability
+    sampler_probability: 0.1
+    sampler_rate: 0.1
     headers:
         - Authorization
         - User-Agent
     attributes: {}
 # metrics配置
 metrics:
-    module-name: metrics
+    module_name: metrics
     enabled: false
     path: /metrics
     namespace: gateway
     subsystem: http
-    skip-paths:
+    skip_paths:
         - /health
     buckets:
         - 0.005
@@ -76,45 +76,46 @@ metrics:
         - 2.5
         - 5
         - 10
-    request-count: true
+    request_count: true
     duration: true
-    request-size: true
-    response-size: true
+    request_size: true
+    response_size: true
 # request id配置
-request-id:
-    module-name: requestid
+request_id:
+    module_name: requestid
     enabled: true
-    header-name: X-Request-ID
+    header_name: X-Request-ID
     generator: uuid
 # i18 n配置
 i18n:
-    module-name: i18n
+    module_name: i18n
     enabled: false
-    default-language: en
-    supported-languages:
+    default_language: en
+    supported_languages:
         - en
         - zh
-    language-mapping:
+    language_mapping:
         en-us: en
         zh-cn: zh
-    detection-order:
+    detection_order:
         - header
         - query
         - cookie
         - default
-    language-param: lang
-    language-header: Accept-Language
-    messages-path: ./locales
-    custom-message-paths: {}
-    enable-fallback: true
-    cookie-name: language
+    language_param: lang
+    language_header: Accept-Language
+    messages_path: ./locales
+    custom_message_paths: {}
+    enable_fallback: true
+    _: null
+    cookie_name: language
 # pprof配置
 pprof:
-    module-name: PProf
+    module_name: PProf
     enabled: false
-    path-prefix: /debug/pprof
+    path_prefix: /debug/pprof
     port: 6060
-    enable-profiles:
+    enable_profiles:
         cpu: true
         memory: true
         goroutine: true
@@ -125,45 +126,45 @@ pprof:
         threadcreate: false
         trace: false
     sampling:
-        cpu-rate: 100
-        memory-rate: 524288
-        block-rate: 1
-        mutex-fraction: 1
+        cpu_rate: 100
+        memory_rate: 524288
+        block_rate: 1
+        mutex_fraction: 1
     authentication:
         enabled: false
-        auth-token: ""
-        allowed-ips: []
-        require-auth: false
+        auth_token: ""
+        allowed_ips: []
+        require_auth: false
         timeout: 30
     gateway:
         enabled: false
-        dev-mode-only: false
-        enable-logging: true
-        register-web-interface: true
-    web-interface:
+        dev_mode_only: false
+        enable_logging: true
+        register_web_interface: true
+    web_interface:
         enabled: true
         title: PProf Performance Analysis
         description: Go Performance Profiling Interface
-        show-scenarios: true
+        show_scenarios: true
 # circuit breaker配置
-circuit-breaker:
-    module-name: circuit_breaker
+circuit_breaker:
+    module_name: circuit_breaker
     enabled: true
-    failure-threshold: 5
-    success-threshold: 2
+    failure_threshold: 5
+    success_threshold: 2
     timeout: 30000000000
-    volume-threshold: 10
-    sliding-window-size: 100
-    sliding-window-bucket: 1000000000
-    prevention-paths:
+    volume_threshold: 10
+    sliding_window_size: 100
+    sliding_window_bucket: 1000000000
+    prevention_paths:
         - /api/
-    exclude-paths:
+    exclude_paths:
         - /health
         - /metrics
         - /debug
 # alerting配置
 alerting:
-    module-name: alerting
+    module_name: alerting
     enabled: false
     webhooks: []
     channels: []

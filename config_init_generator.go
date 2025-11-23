@@ -357,10 +357,10 @@ func (sg *SmartConfigGenerator) generateYAMLConfig(config interface{}, filePath 
 		return nil
 	}
 
-	// 序列化为YAML
+	// 序列化为YAML（函数类型字段会被自动跳过，因为它们应该有 yaml:"-" 标签）
 	yamlData, err := yaml.Marshal(config)
 	if err != nil {
-		return fmt.Errorf("序列化YAML失败: %w", err)
+		return fmt.Errorf("序列化YAML失败（可能包含未标记为 yaml:\"-\" 的函数字段）: %w", err)
 	}
 
 	// 添加文件头注释

@@ -22,19 +22,19 @@ type MessageLoader interface {
 
 // I18N 国际化中间件配置
 type I18N struct {
-	ModuleName         string            `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                            // 模块名称
+	ModuleName         string            `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                            // 模块名称
 	Enabled            bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                        // 是否启用国际化
-	DefaultLanguage    string            `mapstructure:"default_language" yaml:"default-language" json:"default_language"`             // 默认语言
-	SupportedLanguages []string          `mapstructure:"supported_languages" yaml:"supported-languages" json:"supported_languages"`    // 支持的语言
-	LanguageMapping    map[string]string `mapstructure:"language_mapping" yaml:"language-mapping" json:"language_mapping"`             // 语言映射关系
-	DetectionOrder     []string          `mapstructure:"detection_order" yaml:"detection-order" json:"detection_order"`                // 语言检测顺序
-	LanguageParam      string            `mapstructure:"language_param" yaml:"language-param" json:"language_param"`                   // 语言参数名称（用于query和cookie）
-	LanguageHeader     string            `mapstructure:"language_header" yaml:"language-header" json:"language_header"`                // 语言头名称
-	MessagesPath       string            `mapstructure:"messages_path" yaml:"messages-path" json:"messages_path"`                      // 消息文件路径
-	CustomMessagePaths map[string]string `mapstructure:"custom_message_paths" yaml:"custom-message-paths" json:"custom_message_paths"` // 自定义消息文件路径映射
-	EnableFallback     bool              `mapstructure:"enable_fallback" yaml:"enable-fallback" json:"enable_fallback"`                // 是否启用回退到默认语言
-	MessageLoader      MessageLoader     `mapstructure:"-" yaml:"-" json:"-"`                                                          // 自定义消息加载器
-	CookieName         string            `mapstructure:"cookie_name" yaml:"cookie-name" json:"cookie_name"`                            // Cookie名称
+	DefaultLanguage    string            `mapstructure:"default_language" yaml:"default_language" json:"default_language"`             // 默认语言
+	SupportedLanguages []string          `mapstructure:"supported_languages" yaml:"supported_languages" json:"supported_languages"`    // 支持的语言
+	LanguageMapping    map[string]string `mapstructure:"language_mapping" yaml:"language_mapping" json:"language_mapping"`             // 语言映射关系
+	DetectionOrder     []string          `mapstructure:"detection_order" yaml:"detection_order" json:"detection_order"`                // 语言检测顺序
+	LanguageParam      string            `mapstructure:"language_param" yaml:"language_param" json:"language_param"`                   // 语言参数名称（用于query和cookie）
+	LanguageHeader     string            `mapstructure:"language_header" yaml:"language_header" json:"language_header"`                // 语言头名称
+	MessagesPath       string            `mapstructure:"messages_path" yaml:"messages_path" json:"messages_path"`                      // 消息文件路径
+	CustomMessagePaths map[string]string `mapstructure:"custom_message_paths" yaml:"custom_message_paths" json:"custom_message_paths"` // 自定义消息文件路径映射
+	EnableFallback     bool              `mapstructure:"enable_fallback" yaml:"enable_fallback" json:"enable_fallback"`                // 是否启用回退到默认语言
+	MessageLoader      MessageLoader     `mapstructure:"-" yaml:"_" json:"-"`                                                          // 自定义消息加载器
+	CookieName         string            `mapstructure:"cookie_name" yaml:"cookie_name" json:"cookie_name"`                            // Cookie名称
 }
 
 // Default 创建默认国际化配置

@@ -2,7 +2,7 @@
 # 模块名称: zap
 # 包名: zap  
 # 描述: Zap日志模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-23 23:53:28
 # 注意: 此文件由配置生成器自动生成
 
 # level配置
@@ -14,23 +14,23 @@ prefix: '[GO-CONFIG]'
 # director配置
 director: ./logs
 # max size配置
-max-size: 10
+max_size: 10
 # max age配置
-max-age: 30
+max_age: 30
 # max backups配置
-max-backups: 5
+max_backups: 5
 # compress配置
 compress: false
 # link name配置
-link-name: latest_log
+link_name: latest_log
 # show line配置
-show-line: true
+show_line: true
 # encode level配置
-encode-level: capitalColor
+encode_level: capitalColor
 # stacktrace key配置
-stacktrace-key: stacktrace
+stacktrace_key: stacktrace
 # log in console配置
-log-in-console: true
+log_in_console: true
 # development配置
 development: false
 # module name配置

@@ -22,7 +22,7 @@ type Email struct {
 	Host       string `mapstructure:"host"            yaml:"host"            json:"host"            validate:"required"`                 // 邮件服务器地址
 	Port       int    `mapstructure:"port"            yaml:"port"            json:"port"            validate:"required,min=1,max=65535"` // 端口
 	Secret     string `mapstructure:"secret"          yaml:"secret"          json:"secret"          validate:"required"`                 // 密钥
-	IsSSL      bool   `mapstructure:"is-ssl"          yaml:"is-ssl"          json:"is_ssl"`                                              // 是否SSL
+	IsSSL      bool   `mapstructure:"is-ssl"          yaml:"is_ssl"          json:"is_ssl"`                                              // 是否SSL
 	ModuleName string `mapstructure:"modulename"      yaml:"modulename"      json:"module_name"`                                         // 模块名称
 }
 

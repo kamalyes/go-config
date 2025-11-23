@@ -2,11 +2,11 @@
 # 模块名称: health
 # 包名: health  
 # 描述: 健康检查模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-23 23:53:28
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
-module-name: health
+module_name: health
 # enabled配置
 enabled: true
 # path配置

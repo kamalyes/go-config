@@ -20,7 +20,7 @@ import (
 
 // Monitoring 监控配置 - 去掉Config后缀
 type Monitoring struct {
-	ModuleName string                 `mapstructure:"module_name" yaml:"module-name" json:"module_name"` // 模块名称
+	ModuleName string                 `mapstructure:"module_name" yaml:"module_name" json:"module_name"` // 模块名称
 	Enabled    bool                   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用监控
 	Prometheus *prometheus.Prometheus `mapstructure:"prometheus" yaml:"prometheus" json:"prometheus"`    // Prometheus配置
 	Grafana    *grafana.Grafana       `mapstructure:"grafana" yaml:"grafana" json:"grafana"`             // Grafana配置
@@ -32,14 +32,14 @@ type Monitoring struct {
 // Metrics 指标配置
 type Metrics struct {
 	Enabled           bool           `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                     // 是否启用指标
-	RequestCount      bool           `mapstructure:"request_count" yaml:"request-count" json:"request_count"`                   // 是否记录请求数
+	RequestCount      bool           `mapstructure:"request_count" yaml:"request_count" json:"request_count"`                   // 是否记录请求数
 	Duration          bool           `mapstructure:"duration" yaml:"duration" json:"duration"`                                  // 是否记录请求时长
-	ResponseSize      bool           `mapstructure:"response_size" yaml:"response-size" json:"response_size"`                   // 是否记录响应大小
-	RequestSize       bool           `mapstructure:"request_size" yaml:"request-size" json:"request_size"`                      // 是否记录请求大小
+	ResponseSize      bool           `mapstructure:"response_size" yaml:"response_size" json:"response_size"`                   // 是否记录响应大小
+	RequestSize       bool           `mapstructure:"request_size" yaml:"request_size" json:"request_size"`                      // 是否记录请求大小
 	Buckets           []float64      `mapstructure:"buckets" yaml:"buckets" json:"buckets"`                                     // 直方图桶配置
-	EnableOpenMetrics bool           `mapstructure:"enable_open_metrics" yaml:"enable-open-metrics" json:"enable_open_metrics"` // 是否启用 OpenMetrics 格式
-	CustomMetrics     []CustomMetric `mapstructure:"custom_metrics" yaml:"custom-metrics" json:"custom_metrics"`                // 自定义指标
-	Endpoint          string         `mapstructure:"-" yaml:"-" json:"endpoint"`                                                // 指标端点（自动计算）
+	EnableOpenMetrics bool           `mapstructure:"enable_open_metrics" yaml:"enable_open_metrics" json:"enable_open_metrics"` // 是否启用 OpenMetrics 格式
+	CustomMetrics     []CustomMetric `mapstructure:"custom_metrics" yaml:"custom_metrics" json:"custom_metrics"`                // 自定义指标
+	Endpoint          string         `mapstructure:"-" yaml:"_" json:"endpoint"`                                                // 指标端点（自动计算）
 }
 
 // CustomMetric 自定义指标配置
@@ -84,8 +84,8 @@ type Webhook struct {
 // EmailConfig 邮件配置
 type EmailConfig struct {
 	Enabled  bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`       // 是否启用邮件
-	SMTPHost string   `mapstructure:"smtp_host" yaml:"smtp-host" json:"smtp_host"` // SMTP主机
-	SMTPPort int      `mapstructure:"smtp_port" yaml:"smtp-port" json:"smtp_port"` // SMTP端口
+	SMTPHost string   `mapstructure:"smtp_host" yaml:"smtp_host" json:"smtp_host"` // SMTP主机
+	SMTPPort int      `mapstructure:"smtp_port" yaml:"smtp_port" json:"smtp_port"` // SMTP端口
 	Username string   `mapstructure:"username" yaml:"username" json:"username"`    // 用户名
 	Password string   `mapstructure:"password" yaml:"password" json:"password"`    // 密码
 	From     string   `mapstructure:"from" yaml:"from" json:"from"`                // 发送者
@@ -99,7 +99,7 @@ type SlackConfig struct {
 	Token     string `mapstructure:"token" yaml:"token" json:"token"`                // Bot Token
 	Channel   string `mapstructure:"channel" yaml:"channel" json:"channel"`          // 默认频道
 	Username  string `mapstructure:"username" yaml:"username" json:"username"`       // Bot用户名
-	IconEmoji string `mapstructure:"icon_emoji" yaml:"icon-emoji" json:"icon_emoji"` // 图标表情
+	IconEmoji string `mapstructure:"icon_emoji" yaml:"icon_emoji" json:"icon_emoji"` // 图标表情
 }
 
 // Default 创建默认监控配置

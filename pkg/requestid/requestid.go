@@ -15,9 +15,9 @@ import "github.com/kamalyes/go-config/internal"
 
 // RequestID 请求ID中间件配置
 type RequestID struct {
-	ModuleName string `mapstructure:"module_name" yaml:"module-name" json:"module_name"` // 模块名称
+	ModuleName string `mapstructure:"module_name" yaml:"module_name" json:"module_name"` // 模块名称
 	Enabled    bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用请求ID
-	HeaderName string `mapstructure:"header_name" yaml:"header-name" json:"header_name"` // 头部名称
+	HeaderName string `mapstructure:"header_name" yaml:"header_name" json:"header_name"` // 头部名称
 	Generator  string `mapstructure:"generator" yaml:"generator" json:"generator"`       // 生成器类型 (uuid, nanoid)
 }
 

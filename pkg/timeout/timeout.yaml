@@ -2,11 +2,11 @@
 # 模块名称: timeout
 # 包名: timeout  
 # 描述: 超时控制模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-23 23:53:28
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
-module-name: timeout
+module_name: timeout
 # enabled配置
 enabled: false
 # duration配置

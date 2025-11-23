@@ -15,17 +15,17 @@ import "github.com/kamalyes/go-config/internal"
 
 // Smtp 邮箱配置
 type Smtp struct {
-	ModuleName  string            `mapstructure:"module_name" yaml:"module-name" json:"module_name"`    // 模块名称
+	ModuleName  string            `mapstructure:"module_name" yaml:"module_name" json:"module_name"`    // 模块名称
 	Enabled     bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                // 是否启用
-	SMTPHost    string            `mapstructure:"smtp_host" yaml:"smtp-host" json:"smtp_host"`          // SMTP主机
-	SMTPPort    int               `mapstructure:"smtp_port" yaml:"smtp-port" json:"smtp_port"`          // SMTP端口
+	SMTPHost    string            `mapstructure:"smtp_host" yaml:"smtp_host" json:"smtp_host"`          // SMTP主机
+	SMTPPort    int               `mapstructure:"smtp_port" yaml:"smtp_port" json:"smtp_port"`          // SMTP端口
 	Username    string            `mapstructure:"username" yaml:"username" json:"username"`             // 用户名
 	Password    string            `mapstructure:"password" yaml:"password" json:"password"`             // 密码
-	FromAddress string            `mapstructure:"from_address" yaml:"from-address" json:"from_address"` // 发件人地址
-	ToAddresses []string          `mapstructure:"to_addresses" yaml:"to-addresses" json:"to_addresses"` // 收件人地址列表
-	EnableTLS   bool              `mapstructure:"enable_tls" yaml:"enable-tls" json:"enable_tls"`       // 是否启用TLS
+	FromAddress string            `mapstructure:"from_address" yaml:"from_address" json:"from_address"` // 发件人地址
+	ToAddresses []string          `mapstructure:"to_addresses" yaml:"to_addresses" json:"to_addresses"` // 收件人地址列表
+	EnableTLS   bool              `mapstructure:"enable_tls" yaml:"enable_tls" json:"enable_tls"`       // 是否启用TLS
 	Headers     map[string]string `mapstructure:"headers" yaml:"headers" json:"headers"`                // 自定义头部
-	PoolSize    int               `mapstructure:"pool_size" yaml:"pool-size" json:"pool_size"`          // 连接池大小
+	PoolSize    int               `mapstructure:"pool_size" yaml:"pool_size" json:"pool_size"`          // 连接池大小
 }
 
 // Default 创建默认邮箱配置

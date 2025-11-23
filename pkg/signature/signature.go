@@ -19,18 +19,18 @@ import (
 
 // Signature 签名验证中间件配置
 type Signature struct {
-	ModuleName      string        `mapstructure:"module_name" yaml:"module-name" json:"module_name"`                // 模块名称
+	ModuleName      string        `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                // 模块名称
 	Enabled         bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                           // 是否启用签名验证
-	SecretKey       string        `mapstructure:"secret_key" yaml:"secret-key" json:"secret_key"`                   // 签名密钥
-	SignatureHeader string        `mapstructure:"signature_header" yaml:"signature-header" json:"signature_header"` // 签名请求头
-	TimestampHeader string        `mapstructure:"timestamp_header" yaml:"timestamp-header" json:"timestamp_header"` // 时间戳请求头
-	NonceHeader     string        `mapstructure:"nonce_header" yaml:"nonce-header" json:"nonce_header"`             // 随机数请求头
+	SecretKey       string        `mapstructure:"secret_key" yaml:"secret_key" json:"secret_key"`                   // 签名密钥
+	SignatureHeader string        `mapstructure:"signature_header" yaml:"signature_header" json:"signature_header"` // 签名请求头
+	TimestampHeader string        `mapstructure:"timestamp_header" yaml:"timestamp_header" json:"timestamp_header"` // 时间戳请求头
+	NonceHeader     string        `mapstructure:"nonce_header" yaml:"nonce_header" json:"nonce_header"`             // 随机数请求头
 	Algorithm       string        `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"`                      // 签名算法 (md5, sha1, sha256)
-	TimeoutWindow   time.Duration `mapstructure:"timeout_window" yaml:"timeout-window" json:"timeout_window"`       // 请求时间窗口
-	IgnorePaths     []string      `mapstructure:"ignore_paths" yaml:"ignore-paths" json:"ignore_paths"`             // 忽略签名验证的路径
-	RequiredHeaders []string      `mapstructure:"required_headers" yaml:"required-headers" json:"required_headers"` // 必需的请求头参与签名
-	SkipQuery       bool          `mapstructure:"skip_query" yaml:"skip-query" json:"skip_query"`                   // 是否跳过查询参数
-	SkipBody        bool          `mapstructure:"skip_body" yaml:"skip-body" json:"skip_body"`                      // 是否跳过请求体
+	TimeoutWindow   time.Duration `mapstructure:"timeout_window" yaml:"timeout_window" json:"timeout_window"`       // 请求时间窗口
+	IgnorePaths     []string      `mapstructure:"ignore_paths" yaml:"ignore_paths" json:"ignore_paths"`             // 忽略签名验证的路径
+	RequiredHeaders []string      `mapstructure:"required_headers" yaml:"required_headers" json:"required_headers"` // 必需的请求头参与签名
+	SkipQuery       bool          `mapstructure:"skip_query" yaml:"skip_query" json:"skip_query"`                   // 是否跳过查询参数
+	SkipBody        bool          `mapstructure:"skip_body" yaml:"skip_body" json:"skip_body"`                      // 是否跳过请求体
 }
 
 // Default 创建默认签名验证配置

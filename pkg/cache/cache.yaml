@@ -2,37 +2,37 @@
 # 模块名称: cache
 # 包名: cache  
 # 描述: 缓存模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-23 23:53:28
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
-module-name: default
+module_name: default
 # type配置
 type: memory
 # enabled配置
 enabled: true
 # default ttl配置
-default-ttl: 30m0s
+default_ttl: 30m0s
 # key prefix配置
-key-prefix: 'cache:'
+key_prefix: 'cache:'
 # serializer配置
 serializer: json
 # memory配置
 memory:
-    module-name: memory
+    module_name: memory
     capacity: 1000
-    default-ttl: 30m0s
-    cleanup-size: 100
-    max-size: 0
+    default_ttl: 30m0s
+    cleanup_size: 100
+    max_size: 0
 # ristretto配置
 ristretto:
-    module-name: ristretto
-    num-counters: 10000000
-    max-cost: 1073741824
-    buffer-items: 64
+    module_name: ristretto
+    num_counters: 10000000
+    max_cost: 1073741824
+    buffer_items: 64
     metrics: true
-    ignore-internal-cost: false
-    key-to-hash: true
+    ignore_internal_cost: false
+    key_to_hash: true
     cost: 1
 # redis配置
 redis:
@@ -43,39 +43,39 @@ redis:
     username: default
     password: redis123456
     db: 0
-    max-retries: 3
-    pool-size: 10
-    min-idle-conns: 0
-    max-conn-age: 30m0s
-    pool-timeout: 4s
-    idle-timeout: 5m0s
-    read-timeout: 3s
-    write-timeout: 3s
-    cluster-mode: false
+    max_retries: 3
+    pool_size: 10
+    min_idle_conns: 0
+    max_conn_age: 30m0s
+    pool_timeout: 4s
+    idle_timeout: 5m0s
+    read_timeout: 3s
+    write_timeout: 3s
+    cluster_mode: false
 # sharded配置
 sharded:
-    module-name: sharded
-    shard-count: 32
-    base-type: memory
-    hash-func: fnv
-    load-balancer: consistent_hash
+    module_name: sharded
+    shard_count: 32
+    base_type: memory
+    hash_func: fnv
+    load_balancer: consistent_hash
 # two level配置
-two-level:
-    module-name: twolevel
-    l1-type: memory
-    l2-type: redis
-    l1-ttl: 5m0s
-    l2-ttl: 30m0s
-    sync-strategy: write_through
-    l1-size: 1000
-    l2-size: 10000
-    promote-threshold: 2
+two_level:
+    module_name: twolevel
+    l1_type: memory
+    l2_type: redis
+    l1_ttl: 5m0s
+    l2_ttl: 30m0s
+    sync_strategy: write_through
+    l1_size: 1000
+    l2_size: 10000
+    promote_threshold: 2
 # expiring配置
 expiring:
-    module-name: expiring
-    cleanup-interval: 5m0s
-    default-ttl: 30m0s
-    max-size: 10000
-    eviction-policy: lru
-    enable-lazy-expiry: true
-    max-memory-usage: 104857600
+    module_name: expiring
+    cleanup_interval: 5m0s
+    default_ttl: 30m0s
+    max_size: 10000
+    eviction_policy: lru
+    enable_lazy_expiry: true
+    max_memory_usage: 104857600

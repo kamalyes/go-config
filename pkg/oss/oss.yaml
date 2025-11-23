@@ -2,7 +2,7 @@
 # 模块名称: oss
 # 包名: oss  
 # 描述: 对象存储模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-23 23:53:28
 # 注意: 此文件由配置生成器自动生成
 
 # type配置
@@ -14,31 +14,31 @@ default: minio
 # minio配置
 minio:
     endpoint: localhost
-    access-key: minioadmin
-    secret-key: minioadmin
+    access_key: minioadmin
+    secret_key: minioadmin
     bucket: my-bucket
     modulename: minio
-    use-ssl: false
+    use_ssl: false
 # s3配置
 s3:
     endpoint: https://s3.amazonaws.com
     region: us-east-1
-    access-key: demo_access_key
-    secret-key: s3_secret_key
-    bucket-prefix: demo-bucket
-    session-token: ""
-    use-ssl: true
-    path-style: false
+    access_key: demo_access_key
+    secret_key: s3_secret_key
+    bucket_prefix: demo-bucket
+    session_token: ""
+    use_ssl: true
+    path_style: false
     modulename: s3
 # aliyun oss配置
 aliyun:
-    access-key: demo_access_key
-    secret-key: demo_secret_key
+    access_key: demo_access_key
+    secret_key: demo_secret_key
     endpoint: oss-cn-hangzhou.aliyuncs.com
     bucket: demo-bucket
     region: oss-cn-hangzhou
-    replace-original-host: oss-cn-hangzhou.aliyuncs.com
-    replace-later-host: cdn.example.com
+    replace_original_host: oss-cn-hangzhou.aliyuncs.com
+    replace_later_host: cdn.example.com
     modulename: aliyun-oss
 # bolt db配置
 boltdb:

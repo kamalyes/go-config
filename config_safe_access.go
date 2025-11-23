@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-13 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-21 23:49:01
- * @FilePath: \go-config\config_safe_access.go
+ * @LastEditTime: 2025-11-24 14:10:22
+ * @FilePath: \engine-im-service\go-config\config_safe_access.go
  * @Description: 配置安全访问辅助工具，专门针对配置结构体优化
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
@@ -12,8 +12,9 @@
 package goconfig
 
 import (
-	"github.com/kamalyes/go-toolbox/pkg/safe"
 	"time"
+
+	"github.com/kamalyes/go-toolbox/pkg/safe"
 )
 
 // SafeConfig 专门针对配置的安全访问工具
@@ -114,11 +115,6 @@ func (c *ConfigSafe) Cache() *ConfigSafe {
 
 // WSC 安全访问WSC配置
 func (c *ConfigSafe) WSC() *ConfigSafe {
-	if val := c.SafeAccess.Value(); val != nil {
-		if moduleName := c.Field("ModuleName").String(""); moduleName == "wsc" {
-			return c
-		}
-	}
 	return &ConfigSafe{
 		SafeAccess: c.Field("WSC"),
 	}

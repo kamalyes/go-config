@@ -15,7 +15,7 @@ import "github.com/kamalyes/go-config/internal"
 // Elasticsearch 结构体
 type Elasticsearch struct {
 	Endpoint    string `mapstructure:"endpoint"     yaml:"endpoint"     json:"endpoint" validate:"required"`           // Elasticsearch 端点地址
-	HealthCheck int    `mapstructure:"health-check" yaml:"health-check" json:"health_check" validate:"required,min=1"` // 健康检查间隔
+	HealthCheck int    `mapstructure:"health-check" yaml:"health_check" json:"health_check" validate:"required,min=1"` // 健康检查间隔
 	Sniff       bool   `mapstructure:"sniff"        yaml:"sniff"        json:"sniff"`                                  // 是否启用嗅探
 	Gzip        bool   `mapstructure:"gzip"         yaml:"gzip"         json:"gzip"`                                   // 是否启用 Gzip
 	Timeout     string `mapstructure:"timeout"      yaml:"timeout"      json:"timeout" validate:"required"`            // 超时时间
