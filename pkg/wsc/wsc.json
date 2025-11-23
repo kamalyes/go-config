@@ -2,7 +2,7 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2025-11-23 13:56:07
+// 生成时间: 2025-11-23 19:01:21
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -63,6 +63,34 @@
     "group_cache_expire": 3600,
     "auto_create_group": false,
     "enable_message_record": true
+  },
+  "performance": {
+    "max_connections_per_node": 10000,
+    "read_buffer_size": 4,
+    "write_buffer_size": 4,
+    "enable_compression": false,
+    "compression_level": 6,
+    "enable_metrics": true,
+    "metrics_interval": 60,
+    "enable_slow_log": true,
+    "slow_log_threshold": 1000
+  },
+  "security": {
+    "enable_auth": true,
+    "enable_encryption": false,
+    "enable_rate_limit": true,
+    "max_message_size": 1024,
+    "allowed_user_types": [
+      "customer",
+      "agent",
+      "admin"
+    ],
+    "blocked_ips": [],
+    "whitelist_ips": [],
+    "enable_ip_whitelist": false,
+    "token_expiration": 3600,
+    "max_login_attempts": 5,
+    "login_lock_duration": 300
   },
   "enhancement": {
     "enabled": false,

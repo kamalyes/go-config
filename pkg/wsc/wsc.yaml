@@ -2,7 +2,7 @@
 # 模块名称: wsc
 # 包名: wsc  
 # 描述: WebSocket通信模块
-# 生成时间: 2025-11-23 13:56:07
+# 生成时间: 2025-11-23 19:01:21
 # 注意: 此文件由配置生成器自动生成
 
 # enabled配置
@@ -87,6 +87,33 @@ group:
     group-cache-expire: 3600
     auto-create-group: false
     enable-message-record: true
+# performance配置
+performance:
+    max-connections-per-node: 10000
+    read-buffer-size: 4
+    write-buffer-size: 4
+    enable-compression: false
+    compression-level: 6
+    enable-metrics: true
+    metrics-interval: 60
+    enable-slow-log: true
+    slow-log-threshold: 1000
+# security配置
+security:
+    enable-auth: true
+    enable-encryption: false
+    enable-rate-limit: true
+    max-message-size: 1024
+    allowed-user-types:
+        - customer
+        - agent
+        - admin
+    blocked-ips: []
+    whitelist-ips: []
+    enable-ip-whitelist: false
+    token-expiration: 3600
+    max-login-attempts: 5
+    login-lock-duration: 300
 # enhancement配置
 enhancement:
     enabled: false

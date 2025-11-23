@@ -20,8 +20,8 @@ func TestFtp_Default(t *testing.T) {
 	assert.NotNil(t, config)
 	assert.Equal(t, "ftp", config.ModuleName)
 	assert.Equal(t, "127.0.0.1:21", config.Endpoint)
-	assert.Equal(t, "", config.Username)
-	assert.Equal(t, "", config.Password)
+	assert.Equal(t, "ftp_user", config.Username)
+	assert.Equal(t, "ftp_password", config.Password)
 	assert.Equal(t, "/", config.Cwd)
 }
 

@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2025-11-23 13:56:06
+# 生成时间: 2025-11-23 19:01:21
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
@@ -746,6 +746,31 @@ wsc:
         group-cache-expire: 3600
         auto-create-group: false
         enable-message-record: true
+    performance:
+        max-connections-per-node: 10000
+        read-buffer-size: 4
+        write-buffer-size: 4
+        enable-compression: false
+        compression-level: 6
+        enable-metrics: true
+        metrics-interval: 60
+        enable-slow-log: true
+        slow-log-threshold: 1000
+    security:
+        enable-auth: true
+        enable-encryption: false
+        enable-rate-limit: true
+        max-message-size: 1024
+        allowed-user-types:
+            - customer
+            - agent
+            - admin
+        blocked-ips: []
+        whitelist-ips: []
+        enable-ip-whitelist: false
+        token-expiration: 3600
+        max-login-attempts: 5
+        login-lock-duration: 300
     enhancement:
         enabled: false
         smart-routing: true

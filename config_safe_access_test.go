@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-15 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-22 17:21:31
+ * @LastEditTime: 2025-11-23 17:49:08
  * @FilePath: \go-config\config_safe_access_test.go
  * @Description: 配置安全访问辅助工具测试
  *
@@ -575,7 +575,6 @@ func TestSafeConfig_WSCConfig(t *testing.T) {
 	wscConfig.HeartbeatInterval = 30 // 秒
 	wscConfig.Distributed.Enabled = true
 	wscConfig.Group.Enabled = true
-	wscConfig.VIP.Enabled = true
 	wscConfig.Enhancement.Enabled = true
 
 	safeConfig := SafeConfig(wscConfig)

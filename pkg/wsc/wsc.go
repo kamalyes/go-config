@@ -56,6 +56,12 @@ type WSC struct {
 	// === 群组/广播配置 ===
 	Group *Group `mapstructure:"group" yaml:"group,omitempty" json:"group,omitempty"` // 群组配置
 
+	// === 性能配置 ===
+	Performance *Performance `mapstructure:"performance" yaml:"performance,omitempty" json:"performance,omitempty"` // 性能配置
+
+	// === 安全配置 ===
+	Security *Security `mapstructure:"security" yaml:"security,omitempty" json:"security,omitempty"` // 安全配置
+
 	// === 增强功能配置 ===
 	Enhancement *Enhancement `mapstructure:"enhancement" yaml:"enhancement,omitempty" json:"enhancement,omitempty"` // 增强功能配置
 
@@ -220,6 +226,8 @@ func Default() *WSC {
 		Database:             DefaultDatabase(),
 		Distributed:          DefaultDistributed(),
 		Group:                DefaultGroup(),
+		Performance:          DefaultPerformance(),
+		Security:             DefaultSecurity(),
 		Enhancement:          DefaultEnhancement(),
 		Queue:                DefaultQueue(),
 		Jobs:                 DefaultJobs(),
@@ -385,6 +393,12 @@ func DefaultPerformance() *Performance {
 
 // ========== Performance 自身链式调用方法 ==========
 
+// WithPerformance 设置性能配置
+func (c *WSC) WithPerformance(performance *Performance) *WSC {
+	c.Performance = performance
+	return c
+}
+
 // WithMaxConnections 设置最大连接数
 func (p *Performance) WithMaxConnections(maxConnections int) *Performance {
 	p.MaxConnectionsPerNode = maxConnections
@@ -437,6 +451,12 @@ func DefaultSecurity() *Security {
 }
 
 // ========== Security 自身链式调用方法 ==========
+
+// WithSecurity 设置安全配置
+func (c *WSC) WithSecurity(security *Security) *WSC {
+	c.Security = security
+	return c
+}
 
 // WithAuth 设置认证配置
 func (s *Security) WithAuth(enabled bool) *Security {
