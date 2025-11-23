@@ -2,7 +2,7 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2025-11-22 19:07:40
+// 生成时间: 2025-11-23 13:56:07
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -54,25 +54,6 @@
     "node_timeout": 60,
     "cluster_name": "wsc-cluster"
   },
-  "redis": {
-    "module_name": "wsc",
-    "addr": "127.0.0.1:6379",
-    "addrs": [
-      "127.0.0.1:6379"
-    ],
-    "username": "default",
-    "password": "redis123456",
-    "db": 0,
-    "max_retries": 3,
-    "pool_size": 10,
-    "min_idle_conns": 2,
-    "max_conn_age": 1800000000000,
-    "pool_timeout": 4000000000,
-    "idle_timeout": 300000000000,
-    "read_timeout": 3000000000,
-    "write_timeout": 3000000000,
-    "cluster_mode": false
-  },
   "group": {
     "enabled": false,
     "max_group_size": 500,
@@ -82,51 +63,6 @@
     "group_cache_expire": 3600,
     "auto_create_group": false,
     "enable_message_record": true
-  },
-  "performance": {
-    "max_connections_per_node": 10000,
-    "read_buffer_size": 4,
-    "write_buffer_size": 4,
-    "enable_compression": false,
-    "compression_level": 6,
-    "enable_metrics": true,
-    "metrics_interval": 60,
-    "enable_slow_log": true,
-    "slow_log_threshold": 1000
-  },
-  "security": {
-    "enable_auth": true,
-    "enable_encryption": false,
-    "enable_rate_limit": true,
-    "max_message_size": 1024,
-    "allowed_user_types": [
-      "customer",
-      "agent",
-      "admin"
-    ],
-    "blocked_ips": [],
-    "whitelist_ips": [],
-    "enable_ip_whitelist": false,
-    "token_expiration": 3600,
-    "max_login_attempts": 5,
-    "login_lock_duration": 300
-  },
-  "vip": {
-    "enabled": true,
-    "max_level": 8,
-    "default_level": 0,
-    "priority_multiplier": 2,
-    "message_priority_bonus": 10,
-    "queue_priority": true,
-    "custom_service_priority": true,
-    "special_features": [
-      "priority_queue",
-      "dedicated_support"
-    ],
-    "upgrade_rules": [
-      "spending_based",
-      "loyalty_based"
-    ]
   },
   "enhancement": {
     "enabled": false,
@@ -148,5 +84,97 @@
     "metrics_interval": 60,
     "max_samples": 1000,
     "load_balance_algorithm": "round-robin"
+  },
+  "database": {
+    "enabled": true,
+    "auto_migrate": true,
+    "table_prefix": "wsc_",
+    "log_level": "warn",
+    "slow_threshold": 200000000
+  },
+  "queue": {
+    "enabled": false,
+    "type": "redis",
+    "batch_size": 10,
+    "max_retries": 3,
+    "retry_interval": 5000000000,
+    "process_timeout": 30000000000,
+    "prefetch_count": 1,
+    "dead_letter_ttl": 86400000000000,
+    "priority": true,
+    "persistent": true
+  },
+  "jobs": {
+    "enabled": false,
+    "tasks": {
+      "cleanup": {
+        "enabled": true,
+        "cron": "",
+        "interval": 300000000000,
+        "timeout": 60000000000,
+        "max_retries": 3,
+        "description": "清理过期连接和数据",
+        "concurrency": 1,
+        "skip_if_running": true
+      },
+      "offline-message": {
+        "enabled": true,
+        "cron": "",
+        "interval": 60000000000,
+        "timeout": 30000000000,
+        "max_retries": 3,
+        "description": "推送离线消息",
+        "concurrency": 1,
+        "skip_if_running": true
+      },
+      "queue-process": {
+        "enabled": true,
+        "cron": "",
+        "interval": 10000000000,
+        "timeout": 30000000000,
+        "max_retries": 5,
+        "description": "处理队列任务",
+        "concurrency": 2,
+        "skip_if_running": true
+      },
+      "stats-collect": {
+        "enabled": true,
+        "cron": "0 */5 * * * *",
+        "interval": 0,
+        "timeout": 60000000000,
+        "max_retries": 3,
+        "description": "收集统计数据",
+        "concurrency": 1,
+        "skip_if_running": true
+      },
+      "status-sync": {
+        "enabled": true,
+        "cron": "",
+        "interval": 30000000000,
+        "timeout": 15000000000,
+        "max_retries": 3,
+        "description": "同步用户在线状态",
+        "concurrency": 1,
+        "skip_if_running": true
+      }
+    }
+  },
+  "logging": {
+    "module_name": "wsc",
+    "enabled": true,
+    "level": "info",
+    "format": "json",
+    "output": "stdout",
+    "file_path": "/var/log/wsc.log",
+    "max_size": 100,
+    "max_backups": 3,
+    "max_age": 28,
+    "compress": true,
+    "skip_paths": [
+      "/health",
+      "/metrics"
+    ],
+    "enable_request": true,
+    "enable_response": false
   }
 }

@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-13 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-22 19:03:09
+ * @LastEditTime: 2025-11-23 13:00:25
  * @FilePath: \go-config\pkg\wsc\wsc.go
  * @Description: WebSocket 通信完整配置模块（包含分布式、Redis、群组、广播等）
  *
@@ -13,7 +13,7 @@ package wsc
 
 import (
 	"github.com/kamalyes/go-config/internal"
-	"github.com/kamalyes/go-config/pkg/cache"
+	"github.com/kamalyes/go-config/pkg/logging"
 	"time"
 )
 
@@ -53,23 +53,23 @@ type WSC struct {
 	// === 分布式节点配置 ===
 	Distributed *Distributed `mapstructure:"distributed" yaml:"distributed,omitempty" json:"distributed,omitempty"` // 分布式配置
 
-	// === Redis 配置（用于分布式消息）- 复用 cache.Redis ===
-	Redis *cache.Redis `mapstructure:"redis" yaml:"redis,omitempty" json:"redis,omitempty"` // Redis配置
-
 	// === 群组/广播配置 ===
 	Group *Group `mapstructure:"group" yaml:"group,omitempty" json:"group,omitempty"` // 群组配置
 
-	// === 性能配置 ===
-	Performance *Performance `mapstructure:"performance" yaml:"performance,omitempty" json:"performance,omitempty"` // 性能配置
-
-	// === 安全配置 ===
-	Security *Security `mapstructure:"security" yaml:"security,omitempty" json:"security,omitempty"` // 安全配置
-
-	// === VIP等级配置 ===
-	VIP *VIP `mapstructure:"vip" yaml:"vip,omitempty" json:"vip,omitempty"` // VIP等级配置
-
 	// === 增强功能配置 ===
 	Enhancement *Enhancement `mapstructure:"enhancement" yaml:"enhancement,omitempty" json:"enhancement,omitempty"` // 增强功能配置
+
+	// === 数据库配置 ===
+	Database *Database `mapstructure:"database" yaml:"database" json:"database"`
+
+	// === 消息队列配置 ===
+	Queue *Queue `mapstructure:"queue" yaml:"queue,omitempty" json:"queue,omitempty"` // 队列配置
+
+	// === 定时任务配置 ===
+	Jobs *Jobs `mapstructure:"jobs" yaml:"jobs,omitempty" json:"jobs,omitempty"` // 定时任务配置
+
+	// === 日志配置 ===
+	Logging *logging.Logging `mapstructure:"logging" yaml:"logging,omitempty" json:"logging,omitempty"` // 日志配置
 }
 
 // Distributed 分布式节点配置
@@ -82,16 +82,6 @@ type Distributed struct {
 	HealthCheckInterval int    `mapstructure:"health_check_interval" yaml:"health-check-interval" json:"health_check_interval"` // 健康检查间隔(秒)
 	NodeTimeout         int    `mapstructure:"node_timeout" yaml:"node-timeout" json:"node_timeout"`                            // 节点超时(秒)
 	ClusterName         string `mapstructure:"cluster_name" yaml:"cluster-name" json:"cluster_name"`                            // 集群名称
-}
-
-// DefaultRedis 默认Redis配置（复用cache包）
-func DefaultRedis() *cache.Redis {
-	return cache.DefaultRedis().
-		WithModuleName("wsc").
-		WithDB(0).
-		WithPoolSize(10).
-		WithMinIdleConns(2).
-		WithMaxRetries(3)
 }
 
 // Group 群组/广播配置
@@ -134,17 +124,45 @@ type Security struct {
 	LoginLockDuration int      `mapstructure:"login_lock_duration" yaml:"login-lock-duration" json:"login_lock_duration"` // 登录锁定时长(秒)
 }
 
-// VIP VIP等级配置
-type VIP struct {
-	Enabled               bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                 // 是否启用VIP等级
-	MaxLevel              int      `mapstructure:"max_level" yaml:"max-level" json:"max_level"`                                           // 最大VIP等级 (0-8)
-	DefaultLevel          int      `mapstructure:"default_level" yaml:"default-level" json:"default_level"`                               // 默认VIP等级
-	PriorityMultiplier    float64  `mapstructure:"priority_multiplier" yaml:"priority-multiplier" json:"priority_multiplier"`             // VIP优先级乘数
-	MessagePriorityBonus  int      `mapstructure:"message_priority_bonus" yaml:"message-priority-bonus" json:"message_priority_bonus"`    // VIP消息优先级加分
-	QueuePriority         bool     `mapstructure:"queue_priority" yaml:"queue-priority" json:"queue_priority"`                            // VIP用户是否享受队列优先级
-	CustomServicePriority bool     `mapstructure:"custom_service_priority" yaml:"custom-service-priority" json:"custom_service_priority"` // VIP用户是否享受专属客服
-	SpecialFeatures       []string `mapstructure:"special_features" yaml:"special-features" json:"special_features"`                      // VIP特殊功能列表
-	UpgradeRules          []string `mapstructure:"upgrade_rules" yaml:"upgrade-rules" json:"upgrade_rules"`                               // VIP升级规则
+// Database 数据库持久化配置
+type Database struct {
+	Enabled       bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                      // 是否启用数据库持久化
+	AutoMigrate   bool          `mapstructure:"auto_migrate" yaml:"auto-migrate" json:"auto_migrate"`       // 是否自动迁移表结构
+	TablePrefix   string        `mapstructure:"table_prefix" yaml:"table-prefix" json:"table_prefix"`       // 表前缀
+	LogLevel      string        `mapstructure:"log_level" yaml:"log-level" json:"log_level"`                // 日志级别
+	SlowThreshold time.Duration `mapstructure:"slow_threshold" yaml:"slow-threshold" json:"slow_threshold"` // 慢查询阈值
+}
+
+// Queue 消息队列配置
+type Queue struct {
+	Enabled        bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                         // 是否启用队列
+	Type           string        `mapstructure:"type" yaml:"type" json:"type"`                                  // 队列类型: redis, rabbitmq, kafka
+	BatchSize      int           `mapstructure:"batch_size" yaml:"batch-size" json:"batch_size"`                // 批处理大小
+	MaxRetries     int           `mapstructure:"max_retries" yaml:"max-retries" json:"max_retries"`             // 最大重试次数
+	RetryInterval  time.Duration `mapstructure:"retry_interval" yaml:"retry-interval" json:"retry_interval"`    // 重试间隔
+	ProcessTimeout time.Duration `mapstructure:"process_timeout" yaml:"process-timeout" json:"process_timeout"` // 处理超时时间
+	PrefetchCount  int           `mapstructure:"prefetch_count" yaml:"prefetch-count" json:"prefetch_count"`    // 预取数量
+	DeadLetterTTL  time.Duration `mapstructure:"dead_letter_ttl" yaml:"dead-letter-ttl" json:"dead_letter_ttl"` // 死信队列TTL
+	Priority       bool          `mapstructure:"priority" yaml:"priority" json:"priority"`                      // 是否支持优先级
+	Persistent     bool          `mapstructure:"persistent" yaml:"persistent" json:"persistent"`                // 是否持久化
+}
+
+// Jobs 定时任务配置
+type Jobs struct {
+	Enabled bool                `mapstructure:"enabled" yaml:"enabled" json:"enabled"`               // 是否启用定时任务
+	Tasks   map[string]*JobTask `mapstructure:"tasks" yaml:"tasks,omitempty" json:"tasks,omitempty"` // 任务列表
+}
+
+// JobTask 单个定时任务配置
+type JobTask struct {
+	Enabled       bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                         // 是否启用
+	Cron          string        `mapstructure:"cron" yaml:"cron" json:"cron"`                                  // Cron表达式
+	Interval      time.Duration `mapstructure:"interval" yaml:"interval" json:"interval"`                      // 执行间隔(与cron二选一)
+	Timeout       time.Duration `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                         // 执行超时时间
+	MaxRetries    int           `mapstructure:"max_retries" yaml:"max-retries" json:"max_retries"`             // 最大重试次数
+	Description   string        `mapstructure:"description" yaml:"description" json:"description"`             // 任务描述
+	Concurrency   int           `mapstructure:"concurrency" yaml:"concurrency" json:"concurrency"`             // 并发数
+	SkipIfRunning bool          `mapstructure:"skip_if_running" yaml:"skip-if-running" json:"skip_if_running"` // 如果正在运行则跳过
 }
 
 // Enhancement 增强功能配置
@@ -199,13 +217,24 @@ func Default() *WSC {
 		EnableCircuitBreaker: false,
 		SSETimeout:           120,
 		SSEMessageBuffer:     100,
+		Database:             DefaultDatabase(),
 		Distributed:          DefaultDistributed(),
-		Redis:                DefaultRedis(),
 		Group:                DefaultGroup(),
-		Performance:          DefaultPerformance(),
-		Security:             DefaultSecurity(),
-		VIP:                  DefaultVIP(),
 		Enhancement:          DefaultEnhancement(),
+		Queue:                DefaultQueue(),
+		Jobs:                 DefaultJobs(),
+		Logging:              DefaultLogging(),
+	}
+}
+
+// DefaultDatabase 创建默认数据库配置
+func DefaultDatabase() *Database {
+	return &Database{
+		Enabled:       true,
+		AutoMigrate:   true,
+		TablePrefix:   "wsc_",
+		LogLevel:      "warn",
+		SlowThreshold: 200 * time.Millisecond,
 	}
 }
 
@@ -501,36 +530,36 @@ func (c *WSC) Clone() internal.Configurable {
 		cloned.Distributed = &dist
 	}
 
-	if c.Redis != nil {
-		redis := c.Redis.Clone().(*cache.Redis)
-		cloned.Redis = redis
-	}
-
 	if c.Group != nil {
 		group := *c.Group
 		cloned.Group = &group
 	}
 
-	if c.Performance != nil {
-		perf := *c.Performance
-		cloned.Performance = &perf
+	if c.Enhancement != nil {
+		enhancement := *c.Enhancement
+		cloned.Enhancement = &enhancement
 	}
 
-	if c.Security != nil {
-		sec := *c.Security
-		if len(c.Security.AllowedUserTypes) > 0 {
-			sec.AllowedUserTypes = make([]string, len(c.Security.AllowedUserTypes))
-			copy(sec.AllowedUserTypes, c.Security.AllowedUserTypes)
+	if c.Queue != nil {
+		queue := *c.Queue
+		cloned.Queue = &queue
+	}
+
+	if c.Jobs != nil {
+		jobs := &Jobs{
+			Enabled: c.Jobs.Enabled,
+			Tasks:   make(map[string]*JobTask),
 		}
-		if len(c.Security.BlockedIPs) > 0 {
-			sec.BlockedIPs = make([]string, len(c.Security.BlockedIPs))
-			copy(sec.BlockedIPs, c.Security.BlockedIPs)
+		for k, v := range c.Jobs.Tasks {
+			task := *v
+			jobs.Tasks[k] = &task
 		}
-		if len(c.Security.WhitelistIPs) > 0 {
-			sec.WhitelistIPs = make([]string, len(c.Security.WhitelistIPs))
-			copy(sec.WhitelistIPs, c.Security.WhitelistIPs)
-		}
-		cloned.Security = &sec
+		cloned.Jobs = jobs
+	}
+
+	if c.Logging != nil {
+		logging := c.Logging.Clone().(*logging.Logging)
+		cloned.Logging = logging
 	}
 
 	return cloned
@@ -724,20 +753,6 @@ func (c *WSC) EnableDistributed() *WSC {
 	return c
 }
 
-// WithRedis 设置Redis配置
-func (c *WSC) WithRedis(redis *cache.Redis) *WSC {
-	c.Redis = redis
-	return c
-}
-
-// EnableRedis 启用Redis
-func (c *WSC) EnableRedis() *WSC {
-	if c.Redis == nil {
-		c.Redis = DefaultRedis()
-	}
-	return c
-}
-
 // WithGroup 设置群组配置
 func (c *WSC) WithGroup(group *Group) *WSC {
 	c.Group = group
@@ -750,33 +765,6 @@ func (c *WSC) EnableGroup() *WSC {
 		c.Group = DefaultGroup()
 	}
 	c.Group.Enabled = true
-	return c
-}
-
-// WithPerformance 设置性能配置
-func (c *WSC) WithPerformance(performance *Performance) *WSC {
-	c.Performance = performance
-	return c
-}
-
-// WithSecurity 设置安全配置
-func (c *WSC) WithSecurity(security *Security) *WSC {
-	c.Security = security
-	return c
-}
-
-// WithVIP 设置VIP配置
-func (c *WSC) WithVIP(vip *VIP) *WSC {
-	c.VIP = vip
-	return c
-}
-
-// EnableVIP 启用VIP功能（使用默认配置）
-func (c *WSC) EnableVIP() *WSC {
-	if c.VIP == nil {
-		c.VIP = DefaultVIP()
-	}
-	c.VIP.Enabled = true
 	return c
 }
 
@@ -793,83 +781,6 @@ func (c *WSC) EnableEnhancement() *WSC {
 	}
 	c.Enhancement.Enabled = true
 	return c
-}
-
-// DefaultVIP 创建默认VIP配置
-func DefaultVIP() *VIP {
-	return &VIP{
-		Enabled:               true,
-		MaxLevel:              8, // V0-V8
-		DefaultLevel:          0, // V0
-		PriorityMultiplier:    2.0,
-		MessagePriorityBonus:  10,
-		QueuePriority:         true,
-		CustomServicePriority: true,
-		SpecialFeatures:       []string{"priority_queue", "dedicated_support"},
-		UpgradeRules:          []string{"spending_based", "loyalty_based"},
-	}
-}
-
-// ========== VIP 自身链式调用方法 ==========
-
-// WithMaxLevel 设置VIP最大等级
-func (v *VIP) WithMaxLevel(maxLevel int) *VIP {
-	v.MaxLevel = maxLevel
-	return v
-}
-
-// WithDefaultLevel 设置默认VIP等级
-func (v *VIP) WithDefaultLevel(defaultLevel int) *VIP {
-	v.DefaultLevel = defaultLevel
-	return v
-}
-
-// WithPriorityMultiplier 设置VIP优先级倍数
-func (v *VIP) WithPriorityMultiplier(multiplier float64) *VIP {
-	v.PriorityMultiplier = multiplier
-	return v
-}
-
-// WithMessagePriorityBonus 设置VIP消息优先级加分
-func (v *VIP) WithMessagePriorityBonus(bonus int) *VIP {
-	v.MessagePriorityBonus = bonus
-	return v
-}
-
-// WithQueuePriority 设置VIP队列优先级
-func (v *VIP) WithQueuePriority(enabled bool) *VIP {
-	v.QueuePriority = enabled
-	return v
-}
-
-// WithCustomServicePriority 设置VIP专属客服
-func (v *VIP) WithCustomServicePriority(enabled bool) *VIP {
-	v.CustomServicePriority = enabled
-	return v
-}
-
-// WithSpecialFeatures 设置VIP特殊功能列表
-func (v *VIP) WithSpecialFeatures(features []string) *VIP {
-	v.SpecialFeatures = features
-	return v
-}
-
-// WithUpgradeRules 设置VIP升级规则
-func (v *VIP) WithUpgradeRules(rules []string) *VIP {
-	v.UpgradeRules = rules
-	return v
-}
-
-// Enable 启用VIP功能
-func (v *VIP) Enable() *VIP {
-	v.Enabled = true
-	return v
-}
-
-// Disable 禁用VIP功能
-func (v *VIP) Disable() *VIP {
-	v.Enabled = false
-	return v
 }
 
 // DefaultEnhancement 创建默认增强功能配置
@@ -895,6 +806,87 @@ func DefaultEnhancement() *Enhancement {
 		MaxSamples:           1000,
 		LoadBalanceAlgorithm: "round-robin",
 	}
+}
+
+// DefaultQueue 默认队列配置
+func DefaultQueue() *Queue {
+	return &Queue{
+		Enabled:        false, // 默认关闭，需要时启用
+		Type:           "redis",
+		BatchSize:      10,
+		MaxRetries:     3,
+		RetryInterval:  5 * time.Second,
+		ProcessTimeout: 30 * time.Second,
+		PrefetchCount:  1,
+		DeadLetterTTL:  24 * time.Hour,
+		Priority:       true,
+		Persistent:     true,
+	}
+}
+
+// DefaultJobs 默认定时任务配置
+func DefaultJobs() *Jobs {
+	return &Jobs{
+		Enabled: false, // 默认关闭，需要时启用
+		Tasks: map[string]*JobTask{
+			"cleanup": {
+				Enabled:       true,
+				Interval:      5 * time.Minute,
+				Timeout:       60 * time.Second,
+				MaxRetries:    3,
+				Description:   "清理过期连接和数据",
+				Concurrency:   1,
+				SkipIfRunning: true,
+			},
+			"offline-message": {
+				Enabled:       true,
+				Interval:      1 * time.Minute,
+				Timeout:       30 * time.Second,
+				MaxRetries:    3,
+				Description:   "推送离线消息",
+				Concurrency:   1,
+				SkipIfRunning: true,
+			},
+			"queue-process": {
+				Enabled:       true,
+				Interval:      10 * time.Second,
+				Timeout:       30 * time.Second,
+				MaxRetries:    5,
+				Description:   "处理队列任务",
+				Concurrency:   2,
+				SkipIfRunning: true,
+			},
+			"status-sync": {
+				Enabled:       true,
+				Interval:      30 * time.Second,
+				Timeout:       15 * time.Second,
+				MaxRetries:    3,
+				Description:   "同步用户在线状态",
+				Concurrency:   1,
+				SkipIfRunning: true,
+			},
+			"stats-collect": {
+				Enabled:       true,
+				Cron:          "0 */5 * * * *", // 每5分钟执行
+				Timeout:       60 * time.Second,
+				MaxRetries:    3,
+				Description:   "收集统计数据",
+				Concurrency:   1,
+				SkipIfRunning: true,
+			},
+		},
+	}
+}
+
+// DefaultLogging 创建默认日志配置
+func DefaultLogging() *logging.Logging {
+	return logging.Default().
+		WithModuleName("wsc").
+		WithLevel("info").
+		WithFormat("json").
+		WithOutput("stdout").
+		WithFilePath("/var/log/wsc.log").
+		WithEnabled(true)
 }
 
 // ========== Enhancement 自身链式调用方法 ==========
@@ -982,9 +974,220 @@ func (e *Enhancement) WithAlertSystem(enabled bool) *Enhancement {
 	return e
 }
 
-// WithMetrics 设置指标采集间隔和最大样本数
-func (e *Enhancement) WithMetrics(metricsInterval, maxSamples int) *Enhancement {
-	e.MetricsInterval = metricsInterval
-	e.MaxSamples = maxSamples
-	return e
+// WithQueue 设置队列配置
+func (c *WSC) WithQueue(queue *Queue) *WSC {
+	c.Queue = queue
+	return c
+}
+
+// EnableQueue 启用消息队列
+func (c *WSC) EnableQueue() *WSC {
+	if c.Queue == nil {
+		c.Queue = DefaultQueue()
+	}
+	c.Queue.Enabled = true
+	return c
+}
+
+// WithJobs 设置定时任务配置
+func (c *WSC) WithJobs(jobs *Jobs) *WSC {
+	c.Jobs = jobs
+	return c
+}
+
+// EnableJobs 启用定时任务
+func (c *WSC) EnableJobs() *WSC {
+	if c.Jobs == nil {
+		c.Jobs = DefaultJobs()
+	}
+	c.Jobs.Enabled = true
+	return c
+}
+
+// WithLogging 设置日志配置
+func (c *WSC) WithLogging(logging *logging.Logging) *WSC {
+	c.Logging = logging
+	return c
+}
+
+// ========== Database 自身链式调用方法 ==========
+
+// Enable 启用数据库
+func (d *Database) Enable() *Database {
+	d.Enabled = true
+	return d
+}
+
+// WithMigration 设置自动迁移和表前缀
+func (d *Database) WithMigration(autoMigrate bool, tablePrefix string) *Database {
+	d.AutoMigrate = autoMigrate
+	d.TablePrefix = tablePrefix
+	return d
+}
+
+// WithLogging 设置数据库日志
+func (d *Database) WithLogging(logLevel string, slowThreshold time.Duration) *Database {
+	d.LogLevel = logLevel
+	d.SlowThreshold = slowThreshold
+	return d
+}
+
+// ========== Queue 自身链式调用方法 ==========
+
+// Enable 启用队列
+func (q *Queue) Enable() *Queue {
+	q.Enabled = true
+	return q
+}
+
+// Disable 禁用队列
+func (q *Queue) Disable() *Queue {
+	q.Enabled = false
+	return q
+}
+
+// WithType 设置队列类型
+func (q *Queue) WithType(queueType string) *Queue {
+	q.Type = queueType
+	return q
+}
+
+// WithBatch 设置批处理参数
+func (q *Queue) WithBatch(batchSize int) *Queue {
+	q.BatchSize = batchSize
+	return q
+}
+
+// WithRetry 设置重试参数
+func (q *Queue) WithRetry(maxRetries int, interval time.Duration) *Queue {
+	q.MaxRetries = maxRetries
+	q.RetryInterval = interval
+	return q
+}
+
+// WithTimeout 设置超时时间
+func (q *Queue) WithTimeout(timeout time.Duration) *Queue {
+	q.ProcessTimeout = timeout
+	return q
+}
+
+// WithPrefetch 设置预取数量
+func (q *Queue) WithPrefetch(count int) *Queue {
+	q.PrefetchCount = count
+	return q
+}
+
+// WithDeadLetter 设置死信队列TTL
+func (q *Queue) WithDeadLetter(ttl time.Duration) *Queue {
+	q.DeadLetterTTL = ttl
+	return q
+}
+
+// WithPriority 启用/禁用优先级支持
+func (q *Queue) WithPriority(enabled bool) *Queue {
+	q.Priority = enabled
+	return q
+}
+
+// WithPersistent 设置是否持久化
+func (q *Queue) WithPersistent(persistent bool) *Queue {
+	q.Persistent = persistent
+	return q
+}
+
+// ========== Jobs 自身链式调用方法 ==========
+
+// Enable 启用定时任务
+func (j *Jobs) Enable() *Jobs {
+	j.Enabled = true
+	return j
+}
+
+// Disable 禁用定时任务
+func (j *Jobs) Disable() *Jobs {
+	j.Enabled = false
+	return j
+}
+
+// WithTask 添加任务配置
+func (j *Jobs) WithTask(name string, task *JobTask) *Jobs {
+	if j.Tasks == nil {
+		j.Tasks = make(map[string]*JobTask)
+	}
+	j.Tasks[name] = task
+	return j
+}
+
+// EnableTask 启用指定任务
+func (j *Jobs) EnableTask(name string) *Jobs {
+	if j.Tasks != nil && j.Tasks[name] != nil {
+		j.Tasks[name].Enabled = true
+	}
+	return j
+}
+
+// DisableTask 禁用指定任务
+func (j *Jobs) DisableTask(name string) *Jobs {
+	if j.Tasks != nil && j.Tasks[name] != nil {
+		j.Tasks[name].Enabled = false
+	}
+	return j
+}
+
+// ========== JobTask 自身链式调用方法 ==========
+
+// Enable 启用任务
+func (t *JobTask) Enable() *JobTask {
+	t.Enabled = true
+	return t
+}
+
+// Disable 禁用任务
+func (t *JobTask) Disable() *JobTask {
+	t.Enabled = false
+	return t
+}
+
+// WithCron 设置Cron表达式
+func (t *JobTask) WithCron(cron string) *JobTask {
+	t.Cron = cron
+	t.Interval = 0 // 清空interval，使用cron
+	return t
+}
+
+// WithInterval 设置执行间隔
+func (t *JobTask) WithInterval(interval time.Duration) *JobTask {
+	t.Interval = interval
+	t.Cron = "" // 清空cron，使用interval
+	return t
+}
+
+// WithTimeout 设置超时时间
+func (t *JobTask) WithTimeout(timeout time.Duration) *JobTask {
+	t.Timeout = timeout
+	return t
+}
+
+// WithRetry 设置重试参数
+func (t *JobTask) WithRetry(maxRetries int) *JobTask {
+	t.MaxRetries = maxRetries
+	return t
+}
+
+// WithDescription 设置任务描述
+func (t *JobTask) WithDescription(description string) *JobTask {
+	t.Description = description
+	return t
+}
+
+// WithConcurrency 设置并发数
+func (t *JobTask) WithConcurrency(concurrency int) *JobTask {
+	t.Concurrency = concurrency
+	return t
+}
+
+// WithSkipIfRunning 设置是否跳过运行中的任务
+func (t *JobTask) WithSkipIfRunning(skip bool) *JobTask {
+	t.SkipIfRunning = skip
+	return t
 }

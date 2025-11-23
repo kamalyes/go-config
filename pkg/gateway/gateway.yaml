@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2025-11-22 18:00:29
+# 生成时间: 2025-11-23 13:56:06
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
@@ -710,6 +710,9 @@ wsc:
     max-retries: 3
     base-delay: 100ms
     max-delay: 5s
+    ack-timeout-ms: 500ms
+    ack-max-retries: 3
+    enable-ack: false
     backoff-factor: 2
     jitter: true
     retryable-errors:
@@ -734,23 +737,6 @@ wsc:
         health-check-interval: 10
         node-timeout: 60
         cluster-name: wsc-cluster
-    redis:
-        modulename: wsc
-        addr: 127.0.0.1:6379
-        addrs:
-            - 127.0.0.1:6379
-        username: default
-        password: redis123456
-        db: 0
-        max-retries: 3
-        pool-size: 10
-        min-idle-conns: 2
-        max-conn-age: 30m0s
-        pool-timeout: 4s
-        idle-timeout: 5m0s
-        read-timeout: 3s
-        write-timeout: 3s
-        cluster-mode: false
     group:
         enabled: false
         max-group-size: 500
@@ -760,45 +746,6 @@ wsc:
         group-cache-expire: 3600
         auto-create-group: false
         enable-message-record: true
-    performance:
-        max-connections-per-node: 10000
-        read-buffer-size: 4
-        write-buffer-size: 4
-        enable-compression: false
-        compression-level: 6
-        enable-metrics: true
-        metrics-interval: 60
-        enable-slow-log: true
-        slow-log-threshold: 1000
-    security:
-        enable-auth: true
-        enable-encryption: false
-        enable-rate-limit: true
-        max-message-size: 1024
-        allowed-user-types:
-            - customer
-            - agent
-            - admin
-        blocked-ips: []
-        whitelist-ips: []
-        enable-ip-whitelist: false
-        token-expiration: 3600
-        max-login-attempts: 5
-        login-lock-duration: 300
-    vip:
-        enabled: true
-        max-level: 8
-        default-level: 0
-        priority-multiplier: 2
-        message-priority-bonus: 10
-        queue-priority: true
-        custom-service-priority: true
-        special-features:
-            - priority_queue
-            - dedicated_support
-        upgrade-rules:
-            - spending_based
-            - loyalty_based
     enhancement:
         enabled: false
         smart-routing: true
@@ -819,3 +766,84 @@ wsc:
         metrics-interval: 60
         max-samples: 1000
         load-balance-algorithm: round-robin
+    database:
+        enabled: true
+        auto-migrate: true
+        table-prefix: wsc_
+        log-level: warn
+        slow-threshold: 200ms
+    queue:
+        enabled: false
+        type: redis
+        batch-size: 10
+        max-retries: 3
+        retry-interval: 5s
+        process-timeout: 30s
+        prefetch-count: 1
+        dead-letter-ttl: 24h0m0s
+        priority: true
+        persistent: true
+    jobs:
+        enabled: false
+        tasks:
+            cleanup:
+                enabled: true
+                cron: ""
+                interval: 5m0s
+                timeout: 1m0s
+                max-retries: 3
+                description: 清理过期连接和数据
+                concurrency: 1
+                skip-if-running: true
+            offline-message:
+                enabled: true
+                cron: ""
+                interval: 1m0s
+                timeout: 30s
+                max-retries: 3
+                description: 推送离线消息
+                concurrency: 1
+                skip-if-running: true
+            queue-process:
+                enabled: true
+                cron: ""
+                interval: 10s
+                timeout: 30s
+                max-retries: 5
+                description: 处理队列任务
+                concurrency: 2
+                skip-if-running: true
+            stats-collect:
+                enabled: true
+                cron: 0 */5 * * * *
+                interval: 0s
+                timeout: 1m0s
+                max-retries: 3
+                description: 收集统计数据
+                concurrency: 1
+                skip-if-running: true
+            status-sync:
+                enabled: true
+                cron: ""
+                interval: 30s
+                timeout: 15s
+                max-retries: 3
+                description: 同步用户在线状态
+                concurrency: 1
+                skip-if-running: true
+    logging:
+        module-name: wsc
+        enabled: true
+        level: info
+        format: json
+        output: stdout
+        file-path: /var/log/wsc.log
+        max-size: 100
+        max-backups: 3
+        max-age: 28
+        compress: true
+        skip-paths:
+            - /health
+            - /metrics
+        enable-request: true
+        enable-response: false
