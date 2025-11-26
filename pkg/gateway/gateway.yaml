@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2025-11-23 23:53:28
+# 生成时间: 2025-11-27 01:06:02
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
@@ -19,148 +19,144 @@ version: v1.0.0
 environment: dev
 # json配置
 json:
-    use_proto_names: true
-    emit_unpopulated: true
-    discard_unknown: true
+    use-proto-names: true
+    emit-unpopulated: true
+    discard-unknown: true
 # httpserver配置
 http:
     module_name: server
     host: 0.0.0.0
     port: 8080
-    grpc_port: 9090
-    read_timeout: 30
-    write_timeout: 30
-    idle_timeout: 60
-    max_header_bytes: 1048576
-    enable_http: true
-# grpc配置
-    enable_grpc: false
-    enable_tls: false
+    read-timeout: 30
+    write-timeout: 30
+    idle-timeout: 60
+    max-header-bytes: 1048576
+    enable-tls: false
     tls:
-        cert_file: ""
-        key_file: ""
-        ca_file: ""
-    headers: {}
-    _: http://0.0.0.0:8080
-    enable_gzip_compress: true
+        cert-file: ""
+        key-file: ""
+        ca-file: ""
+    headers:
+        x-server: go-config
+    enable-gzip-compress: true
+# grpc配置
 grpc:
     server:
         host: 0.0.0.0
         port: 9090
         network: tcp
-        max_recv_msg_size: 4194304
-        max_send_msg_size: 4194304
-        keepalive_time: 30
-        keepalive_timeout: 10
-        connection_timeout: 5
-        enable_reflection: true
-        _: 0.0.0.0:9090
+        max-recv-msg-size: 4194304
+        max-send-msg-size: 4194304
+        keepalive-time: 30
+        keepalive-timeout: 10
+        connection-timeout: 5
+        enable-reflection: true
     clients: {}
 # cache配置
 cache:
     module_name: default
     type: memory
     enabled: true
-    default_ttl: 30m0s
-    key_prefix: 'cache:'
+    default-ttl: 30m0s
+    key-prefix: 'cache:'
     serializer: json
     memory:
         module_name: memory
         capacity: 1000
-        default_ttl: 30m0s
-        cleanup_size: 100
-        max_size: 0
+        default-ttl: 30m0s
+        cleanup-size: 100
+        max-size: 0
     ristretto:
         module_name: ristretto
-        num_counters: 10000000
-        max_cost: 1073741824
-        buffer_items: 64
+        num-counters: 10000000
+        max-cost: 1073741824
+        buffer-items: 64
         metrics: true
-        ignore_internal_cost: false
-        key_to_hash: true
+        ignore-internal-cost: false
+        key-to-hash: true
         cost: 1
     redis:
-        modulename: redis
+        module_name: redis
         addr: 127.0.0.1:6379
         addrs:
             - 127.0.0.1:6379
         username: default
         password: redis123456
         db: 0
-        max_retries: 3
-        pool_size: 10
-        min_idle_conns: 0
-        max_conn_age: 30m0s
-        pool_timeout: 4s
-        idle_timeout: 5m0s
-        read_timeout: 3s
-        write_timeout: 3s
-        cluster_mode: false
+        max-retries: 3
+        pool-size: 10
+        min-idle-conns: 0
+        max-conn-age: 30m0s
+        pool-timeout: 4s
+        idle-timeout: 5m0s
+        read-timeout: 3s
+        write-timeout: 3s
+        cluster-mode: false
     sharded:
         module_name: sharded
-        shard_count: 32
-        base_type: memory
-        hash_func: fnv
-        load_balancer: consistent_hash
-    two_level:
+        shard-count: 32
+        base-type: memory
+        hash-func: fnv
+        load-balancer: consistent_hash
+    two-level:
         module_name: twolevel
-        l1_type: memory
-        l2_type: redis
-        l1_ttl: 5m0s
-        l2_ttl: 30m0s
-        sync_strategy: write_through
-        l1_size: 1000
-        l2_size: 10000
-        promote_threshold: 2
+        l1-type: memory
+        l2-type: redis
+        l1-ttl: 5m0s
+        l2-ttl: 30m0s
+        sync-strategy: write_through
+        l1-size: 1000
+        l2-size: 10000
+        promote-threshold: 2
     expiring:
         module_name: expiring
-        cleanup_interval: 5m0s
-        default_ttl: 30m0s
-        max_size: 10000
-        eviction_policy: lru
-        enable_lazy_expiry: true
-        max_memory_usage: 104857600
+        cleanup-interval: 5m0s
+        default-ttl: 30m0s
+        max-size: 10000
+        eviction-policy: lru
+        enable-lazy-expiry: true
+        max-memory-usage: 104857600
 # database配置
 database:
     type: mysql
     enabled: true
     default: mysql
     mysql:
-        modulename: mysql
+        module_name: mysql
         host: localhost
         port: "3306"
         config: charset=utf8mb4&parseTime=True&loc=Local
-        log_level: info
-        db_name: test
+        log-level: info
+        db-name: test
         username: root
         password: mysql_password
-        max_idle_conns: 10
-        max_open_conns: 100
-        conn_max_idle_time: 300
-        conn_max_life_time: 3600
+        max-idle-conns: 10
+        max-open-conns: 100
+        conn-max-idle-time: 300
+        conn-max-life-time: 3600
     postgresql:
-        modulename: postgresql
+        module_name: postgresql
         host: localhost
         port: "5432"
         config: sslmode=disable
-        log_level: info
-        db_name: postgres
+        log-level: info
+        db-name: postgres
         username: postgres
         password: postgres_password
-        max_idle_conns: 10
-        max_open_conns: 100
-        conn_max_idle_time: 300
-        conn_max_life_time: 3600
+        max-idle-conns: 10
+        max-open-conns: 100
+        conn-max-idle-time: 300
+        conn-max-life-time: 3600
     sqlite:
-        modulename: sqlite
+        module_name: sqlite
         config: _foreign_keys=on
-        log_level: info
-        db_path: ./data.db
+        log-level: info
+        db-path: ./data.db
         vacuum: false
-        max_idle_conns: 10
-        max_open_conns: 1
-        conn_max_idle_time: 300
-        conn_max_life_time: 3600
+        max-idle-conns: 10
+        max-open-conns: 1
+        conn-max-idle-time: 300
+        conn-max-life-time: 3600
 # etcd配置
 etcd:
     module_name: etcd
@@ -170,25 +166,25 @@ etcd:
     id: 1
     user: etcd_user
     pass: etcd_password
-    cert_file: /etc/etcd/client.crt
-    cert_key_file: /etc/etcd/client.key
-    ca_cert_file: /etc/etcd/ca.crt
-    insecure_skip_verify: true
+    cert-file: /etc/etcd/client.crt
+    cert-key-file: /etc/etcd/client.key
+    ca-cert-file: /etc/etcd/ca.crt
+    insecure-skip-verify: true
     namespace: default
-    dial_timeout: 5
-    request_timeout: 10
+    dial-timeout: 5
+    request-timeout: 10
 # kafka配置
 kafka:
     brokers: 127.0.0.1:9092
     topic: default-topic
-    group_id: default-group
+    group-id: default-group
     username: kafka_user
     password: kafka_password
     partition: 0
     offset: latest
-    try_times: 3
-    sync_es_topic: sync-es-topic
-    modulename: kafka
+    try-times: 3
+    sync-es-topic: sync-es-topic
+    module_name: kafka
 # oss配置
 oss:
     type: minio
@@ -196,71 +192,71 @@ oss:
     default: minio
     minio:
         endpoint: localhost
-        access_key: minioadmin
-        secret_key: minioadmin
+        access-key: minioadmin
+        secret-key: minioadmin
         bucket: my-bucket
-        modulename: minio
-        use_ssl: false
+        module_name: minio
+        use-ssl: false
     s3:
         endpoint: https://s3.amazonaws.com
         region: us-east-1
-        access_key: demo_access_key
-        secret_key: s3_secret_key
-        bucket_prefix: demo-bucket
-        session_token: ""
-        use_ssl: true
-        path_style: false
-        modulename: s3
+        access-key: demo_access_key
+        secret-key: s3_secret_key
+        bucket-prefix: demo-bucket
+        session-token: ""
+        use-ssl: true
+        path-style: false
+        module_name: s3
     aliyun:
-        access_key: demo_access_key
-        secret_key: demo_secret_key
+        access-key: demo_access_key
+        secret-key: demo_secret_key
         endpoint: oss-cn-hangzhou.aliyuncs.com
         bucket: demo-bucket
         region: oss-cn-hangzhou
-        replace_original_host: oss-cn-hangzhou.aliyuncs.com
-        replace_later_host: cdn.example.com
-        modulename: aliyun-oss
+        replace-original-host: oss-cn-hangzhou.aliyuncs.com
+        replace-later-host: cdn.example.com
+        module_name: aliyun-oss
     boltdb:
         path: ./data/storage.db
-        modulename: boltdb
+        module_name: boltdb
 # mqtt配置
 mqtt:
     endpoint: tcp://127.0.0.1:1883
-    client_id: go-config-mqtt-client
-    protocol_ver: 4
-    keep_alive: 60
-    max_reconnect_interval: 300
-    ping_timeout: 10
-    write_timeout: 10
-    connect_timeout: 30
+    client-id: go-config-mqtt-client
+    protocol-version: 4
+    keep-alive: 60
+    max-reconnect-interval: 300
+    ping-timeout: 10
+    write-timeout: 10
+    connect-timeout: 30
     username: mqtt_user
     password: mqtt_password
-    clean_session: true
-    auto_reconnect: true
-    will_topic: ""
-    modulename: mqtt
+    clean-session: true
+    auto-reconnect: true
+    will-topic: ""
+    module_name: mqtt
 # elasticsearch配置
 elasticsearch:
     endpoint: http://127.0.0.1:9200
-    health_check: 10
+    health-check: 10
     sniff: false
     gzip: false
     timeout: 10s
-    modulename: elasticsearch
+    module_name: elasticsearch
 # smtp配置
 smtp:
     module_name: smtp
     enabled: true
-    smtp_host: 127.0.0.1
-    smtp_port: 587
+    smtp-host: 127.0.0.1
+    smtp-port: 587
     username: smtp_user
     password: smtp_password
-    from_address: noreply@example.com
-    to_addresses:
+    from-address: noreply@example.com
+    to-addresses:
         - admin@example.com
-    enable_tls: true
+    enable-tls: true
     headers: {}
-    pool_size: 5
+    pool-size: 5
 # health配置
 health:
     module_name: health
@@ -286,21 +282,21 @@ monitoring:
         path: /metrics
         port: 9090
         endpoint: http://localhost:9090
-        push_gateway:
+        push-gateway:
             enabled: false
             endpoint: http://localhost:9091
-            job_name: go-rpc-gateway
+            job-name: go-rpc-gateway
         scraping:
             interval: 15s
             timeout: 10s
-            metrics_path: /metrics
+            metrics-path: /metrics
     grafana:
         module_name: grafana
         enabled: false
         endpoint: http://localhost:3000
         username: admin
         password: admin
-        api_key: demo_api_key
+        api-key: demo_api_key
         datasource:
             type: prometheus
             url: http://localhost:9090
@@ -308,10 +304,10 @@ monitoring:
             username: prometheus_user
             password: prometheus_password
         dashboard:
-            import_path: ""
-            auto_import: false
+            import-path: ""
+            auto-import: false
             templates: []
-            refresh_interval: 30s
+            refresh-interval: 30s
         alerting:
             enabled: false
             webhooks: []
@@ -320,8 +316,8 @@ monitoring:
         module_name: jaeger
         enabled: false
         endpoint: http://localhost:14268/api/traces
-        service_name: go-rpc-gateway
-        sample_rate: 0.1
+        service-name: go-rpc-gateway
+        sample-rate: 0.1
         agent:
             host: localhost
             port: 6832
@@ -332,15 +328,15 @@ monitoring:
         sampling:
             type: probabilistic
             param: 0.1
-            max_traces_per_second: 100
-            operation_sampling: []
+            max-traces-per-second: 100
+            operation-sampling: []
         tags: {}
     metrics:
         enabled: true
-        request_count: true
+        request-count: true
         duration: true
-        response_size: true
-        request_size: true
+        response-size: true
+        request-size: true
         buckets:
             - 0.001
             - 0.01
@@ -356,17 +352,16 @@ monitoring:
             - 60
             - 90
             - 120
-        enable_open_metrics: false
-        custom_metrics: []
-        _: /metrics
+        enable-open-metrics: false
+        custom-metrics: []
     alerting:
         enabled: false
         rules: []
         webhooks: []
         email:
             enabled: false
-            smtp_host: ""
-            smtp_port: 0
+            smtp-host: ""
+            smtp-port: 0
             username: ""
             password: ""
             from: ""
@@ -377,7 +372,7 @@ monitoring:
             token: ""
             channel: ""
             username: ""
-            icon_emoji: ""
+            icon-emoji: ""
 # security配置
 security:
     module_name: security
@@ -392,62 +387,62 @@ security:
     auth:
         enabled: false
         type: bearer
-        header_name: Authorization
-        token_prefix: 'Bearer '
+        header-name: Authorization
+        token-prefix: 'Bearer '
         basic:
             users: []
         bearer:
             tokens: []
         apikey:
             keys: []
-            header_name: X-API-Key
-            query_param: api_key
+            header-name: X-API-Key
+            query-param: api_key
         custom:
-            header_name: ""
-            expected_value: ""
+            header-name: ""
+            expected-value: ""
             headers: {}
     protection:
 # swagger配置
         swagger:
             enabled: false
-            auth_required: false
-            auth_type: basic
-            ip_whitelist: []
-            require_https: false
+            auth-required: false
+            auth-type: basic
+            ip-whitelist: []
+            require-https: false
             username: ""
             password: ""
         pprof:
             enabled: false
-            auth_required: true
-            auth_type: basic
-            ip_whitelist:
+            auth-required: true
+            auth-type: basic
+            ip-whitelist:
                 - 127.0.0.1
                 - ::1
-            require_https: true
+            require-https: true
             username: admin
             password: ""
         metrics:
             enabled: false
-            auth_required: false
-            auth_type: ""
-            ip_whitelist: []
-            require_https: false
+            auth-required: false
+            auth-type: ""
+            ip-whitelist: []
+            require-https: false
             username: ""
             password: ""
         health:
             enabled: false
-            auth_required: false
-            auth_type: ""
-            ip_whitelist: []
-            require_https: false
+            auth-required: false
+            auth-type: ""
+            ip-whitelist: []
+            require-https: false
             username: ""
             password: ""
         api:
             enabled: true
-            auth_required: false
-            auth_type: ""
-            ip_whitelist: []
-            require_https: false
+            auth-required: false
+            auth-type: ""
+            ip-whitelist: []
+            require-https: false
             username: ""
             password: ""
 # middleware配置
@@ -460,39 +455,39 @@ middleware:
         level: info
         format: json
         output: stdout
-        file_path: /var/log/app.log
-        max_size: 100
-        max_backups: 3
-        max_age: 28
+        file-path: /var/log/app.log
+        max-size: 100
+        max-backups: 3
+        max-age: 28
         compress: true
-        skip_paths:
+        skip-paths:
             - /health
             - /metrics
-        enable_request: true
-        enable_response: false
+        enable-request: true
+        enable-response: false
     recovery:
         module_name: recovery
         enabled: true
-        enable_stack: true
-        stack_size: 4096
-        enable_debug: false
-        error_message: 服务器内部错误
-        log_level: error
-        enable_notify: false
-        print_stack: true
+        enable-stack: true
+        stack-size: 4096
+        enable-debug: false
+        error-message: 服务器内部错误
+        log-level: error
+        enable-notify: false
+        print-stack: true
     tracing:
         module_name: tracing
         enabled: false
-        service_name: go-rpc-gateway
-        service_version: 1.0.0
+        service-name: go-rpc-gateway
+        service-version: 1.0.0
         environment: development
         endpoint: http://localhost:9411/api/v2/spans
-        exporter_type: zipkin
-        exporter_endpoint: http://localhost:9411/api/v2/spans
-        sample_rate: 0.1
-        sampler_type: probability
-        sampler_probability: 0.1
-        sampler_rate: 0.1
+        exporter-type: zipkin
+        exporter-endpoint: http://localhost:9411/api/v2/spans
+        sample-rate: 0.1
+        sampler-type: probability
+        sampler-probability: 0.1
+        sampler-rate: 0.1
         headers:
             - Authorization
             - User-Agent
@@ -503,7 +498,7 @@ middleware:
         path: /metrics
         namespace: gateway
         subsystem: http
-        skip_paths:
+        skip-paths:
             - /health
         buckets:
             - 0.005
@@ -517,43 +512,42 @@ middleware:
             - 2.5
             - 5
             - 10
-        request_count: true
+        request-count: true
         duration: true
-        request_size: true
-        response_size: true
-    request_id:
+        request-size: true
+        response-size: true
+    request-id:
         module_name: requestid
         enabled: true
-        header_name: X-Request-ID
+        header-name: X-Request-ID
         generator: uuid
     i18n:
         module_name: i18n
         enabled: false
-        default_language: en
-        supported_languages:
+        default-language: en
+        supported-languages:
             - en
             - zh
-        language_mapping:
+        language-mapping:
             en-us: en
             zh-cn: zh
-        detection_order:
+        detection-order:
             - header
             - query
             - cookie
             - default
-        language_param: lang
-        language_header: Accept-Language
-        messages_path: ./locales
-        custom_message_paths: {}
-        enable_fallback: true
-        _: null
-        cookie_name: language
+        language-param: lang
+        language-header: Accept-Language
+        messages-path: ./locales
+        custom-message-paths: {}
+        enable-fallback: true
+        cookie-name: language
     pprof:
         module_name: PProf
         enabled: false
-        path_prefix: /debug/pprof
+        path-prefix: /debug/pprof
         port: 6060
-        enable_profiles:
+        enable-profiles:
             cpu: true
             memory: true
             goroutine: true
@@ -564,38 +558,38 @@ middleware:
             threadcreate: false
             trace: false
         sampling:
-            cpu_rate: 100
-            memory_rate: 524288
-            block_rate: 1
-            mutex_fraction: 1
+            cpu-rate: 100
+            memory-rate: 524288
+            block-rate: 1
+            mutex-fraction: 1
         authentication:
             enabled: false
-            auth_token: ""
-            allowed_ips: []
-            require_auth: false
+            auth-token: ""
+            allowed-ips: []
+            require-auth: false
             timeout: 30
         gateway:
             enabled: false
-            dev_mode_only: false
-            enable_logging: true
-            register_web_interface: true
-        web_interface:
+            dev-mode-only: false
+            enable-logging: true
+            register-web-interface: true
+        web-interface:
             enabled: true
             title: PProf Performance Analysis
             description: Go Performance Profiling Interface
-            show_scenarios: true
-    circuit_breaker:
+            show-scenarios: true
+    circuit-breaker:
         module_name: circuit_breaker
         enabled: true
-        failure_threshold: 5
-        success_threshold: 2
+        failure-threshold: 5
+        success-threshold: 2
         timeout: 30000000000
-        volume_threshold: 10
-        sliding_window_size: 100
-        sliding_window_bucket: 1000000000
-        prevention_paths:
+        volume-threshold: 10
+        sliding-window-size: 100
+        sliding-window-bucket: 1000000000
+        prevention-paths:
             - /api/
-        exclude_paths:
+        exclude-paths:
             - /health
             - /metrics
             - /debug
@@ -606,46 +600,46 @@ middleware:
         channels: []
 # cors配置
 cors:
-    allowed_origins:
+    allowed-origins:
         - '*'
-    allowed_methods:
+    allowed-methods:
         - GET
         - POST
         - PUT
         - DELETE
         - OPTIONS
-    allowed_headers:
+    allowed-headers:
         - Origin
         - Content-Length
         - Content-Type
         - Authorization
-    max_age: "86400"
-    allowed_all_origins: false
-    allowed_all_methods: false
-    exposed_headers: []
-    allow_credentials: true
-    options_response_code: 200
-    modulename: cors
+    max-age: "86400"
+    allowed-all-origins: false
+    allowed-all-methods: false
+    exposed-headers: []
+    allow-credentials: true
+    options-response-code: 200
+    module_name: cors
 jwt:
-    modulename: jwt
-    signing_key: go-config-default-key
-    expires_time: 604800
-    buffer_time: 3600
-    use_multipoint: false
+    module_name: jwt
+    signing-key: go-config-default-key
+    expires-time: 604800
+    buffer-time: 3600
+    use-multipoint: false
     issuer: go-config
     audience: go-config-audience
     algorithm: HS256
-    enable_refresh: true
-    refresh_token_life: 2592000
+    enable-refresh: true
+    refresh-token-life: 2592000
     subject: user-token
-    custom_claims: {}
+    custom-claims: {}
 swagger:
     module_name: swagger
     enabled: true
-    json_path: /swagger/doc.json
-    ui_path: /swagger
-    yaml_path: /swagger/doc.yaml
-    spec_path: ./docs/swagger.yaml
+    json-path: /swagger/doc.json
+    ui-path: /swagger
+    yaml-path: /swagger/doc.yaml
+    spec-path: ./docs/swagger.yaml
     title: API Documentation
     description: API Documentation powered by Swagger UI
     version: 1.0.0
@@ -661,13 +655,13 @@ swagger:
         username: ""
         password: ""
         token: ""
-        header_name: ""
-        header_value: ""
+        header-name: ""
+        header-value: ""
     aggregate:
         enabled: false
         mode: merge
         services: []
-        ui_layout: tabs
+        ui-layout: tabs
 # banner配置
 banner:
     module_name: banner
@@ -679,139 +673,143 @@ banner:
     email: 501893067@qq.com
     website: https://github.com/kamalyes/go-rpc-gateway
 # rate limit配置
-rate_limit:
+rate-limit:
     module_name: ratelimit
     enabled: true
     strategy: token-bucket
-    default_scope: global
-    global_limit:
-        requests_per_second: 100
-        burst_size: 200
-        window_size: 1m0s
-        block_duration: 1m0s
+    default-scope: global
+    global-limit:
+        requests-per-second: 100
+        burst-size: 200
+        window-size: 1m0s
+        block-duration: 1m0s
+    routes: []
+    ip-rules: []
+    user-rules: []
     storage:
         type: memory
-        key_prefix: 'rate_limit:'
-        clean_interval: 5m0s
-    custom_rule_loader: ""
-    enable_dynamic_rule: false
+        key-prefix: 'rate_limit:'
+        clean-interval: 5m0s
+        redis: null
+    custom-rule-loader: ""
+    enable-dynamic-rule: false
 # wsc配置
 wsc:
     enabled: false
-    node_ip: 0.0.0.0
-    node_port: 8080
-    heartbeat_interval: 30
-    client_timeout: 90
-    message_buffer_size: 256
-    websocket_origins:
+    node-ip: 0.0.0.0
+    node-port: 8080
+    heartbeat-interval: 30
+    client-timeout: 90
+    message-buffer-size: 256
+    websocket-origins:
         - '*'
-    read_timeout: 10s
-    write_timeout: 10s
-    idle_timeout: 2m0s
-    max_message_size: 512
-    min_rec_time: 2s
-    max_rec_time: 1m0s
-    rec_factor: 1.5
-    auto_reconnect: true
-    max_retries: 3
-    base_delay: 100ms
-    max_delay: 5s
-    ack_timeout_ms: 500ms
-    ack_max_retries: 3
-    enable_ack: false
-    backoff_factor: 2
+    read-timeout: 10s
+    write-timeout: 10s
+    idle-timeout: 2m0s
+    max-message-size: 512
+    min-rec-time: 2s
+    max-rec-time: 1m0s
+    rec-factor: 1.5
+    auto-reconnect: true
+    max-retries: 3
+    base-delay: 100ms
+    max-delay: 5s
+    ack-timeout-ms: 500ms
+    ack-max-retries: 3
+    enable-ack: false
+    backoff-factor: 2
     jitter: true
-    retryable_errors:
+    retryable-errors:
         - queue_full
         - timeout
         - conn_error
         - channel_closed
-    non_retryable_errors:
+    non-retryable-errors:
         - user_offline
         - permission
         - validation
-    enable_circuit_breaker: false
-    sse_heartbeat: 0
-    sse_timeout: 120
-    sse_message_buffer: 100
+    enable-circuit-breaker: false
+    sse-heartbeat: 0
+    sse-timeout: 120
+    sse-message-buffer: 100
     distributed:
         enabled: false
-        node_discovery: redis
-        node_sync_interval: 30
-        message_routing: hash
-        enable_load_balance: true
-        health_check_interval: 10
-        node_timeout: 60
-        cluster_name: wsc-cluster
+        node-discovery: redis
+        node-sync-interval: 30
+        message-routing: hash
+        enable-load-balance: true
+        health-check-interval: 10
+        node-timeout: 60
+        cluster-name: wsc-cluster
     group:
         enabled: false
-        max_group_size: 500
-        max_groups_per_user: 100
-        enable_broadcast: true
-        broadcast_rate_limit: 10
-        group_cache_expire: 3600
-        auto_create_group: false
-        enable_message_record: true
+        max-group-size: 500
+        max-groups-per-user: 100
+        enable-broadcast: true
+        broadcast-rate-limit: 10
+        group-cache-expire: 3600
+        auto-create-group: false
+        enable-message-record: true
     performance:
-        max_connections_per_node: 10000
-        read_buffer_size: 4
-        write_buffer_size: 4
-        enable_compression: false
-        compression_level: 6
-        enable_metrics: true
-        metrics_interval: 60
-        enable_slow_log: true
-        slow_log_threshold: 1000
+        max-connections-per-node: 10000
+        read-buffer-size: 4
+        write-buffer-size: 4
+        enable-compression: false
+        compression-level: 6
+        enable-metrics: true
+        metrics-interval: 60
+        enable-slow-log: true
+        slow-log-threshold: 1000
     security:
-        enable_auth: true
-        enable_encryption: false
-        enable_rate_limit: true
-        max_message_size: 1024
-        allowed_user_types:
+        enable-auth: true
+        enable-encryption: false
+        enable-rate-limit: true
+        max-message-size: 1024
+        allowed-user-types:
             - customer
             - agent
             - admin
-        blocked_ips: []
-        whitelist_ips: []
-        enable_ip_whitelist: false
-        token_expiration: 3600
-        max_login_attempts: 5
-        login_lock_duration: 300
+        blocked-ips: []
+        whitelist-ips: []
+        enable-ip-whitelist: false
+        token-expiration: 3600
+        max-login-attempts: 5
+        login-lock-duration: 300
     enhancement:
         enabled: false
-        smart_routing: true
-        load_balancing: true
-        smart_queue: true
+        smart-routing: true
+        load-balancing: true
+        smart-queue: true
         monitoring: true
-        cluster_management: false
-        rule_engine: true
-        circuit_breaker: true
-        message_filtering: true
-        performance_tracking: true
-        advanced_metrics: false
-        alert_system: true
-        failure_threshold: 5
-        success_threshold: 3
-        circuit_timeout: 30
-        max_queue_size: 1000
-        metrics_interval: 60
-        max_samples: 1000
-        load_balance_algorithm: round-robin
+        cluster-management: false
+        rule-engine: true
+        circuit-breaker: true
+        message-filtering: true
+        performance-tracking: true
+        advanced-metrics: false
+        alert-system: true
+        failure-threshold: 5
+        success-threshold: 3
+        circuit-timeout: 30
+        max-queue-size: 1000
+        metrics-interval: 60
+        max-samples: 1000
+        load-balance-algorithm: round-robin
     database:
         enabled: true
-        auto_migrate: true
-        table_prefix: wsc_
-        log_level: warn
-        slow_threshold: 200ms
+        auto-migrate: true
+        table-prefix: wsc_
+        log-level: warn
+        slow-threshold: 200ms
     queue:
         enabled: false
         type: redis
-        batch_size: 10
-        max_retries: 3
-        retry_interval: 5s
-        process_timeout: 30s
-        prefetch_count: 1
-        dead_letter_ttl: 24h0m0s
+        batch-size: 10
+        max-retries: 3
+        retry-interval: 5s
+        process-timeout: 30s
+        prefetch-count: 1
+        dead-letter-ttl: 24h0m0s
         priority: true
         persistent: true
     jobs:
@@ -822,59 +820,59 @@ wsc:
                 cron: ""
                 interval: 5m0s
                 timeout: 1m0s
-                max_retries: 3
+                max-retries: 3
                 description: 清理过期连接和数据
                 concurrency: 1
-                skip_if_running: true
+                skip-if-running: true
             offline-message:
                 enabled: true
                 cron: ""
                 interval: 1m0s
                 timeout: 30s
-                max_retries: 3
+                max-retries: 3
                 description: 推送离线消息
                 concurrency: 1
-                skip_if_running: true
+                skip-if-running: true
             queue-process:
                 enabled: true
                 cron: ""
                 interval: 10s
                 timeout: 30s
-                max_retries: 5
+                max-retries: 5
                 description: 处理队列任务
                 concurrency: 2
-                skip_if_running: true
+                skip-if-running: true
             stats-collect:
                 enabled: true
                 cron: 0 */5 * * * *
                 interval: 0s
                 timeout: 1m0s
-                max_retries: 3
+                max-retries: 3
                 description: 收集统计数据
                 concurrency: 1
-                skip_if_running: true
+                skip-if-running: true
             status-sync:
                 enabled: true
                 cron: ""
                 interval: 30s
                 timeout: 15s
-                max_retries: 3
+                max-retries: 3
                 description: 同步用户在线状态
                 concurrency: 1
-                skip_if_running: true
+                skip-if-running: true
     logging:
         module_name: wsc
         enabled: true
         level: info
         format: json
         output: stdout
-        file_path: /var/log/wsc.log
-        max_size: 100
-        max_backups: 3
-        max_age: 28
+        file-path: /var/log/wsc.log
+        max-size: 100
+        max-backups: 3
+        max-age: 28
         compress: true
-        skip_paths:
+        skip-paths:
             - /health
             - /metrics
-        enable_request: true
-        enable_response: false
+        enable-request: true
+        enable-response: false

@@ -23,38 +23,38 @@ type RpcClient struct {
 	Target         string            `mapstructure:"target" yaml:"target" json:"target"`                            // 目标服务
 	App            string            `mapstructure:"app" yaml:"app" json:"app"`                                     // 应用名称
 	Token          string            `mapstructure:"token" yaml:"token" json:"token"`                               // 认证Token
-	NonBlock       bool              `mapstructure:"non_block" yaml:"non_block" json:"non_block"`                   // 是否非阻塞
+	NonBlock       bool              `mapstructure:"non_block" yaml:"non-block" json:"non_block"`                   // 是否非阻塞
 	Timeout        int               `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                         // 超时时间(毫秒)
-	KeepaliveTime  int               `mapstructure:"keepalive_time" yaml:"keepalive_time" json:"keepalive_time"`    // Keepalive时间(秒)
-	DialTimeout    int               `mapstructure:"dial_timeout" yaml:"dial_timeout" json:"dial_timeout"`          // 连接超时(秒)
-	MaxRetries     int               `mapstructure:"max_retries" yaml:"max_retries" json:"max_retries"`             // 最大重试次数
-	RetryInterval  int               `mapstructure:"retry_interval" yaml:"retry_interval" json:"retry_interval"`    // 重试间隔(毫秒)
-	LoadBalance    string            `mapstructure:"load_balance" yaml:"load_balance" json:"load_balance"`          // 负载均衡策略 (round_robin, random, weighted)
+	KeepaliveTime  int               `mapstructure:"keepalive_time" yaml:"keepalive-time" json:"keepalive_time"`    // Keepalive时间(秒)
+	DialTimeout    int               `mapstructure:"dial_timeout" yaml:"dial-timeout" json:"dial_timeout"`          // 连接超时(秒)
+	MaxRetries     int               `mapstructure:"max_retries" yaml:"max-retries" json:"max_retries"`             // 最大重试次数
+	RetryInterval  int               `mapstructure:"retry_interval" yaml:"retry-interval" json:"retry_interval"`    // 重试间隔(毫秒)
+	LoadBalance    string            `mapstructure:"load_balance" yaml:"load-balance" json:"load_balance"`          // 负载均衡策略 (round_robin, random, weighted)
 	Compression    string            `mapstructure:"compression" yaml:"compression" json:"compression"`             // 压缩算法 (gzip, deflate)
 	Headers        map[string]string `mapstructure:"headers" yaml:"headers" json:"headers"`                         // 自定义头部
 	TLS            *TLSConfig        `mapstructure:"tls" yaml:"tls" json:"tls"`                                     // TLS配置
-	CircuitBreaker *CircuitBreaker   `mapstructure:"circuit_breaker" yaml:"circuit_breaker" json:"circuit_breaker"` // 熔断器配置
+	CircuitBreaker *CircuitBreaker   `mapstructure:"circuit_breaker" yaml:"circuit-breaker" json:"circuit_breaker"` // 熔断器配置
 }
 
 // TLSConfig TLS配置
 type TLSConfig struct {
 	Enabled            bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                        // 是否启用TLS
-	CertFile           string `mapstructure:"cert_file" yaml:"cert_file" json:"cert_file"`                                  // 证书文件
-	KeyFile            string `mapstructure:"key_file" yaml:"key_file" json:"key_file"`                                     // 私钥文件
-	CACertFile         string `mapstructure:"ca_cert_file" yaml:"ca_cert_file" json:"ca_cert_file"`                         // CA证书文件
-	ServerName         string `mapstructure:"server_name" yaml:"server_name" json:"server_name"`                            // 服务器名称
-	InsecureSkipVerify bool   `mapstructure:"insecure_skip_verify" yaml:"insecure_skip_verify" json:"insecure_skip_verify"` // 跳过证书验证
+	CertFile           string `mapstructure:"cert_file" yaml:"cert-file" json:"cert_file"`                                  // 证书文件
+	KeyFile            string `mapstructure:"key_file" yaml:"key-file" json:"key_file"`                                     // 私钥文件
+	CACertFile         string `mapstructure:"ca_cert_file" yaml:"ca-cert-file" json:"ca_cert_file"`                         // CA证书文件
+	ServerName         string `mapstructure:"server_name" yaml:"server-name" json:"server_name"`                            // 服务器名称
+	InsecureSkipVerify bool   `mapstructure:"insecure_skip_verify" yaml:"insecure-skip-verify" json:"insecure_skip_verify"` // 跳过证书验证
 }
 
 // CircuitBreaker 熔断器配置
 type CircuitBreaker struct {
 	Enabled          bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                     // 是否启用熔断器
-	MaxRequests      int  `mapstructure:"max_requests" yaml:"max_requests" json:"max_requests"`                      // 最大请求数
+	MaxRequests      int  `mapstructure:"max_requests" yaml:"max-requests" json:"max_requests"`                      // 最大请求数
 	Interval         int  `mapstructure:"interval" yaml:"interval" json:"interval"`                                  // 检测间隔(秒)
 	Timeout          int  `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                                     // 熔断超时(秒)
-	FailureThreshold int  `mapstructure:"failure_threshold" yaml:"failure_threshold" json:"failure_threshold"`       // 失败阈值
-	SuccessThreshold int  `mapstructure:"success_threshold" yaml:"success_threshold" json:"success_threshold"`       // 成功阈值
-	HalfOpenMaxCalls int  `mapstructure:"half_open_max_calls" yaml:"half_open_max_calls" json:"half_open_max_calls"` // 半开状态最大调用数
+	FailureThreshold int  `mapstructure:"failure_threshold" yaml:"failure-threshold" json:"failure_threshold"`       // 失败阈值
+	SuccessThreshold int  `mapstructure:"success_threshold" yaml:"success-threshold" json:"success_threshold"`       // 成功阈值
+	HalfOpenMaxCalls int  `mapstructure:"half_open_max_calls" yaml:"half-open-max-calls" json:"half_open_max_calls"` // 半开状态最大调用数
 }
 
 // NewRpcClient 创建一个新的 RpcClient 实例

@@ -109,7 +109,7 @@ func TestRecovery_Disable(t *testing.T) {
 func TestRecovery_IsEnabled(t *testing.T) {
 	config := Default()
 	assert.True(t, config.IsEnabled())
-	
+
 	config.Enabled = false
 	assert.False(t, config.IsEnabled())
 }
@@ -117,10 +117,10 @@ func TestRecovery_IsEnabled(t *testing.T) {
 func TestRecovery_Clone(t *testing.T) {
 	config := Default()
 	config.WithStackSize(8192).WithEnableDebug(true).WithNotify(true)
-	
+
 	clone := config.Clone()
 	assert.NotNil(t, clone)
-	
+
 	clonedConfig, ok := clone.(*Recovery)
 	assert.True(t, ok)
 	assert.Equal(t, config.ModuleName, clonedConfig.ModuleName)
@@ -154,7 +154,7 @@ func TestRecovery_Set(t *testing.T) {
 		EnableNotify: true,
 		PrintStack:   false,
 	}
-	
+
 	config.Set(newConfig)
 	assert.Equal(t, "custom-recovery", config.ModuleName)
 	assert.False(t, config.Enabled)
@@ -182,7 +182,7 @@ func TestRecovery_ChainedCalls(t *testing.T) {
 		WithNotify(true).
 		WithPrintStack(false).
 		Enable()
-	
+
 	assert.Equal(t, 16384, config.StackSize)
 	assert.True(t, config.EnableDebug)
 	assert.Equal(t, "Panic occurred", config.ErrorMessage)

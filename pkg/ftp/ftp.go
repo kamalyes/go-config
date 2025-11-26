@@ -16,11 +16,11 @@ import (
 
 // Ftp 结构体用于配置 FTP 服务器的相关参数
 type Ftp struct {
-	Endpoint   string `mapstructure:"endpoint"    yaml:"endpoint"   json:"endpoint"    validate:"required"` // FTP 服务器端点地址
-	Username   string `mapstructure:"username"    yaml:"username"   json:"username"    validate:"required"` // 用户
-	Password   string `mapstructure:"password"    yaml:"password"   json:"password"    validate:"required"` // 密码
-	Cwd        string `mapstructure:"cwd"         yaml:"cwd"        json:"cwd"`                             // 指定目录
-	ModuleName string `mapstructure:"modulename"  yaml:"modulename" json:"module_name"`                     // 模块名称
+	Endpoint   string `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"    validate:"required"` // FTP 服务器端点地址
+	Username   string `mapstructure:"username" yaml:"username" json:"username"    validate:"required"` // 用户
+	Password   string `mapstructure:"password" yaml:"password" json:"password"    validate:"required"` // 密码
+	Cwd        string `mapstructure:"cwd" yaml:"cwd" json:"cwd"`                                       // 指定目录
+	ModuleName string `mapstructure:"module_name" yaml:"module_name" json:"module_name"`               // 模块名称
 }
 
 // NewFtp 创建一个新的 Ftp 实例

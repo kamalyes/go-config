@@ -2,7 +2,7 @@
 # 模块名称: security
 # 包名: security  
 # 描述: 安全模块
-# 生成时间: 2025-11-23 23:53:28
+# 生成时间: 2025-11-27 01:06:02
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
@@ -20,61 +20,61 @@ jwt:
 auth:
     enabled: false
     type: bearer
-    header_name: Authorization
-    token_prefix: 'Bearer '
+    header-name: Authorization
+    token-prefix: 'Bearer '
     basic:
         users: []
     bearer:
         tokens: []
     apikey:
         keys: []
-        header_name: X-API-Key
-        query_param: api_key
+        header-name: X-API-Key
+        query-param: api_key
     custom:
-        header_name: ""
-        expected_value: ""
+        header-name: ""
+        expected-value: ""
         headers: {}
 # protection配置
 protection:
     swagger:
         enabled: false
-        auth_required: false
-        auth_type: basic
-        ip_whitelist: []
-        require_https: false
+        auth-required: false
+        auth-type: basic
+        ip-whitelist: []
+        require-https: false
         username: ""
         password: ""
     pprof:
         enabled: false
-        auth_required: true
-        auth_type: basic
-        ip_whitelist:
+        auth-required: true
+        auth-type: basic
+        ip-whitelist:
             - 127.0.0.1
             - ::1
-        require_https: true
+        require-https: true
         username: admin
         password: ""
     metrics:
         enabled: false
-        auth_required: false
-        auth_type: ""
-        ip_whitelist: []
-        require_https: false
+        auth-required: false
+        auth-type: ""
+        ip-whitelist: []
+        require-https: false
         username: ""
         password: ""
     health:
         enabled: false
-        auth_required: false
-        auth_type: ""
-        ip_whitelist: []
-        require_https: false
+        auth-required: false
+        auth-type: ""
+        ip-whitelist: []
+        require-https: false
         username: ""
         password: ""
     api:
         enabled: true
-        auth_required: false
-        auth_type: ""
-        ip_whitelist: []
-        require_https: false
+        auth-required: false
+        auth-type: ""
+        ip-whitelist: []
+        require-https: false
         username: ""
         password: ""

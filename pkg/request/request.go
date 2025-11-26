@@ -25,17 +25,17 @@ type BaseRequest struct {
 
 // Headers 请求头常量
 type Headers struct {
-	Timestamp     string // X-Timestamp
-	Signature     string // X-Signature
-	TraceID       string // X-Trace-Id
-	RequestID     string // X-Request-Id
-	Authorization string // Authorization
-	DeviceID      string // X-Device-Id
-	AppVersion    string // X-App-Version
-	Platform      string // X-Platform
-	UserAgent     string // User-Agent
-	ContentType   string // Content-Type
-	Accept        string // Accept
+	Timestamp      string // X-Timestamp
+	Signature      string // X-Signature
+	TraceID        string // X-Trace-Id
+	RequestID      string // X-Request-Id
+	Authorization  string // Authorization
+	DeviceID       string // X-Device-Id
+	AppVersion     string // X-App-Version
+	Platform       string // X-Platform
+	UserAgent      string // User-Agent
+	ContentType    string // Content-Type
+	Accept         string // Accept
 	AcceptLanguage string // Accept-Language
 }
 
@@ -92,11 +92,11 @@ func (h *Headers) GetHeaderName(fieldType string) string {
 // ExtendedRequest 扩展请求结构（可被继承）
 type ExtendedRequest struct {
 	BaseRequest
-	Nonce     string            `json:"nonce" header:"X-Nonce"`         // 随机数
-	ClientIP  string            `json:"clientIp" header:"X-Client-IP"`   // 客户端IP
-	UserAgent string            `json:"userAgent" header:"User-Agent"`   // 用户代理
-	Referer   string            `json:"referer" header:"Referer"`        // 引用页面
-	Headers   map[string]string `json:"headers"`                         // 自定义头部
+	Nonce     string            `json:"nonce" header:"X-Nonce"`        // 随机数
+	ClientIP  string            `json:"clientIp" header:"X-Client-IP"` // 客户端IP
+	UserAgent string            `json:"userAgent" header:"User-Agent"` // 用户代理
+	Referer   string            `json:"referer" header:"Referer"`      // 引用页面
+	Headers   map[string]string `json:"headers"`                       // 自定义头部
 }
 
 // WithTimestamp 设置时间戳

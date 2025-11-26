@@ -2,7 +2,7 @@
 # 模块名称: prometheus
 # 包名: prometheus  
 # 描述: Prometheus指标
-# 生成时间: 2025-11-23 23:53:28
+# 生成时间: 2025-11-27 01:06:02
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
@@ -16,12 +16,12 @@ port: 9090
 # endpoint配置
 endpoint: http://localhost:9090
 # push gateway配置
-push_gateway:
+push-gateway:
     enabled: false
     endpoint: http://localhost:9091
-    job_name: go-rpc-gateway
+    job-name: go-rpc-gateway
 # scraping配置
 scraping:
     interval: 15s
     timeout: 10s
-    metrics_path: /metrics
+    metrics-path: /metrics

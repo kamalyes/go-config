@@ -2,160 +2,160 @@
 # 模块名称: wsc
 # 包名: wsc  
 # 描述: WebSocket通信模块
-# 生成时间: 2025-11-23 23:53:28
+# 生成时间: 2025-11-27 01:06:02
 # 注意: 此文件由配置生成器自动生成
 
 # enabled配置
 enabled: false
 # node ip配置
-node_ip: 0.0.0.0
+node-ip: 0.0.0.0
 # node port配置
-node_port: 8080
+node-port: 8080
 # heartbeat interval配置
-heartbeat_interval: 30
+heartbeat-interval: 30
 # client timeout配置
-client_timeout: 90
+client-timeout: 90
 # message buffer size配置
-message_buffer_size: 256
+message-buffer-size: 256
 # web socket origins配置
-websocket_origins:
+websocket-origins:
     - '*'
 # read timeout配置
-read_timeout: 10s
+read-timeout: 10s
 # write timeout配置
-write_timeout: 10s
+write-timeout: 10s
 # idle timeout配置
-idle_timeout: 2m0s
+idle-timeout: 2m0s
 # max message size配置
-max_message_size: 512
+max-message-size: 512
 # min rec time配置
-min_rec_time: 2s
+min-rec-time: 2s
 # max rec time配置
-max_rec_time: 1m0s
+max-rec-time: 1m0s
 # rec factor配置
-rec_factor: 1.5
+rec-factor: 1.5
 # auto reconnect配置
-auto_reconnect: true
+auto-reconnect: true
 # max retries配置
-max_retries: 3
+max-retries: 3
 # base delay配置
-base_delay: 100ms
+base-delay: 100ms
 # max delay配置
-max_delay: 5s
+max-delay: 5s
 # ack timeout ms配置
-ack_timeout_ms: 500ms
+ack-timeout-ms: 500ms
 # ack max retries配置
-ack_max_retries: 3
+ack-max-retries: 3
 # enable ack配置
-enable_ack: false
+enable-ack: false
 # backoff factor配置
-backoff_factor: 2
+backoff-factor: 2
 # jitter配置
 jitter: true
 # retryable errors配置
-retryable_errors:
+retryable-errors:
     - queue_full
     - timeout
     - conn_error
     - channel_closed
 # non retryable errors配置
-non_retryable_errors:
+non-retryable-errors:
     - user_offline
     - permission
     - validation
 # enable circuit breaker配置
-enable_circuit_breaker: false
+enable-circuit-breaker: false
 # sseheartbeat配置
-sse_heartbeat: 0
+sse-heartbeat: 0
 # ssetimeout配置
-sse_timeout: 120
+sse-timeout: 120
 # ssemessage buffer配置
-sse_message_buffer: 100
+sse-message-buffer: 100
 # distributed配置
 distributed:
     enabled: false
-    node_discovery: redis
-    node_sync_interval: 30
-    message_routing: hash
-    enable_load_balance: true
-    health_check_interval: 10
-    node_timeout: 60
-    cluster_name: wsc-cluster
+    node-discovery: redis
+    node-sync-interval: 30
+    message-routing: hash
+    enable-load-balance: true
+    health-check-interval: 10
+    node-timeout: 60
+    cluster-name: wsc-cluster
 # group配置
 group:
     enabled: false
-    max_group_size: 500
-    max_groups_per_user: 100
-    enable_broadcast: true
-    broadcast_rate_limit: 10
-    group_cache_expire: 3600
-    auto_create_group: false
-    enable_message_record: true
+    max-group-size: 500
+    max-groups-per-user: 100
+    enable-broadcast: true
+    broadcast-rate-limit: 10
+    group-cache-expire: 3600
+    auto-create-group: false
+    enable-message-record: true
 # performance配置
 performance:
-    max_connections_per_node: 10000
-    read_buffer_size: 4
-    write_buffer_size: 4
-    enable_compression: false
-    compression_level: 6
-    enable_metrics: true
-    metrics_interval: 60
-    enable_slow_log: true
-    slow_log_threshold: 1000
+    max-connections-per-node: 10000
+    read-buffer-size: 4
+    write-buffer-size: 4
+    enable-compression: false
+    compression-level: 6
+    enable-metrics: true
+    metrics-interval: 60
+    enable-slow-log: true
+    slow-log-threshold: 1000
 # security配置
 security:
-    enable_auth: true
-    enable_encryption: false
-    enable_rate_limit: true
-    max_message_size: 1024
-    allowed_user_types:
+    enable-auth: true
+    enable-encryption: false
+    enable-rate-limit: true
+    max-message-size: 1024
+    allowed-user-types:
         - customer
         - agent
         - admin
-    blocked_ips: []
-    whitelist_ips: []
-    enable_ip_whitelist: false
-    token_expiration: 3600
-    max_login_attempts: 5
-    login_lock_duration: 300
+    blocked-ips: []
+    whitelist-ips: []
+    enable-ip-whitelist: false
+    token-expiration: 3600
+    max-login-attempts: 5
+    login-lock-duration: 300
 # enhancement配置
 enhancement:
     enabled: false
-    smart_routing: true
-    load_balancing: true
+    smart-routing: true
+    load-balancing: true
 # queue配置
-    smart_queue: true
+    smart-queue: true
     monitoring: true
-    cluster_management: false
-    rule_engine: true
-    circuit_breaker: true
-    message_filtering: true
-    performance_tracking: true
-    advanced_metrics: false
-    alert_system: true
-    failure_threshold: 5
-    success_threshold: 3
-    circuit_timeout: 30
-    max_queue_size: 1000
-    metrics_interval: 60
-    max_samples: 1000
-    load_balance_algorithm: round-robin
+    cluster-management: false
+    rule-engine: true
+    circuit-breaker: true
+    message-filtering: true
+    performance-tracking: true
+    advanced-metrics: false
+    alert-system: true
+    failure-threshold: 5
+    success-threshold: 3
+    circuit-timeout: 30
+    max-queue-size: 1000
+    metrics-interval: 60
+    max-samples: 1000
+    load-balance-algorithm: round-robin
 # database配置
 database:
     enabled: true
-    auto_migrate: true
-    table_prefix: wsc_
-    log_level: warn
-    slow_threshold: 200ms
+    auto-migrate: true
+    table-prefix: wsc_
+    log-level: warn
+    slow-threshold: 200ms
 queue:
     enabled: false
     type: redis
-    batch_size: 10
-    max_retries: 3
-    retry_interval: 5s
-    process_timeout: 30s
-    prefetch_count: 1
-    dead_letter_ttl: 24h0m0s
+    batch-size: 10
+    max-retries: 3
+    retry-interval: 5s
+    process-timeout: 30s
+    prefetch-count: 1
+    dead-letter-ttl: 24h0m0s
     priority: true
     persistent: true
 # jobs配置
@@ -167,46 +167,46 @@ jobs:
             cron: ""
             interval: 5m0s
             timeout: 1m0s
-            max_retries: 3
+            max-retries: 3
             description: 清理过期连接和数据
             concurrency: 1
-            skip_if_running: true
+            skip-if-running: true
         offline-message:
             enabled: true
             cron: ""
             interval: 1m0s
             timeout: 30s
-            max_retries: 3
+            max-retries: 3
             description: 推送离线消息
             concurrency: 1
-            skip_if_running: true
+            skip-if-running: true
         queue-process:
             enabled: true
             cron: ""
             interval: 10s
             timeout: 30s
-            max_retries: 5
+            max-retries: 5
             description: 处理队列任务
             concurrency: 2
-            skip_if_running: true
+            skip-if-running: true
         stats-collect:
             enabled: true
             cron: 0 */5 * * * *
             interval: 0s
             timeout: 1m0s
-            max_retries: 3
+            max-retries: 3
             description: 收集统计数据
             concurrency: 1
-            skip_if_running: true
+            skip-if-running: true
         status-sync:
             enabled: true
             cron: ""
             interval: 30s
             timeout: 15s
-            max_retries: 3
+            max-retries: 3
             description: 同步用户在线状态
             concurrency: 1
-            skip_if_running: true
+            skip-if-running: true
 # logging配置
 logging:
     module_name: wsc
@@ -214,13 +214,13 @@ logging:
     level: info
     format: json
     output: stdout
-    file_path: /var/log/wsc.log
-    max_size: 100
-    max_backups: 3
-    max_age: 28
+    file-path: /var/log/wsc.log
+    max-size: 100
+    max-backups: 3
+    max-age: 28
     compress: true
-    skip_paths:
+    skip-paths:
         - /health
         - /metrics
-    enable_request: true
-    enable_response: false
+    enable-request: true
+    enable-response: false

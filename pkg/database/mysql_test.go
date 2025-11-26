@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-22 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-22 00:00:00
+ * @LastEditTime: 2025-11-27 00:44:04
  * @FilePath: \go-config\pkg\database\mysql_test.go
  * @Description: MySQL数据库配置测试
  *
@@ -27,7 +27,7 @@ func TestMySQL_DefaultMySQL(t *testing.T) {
 	assert.Equal(t, "info", mysql.LogLevel)
 	assert.Equal(t, "test", mysql.Dbname)
 	assert.Equal(t, "root", mysql.Username)
-	assert.Equal(t, "", mysql.Password)
+	assert.Equal(t, "mysql_password", mysql.Password)
 	assert.Equal(t, 10, mysql.MaxIdleConns)
 	assert.Equal(t, 100, mysql.MaxOpenConns)
 	assert.Equal(t, 300, mysql.ConnMaxIdleTime)
@@ -79,7 +79,7 @@ func TestMySQL_GetUsername(t *testing.T) {
 
 func TestMySQL_GetPassword(t *testing.T) {
 	mysql := DefaultMySQL()
-	assert.Equal(t, "", mysql.GetPassword())
+	assert.Equal(t, "mysql_password", mysql.GetPassword())
 }
 
 func TestMySQL_SetCredentials(t *testing.T) {

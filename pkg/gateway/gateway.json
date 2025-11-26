@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2025-11-23 23:53:28
+// 生成时间: 2025-11-27 01:06:02
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -21,21 +21,20 @@
     "module_name": "server",
     "host": "0.0.0.0",
     "port": 8080,
-    "grpc_port": 9090,
     "read_timeout": 30,
     "write_timeout": 30,
     "idle_timeout": 60,
     "max_header_bytes": 1048576,
-    "enable_http": true,
-    "enable_grpc": false,
     "enable_tls": false,
     "tls": {
       "cert_file": "",
       "key_file": "",
       "ca_file": ""
     },
-    "headers": {},
-    "endpoint": "http://0.0.0.0:8080",
+    "headers": {
+      "x-server": "go-config"
+    },
+    "_": "http://0.0.0.0:8080",
     "enable_gzip_compress": true
   },
   "grpc": {
@@ -49,7 +48,7 @@
       "keepalive_timeout": 10,
       "connection_timeout": 5,
       "enable_reflection": true,
-      "endpoint": "0.0.0.0:9090"
+      "_": "0.0.0.0:9090"
     },
     "clients": {}
   },
@@ -220,7 +219,7 @@
       "path_style": false,
       "module_name": "s3"
     },
-    "aliyun_oss": {
+    "aliyun": {
       "access_key": "demo_access_key",
       "secret_key": "demo_secret_key",
       "endpoint": "oss-cn-hangzhou.aliyuncs.com",
@@ -384,7 +383,7 @@
       ],
       "enable_open_metrics": false,
       "custom_metrics": [],
-      "endpoint": "/metrics"
+      "_": "/metrics"
     },
     "alerting": {
       "enabled": false,
@@ -599,6 +598,7 @@
       "messages_path": "./locales",
       "custom_message_paths": {},
       "enable_fallback": true,
+      "_": null,
       "cookie_name": "language"
     },
     "pprof": {
@@ -762,10 +762,14 @@
       "window_size": 60000000000,
       "block_duration": 60000000000
     },
+    "routes": [],
+    "ip_rules": [],
+    "user_rules": [],
     "storage": {
       "type": "memory",
       "key_prefix": "rate_limit:",
-      "clean_interval": 300000000000
+      "clean_interval": 300000000000,
+      "redis": null
     },
     "custom_rule_loader": "",
     "enable_dynamic_rule": false

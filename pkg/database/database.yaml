@@ -2,7 +2,7 @@
 # 模块名称: database
 # 包名: database  
 # 描述: 数据库模块
-# 生成时间: 2025-11-23 23:53:28
+# 生成时间: 2025-11-27 01:06:01
 # 注意: 此文件由配置生成器自动生成
 
 # type配置
@@ -13,40 +13,40 @@ enabled: true
 default: mysql
 # my sql配置
 mysql:
-    modulename: mysql
+    module_name: mysql
     host: localhost
     port: "3306"
     config: charset=utf8mb4&parseTime=True&loc=Local
-    log_level: info
-    db_name: test
+    log-level: info
+    db-name: test
     username: root
     password: mysql_password
-    max_idle_conns: 10
-    max_open_conns: 100
-    conn_max_idle_time: 300
-    conn_max_life_time: 3600
+    max-idle-conns: 10
+    max-open-conns: 100
+    conn-max-idle-time: 300
+    conn-max-life-time: 3600
 # postgre sql配置
 postgresql:
-    modulename: postgresql
+    module_name: postgresql
     host: localhost
     port: "5432"
     config: sslmode=disable
-    log_level: info
-    db_name: postgres
+    log-level: info
+    db-name: postgres
     username: postgres
     password: postgres_password
-    max_idle_conns: 10
-    max_open_conns: 100
-    conn_max_idle_time: 300
-    conn_max_life_time: 3600
+    max-idle-conns: 10
+    max-open-conns: 100
+    conn-max-idle-time: 300
+    conn-max-life-time: 3600
 # sqlite配置
 sqlite:
-    modulename: sqlite
+    module_name: sqlite
     config: _foreign_keys=on
-    log_level: info
-    db_path: ./data.db
+    log-level: info
+    db-path: ./data.db
     vacuum: false
-    max_idle_conns: 10
-    max_open_conns: 1
-    conn_max_idle_time: 300
-    conn_max_life_time: 3600
+    max-idle-conns: 10
+    max-open-conns: 1
+    conn-max-idle-time: 300
+    conn-max-life-time: 3600

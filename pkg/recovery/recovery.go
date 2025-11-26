@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-24 14:43:53
- * @FilePath: \engine-im-service\go-config\pkg\recovery\recovery.go
+ * @LastEditTime: 2025-11-27 00:23:21
+ * @FilePath: \go-config\pkg\recovery\recovery.go
  * @Description: 恢复中间件配置模块
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
@@ -12,23 +12,22 @@
 package recovery
 
 import (
-	"net/http"
-
 	"github.com/kamalyes/go-config/internal"
+	"net/http"
 )
 
 // Recovery 恢复中间件配置
 type Recovery struct {
 	ModuleName      string                                                `mapstructure:"module_name" yaml:"module_name" json:"module_name"`       // 模块名称
 	Enabled         bool                                                  `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用恢复
-	EnableStack     bool                                                  `mapstructure:"enable_stack" yaml:"enable_stack" json:"enable_stack"`    // 是否启用堆栈跟踪
-	StackSize       int                                                   `mapstructure:"stack_size" yaml:"stack_size" json:"stack_size"`          // 堆栈大小
-	EnableDebug     bool                                                  `mapstructure:"enable_debug" yaml:"enable_debug" json:"enable_debug"`    // 是否启用调试模式
-	ErrorMessage    string                                                `mapstructure:"error_message" yaml:"error_message" json:"error_message"` // 默认错误消息
-	LogLevel        string                                                `mapstructure:"log_level" yaml:"log_level" json:"log_level"`             // 日志级别
-	EnableNotify    bool                                                  `mapstructure:"enable_notify" yaml:"enable_notify" json:"enable_notify"` // 是否启用通知
+	EnableStack     bool                                                  `mapstructure:"enable_stack" yaml:"enable-stack" json:"enable_stack"`    // 是否启用堆栈跟踪
+	StackSize       int                                                   `mapstructure:"stack_size" yaml:"stack-size" json:"stack_size"`          // 堆栈大小
+	EnableDebug     bool                                                  `mapstructure:"enable_debug" yaml:"enable-debug" json:"enable_debug"`    // 是否启用调试模式
+	ErrorMessage    string                                                `mapstructure:"error_message" yaml:"error-message" json:"error_message"` // 默认错误消息
+	LogLevel        string                                                `mapstructure:"log_level" yaml:"log-level" json:"log_level"`             // 日志级别
+	EnableNotify    bool                                                  `mapstructure:"enable_notify" yaml:"enable-notify" json:"enable_notify"` // 是否启用通知
 	RecoveryHandler func(http.ResponseWriter, *http.Request, interface{}) `mapstructure:"-" yaml:"-" json:"-"`                                     // 自定义恢复处理器
-	PrintStack      bool                                                  `mapstructure:"print_stack" yaml:"print_stack" json:"print_stack"`       // 是否打印堆栈(兼容旧版)
+	PrintStack      bool                                                  `mapstructure:"print_stack" yaml:"print-stack" json:"print_stack"`       // 是否打印堆栈(兼容旧版)
 }
 
 // Default 创建默认恢复配置

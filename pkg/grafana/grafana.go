@@ -20,7 +20,7 @@ type Grafana struct {
 	Endpoint   string      `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"`          // Grafana端点
 	Username   string      `mapstructure:"username" yaml:"username" json:"username"`          // 用户名
 	Password   string      `mapstructure:"password" yaml:"password" json:"password"`          // 密码
-	APIKey     string      `mapstructure:"api_key" yaml:"api_key" json:"api_key"`             // API Key
+	APIKey     string      `mapstructure:"api_key" yaml:"api-key" json:"api_key"`             // API Key
 	Datasource *Datasource `mapstructure:"datasource" yaml:"datasource" json:"datasource"`    // 数据源配置
 	Dashboard  *Dashboard  `mapstructure:"dashboard" yaml:"dashboard" json:"dashboard"`       // 仪表盘配置
 	Alerting   *Alerting   `mapstructure:"alerting" yaml:"alerting" json:"alerting"`          // 告警配置
@@ -37,10 +37,10 @@ type Datasource struct {
 
 // Dashboard 仪表盘配置
 type Dashboard struct {
-	ImportPath      string   `mapstructure:"import_path" yaml:"import_path" json:"import_path"`                // 导入路径
-	AutoImport      bool     `mapstructure:"auto_import" yaml:"auto_import" json:"auto_import"`                // 自动导入
+	ImportPath      string   `mapstructure:"import_path" yaml:"import-path" json:"import_path"`                // 导入路径
+	AutoImport      bool     `mapstructure:"auto_import" yaml:"auto-import" json:"auto_import"`                // 自动导入
 	Templates       []string `mapstructure:"templates" yaml:"templates" json:"templates"`                      // 模板列表
-	RefreshInterval string   `mapstructure:"refresh_interval" yaml:"refresh_interval" json:"refresh_interval"` // 刷新间隔
+	RefreshInterval string   `mapstructure:"refresh_interval" yaml:"refresh-interval" json:"refresh_interval"` // 刷新间隔
 }
 
 // Alerting 告警配置

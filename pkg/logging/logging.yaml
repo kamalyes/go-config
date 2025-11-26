@@ -2,7 +2,7 @@
 # 模块名称: logging
 # 包名: logging  
 # 描述: 日志记录模块
-# 生成时间: 2025-11-23 23:53:28
+# 生成时间: 2025-11-27 01:06:02
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
@@ -16,20 +16,20 @@ format: json
 # output配置
 output: stdout
 # file path配置
-file_path: /var/log/app.log
+file-path: /var/log/app.log
 # max size配置
-max_size: 100
+max-size: 100
 # max backups配置
-max_backups: 3
+max-backups: 3
 # max age配置
-max_age: 28
+max-age: 28
 # compress配置
 compress: true
 # skip paths配置
-skip_paths:
+skip-paths:
     - /health
     - /metrics
 # enable request配置
-enable_request: true
+enable-request: true
 # enable response配置
-enable_response: false
+enable-response: false

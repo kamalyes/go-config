@@ -19,14 +19,14 @@ import (
 // TwoLevel 二级缓存配置
 type TwoLevel struct {
 	ModuleName       string        `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                   // 模块名
-	L1Type           CacheType     `mapstructure:"l1_type" yaml:"l1_type" json:"l1_type"`                               // L1缓存类型
-	L2Type           CacheType     `mapstructure:"l2_type" yaml:"l2_type" json:"l2_type"`                               // L2缓存类型
-	L1TTL            time.Duration `mapstructure:"l1_ttl" yaml:"l1_ttl" json:"l1_ttl"`                                  // L1缓存TTL
-	L2TTL            time.Duration `mapstructure:"l2_ttl" yaml:"l2_ttl" json:"l2_ttl"`                                  // L2缓存TTL
-	SyncStrategy     string        `mapstructure:"sync_strategy" yaml:"sync_strategy" json:"sync_strategy"`             // 同步策略: write_through, write_back, write_around
-	L1Size           int           `mapstructure:"l1_size" yaml:"l1_size" json:"l1_size"`                               // L1缓存大小
-	L2Size           int           `mapstructure:"l2_size" yaml:"l2_size" json:"l2_size"`                               // L2缓存大小
-	PromoteThreshold int           `mapstructure:"promote_threshold" yaml:"promote_threshold" json:"promote_threshold"` // 提升阈值
+	L1Type           CacheType     `mapstructure:"l1_type" yaml:"l1-type" json:"l1_type"`                               // L1缓存类型
+	L2Type           CacheType     `mapstructure:"l2_type" yaml:"l2-type" json:"l2_type"`                               // L2缓存类型
+	L1TTL            time.Duration `mapstructure:"l1_ttl" yaml:"l1-ttl" json:"l1_ttl"`                                  // L1缓存TTL
+	L2TTL            time.Duration `mapstructure:"l2_ttl" yaml:"l2-ttl" json:"l2_ttl"`                                  // L2缓存TTL
+	SyncStrategy     string        `mapstructure:"sync_strategy" yaml:"sync-strategy" json:"sync_strategy"`             // 同步策略: write_through, write_back, write_around
+	L1Size           int           `mapstructure:"l1_size" yaml:"l1-size" json:"l1_size"`                               // L1缓存大小
+	L2Size           int           `mapstructure:"l2_size" yaml:"l2-size" json:"l2_size"`                               // L2缓存大小
+	PromoteThreshold int           `mapstructure:"promote_threshold" yaml:"promote-threshold" json:"promote_threshold"` // 提升阈值
 }
 
 // NewTwoLevel 创建一个新的 TwoLevel 实例

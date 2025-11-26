@@ -19,12 +19,12 @@ import (
 // Expiring 过期缓存配置
 type Expiring struct {
 	ModuleName       string        `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                      // 模块名
-	CleanupInterval  time.Duration `mapstructure:"cleanup_interval" yaml:"cleanup_interval" json:"cleanup_interval"`       // 清理间隔
-	DefaultTTL       time.Duration `mapstructure:"default_ttl" yaml:"default_ttl" json:"default_ttl"`                      // 默认TTL
-	MaxSize          int           `mapstructure:"max_size" yaml:"max_size" json:"max_size"`                               // 最大大小
-	EvictionPolicy   string        `mapstructure:"eviction_policy" yaml:"eviction_policy" json:"eviction_policy"`          // 驱逐策略: lru, lfu, fifo
-	EnableLazyExpiry bool          `mapstructure:"enable_lazy_expiry" yaml:"enable_lazy_expiry" json:"enable_lazy_expiry"` // 启用懒惰过期
-	MaxMemoryUsage   int64         `mapstructure:"max_memory_usage" yaml:"max_memory_usage" json:"max_memory_usage"`       // 最大内存使用量(字节)
+	CleanupInterval  time.Duration `mapstructure:"cleanup_interval" yaml:"cleanup-interval" json:"cleanup_interval"`       // 清理间隔
+	DefaultTTL       time.Duration `mapstructure:"default_ttl" yaml:"default-ttl" json:"default_ttl"`                      // 默认TTL
+	MaxSize          int           `mapstructure:"max_size" yaml:"max-size" json:"max_size"`                               // 最大大小
+	EvictionPolicy   string        `mapstructure:"eviction_policy" yaml:"eviction-policy" json:"eviction_policy"`          // 驱逐策略: lru, lfu, fifo
+	EnableLazyExpiry bool          `mapstructure:"enable_lazy_expiry" yaml:"enable-lazy-expiry" json:"enable_lazy_expiry"` // 启用懒惰过期
+	MaxMemoryUsage   int64         `mapstructure:"max_memory_usage" yaml:"max-memory-usage" json:"max_memory_usage"`       // 最大内存使用量(字节)
 }
 
 // NewExpiring 创建一个新的 Expiring 实例

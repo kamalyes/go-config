@@ -32,10 +32,10 @@ type Middleware struct {
 	Recovery       *recovery.Recovery      `mapstructure:"recovery" yaml:"recovery" json:"recovery"`                      // 恢复中间件
 	Tracing        *tracing.Tracing        `mapstructure:"tracing" yaml:"tracing" json:"tracing"`                         // 追踪中间件
 	Metrics        *metrics.Metrics        `mapstructure:"metrics" yaml:"metrics" json:"metrics"`                         // 指标中间件
-	RequestID      *requestid.RequestID    `mapstructure:"request_id" yaml:"request_id" json:"request_id"`                // 请求ID中间件
+	RequestID      *requestid.RequestID    `mapstructure:"request_id" yaml:"request-id" json:"request_id"`                // 请求ID中间件
 	I18N           *i18n.I18N              `mapstructure:"i18n" yaml:"i18n" json:"i18n"`                                  // 国际化中间件
 	PProf          *pprof.PProf            `mapstructure:"pprof" yaml:"pprof" json:"pprof"`                               // PProf中间件
-	CircuitBreaker *breaker.CircuitBreaker `mapstructure:"circuit_breaker" yaml:"circuit_breaker" json:"circuit_breaker"` // 断路器配置
+	CircuitBreaker *breaker.CircuitBreaker `mapstructure:"circuit_breaker" yaml:"circuit-breaker" json:"circuit_breaker"` // 断路器配置
 	Alerting       *alerting.Alerting      `mapstructure:"alerting" yaml:"alerting" json:"alerting"`                      // 告警配置
 }
 

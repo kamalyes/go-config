@@ -18,27 +18,27 @@ import (
 type CircuitBreaker struct {
 	ModuleName          string   `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                               // 模块名称
 	Enabled             bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                           // 是否启用断路器
-	FailureThreshold    int      `mapstructure:"failure_threshold" yaml:"failure_threshold" json:"failure_threshold"`             // 失败阈值
-	SuccessThreshold    int      `mapstructure:"success_threshold" yaml:"success_threshold" json:"success_threshold"`             // 成功阈值
+	FailureThreshold    int      `mapstructure:"failure_threshold" yaml:"failure-threshold" json:"failure_threshold"`             // 失败阈值
+	SuccessThreshold    int      `mapstructure:"success_threshold" yaml:"success-threshold" json:"success_threshold"`             // 成功阈值
 	Timeout             int64    `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                                           // 熔断后恢复时间
-	VolumeThreshold     int      `mapstructure:"volume_threshold" yaml:"volume_threshold" json:"volume_threshold"`                // 最小请求量阈值
-	SlidingWindowSize   int      `mapstructure:"sliding_window_size" yaml:"sliding_window_size" json:"sliding_window_size"`       // 滑动窗口大小
-	SlidingWindowBucket int64    `mapstructure:"sliding_window_bucket" yaml:"sliding_window_bucket" json:"sliding_window_bucket"` // 滑动窗口桶大小
-	PreventionPaths     []string `mapstructure:"prevention_paths" yaml:"prevention_paths" json:"prevention_paths"`                // 需要保护的路径
-	ExcludePaths        []string `mapstructure:"exclude_paths" yaml:"exclude_paths" json:"exclude_paths"`                         // 排除的路径
+	VolumeThreshold     int      `mapstructure:"volume_threshold" yaml:"volume-threshold" json:"volume_threshold"`                // 最小请求量阈值
+	SlidingWindowSize   int      `mapstructure:"sliding_window_size" yaml:"sliding-window-size" json:"sliding_window_size"`       // 滑动窗口大小
+	SlidingWindowBucket int64    `mapstructure:"sliding_window_bucket" yaml:"sliding-window-bucket" json:"sliding_window_bucket"` // 滑动窗口桶大小
+	PreventionPaths     []string `mapstructure:"prevention_paths" yaml:"prevention-paths" json:"prevention_paths"`                // 需要保护的路径
+	ExcludePaths        []string `mapstructure:"exclude_paths" yaml:"exclude-paths" json:"exclude_paths"`                         // 排除的路径
 }
 
 // WebSocketBreaker WebSocket 专用断路器配置
 type WebSocketBreaker struct {
 	ModuleName          string  `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                               // 模块名称
 	Enabled             bool    `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                           // 是否启用
-	FailureThreshold    int     `mapstructure:"failure_threshold" yaml:"failure_threshold" json:"failure_threshold"`             // 失败阈值
-	SuccessThreshold    int     `mapstructure:"success_threshold" yaml:"success_threshold" json:"success_threshold"`             // 成功阈值
+	FailureThreshold    int     `mapstructure:"failure_threshold" yaml:"failure-threshold" json:"failure_threshold"`             // 失败阈值
+	SuccessThreshold    int     `mapstructure:"success_threshold" yaml:"success-threshold" json:"success_threshold"`             // 成功阈值
 	Timeout             int64   `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                                           // 熔断恢复时间
-	MaxRetries          int     `mapstructure:"max_retries" yaml:"max_retries" json:"max_retries"`                               // 最大重试次数
-	RetryBackoffFactor  float64 `mapstructure:"retry_backoff_factor" yaml:"retry_backoff_factor" json:"retry_backoff_factor"`    // 重试退避因子
-	HealthCheckInterval int64   `mapstructure:"health_check_interval" yaml:"health_check_interval" json:"health_check_interval"` // 健康检查间隔
-	MessageQueueSize    int     `mapstructure:"message_queue_size" yaml:"message_queue_size" json:"message_queue_size"`          // 消息队列大小
+	MaxRetries          int     `mapstructure:"max_retries" yaml:"max-retries" json:"max_retries"`                               // 最大重试次数
+	RetryBackoffFactor  float64 `mapstructure:"retry_backoff_factor" yaml:"retry-backoff-factor" json:"retry_backoff_factor"`    // 重试退避因子
+	HealthCheckInterval int64   `mapstructure:"health_check_interval" yaml:"health-check-interval" json:"health_check_interval"` // 健康检查间隔
+	MessageQueueSize    int     `mapstructure:"message_queue_size" yaml:"message-queue-size" json:"message_queue_size"`          // 消息队列大小
 }
 
 // Default 创建默认断路器配置

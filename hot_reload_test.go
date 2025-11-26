@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 11:30:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-24 14:40:33
- * @FilePath: \engine-im-service\go-config\hot_reload_test.go
+ * @LastEditTime: 2025-11-27 01:06:49
+ * @FilePath: \go-config\hot_reload_test.go
  * @Description: 配置热更新功能测试
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
@@ -14,31 +14,49 @@ package goconfig
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
-	"sync"
-	"testing"
-	"time"
-
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/kamalyes/go-config/pkg/gateway"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"os"
+	"path/filepath"
+	"sync"
+	"testing"
+	"time"
 )
 
 // TestConfig 测试配置结构
 type TestConfig struct {
 	App struct {
-		Name    string `yaml:"name" json:"name"`
-		Version string `yaml:"version" json:"version"`
-		Debug   bool   `yaml:"debug" json:"debug"`
-	} `yaml:"app" json:"app"`
+		Name    string `mapstructure:"name" yaml:"name" json:"name"`
+		Version string `mapstructure:"version" yaml:"version" json:"version"`
+		Debug   bool   `mapstructure:"debug" yaml:"debug" json:"debug"`
+	} `mapstructure:"app" yaml:"app" json:"app"`
 
 	Server struct {
-		Host string `yaml:"host" json:"host"`
-		Port int    `yaml:"port" json:"port"`
-	} `yaml:"server" json:"server"`
+		Host string `mapstructure:"host" yaml:"host" json:"host"`
+		Port int    `mapstructure:"port" yaml:"port" json:"port"`
+	} `mapstructure:"server" yaml:"server" json:"server"`
+}
+
+// DBConfig 数据库配置结构（用于热重载测试）
+type DBConfig struct {
+	MaxIdleConns int `mapstructure:"max_idle_conns" yaml:"max-idle-conns" json:"max_idle_conns"`
+	MaxOpenConns int `mapstructure:"max_open_conns" yaml:"max-open-conns" json:"max_open_conns"`
+}
+
+// ReloadTestConfig 重载测试配置结构（用于YAML/JSON热重载测试）
+type ReloadTestConfig struct {
+	App struct {
+		Name    string `mapstructure:"name" yaml:"name" json:"name"`
+		Version string `mapstructure:"version" yaml:"version" json:"version"`
+	} `mapstructure:"app" yaml:"app" json:"app"`
+	Server struct {
+		Host string `mapstructure:"host" yaml:"host" json:"host"`
+		Port int    `mapstructure:"port" yaml:"port" json:"port"`
+	} `mapstructure:"server" yaml:"server" json:"server"`
+	Database *DBConfig `mapstructure:"database" yaml:"database" json:"database"`
 }
 
 func TestHotReloadManager_Basic(t *testing.T) {
@@ -464,28 +482,8 @@ database:
 	err = v.ReadInConfig()
 	require.NoError(t, err)
 
-	type DBConfig struct {
-		MaxIdleConns int `yaml:"max_idle_conns" json:"maxIdleConns"`
-		MaxOpenConns int `yaml:"max_open_conns" json:"maxOpenConns"`
-	}
-
-	type ReloadTestConfig struct {
-		App struct {
-			Name    string `yaml:"name" json:"name"`
-			Version string `yaml:"version" json:"version"`
-		} `yaml:"app" json:"app"`
-		Server struct {
-			Host string `yaml:"host" json:"host"`
-			Port int    `yaml:"port" json:"port"`
-		} `yaml:"server" json:"server"`
-		Database DBConfig `yaml:"database" json:"database"`
-	}
-
 	config := &ReloadTestConfig{}
-	err = v.Unmarshal(config, func(dc *mapstructure.DecoderConfig) {
-		dc.TagName = "yaml"
-		dc.WeaklyTypedInput = true
-	})
+	err = UnmarshalWithFlexibleNaming(v, config)
 	require.NoError(t, err)
 
 	// 创建热更新器
@@ -553,8 +551,8 @@ func TestReloadConfig_AutoDetectJSON(t *testing.T) {
     "port": 8080
   },
   "database": {
-    "maxIdleConns": 10,
-    "maxOpenConns": 100
+    "max_idle_conns": 10,
+    "max_open_conns": 100
   }
 }`
 	err := os.WriteFile(jsonPath, []byte(initialContent), 0644)
@@ -565,26 +563,8 @@ func TestReloadConfig_AutoDetectJSON(t *testing.T) {
 	err = v.ReadInConfig()
 	require.NoError(t, err)
 
-	type DBConfig struct {
-		MaxIdleConns int `yaml:"max_idle_conns" json:"maxIdleConns"`
-		MaxOpenConns int `yaml:"max_open_conns" json:"maxOpenConns"`
-	}
-
-	type ReloadTestConfig struct {
-		App struct {
-			Name    string `yaml:"name" json:"name"`
-			Version string `yaml:"version" json:"version"`
-		} `yaml:"app" json:"app"`
-		Server struct {
-			Host string `yaml:"host" json:"host"`
-			Port int    `yaml:"port" json:"port"`
-		} `yaml:"server" json:"server"`
-		Database DBConfig `yaml:"database" json:"database"`
-	}
-
 	config := &ReloadTestConfig{}
 	err = v.Unmarshal(config, func(dc *mapstructure.DecoderConfig) {
-		dc.TagName = "json"
 		dc.WeaklyTypedInput = true
 	})
 	require.NoError(t, err)
@@ -611,8 +591,8 @@ func TestReloadConfig_AutoDetectJSON(t *testing.T) {
     "port": 9090
   },
   "database": {
-    "maxIdleConns": 25,
-    "maxOpenConns": 250
+    "max_idle_conns": 25,
+    "max_open_conns": 250
   }
 }`
 	err = os.WriteFile(jsonPath, []byte(updatedContent), 0644)
@@ -642,13 +622,10 @@ func TestHTTPServerHotReload_YAML(t *testing.T) {
 module-name: "test-http-server"
 host: "localhost"
 port: 8080
-grpc-port: 9090
 read-timeout: 30
 write-timeout: 30
 idle-timeout: 60
 max-header-bytes: 1048576
-enable-http: true
-enable-grpc: false
 enable-tls: false
 enable-gzip-compress: true
 tls:
@@ -666,10 +643,7 @@ headers: {}
 
 	// 创建HTTPServer配置实例
 	config := gateway.DefaultHTTPServer()
-	err = v.Unmarshal(config, func(dc *mapstructure.DecoderConfig) {
-		dc.TagName = "yaml"
-		dc.WeaklyTypedInput = true
-	})
+	err = UnmarshalWithFlexibleNaming(v, config)
 	require.NoError(t, err)
 
 	// 验证初始配置与DefaultHTTPServer的对比
@@ -678,11 +652,8 @@ headers: {}
 	assert.NotEqual(t, defaultConfig.ModuleName, config.ModuleName) // 验证与默认值不同
 	assert.Equal(t, "localhost", config.Host)
 	assert.Equal(t, 8080, config.Port)
-	assert.Equal(t, 9090, config.GrpcPort)
 	assert.Equal(t, defaultConfig.ReadTimeout, config.ReadTimeout)   // 与默认值相同
 	assert.Equal(t, defaultConfig.WriteTimeout, config.WriteTimeout) // 与默认值相同
-	assert.True(t, config.EnableHttp)
-	assert.False(t, config.EnableGrpc)
 
 	// 创建热更新器
 	hotReloader, err := NewHotReloader(config, v, configFile, &HotReloadConfig{
@@ -704,13 +675,10 @@ headers: {}
 module-name: "updated-http-server"
 host: "0.0.0.0"
 port: 9090
-grpc-port: 8080
 read-timeout: 60
 write-timeout: 60
 idle-timeout: 120
 max-header-bytes: 2097152
-enable-http: false
-enable-grpc: true
 enable-tls: true
 enable-gzip-compress: false
 tls:
@@ -731,14 +699,11 @@ headers:
 	assert.Equal(t, "updated-http-server", updatedConfig.ModuleName)
 	assert.Equal(t, "0.0.0.0", updatedConfig.Host)
 	assert.Equal(t, 9090, updatedConfig.Port)
-	assert.Equal(t, 8080, updatedConfig.GrpcPort)
 	assert.Equal(t, 60, updatedConfig.ReadTimeout)
 	assert.NotEqual(t, defaultConfig.ReadTimeout, updatedConfig.ReadTimeout) // 与默认值不同
 	assert.Equal(t, 60, updatedConfig.WriteTimeout)
 	assert.Equal(t, 120, updatedConfig.IdleTimeout)
 	assert.Equal(t, 2097152, updatedConfig.MaxHeaderBytes)
-	assert.False(t, updatedConfig.EnableHttp)
-	assert.True(t, updatedConfig.EnableGrpc)
 	assert.True(t, updatedConfig.EnableTls)
 	assert.False(t, updatedConfig.EnableGzipCompress)
 	assert.Equal(t, "/path/to/cert.pem", updatedConfig.TLS.CertFile)
@@ -784,10 +749,7 @@ func TestHTTPServerHotReload_JSON(t *testing.T) {
 
 	// 创建HTTPServer配置实例
 	config := gateway.DefaultHTTPServer()
-	err = v.Unmarshal(config, func(dc *mapstructure.DecoderConfig) {
-		dc.TagName = "json"
-		dc.WeaklyTypedInput = true
-	})
+	err = UnmarshalWithFlexibleNaming(v, config)
 	require.NoError(t, err)
 
 	// 验证初始配置与DefaultHTTPServer的对比
@@ -798,11 +760,8 @@ func TestHTTPServerHotReload_JSON(t *testing.T) {
 	assert.NotEqual(t, defaultConfig.Host, config.Host) // 与默认值不同
 	assert.Equal(t, 8888, config.Port)
 	assert.NotEqual(t, defaultConfig.Port, config.Port) // 与默认值不同
-	assert.Equal(t, 9999, config.GrpcPort)
 	assert.Equal(t, 45, config.ReadTimeout)
-	assert.NotEqual(t, defaultConfig.ReadTimeout, config.ReadTimeout) // 与默认值不同
-	assert.True(t, config.EnableHttp)
-	assert.True(t, config.EnableGrpc)                                         // 与默认值不同
+	assert.NotEqual(t, defaultConfig.ReadTimeout, config.ReadTimeout)         // 与默认值不同
 	assert.Equal(t, "json-initial-value", config.Headers["x-initial-header"]) // JSON会将键名转为小写	// 创建热更新器
 	hotReloader, err := NewHotReloader(config, v, jsonPath, &HotReloadConfig{
 		Enabled:       false, // 禁用自动监听，手动触发重载
@@ -847,14 +806,11 @@ func TestHTTPServerHotReload_JSON(t *testing.T) {
 	assert.Equal(t, "updated-http-server-json", updatedConfig.ModuleName)
 	assert.Equal(t, "0.0.0.0", updatedConfig.Host)
 	assert.Equal(t, 7777, updatedConfig.Port)
-	assert.Equal(t, 6666, updatedConfig.GrpcPort)
 	assert.Equal(t, 90, updatedConfig.ReadTimeout)
 	assert.NotEqual(t, defaultConfig.ReadTimeout, updatedConfig.ReadTimeout) // 与默认值不同
 	assert.Equal(t, 90, updatedConfig.WriteTimeout)
 	assert.Equal(t, 180, updatedConfig.IdleTimeout)
 	assert.Equal(t, 3145728, updatedConfig.MaxHeaderBytes)
-	assert.False(t, updatedConfig.EnableHttp)
-	assert.True(t, updatedConfig.EnableGrpc)
 	assert.True(t, updatedConfig.EnableTls)
 	assert.False(t, updatedConfig.EnableGzipCompress)
 	assert.Equal(t, "/json/path/to/cert.pem", updatedConfig.TLS.CertFile)

@@ -20,14 +20,14 @@ type Logging struct {
 	Level          string   `mapstructure:"level" yaml:"level" json:"level"`                               // 日志级别
 	Format         string   `mapstructure:"format" yaml:"format" json:"format"`                            // 日志格式 (json, text)
 	Output         string   `mapstructure:"output" yaml:"output" json:"output"`                            // 输出目标 (stdout, file)
-	FilePath       string   `mapstructure:"file_path" yaml:"file_path" json:"file_path"`                   // 日志文件路径
-	MaxSize        int      `mapstructure:"max_size" yaml:"max_size" json:"max_size"`                      // 最大文件大小(MB)
-	MaxBackups     int      `mapstructure:"max_backups" yaml:"max_backups" json:"max_backups"`             // 最大备份文件数
-	MaxAge         int      `mapstructure:"max_age" yaml:"max_age" json:"max_age"`                         // 最大保存天数
+	FilePath       string   `mapstructure:"file_path" yaml:"file-path" json:"file_path"`                   // 日志文件路径
+	MaxSize        int      `mapstructure:"max_size" yaml:"max-size" json:"max_size"`                      // 最大文件大小(MB)
+	MaxBackups     int      `mapstructure:"max_backups" yaml:"max-backups" json:"max_backups"`             // 最大备份文件数
+	MaxAge         int      `mapstructure:"max_age" yaml:"max-age" json:"max_age"`                         // 最大保存天数
 	Compress       bool     `mapstructure:"compress" yaml:"compress" json:"compress"`                      // 是否压缩
-	SkipPaths      []string `mapstructure:"skip_paths" yaml:"skip_paths" json:"skip_paths"`                // 跳过的路径
-	EnableRequest  bool     `mapstructure:"enable_request" yaml:"enable_request" json:"enable_request"`    // 是否记录请求
-	EnableResponse bool     `mapstructure:"enable_response" yaml:"enable_response" json:"enable_response"` // 是否记录响应
+	SkipPaths      []string `mapstructure:"skip_paths" yaml:"skip-paths" json:"skip_paths"`                // 跳过的路径
+	EnableRequest  bool     `mapstructure:"enable_request" yaml:"enable-request" json:"enable_request"`    // 是否记录请求
+	EnableResponse bool     `mapstructure:"enable_response" yaml:"enable-response" json:"enable_response"` // 是否记录响应
 }
 
 // Default 创建默认日志配置

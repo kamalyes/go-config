@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 10:10:56
+ * @LastEditTime: 2025-11-26 23:42:05
  * @FilePath: \go-config\pkg\gateway\http.go
  * @Description: 服务器配置模块
  *
@@ -13,7 +13,6 @@ package gateway
 
 import (
 	"fmt"
-
 	"github.com/kamalyes/go-config/internal"
 )
 
@@ -22,25 +21,22 @@ type HTTPServer struct {
 	ModuleName         string            `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                            // 模块名称
 	Host               string            `mapstructure:"host" yaml:"host" json:"host"`                                                 // 主机地址
 	Port               int               `mapstructure:"port" yaml:"port" json:"port"`                                                 // 端口
-	GrpcPort           int               `mapstructure:"grpc_port" yaml:"grpc_port" json:"grpc_port"`                                  // GRPC端口
-	ReadTimeout        int               `mapstructure:"read_timeout" yaml:"read_timeout" json:"read_timeout"`                         // 读取超时(秒)
-	WriteTimeout       int               `mapstructure:"write_timeout" yaml:"write_timeout" json:"write_timeout"`                      // 写入超时(秒)
-	IdleTimeout        int               `mapstructure:"idle_timeout" yaml:"idle_timeout" json:"idle_timeout"`                         // 空闲超时(秒)
-	MaxHeaderBytes     int               `mapstructure:"max_header_bytes" yaml:"max_header_bytes" json:"max_header_bytes"`             // 最大请求头字节数
-	EnableHttp         bool              `mapstructure:"enable_http" yaml:"enable_http" json:"enable_http"`                            // 是否启用HTTP
-	EnableGrpc         bool              `mapstructure:"enable_grpc" yaml:"enable_grpc" json:"enable_grpc"`                            // 是否启用GRPC
-	EnableTls          bool              `mapstructure:"enable_tls" yaml:"enable_tls" json:"enable_tls"`                               // 是否启用TLS
+	ReadTimeout        int               `mapstructure:"read_timeout" yaml:"read-timeout" json:"read_timeout"`                         // 读取超时(秒)
+	WriteTimeout       int               `mapstructure:"write_timeout" yaml:"write-timeout" json:"write_timeout"`                      // 写入超时(秒)
+	IdleTimeout        int               `mapstructure:"idle_timeout" yaml:"idle-timeout" json:"idle_timeout"`                         // 空闲超时(秒)
+	MaxHeaderBytes     int               `mapstructure:"max_header_bytes" yaml:"max-header-bytes" json:"max_header_bytes"`             // 最大请求头字节数
+	EnableTls          bool              `mapstructure:"enable_tls" yaml:"enable-tls" json:"enable_tls"`                               // 是否启用TLS
 	TLS                *TLS              `mapstructure:"tls" yaml:"tls" json:"tls"`                                                    // TLS配置
 	Headers            map[string]string `mapstructure:"headers" yaml:"headers" json:"headers"`                                        // 自定义头部
-	Endpoint           string            `mapstructure:"-" yaml:"_" json:"endpoint"`                                                   // 完整的服务端点地址（自动计算，不从配置文件读取）
-	EnableGzipCompress bool              `mapstructure:"enable_gzip_compress" yaml:"enable_gzip_compress" json:"enable_gzip_compress"` // 是否启用Gzip压缩
+	Endpoint           string            `mapstructure:"_" yaml:"-" json:"_"`                                                          // 完整的服务端点地址（自动计算，不从配置文件读取）
+	EnableGzipCompress bool              `mapstructure:"enable_gzip_compress" yaml:"enable-gzip-compress" json:"enable_gzip_compress"` // 是否启用Gzip压缩
 }
 
 // TLS TLS配置
 type TLS struct {
-	CertFile string `mapstructure:"cert_file" yaml:"cert_file" json:"cert_file"` // 证书文件路径
-	KeyFile  string `mapstructure:"key_file" yaml:"key_file" json:"key_file"`    // 私钥文件路径
-	CAFile   string `mapstructure:"ca_file" yaml:"ca_file" json:"ca_file"`       // CA文件路径
+	CertFile string `mapstructure:"cert_file" yaml:"cert-file" json:"cert_file"` // 证书文件路径
+	KeyFile  string `mapstructure:"key_file" yaml:"key-file" json:"key_file"`    // 私钥文件路径
+	CAFile   string `mapstructure:"ca_file" yaml:"ca-file" json:"ca_file"`       // CA文件路径
 }
 
 // DefaultHTTPServer 创建默认HTTP服务器配置
@@ -49,20 +45,19 @@ func DefaultHTTPServer() *HTTPServer {
 		ModuleName:     "server",
 		Host:           "0.0.0.0",
 		Port:           8080,
-		GrpcPort:       9090,
 		ReadTimeout:    30,
 		WriteTimeout:   30,
 		IdleTimeout:    60,
 		MaxHeaderBytes: 1 << 20, // 1MB
-		EnableHttp:     true,
-		EnableGrpc:     false,
 		EnableTls:      false,
 		TLS: &TLS{
 			CertFile: "",
 			KeyFile:  "",
 			CAFile:   "",
 		},
-		Headers:            make(map[string]string),
+		Headers: map[string]string{
+			"x-server": "go-config",
+		},
 		EnableGzipCompress: true,
 	}
 	internal.CallAfterLoad(h) // 自动调用 AfterLoad 钩子
@@ -95,13 +90,10 @@ func (h *HTTPServer) Clone() *HTTPServer {
 		ModuleName:         h.ModuleName,
 		Host:               h.Host,
 		Port:               h.Port,
-		GrpcPort:           h.GrpcPort,
 		ReadTimeout:        h.ReadTimeout,
 		WriteTimeout:       h.WriteTimeout,
 		IdleTimeout:        h.IdleTimeout,
 		MaxHeaderBytes:     h.MaxHeaderBytes,
-		EnableHttp:         h.EnableHttp,
-		EnableGrpc:         h.EnableGrpc,
 		EnableTls:          h.EnableTls,
 		EnableGzipCompress: h.EnableGzipCompress,
 	}
@@ -139,12 +131,6 @@ func (h *HTTPServer) WithPort(port int) *HTTPServer {
 	return h
 }
 
-// WithGrpcPort 设置GRPC端口
-func (h *HTTPServer) WithGrpcPort(port int) *HTTPServer {
-	h.GrpcPort = port
-	return h
-}
-
 // WithTimeouts 设置超时配置
 func (h *HTTPServer) WithTimeouts(read, write, idle int) *HTTPServer {
 	h.ReadTimeout = read
@@ -162,30 +148,6 @@ func (h *HTTPServer) WithTLS(certFile, keyFile, caFile string) *HTTPServer {
 	h.TLS.KeyFile = keyFile
 	h.TLS.CAFile = caFile
 	h.EnableTls = true
-	return h
-}
-
-// EnableHTTP 启用HTTP服务
-func (h *HTTPServer) EnableHTTP() *HTTPServer {
-	h.EnableHttp = true
-	return h
-}
-
-// DisableHTTP 禁用HTTP服务
-func (h *HTTPServer) DisableHTTP() *HTTPServer {
-	h.EnableHttp = false
-	return h
-}
-
-// EnableGRPC 启用GRPC服务
-func (h *HTTPServer) EnableGRPC() *HTTPServer {
-	h.EnableGrpc = true
-	return h
-}
-
-// DisableGRPC 禁用GRPC服务
-func (h *HTTPServer) DisableGRPC() *HTTPServer {
-	h.EnableGrpc = false
 	return h
 }
 

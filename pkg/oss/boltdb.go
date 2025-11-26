@@ -17,8 +17,8 @@ import (
 
 // BoltDB 结构体用于配置 BoltDB 本地存储
 type BoltDB struct {
-	Path       string `mapstructure:"path"       yaml:"path"       json:"path"        validate:"required"` // 数据库文件路径
-	ModuleName string `mapstructure:"modulename" yaml:"modulename" json:"module_name"`                     // 模块名称
+	Path       string `mapstructure:"path" yaml:"path" json:"path"        validate:"required"` // 数据库文件路径
+	ModuleName string `mapstructure:"module_name" yaml:"module_name" json:"module_name"`       // 模块名称
 }
 
 // NewBoltDB 创建一个新的 BoltDB 实例

@@ -17,16 +17,16 @@ import (
 
 // Cors 跨域资源共享配置
 type Cors struct {
-	AllowedOrigins      []string `mapstructure:"allowed-origins"       yaml:"allowed_origins"       json:"allowed_origins"       validate:"dive,required"` // 允许的来源
-	AllowedMethods      []string `mapstructure:"allowed-methods"       yaml:"allowed_methods"       json:"allowed_methods"       validate:"dive,required"` // 允许的方法
-	AllowedHeaders      []string `mapstructure:"allowed-headers"       yaml:"allowed_headers"       json:"allowed_headers"       validate:"dive,required"` // 允许的头部
-	MaxAge              string   `mapstructure:"max-age"               yaml:"max_age"               json:"max_age"               validate:"required"`      // 最大缓存时间
-	AllowedAllOrigins   bool     `mapstructure:"allowed-all-origins"   yaml:"allowed_all_origins"   json:"allowed_all_origins"`                            // 是否允许所有来源
-	AllowedAllMethods   bool     `mapstructure:"allowed-all-methods"   yaml:"allowed_all_methods"   json:"allowed_all_methods"`                            // 是否允许所有方法
-	ExposedHeaders      []string `mapstructure:"exposed-headers"       yaml:"exposed_headers"       json:"exposed_headers"`                                // 暴露的头部
-	AllowCredentials    bool     `mapstructure:"allow-credentials"     yaml:"allow_credentials"     json:"allow_credentials"`                              // 允许凭证
-	OptionsResponseCode int      `mapstructure:"options-response-code"  yaml:"options_response_code" json:"options_response_code"`                         // Options响应Code
-	ModuleName          string   `mapstructure:"modulename"            yaml:"modulename"            json:"module_name"`                                    // 模块名称
+	AllowedOrigins      []string `mapstructure:"allowed_origins" yaml:"allowed-origins" json:"allowed_origins"       validate:"dive,required"` // 允许的来源
+	AllowedMethods      []string `mapstructure:"allowed_methods" yaml:"allowed-methods" json:"allowed_methods"       validate:"dive,required"` // 允许的方法
+	AllowedHeaders      []string `mapstructure:"allowed_headers" yaml:"allowed-headers" json:"allowed_headers"       validate:"dive,required"` // 允许的头部
+	MaxAge              string   `mapstructure:"max_age" yaml:"max-age" json:"max_age"               validate:"required"`                      // 最大缓存时间
+	AllowedAllOrigins   bool     `mapstructure:"allowed_all_origins" yaml:"allowed-all-origins" json:"allowed_all_origins"`                    // 是否允许所有来源
+	AllowedAllMethods   bool     `mapstructure:"allowed_all_methods" yaml:"allowed-all-methods" json:"allowed_all_methods"`                    // 是否允许所有方法
+	ExposedHeaders      []string `mapstructure:"exposed_headers" yaml:"exposed-headers" json:"exposed_headers"`                                // 暴露的头部
+	AllowCredentials    bool     `mapstructure:"allow_credentials" yaml:"allow-credentials" json:"allow_credentials"`                          // 允许凭证
+	OptionsResponseCode int      `mapstructure:"options_response_code" yaml:"options-response-code" json:"options_response_code"`              // Options响应Code
+	ModuleName          string   `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                                            // 模块名称
 }
 
 // NewCors 创建一个新的 Cors 实例

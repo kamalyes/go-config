@@ -49,19 +49,19 @@ type AuthConfig struct {
 	Username    string   `mapstructure:"username" yaml:"username" json:"username"`             // 用户名（基本认证）
 	Password    string   `mapstructure:"password" yaml:"password" json:"password"`             // 密码（基本认证）
 	Token       string   `mapstructure:"token" yaml:"token" json:"token"`                      // Token（Bearer认证）
-	HeaderName  string   `mapstructure:"header_name" yaml:"header_name" json:"header_name"`    // 自定义header名称
-	HeaderValue string   `mapstructure:"header_value" yaml:"header_value" json:"header_value"` // 自定义header值
+	HeaderName  string   `mapstructure:"header_name" yaml:"header-name" json:"header_name"`    // 自定义header名称
+	HeaderValue string   `mapstructure:"header_value" yaml:"header-value" json:"header_value"` // 自定义header值
 }
 
 // ServiceSpec 单个微服务Swagger规范配置
 type ServiceSpec struct {
 	Name        string   `mapstructure:"name" yaml:"name" json:"name"`                      // 服务名称
 	Description string   `mapstructure:"description" yaml:"description" json:"description"` // 服务描述
-	SpecPath    string   `mapstructure:"spec_path" yaml:"spec_path" json:"spec_path"`       // Swagger规范文件路径
+	SpecPath    string   `mapstructure:"spec_path" yaml:"spec-path" json:"spec_path"`       // Swagger规范文件路径
 	URL         string   `mapstructure:"url" yaml:"url" json:"url"`                         // 远程Swagger文档URL
 	Version     string   `mapstructure:"version" yaml:"version" json:"version"`             // 服务版本
 	Enabled     bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用
-	BasePath    string   `mapstructure:"base_path" yaml:"base_path" json:"base_path"`       // API基础路径前缀
+	BasePath    string   `mapstructure:"base_path" yaml:"base-path" json:"base_path"`       // API基础路径前缀
 	Tags        []string `mapstructure:"tags" yaml:"tags" json:"tags"`                      // 服务标签
 }
 
@@ -70,17 +70,17 @@ type AggregateConfig struct {
 	Enabled  bool           `mapstructure:"enabled" yaml:"enabled" json:"enabled"`       // 是否启用聚合
 	Mode     string         `mapstructure:"mode" yaml:"mode" json:"mode"`                // 聚合模式: merge|selector
 	Services []*ServiceSpec `mapstructure:"services" yaml:"services" json:"services"`    // 微服务列表
-	UILayout string         `mapstructure:"ui_layout" yaml:"ui_layout" json:"ui_layout"` // UI布局: tabs|dropdown|list
+	UILayout string         `mapstructure:"ui_layout" yaml:"ui-layout" json:"ui_layout"` // UI布局: tabs|dropdown|list
 }
 
 // Swagger Swagger配置结构
 type Swagger struct {
 	ModuleName  string           `mapstructure:"module_name" yaml:"module_name" json:"module_name"` // 模块名称
 	Enabled     bool             `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用Swagger
-	JSONPath    string           `mapstructure:"json_path" yaml:"json_path" json:"json_path"`       // Swagger JSON文件路径
-	UIPath      string           `mapstructure:"ui_path" yaml:"ui_path" json:"ui_path"`             // Swagger UI路由路径
-	YamlPath    string           `mapstructure:"yaml_path" yaml:"yaml_path" json:"yaml_path"`       // Swagger YAML文件路径
-	SpecPath    string           `mapstructure:"spec_path" yaml:"spec_path" json:"spec_path"`       // Swagger规范文件路径(自动检测格式)
+	JSONPath    string           `mapstructure:"json_path" yaml:"json-path" json:"json_path"`       // Swagger JSON文件路径
+	UIPath      string           `mapstructure:"ui_path" yaml:"ui-path" json:"ui_path"`             // Swagger UI路由路径
+	YamlPath    string           `mapstructure:"yaml_path" yaml:"yaml-path" json:"yaml_path"`       // Swagger YAML文件路径
+	SpecPath    string           `mapstructure:"spec_path" yaml:"spec-path" json:"spec_path"`       // Swagger规范文件路径(自动检测格式)
 	Title       string           `mapstructure:"title" yaml:"title" json:"title"`                   // 文档标题
 	Description string           `mapstructure:"description" yaml:"description" json:"description"` // 文档描述
 	Version     string           `mapstructure:"version" yaml:"version" json:"version"`             // Swagger版本

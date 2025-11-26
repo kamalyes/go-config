@@ -16,14 +16,14 @@ import (
 
 // AliyunSms 结构体表示 SMS 配置
 type AliyunSms struct {
-	SecretID             string `mapstructure:"secret-id"                       yaml:"secret_id"               json:"secret_id"             validate:"required"`     // 阿里云短信服务的 Secret ID
-	SecretKey            string `mapstructure:"secret-key"                      yaml:"secret_key"              json:"secret_key"            validate:"required"`     // 阿里云短信服务的 Secret Key
-	Sign                 string `mapstructure:"sign"                            yaml:"sign"                    json:"sign"                  validate:"required"`     // 短信签名
-	ResourceOwnerAccount string `mapstructure:"resource-owner-account"          yaml:"resource_owner_account"  json:"resource_owner_account" validate:"required"`    // 资源所有者账户
-	ResourceOwnerID      int64  `mapstructure:"resource-owner-id"               yaml:"resource_owner_id"       json:"resource_owner_id"     validate:"required"`     // 资源所有者 ID
-	TemplateCodeVerify   string `mapstructure:"template-code-verify"            yaml:"template_code_verify"    json:"template_code_verify"   validate:"required"`    // 短信模板代码
-	Endpoint             string `mapstructure:"endpoint"                        yaml:"endpoint"                json:"endpoint"              validate:"required,url"` // 短信服务的 API 端点，必须是有效的 URL
-	ModuleName           string `mapstructure:"modulename"                      yaml:"modulename"              json:"module_name"`                                   // 模块名称
+	SecretID             string `mapstructure:"secret_id" yaml:"secret-id" json:"secret_id"             validate:"required"`                            // 阿里云短信服务的 Secret ID
+	SecretKey            string `mapstructure:"secret_key" yaml:"secret-key" json:"secret_key"            validate:"required"`                          // 阿里云短信服务的 Secret Key
+	Sign                 string `mapstructure:"sign" yaml:"sign" json:"sign"                  validate:"required"`                                      // 短信签名
+	ResourceOwnerAccount string `mapstructure:"resource_owner_account" yaml:"resource-owner-account" json:"resource_owner_account" validate:"required"` // 资源所有者账户
+	ResourceOwnerID      int64  `mapstructure:"resource_owner_id" yaml:"resource-owner-id" json:"resource_owner_id"     validate:"required"`            // 资源所有者 ID
+	TemplateCodeVerify   string `mapstructure:"template_code_verify" yaml:"template-code-verify" json:"template_code_verify"   validate:"required"`     // 短信模板代码
+	Endpoint             string `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"              validate:"required,url"`                          // 短信服务的 API 端点，必须是有效的 URL
+	ModuleName           string `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                                                      // 模块名称
 }
 
 // NewAliyunSms 创建一个新的 AliyunSms 实例

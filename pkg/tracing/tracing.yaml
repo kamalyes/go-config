@@ -2,7 +2,7 @@
 # 模块名称: tracing
 # 包名: tracing  
 # 描述: 链路追踪模块
-# 生成时间: 2025-11-23 23:53:28
+# 生成时间: 2025-11-27 01:06:02
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
@@ -10,25 +10,25 @@ module_name: tracing
 # enabled配置
 enabled: false
 # service name配置
-service_name: go-rpc-gateway
+service-name: go-rpc-gateway
 # service version配置
-service_version: 1.0.0
+service-version: 1.0.0
 # environment配置
 environment: development
 # endpoint配置
 endpoint: http://localhost:9411/api/v2/spans
 # exporter type配置
-exporter_type: zipkin
+exporter-type: zipkin
 # exporter endpoint配置
-exporter_endpoint: http://localhost:9411/api/v2/spans
+exporter-endpoint: http://localhost:9411/api/v2/spans
 # sample rate配置
-sample_rate: 0.1
+sample-rate: 0.1
 # sampler type配置
-sampler_type: probability
+sampler-type: probability
 # sampler probability配置
-sampler_probability: 0.1
+sampler-probability: 0.1
 # sampler rate配置
-sampler_rate: 0.1
+sampler-rate: 0.1
 # headers配置
 headers:
     - Authorization

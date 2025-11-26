@@ -2,7 +2,7 @@
 # 模块名称: monitoring
 # 包名: monitoring  
 # 描述: 监控模块
-# 生成时间: 2025-11-23 23:53:28
+# 生成时间: 2025-11-27 01:06:02
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
@@ -16,14 +16,14 @@ prometheus:
     path: /metrics
     port: 9090
     endpoint: http://localhost:9090
-    push_gateway:
+    push-gateway:
         enabled: false
         endpoint: http://localhost:9091
-        job_name: go-rpc-gateway
+        job-name: go-rpc-gateway
     scraping:
         interval: 15s
         timeout: 10s
-        metrics_path: /metrics
+        metrics-path: /metrics
 # grafana配置
 grafana:
     module_name: grafana
@@ -31,7 +31,7 @@ grafana:
     endpoint: http://localhost:3000
     username: admin
     password: admin
-    api_key: demo_api_key
+    api-key: demo_api_key
     datasource:
         type: prometheus
         url: http://localhost:9090
@@ -39,10 +39,10 @@ grafana:
         username: prometheus_user
         password: prometheus_password
     dashboard:
-        import_path: ""
-        auto_import: false
+        import-path: ""
+        auto-import: false
         templates: []
-        refresh_interval: 30s
+        refresh-interval: 30s
 # alerting配置
     alerting:
         enabled: false
@@ -53,8 +53,8 @@ jaeger:
     module_name: jaeger
     enabled: false
     endpoint: http://localhost:14268/api/traces
-    service_name: go-rpc-gateway
-    sample_rate: 0.1
+    service-name: go-rpc-gateway
+    sample-rate: 0.1
     agent:
         host: localhost
         port: 6832
@@ -65,16 +65,16 @@ jaeger:
     sampling:
         type: probabilistic
         param: 0.1
-        max_traces_per_second: 100
-        operation_sampling: []
+        max-traces-per-second: 100
+        operation-sampling: []
     tags: {}
 # metrics配置
 metrics:
     enabled: true
-    request_count: true
+    request-count: true
     duration: true
-    response_size: true
-    request_size: true
+    response-size: true
+    request-size: true
     buckets:
         - 0.001
         - 0.01
@@ -90,17 +90,16 @@ metrics:
         - 60
         - 90
         - 120
-    enable_open_metrics: false
-    custom_metrics: []
-    _: /metrics
+    enable-open-metrics: false
+    custom-metrics: []
 alerting:
     enabled: false
     rules: []
     webhooks: []
     email:
         enabled: false
-        smtp_host: ""
-        smtp_port: 0
+        smtp-host: ""
+        smtp-port: 0
         username: ""
         password: ""
         from: ""
@@ -111,4 +110,4 @@ alerting:
         token: ""
         channel: ""
         username: ""
-        icon_emoji: ""
+        icon-emoji: ""

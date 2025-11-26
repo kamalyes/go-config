@@ -60,7 +60,7 @@ type Gateway struct {
 	JWT           *jwt.JWT                     `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                               // JWT配置
 	Swagger       *swagger.Swagger             `mapstructure:"swagger" yaml:"swagger" json:"swagger"`                   // Swagger配置
 	Banner        *banner.Banner               `mapstructure:"banner" yaml:"banner" json:"banner"`                      // Banner配置
-	RateLimit     *ratelimit.RateLimit         `mapstructure:"rate_limit" yaml:"rate_limit" json:"rate_limit"`          // 限流配置
+	RateLimit     *ratelimit.RateLimit         `mapstructure:"rate_limit" yaml:"rate-limit" json:"rate_limit"`          // 限流配置
 	WSC           *wsc.WSC                     `mapstructure:"wsc" yaml:"wsc" json:"wsc"`                               // WebSocket通信配置
 }
 
@@ -306,13 +306,12 @@ func (c *Gateway) WithEnvironment(environment string) *Gateway {
 }
 
 // WithServer 设置服务器配置
-func (c *Gateway) WithServer(host string, port int, grpcPort int) *Gateway {
+func (c *Gateway) WithServer(host string, port int) *Gateway {
 	if c.HTTPServer == nil {
 		c.HTTPServer = &HTTPServer{}
 	}
 	c.HTTPServer.Host = host
 	c.HTTPServer.Port = port
-	c.HTTPServer.GrpcPort = grpcPort
 	return c
 }
 
@@ -384,24 +383,6 @@ func (c *Gateway) WithJWT(cfg *jwt.JWT) *Gateway {
 // WithSwagger 设置Swagger配置
 func (c *Gateway) WithSwagger(cfg *swagger.Swagger) *Gateway {
 	c.Swagger = cfg
-	return c
-}
-
-// EnableHTTP 启用HTTP服务
-func (c *Gateway) EnableHTTP() *Gateway {
-	if c.HTTPServer == nil {
-		c.HTTPServer = &HTTPServer{}
-	}
-	c.HTTPServer.EnableHttp = true
-	return c
-}
-
-// EnableGRPC 启用GRPC服务
-func (c *Gateway) EnableGRPC() *Gateway {
-	if c.HTTPServer == nil {
-		c.HTTPServer = &HTTPServer{}
-	}
-	c.HTTPServer.EnableGrpc = true
 	return c
 }
 

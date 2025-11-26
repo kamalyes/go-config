@@ -13,13 +13,12 @@ package goconfig
 import (
 	"context"
 	"fmt"
-	"reflect"
-	"sync"
-	"time"
-
 	"github.com/fsnotify/fsnotify"
 	"github.com/kamalyes/go-logger"
 	"github.com/spf13/viper"
+	"reflect"
+	"sync"
+	"time"
 )
 
 // HotReloadConfig 热更新配置
@@ -321,8 +320,9 @@ func (h *hotReloadManager) reloadConfig(ctx context.Context, source string) erro
 	// 解析到配置结构
 	newConfig := reflect.New(reflect.TypeOf(h.config).Elem()).Interface()
 
-	// 使用 viper 的 Unmarshal 方法，它能更好地处理各种数据类型
-	if err := h.viper.Unmarshal(newConfig); err != nil {
+	// 使用灵活的命名匹配策略进行反序列化
+	// 支持 kebab-case、camelCase、PascalCase 到 snake_case 的自动转换
+	if err := UnmarshalWithFlexibleNaming(h.viper, newConfig); err != nil {
 		logger.GetGlobalLogger().Error("解析配置文件失败: %v", err)
 		h.triggerErrorCallback(ctx, err, source)
 		return err

@@ -17,9 +17,9 @@ import (
 
 // JSON JSON序列化配置
 type JSON struct {
-	UseProtoNames   bool `mapstructure:"use_proto_names" yaml:"use_proto_names" json:"use_proto_names"`    // 使用proto字段名(snake_case)，如 snake_case 而不是 snakeCase
-	EmitUnpopulated bool `mapstructure:"emit_unpopulated" yaml:"emit_unpopulated" json:"emit_unpopulated"` // 输出所有字段，包括零值字段
-	DiscardUnknown  bool `mapstructure:"discard_unknown" yaml:"discard_unknown" json:"discard_unknown"`    // 反序列化时忽略未知字段
+	UseProtoNames   bool `mapstructure:"use_proto_names" yaml:"use-proto-names" json:"use_proto_names"`    // 使用proto字段名(snake_case)，如 snake_case 而不是 snakeCase
+	EmitUnpopulated bool `mapstructure:"emit_unpopulated" yaml:"emit-unpopulated" json:"emit_unpopulated"` // 输出所有字段，包括零值字段
+	DiscardUnknown  bool `mapstructure:"discard_unknown" yaml:"discard-unknown" json:"discard_unknown"`    // 反序列化时忽略未知字段
 }
 
 // DefaultJSON 创建默认JSON配置

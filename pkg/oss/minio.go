@@ -17,12 +17,12 @@ import (
 
 // Minio 结构体用于配置 Minio 服务器的相关参数
 type Minio struct {
-	Endpoint   string `mapstructure:"endpoint"    yaml:"endpoint"    json:"endpoint"`                                  // 地区
-	AccessKey  string `mapstructure:"access-key"  yaml:"access_key"  json:"access_key"  validate:"required"`       // 签名用的 key
-	SecretKey  string `mapstructure:"secret-key"  yaml:"secret_key"  json:"secret_key"  validate:"required"`       // 签名用的钥匙
-	Bucket     string `mapstructure:"bucket"      yaml:"bucket"      json:"bucket"`                                  // 桶
-	ModuleName string `mapstructure:"modulename"  yaml:"modulename"  json:"module_name"`                             // 模块名称
-	UseSSL     bool   `mapstructure:"use-ssl"     yaml:"use_ssl"     json:"use_ssl"`                                // 是否使用 HTTPS
+	Endpoint   string `mapstructure:"endpoint" yaml:"endpoint" json:"endpoint"`                            // 地区
+	AccessKey  string `mapstructure:"access_key" yaml:"access-key" json:"access_key"  validate:"required"` // 签名用的 key
+	SecretKey  string `mapstructure:"secret_key" yaml:"secret-key" json:"secret_key"  validate:"required"` // 签名用的钥匙
+	Bucket     string `mapstructure:"bucket" yaml:"bucket" json:"bucket"`                                  // 桶
+	ModuleName string `mapstructure:"module_name" yaml:"module_name" json:"module_name"`                   // 模块名称
+	UseSSL     bool   `mapstructure:"use_ssl" yaml:"use-ssl" json:"use_ssl"`                               // 是否使用 HTTPS
 }
 
 // NewMinio 创建一个新的 Minio 实例
@@ -124,10 +124,10 @@ func (m *Minio) Validate() error {
 // DefaultMinio 返回默认的 Minio 值
 func DefaultMinio() Minio {
 	return Minio{
-		Endpoint:       "localhost",
+		Endpoint:   "localhost",
 		AccessKey:  "minioadmin",
 		SecretKey:  "minioadmin",
-		Bucket:    "my-bucket",
+		Bucket:     "my-bucket",
 		ModuleName: "minio",
 	}
 }
@@ -137,7 +137,6 @@ func DefaultMinioConfig() *Minio {
 	config := DefaultMinio()
 	return &config
 }
-
 
 func (m *Minio) WithEndpoint(endpoint string) *Minio {
 	m.Endpoint = endpoint

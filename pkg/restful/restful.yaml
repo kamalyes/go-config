@@ -2,7 +2,7 @@
 # 模块名称: restful
 # 包名: restful  
 # 描述: RESTful API模块
-# 生成时间: 2025-11-23 23:53:28
+# 生成时间: 2025-11-27 01:06:02
 # 注意: 此文件由配置生成器自动生成
 
 # module name配置
@@ -18,25 +18,25 @@ port: 8080
 # mode配置
 mode: dev
 # max conns配置
-max_conns: 1000
+max-conns: 1000
 # max bytes配置
-max_bytes: 33554432
+max-bytes: 33554432
 # timeout配置
 timeout: 30
 # cpu threshold配置
-cpu_threshold: 900
+cpu-threshold: 900
 # signature配置
 signature:
     enabled: false
-    private_keys: []
+    private-keys: []
     strict: false
     expiry: 300
 # auth配置
 auth: false
 # print routes配置
-print_routes: false
+print-routes: false
 # strict slash配置
-strict_slash: false
+strict-slash: false
 # headers配置
 headers: {}
 # middlewares配置
@@ -44,29 +44,29 @@ middlewares: []
 # cors配置
 cors:
     enabled: false
-    allow_origins:
+    allow-origins:
         - '*'
-    allow_methods:
+    allow-methods:
         - GET
         - POST
         - PUT
         - DELETE
         - OPTIONS
-    allow_headers:
+    allow-headers:
         - Origin
         - Content-Type
         - Authorization
-    expose_headers: []
-    allow_credentials: false
-    max_age: 3600
+    expose-headers: []
+    allow-credentials: false
+    max-age: 3600
 # tls配置
 tls:
     enabled: false
-    cert_file: ""
-    key_file: ""
-    ca_cert_file: ""
+    cert-file: ""
+    key-file: ""
+    ca-cert-file: ""
 # rate limit配置
-rate_limit:
+rate-limit:
     enabled: false
     seconds: 1
     quota: 1000
@@ -74,7 +74,7 @@ rate_limit:
 compression:
     enabled: false
     level: 6
-    min_length: 1024
+    min-length: 1024
     types:
         - application/json
         - text/html
