@@ -23,6 +23,7 @@ type WSC struct {
 	Enabled              bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                            // 是否启用
 	NodeIP               string        `mapstructure:"node-ip" yaml:"node-ip" json:"nodeIp"`                                             // 节点IP
 	NodePort             int           `mapstructure:"node-port" yaml:"node-port" json:"nodePort"`                                       // 节点端口
+	Network              string        `mapstructure:"network" yaml:"network" json:"network"`                                             // 网络类型: tcp, tcp4, tcp6
 	HeartbeatInterval    int           `mapstructure:"heartbeat-interval" yaml:"heartbeat-interval" json:"heartbeatInterval"`            // 心跳间隔(秒)
 	ClientTimeout        int           `mapstructure:"client-timeout" yaml:"client-timeout" json:"clientTimeout"`                        // 客户端超时(秒)
 	MessageBufferSize    int           `mapstructure:"message-buffer-size" yaml:"message-buffer-size" json:"messageBufferSize"`          // 消息缓冲区大小
@@ -203,6 +204,7 @@ func Default() *WSC {
 		Enabled:              false,
 		NodeIP:               "0.0.0.0",
 		NodePort:             8080,
+		Network:              "tcp4",
 		HeartbeatInterval:    30,
 		ClientTimeout:        90,
 		MessageBufferSize:    256,

@@ -2,13 +2,14 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2025-11-28 00:26:09
+// 生成时间: 2025-11-29 00:30:37
 // 注意: 此文件由配置生成器自动生成
 
 {
   "enabled": false,
   "nodeIp": "0.0.0.0",
   "nodePort": 8080,
+  "network": "tcp4",
   "heartbeatInterval": 30,
   "clientTimeout": 90,
   "messageBufferSize": 256,

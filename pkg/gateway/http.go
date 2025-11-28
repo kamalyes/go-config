@@ -21,6 +21,7 @@ type HTTPServer struct {
 	ModuleName         string            `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                           // 模块名称
 	Host               string            `mapstructure:"host" yaml:"host" json:"host"`                                               // 主机地址
 	Port               int               `mapstructure:"port" yaml:"port" json:"port"`                                               // 端口
+	Network            string            `mapstructure:"network" yaml:"network" json:"network"`                                       // 网络类型: tcp, tcp4, tcp6
 	ReadTimeout        int               `mapstructure:"read-timeout" yaml:"read-timeout" json:"readTimeout"`                        // 读取超时(秒)
 	WriteTimeout       int               `mapstructure:"write-timeout" yaml:"write-timeout" json:"writeTimeout"`                     // 写入超时(秒)
 	IdleTimeout        int               `mapstructure:"idle-timeout" yaml:"idle-timeout" json:"idleTimeout"`                        // 空闲超时(秒)
@@ -45,6 +46,7 @@ func DefaultHTTPServer() *HTTPServer {
 		ModuleName:     "server",
 		Host:           "0.0.0.0",
 		Port:           8080,
+		Network:        "tcp4",
 		ReadTimeout:    30,
 		WriteTimeout:   30,
 		IdleTimeout:    60,

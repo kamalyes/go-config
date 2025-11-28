@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2025-11-28 08:16:35
+# 生成时间: 2025-11-29 00:30:37
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -28,6 +28,7 @@ http:
     module-name: server
     host: 0.0.0.0
     port: 8080
+    network: tcp4
     read-timeout: 30
     write-timeout: 30
     idle-timeout: 60
@@ -45,7 +46,7 @@ grpc:
     server:
         host: 0.0.0.0
         port: 9090
-        network: tcp
+        network: tcp4
         max-recv-msg-size: 4194304
         max-send-msg-size: 4194304
         keepalive-time: 30
@@ -794,6 +795,7 @@ wsc:
     enabled: false
     node-ip: 0.0.0.0
     node-port: 8080
+    network: tcp4
     heartbeat-interval: 30
     client-timeout: 90
     message-buffer-size: 256

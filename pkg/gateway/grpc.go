@@ -67,7 +67,7 @@ func DefaultGRPCServer() *GRPCServer {
 	g := &GRPCServer{
 		Host:              "0.0.0.0",
 		Port:              9090,
-		Network:           "tcp",
+		Network:           "tcp4", // 默认使用 tcp4 强制 IPv4
 		MaxRecvMsgSize:    4 * 1024 * 1024, // 4MB
 		MaxSendMsgSize:    4 * 1024 * 1024, // 4MB
 		KeepaliveTime:     30,
