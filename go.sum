@@ -18,8 +18,8 @@ github.com/go-viper/mapstructure/v2 v2.4.0 h1:EBsztssimR/CONLSZZ04E8qAkxNYq4Qp9L
 github.com/go-viper/mapstructure/v2 v2.4.0/go.mod h1:oJDH3BJKyqBA2TXFhDsKDGDTlndYOZ6rGS0BRZIxGhM=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
-github.com/kamalyes/go-logger v0.4.2 h1:uXYLxsXWw8RZas5PD0yV0zrNDJA7sc60XWoCQFKBYsI=
-github.com/kamalyes/go-logger v0.4.2/go.mod h1:9eXFORVnQvdS7CB3IfEoBJCNZKlprVRaiWdDkaHbi7o=
+github.com/kamalyes/go-logger v0.4.4 h1:IbmbXPqUSHz8CG3YosGvtSQlYg9x2nw94khsPi6fQUA=
+github.com/kamalyes/go-logger v0.4.4/go.mod h1:9eXFORVnQvdS7CB3IfEoBJCNZKlprVRaiWdDkaHbi7o=
 github.com/kamalyes/go-toolbox v0.11.80 h1:mc4bwOduG4WoNLWFjIo+WtDNXQbPKW20ABeWsVaEv68=
 github.com/kamalyes/go-toolbox v0.11.80/go.mod h1:DmXSId0yjUQ7vK08/pBwhwiiYH5UN3cChxMWogUtVfI=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
