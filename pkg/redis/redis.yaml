@@ -2,7 +2,7 @@
 # 模块名称: redis
 # 包名: redis  
 # 描述: Redis缓存
-# 生成时间: 2025-11-28 00:26:09
+# 生成时间: 2025-11-28 08:16:35
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名
@@ -23,8 +23,12 @@ max-retries: 0
 pool-size: 0
 # 最小空闲连接数，最小值为 0
 min-idle-conns: 0
+# 最大空闲连接数，最小值为 0
+max-idle-conns: 0
 # 连接最大存活时间
 max-conn-age: 0s
+# 连接超时
+dial-timeout: 0s
 # 连接池超时
 pool-timeout: 0s
 # 空闲超时
@@ -33,5 +37,9 @@ idle-timeout: 0s
 read-timeout: 0s
 # 写入超时
 write-timeout: 0s
+# 最小重试间隔
+min-retry-backoff: 0s
+# 最大重试间隔
+max-retry-backoff: 0s
 # 是否集群模式
 cluster-mode: false

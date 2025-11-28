@@ -12,8 +12,9 @@
 package cache
 
 import (
-	"github.com/kamalyes/go-config/internal"
 	"time"
+
+	"github.com/kamalyes/go-config/internal"
 )
 
 // Redis 结构体用于配置 Redis 相关参数（增强版配置）
@@ -22,19 +23,23 @@ type Redis struct {
 	// 兼容原有配置
 	Addr string `mapstructure:"addr" yaml:"addr" json:"addr" validate:"url"` // Redis 数据服务器 IP 和端口（兼容旧版）
 	// 新增增强配置
-	Addrs        []string      `mapstructure:"addrs" yaml:"addrs" json:"addrs"`                                           // Redis服务器地址列表（集群模式）
-	Username     string        `mapstructure:"username" yaml:"username" json:"username"`                                  // 用户名
-	Password     string        `mapstructure:"password" yaml:"password" json:"password"`                                  // 连接密码
-	DB           int           `mapstructure:"db" yaml:"db" json:"db" validate:"min=0"`                                   // 指定连接的数据库，默认连数据库 0
-	MaxRetries   int           `mapstructure:"max-retries" yaml:"max-retries" json:"maxRetries" validate:"min=0"`         // 最大重试次数，最小值为 0
-	PoolSize     int           `mapstructure:"pool-size" yaml:"pool-size" json:"poolSize" validate:"min=1"`               // 连接池大小，最小值为 1
-	MinIdleConns int           `mapstructure:"min-idle-conns" yaml:"min-idle-conns" json:"minIdleConns" validate:"min=0"` // 最小空闲连接数，最小值为 0
-	MaxConnAge   time.Duration `mapstructure:"max-conn-age" yaml:"max-conn-age" json:"maxConnAge"`                        // 连接最大存活时间
-	PoolTimeout  time.Duration `mapstructure:"pool-timeout" yaml:"pool-timeout" json:"poolTimeout"`                       // 连接池超时
-	IdleTimeout  time.Duration `mapstructure:"idle-timeout" yaml:"idle-timeout" json:"idleTimeout"`                       // 空闲超时
-	ReadTimeout  time.Duration `mapstructure:"read-timeout" yaml:"read-timeout" json:"readTimeout"`                       // 读取超时
-	WriteTimeout time.Duration `mapstructure:"write-timeout" yaml:"write-timeout" json:"writeTimeout"`                    // 写入超时
-	ClusterMode  bool          `mapstructure:"cluster-mode" yaml:"cluster-mode" json:"clusterMode"`                       // 是否集群模式
+	Addrs           []string      `mapstructure:"addrs" yaml:"addrs" json:"addrs"`                                                    // Redis服务器地址列表（集群模式）
+	Username        string        `mapstructure:"username" yaml:"username" json:"username"`                                           // 用户名
+	Password        string        `mapstructure:"password" yaml:"password" json:"password"`                                           // 连接密码
+	DB              int           `mapstructure:"db" yaml:"db" json:"db" validate:"min=0"`                                            // 指定连接的数据库，默认连数据库 0
+	MaxRetries      int           `mapstructure:"max-retries" yaml:"max-retries" json:"maxRetries" validate:"min=0"`                  // 最大重试次数，最小值为 0
+	PoolSize        int           `mapstructure:"pool-size" yaml:"pool-size" json:"poolSize" validate:"min=1"`                        // 连接池大小，最小值为 1
+	MinIdleConns    int           `mapstructure:"min-idle-conns" yaml:"min-idle-conns" json:"minIdleConns" validate:"min=0"`          // 最小空闲连接数，最小值为 0
+	MaxIdleConns    int           `mapstructure:"max-idle-conns" yaml:"max-idle-conns" json:"maxIdleConns" validate:"min=0"`          // 最大空闲连接数，最小值为 0
+	MaxConnAge      time.Duration `mapstructure:"max-conn-age" yaml:"max-conn-age" json:"maxConnAge"`                                 // 连接最大存活时间
+	DialTimeout     time.Duration `mapstructure:"dial-timeout" yaml:"dial-timeout" json:"dialTimeout"`                                // 连接超时
+	PoolTimeout     time.Duration `mapstructure:"pool-timeout" yaml:"pool-timeout" json:"poolTimeout"`                                // 连接池超时
+	IdleTimeout     time.Duration `mapstructure:"idle-timeout" yaml:"idle-timeout" json:"idleTimeout"`                                // 空闲超时
+	ReadTimeout     time.Duration `mapstructure:"read-timeout" yaml:"read-timeout" json:"readTimeout"`                                // 读取超时
+	WriteTimeout    time.Duration `mapstructure:"write-timeout" yaml:"write-timeout" json:"writeTimeout"`                             // 写入超时
+	MinRetryBackoff time.Duration `mapstructure:"min-retry-backoff" yaml:"min-retry-backoff" json:"minRetryBackoff" validate:"min=0"` // 最小重试间隔
+	MaxRetryBackoff time.Duration `mapstructure:"max-retry-backoff" yaml:"max-retry-backoff" json:"maxRetryBackoff" validate:"min=0"` // 最大重试间隔
+	ClusterMode     bool          `mapstructure:"cluster-mode" yaml:"cluster-mode" json:"clusterMode"`                                // 是否集群模式
 }
 
 // NewRedis 创建一个新的 Redis 实例
@@ -50,21 +55,24 @@ func NewRedis(opt *Redis) *Redis {
 // Clone 返回 Redis 配置的副本
 func (r *Redis) Clone() internal.Configurable {
 	return &Redis{
-		ModuleName:   r.ModuleName,
-		Addr:         r.Addr,
-		Addrs:        append([]string(nil), r.Addrs...),
-		Username:     r.Username,
-		Password:     r.Password,
-		DB:           r.DB,
-		MaxRetries:   r.MaxRetries,
-		PoolSize:     r.PoolSize,
-		MinIdleConns: r.MinIdleConns,
-		MaxConnAge:   r.MaxConnAge,
-		PoolTimeout:  r.PoolTimeout,
-		IdleTimeout:  r.IdleTimeout,
-		ReadTimeout:  r.ReadTimeout,
-		WriteTimeout: r.WriteTimeout,
-		ClusterMode:  r.ClusterMode,
+		ModuleName:      r.ModuleName,
+		Addr:            r.Addr,
+		Addrs:           append([]string(nil), r.Addrs...),
+		Username:        r.Username,
+		Password:        r.Password,
+		DB:              r.DB,
+		MaxRetries:      r.MaxRetries,
+		PoolSize:        r.PoolSize,
+		MinIdleConns:    r.MinIdleConns,
+		MaxIdleConns:    r.MaxIdleConns,
+		MaxConnAge:      r.MaxConnAge,
+		PoolTimeout:     r.PoolTimeout,
+		IdleTimeout:     r.IdleTimeout,
+		ReadTimeout:     r.ReadTimeout,
+		WriteTimeout:    r.WriteTimeout,
+		MinRetryBackoff: r.MinRetryBackoff,
+		MaxRetryBackoff: r.MaxRetryBackoff,
+		ClusterMode:     r.ClusterMode,
 	}
 }
 
@@ -85,11 +93,14 @@ func (r *Redis) Set(data interface{}) {
 		r.MaxRetries = configData.MaxRetries
 		r.PoolSize = configData.PoolSize
 		r.MinIdleConns = configData.MinIdleConns
+		r.MaxIdleConns = configData.MaxIdleConns
 		r.MaxConnAge = configData.MaxConnAge
 		r.PoolTimeout = configData.PoolTimeout
 		r.IdleTimeout = configData.IdleTimeout
 		r.ReadTimeout = configData.ReadTimeout
 		r.WriteTimeout = configData.WriteTimeout
+		r.MinRetryBackoff = configData.MinRetryBackoff
+		r.MaxRetryBackoff = configData.MaxRetryBackoff
 		r.ClusterMode = configData.ClusterMode
 	}
 }
@@ -114,6 +125,9 @@ func (r *Redis) Validate() error {
 	if r.MinIdleConns < 0 {
 		r.MinIdleConns = 0
 	}
+	if r.MaxIdleConns < 0 {
+		r.MaxIdleConns = 0
+	}
 	if r.MaxConnAge <= 0 {
 		r.MaxConnAge = 30 * time.Minute
 	}
@@ -129,6 +143,12 @@ func (r *Redis) Validate() error {
 	if r.WriteTimeout <= 0 {
 		r.WriteTimeout = 3 * time.Second
 	}
+	if r.MinRetryBackoff <= 0 {
+		r.MinRetryBackoff = 8 * time.Millisecond
+	}
+	if r.MaxRetryBackoff <= 0 {
+		r.MaxRetryBackoff = 512 * time.Millisecond
+	}
 
 	return internal.ValidateStruct(r)
 }
@@ -136,21 +156,24 @@ func (r *Redis) Validate() error {
 // DefaultRedisConfig 返回默认Redis配置
 func DefaultRedisConfig() Redis {
 	return Redis{
-		ModuleName:   "redis",
-		Addr:         "127.0.0.1:6379",
-		Addrs:        []string{"127.0.0.1:6379"},
-		Username:     "default",
-		Password:     "redis123456",
-		DB:           0,
-		MaxRetries:   3,
-		PoolSize:     10,
-		MinIdleConns: 0,
-		MaxConnAge:   30 * time.Minute,
-		PoolTimeout:  4 * time.Second,
-		IdleTimeout:  5 * time.Minute,
-		ReadTimeout:  3 * time.Second,
-		WriteTimeout: 3 * time.Second,
-		ClusterMode:  false,
+		ModuleName:      "redis",
+		Addr:            "127.0.0.1:6379",
+		Addrs:           []string{"127.0.0.1:6379"},
+		Username:        "default",
+		Password:        "redis123456",
+		DB:              0,
+		MaxRetries:      3,
+		PoolSize:        10,
+		MinIdleConns:    0,
+		MaxIdleConns:    20,
+		MaxConnAge:      30 * time.Minute,
+		PoolTimeout:     4 * time.Second,
+		IdleTimeout:     5 * time.Minute,
+		ReadTimeout:     3 * time.Second,
+		WriteTimeout:    3 * time.Second,
+		MinRetryBackoff: 8 * time.Millisecond,
+		MaxRetryBackoff: 512 * time.Millisecond,
+		ClusterMode:     false,
 	}
 }
 
@@ -251,6 +274,18 @@ func (r *Redis) WithReadTimeout(readTimeout time.Duration) *Redis {
 // WithWriteTimeout 设置写入超时
 func (r *Redis) WithWriteTimeout(writeTimeout time.Duration) *Redis {
 	r.WriteTimeout = writeTimeout
+	return r
+}
+
+// WithMinRetryBackoff 设置最小重试间隔
+func (r *Redis) WithMinRetryBackoff(minRetryBackoff time.Duration) *Redis {
+	r.MinRetryBackoff = minRetryBackoff
+	return r
+}
+
+// WithMaxRetryBackoff 设置最大重试间隔
+func (r *Redis) WithMaxRetryBackoff(maxRetryBackoff time.Duration) *Redis {
+	r.MaxRetryBackoff = maxRetryBackoff
 	return r
 }
 

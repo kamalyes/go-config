@@ -2,7 +2,7 @@
 // 模块名称: redis
 // 包名: redis  
 // 描述: Redis缓存
-// 生成时间: 2025-11-28 00:26:09
+// 生成时间: 2025-11-28 08:16:35
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -15,10 +15,14 @@
   "maxRetries": 0,
   "poolSize": 0,
   "minIdleConns": 0,
+  "maxIdleConns": 0,
   "maxConnAge": 0,
+  "dialTimeout": 0,
   "poolTimeout": 0,
   "idleTimeout": 0,
   "readTimeout": 0,
   "writeTimeout": 0,
+  "minRetryBackoff": 0,
+  "maxRetryBackoff": 0,
   "clusterMode": false
 }

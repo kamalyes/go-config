@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2025-11-28 00:26:08
+# 生成时间: 2025-11-28 08:16:35
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -92,11 +92,15 @@ cache:
         max-retries: 3
         pool-size: 10
         min-idle-conns: 0
+        max-idle-conns: 20
         max-conn-age: 30m0s
+        dial-timeout: 0s
         pool-timeout: 4s
         idle-timeout: 5m0s
         read-timeout: 3s
         write-timeout: 3s
+        min-retry-backoff: 8ms
+        max-retry-backoff: 512ms
         cluster-mode: false
     sharded:
         # 模块名称
