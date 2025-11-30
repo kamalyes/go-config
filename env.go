@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2023-07-28 00:50:58
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 11:08:23
+ * @LastEditTime: 2025-11-30 08:22:08
  * @FilePath: \go-config\env.go
  * @Description: 重构后的环境管理器，提供线程安全的环境管理和别名支持
  *
@@ -44,6 +44,68 @@ const (
 
 	DefaultEnv EnvironmentType = EnvDevelopment
 )
+
+// DefaultEnvPrefixes 全局环境前缀映射（统一定义，避免重复）
+// 覆盖常见的环境命名约定，支持多种风格：短名、全名、连字符等
+var DefaultEnvPrefixes = map[EnvironmentType][]string{
+	EnvDevelopment: {"dev", "develop", "development"},
+	EnvLocal:       {"local", "localhost"},
+	EnvTest:        {"test", "testing", "qa", "sit"},
+	EnvStaging:     {"staging", "stage", "stg", "pre", "preprod", "pre-prod", "fat", "gray", "grey", "canary"},
+	EnvProduction:  {"prod", "production", "prd", "release", "live", "online", "master", "main"},
+	EnvDebug:       {"debug", "debugging", "dbg"},
+	EnvDemo:        {"demo", "demonstration", "showcase", "preview", "sandbox"},
+	EnvUAT:         {"uat", "acceptance", "user-acceptance", "beta"},
+	EnvIntegration: {"integration", "int", "ci", "integration-test", "integ"},
+}
+
+// DefaultSupportedExtensions 默认支持的配置文件扩展名
+var DefaultSupportedExtensions = []string{".yaml", ".yml", ".json", ".toml", ".properties"}
+
+// DefaultConfigNames 默认配置文件名
+var DefaultConfigNames = []string{"config", "application", "app", "gateway", "service"}
+
+// envPrefixesMutex 保护 DefaultEnvPrefixes 的并发访问
+var envPrefixesMutex sync.RWMutex
+
+// RegisterEnvPrefixes 注册自定义环境前缀（包级别便捷函数）
+// 内部调用 GetGlobalEnvManager().RegisterEnvironment()，保持逻辑统一
+// 示例:
+//
+//	func init() {
+//	    goconfig.RegisterEnvPrefixes("custom", "custom", "my-env", "myenv")
+//	}
+func RegisterEnvPrefixes(env EnvironmentType, prefixes ...string) {
+	GetGlobalEnvManager().RegisterEnvironment(env, prefixes...)
+}
+
+// GetEnvPrefixes 获取指定环境的前缀列表
+func GetEnvPrefixes(env EnvironmentType) []string {
+	envPrefixesMutex.RLock()
+	defer envPrefixesMutex.RUnlock()
+
+	if prefixes, ok := DefaultEnvPrefixes[env]; ok {
+		// 返回副本，避免外部修改
+		result := make([]string, len(prefixes))
+		copy(result, prefixes)
+		return result
+	}
+	return nil
+}
+
+// ListAllEnvPrefixes 列出所有已注册的环境前缀
+func ListAllEnvPrefixes() map[EnvironmentType][]string {
+	envPrefixesMutex.RLock()
+	defer envPrefixesMutex.RUnlock()
+
+	result := make(map[EnvironmentType][]string)
+	for env, prefixes := range DefaultEnvPrefixes {
+		copied := make([]string, len(prefixes))
+		copy(copied, prefixes)
+		result[env] = copied
+	}
+	return result
+}
 
 // String 返回环境类型的字符串表示
 func (e EnvironmentType) String() string {
@@ -92,37 +154,15 @@ func NewEnvironmentManager() *EnvironmentManager {
 }
 
 // registerDefaultEnvironments 注册默认环境
+// 直接从 DefaultEnvPrefixes 读取，保持单一数据源
 func (em *EnvironmentManager) registerDefaultEnvironments() {
-	// 开发环境及其别名
-	em.RegisterEnvironment(EnvDevelopment, "dev", "development", "local", "localhost")
-
-	// 测试环境及其别名
-	em.RegisterEnvironment(EnvTest, "test", "testing", "qa", "sit")
-
-	// 预发布环境及其别名
-	em.RegisterEnvironment(EnvStaging, "staging", "stage", "pre-prod", "fat")
-
-	// 用户验收测试环境及其别名
-	em.RegisterEnvironment(EnvUAT, "uat", "acceptance", "user-acceptance")
-
-	// 生产环境及其别名
-	em.RegisterEnvironment(EnvProduction, "prod", "production", "live", "prd")
-
-	// 本地环境及其别名
-	em.RegisterEnvironment(EnvLocal, "local", "localhost", "dev-local")
-
-	// 调试环境及其别名
-	em.RegisterEnvironment(EnvDebug, "debug", "debugging", "dev-debug")
-
-	// 演示环境及其别名
-	em.RegisterEnvironment(EnvDemo, "demo", "demonstration", "showcase")
-
-	// 集成环境及其别名
-	em.RegisterEnvironment(EnvIntegration, "integration", "int", "integration-test")
+	for envType, prefixes := range DefaultEnvPrefixes {
+		em.registerEnvironmentInternal(envType, prefixes...)
+	}
 }
 
-// RegisterEnvironment 注册环境类型及其别名
-func (em *EnvironmentManager) RegisterEnvironment(envType EnvironmentType, aliases ...string) {
+// registerEnvironmentInternal 内部注册方法，不会反向更新 DefaultEnvPrefixes
+func (em *EnvironmentManager) registerEnvironmentInternal(envType EnvironmentType, aliases ...string) {
 	em.mu.Lock()
 	defer em.mu.Unlock()
 
@@ -137,6 +177,18 @@ func (em *EnvironmentManager) RegisterEnvironment(envType EnvironmentType, alias
 
 	em.environments[envType] = allAliases
 	log.Printf("注册环境类型: %s, 别名: %v", envType, allAliases)
+}
+
+// RegisterEnvironment 注册环境类型及其别名
+// 同时会更新 DefaultEnvPrefixes，保持环境别名和配置文件前缀的一致性
+func (em *EnvironmentManager) RegisterEnvironment(envType EnvironmentType, aliases ...string) {
+	// 先更新 DefaultEnvPrefixes
+	envPrefixesMutex.Lock()
+	DefaultEnvPrefixes[envType] = aliases
+	envPrefixesMutex.Unlock()
+
+	// 再注册到环境管理器
+	em.registerEnvironmentInternal(envType, aliases...)
 }
 
 // IsRegistered 检查环境类型是否已注册
@@ -186,6 +238,12 @@ func (em *EnvironmentManager) DetectEnvironmentType(envString string) (Environme
 
 // 全局环境管理器实例
 var defaultEnvManager = NewEnvironmentManager()
+
+// GetGlobalEnvManager 获取全局环境管理器
+// 可用于注册自定义环境类型及其别名
+func GetGlobalEnvManager() *EnvironmentManager {
+	return defaultEnvManager
+}
 
 // EnvironmentCallback 环境变更回调函数类型
 type EnvironmentCallback func(oldEnv, newEnv EnvironmentType) error

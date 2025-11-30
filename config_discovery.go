@@ -43,14 +43,9 @@ type ConfigFileInfo struct {
 // NewConfigDiscovery 创建配置文件发现器
 func NewConfigDiscovery() *ConfigDiscovery {
 	return &ConfigDiscovery{
-		SupportedExtensions: []string{".yaml", ".yml", ".json", ".toml", ".properties"},
-		DefaultNames:        []string{"config", "application", "app", "gateway", "service"},
-		EnvPrefixes: map[EnvironmentType][]string{
-			EnvDevelopment: {"dev", "development", "local"},
-			EnvTest:        {"test", "testing"},
-			EnvStaging:     {"staging", "stage", "pre", "preprod"},
-			EnvProduction:  {"prod", "production", "release"},
-		},
+		SupportedExtensions: DefaultSupportedExtensions,
+		DefaultNames:        DefaultConfigNames,
+		EnvPrefixes:         DefaultEnvPrefixes,
 	}
 }
 

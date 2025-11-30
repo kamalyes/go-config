@@ -242,16 +242,11 @@ func (b *ManagerBuilder[T]) resolveByPattern(discovery *ConfigDiscovery) (string
 
 // resolveByPrefix 使用自定义前缀解析
 func (b *ManagerBuilder[T]) resolveByPrefix(discovery *ConfigDiscovery) (string, error) {
-	// 创建专用的配置发现器
+	// 创建专用的配置发现器（使用全局定义的环境前缀）
 	prefixDiscovery := &ConfigDiscovery{
-		SupportedExtensions: []string{".yaml", ".yml", ".json", ".toml", ".properties"},
+		SupportedExtensions: DefaultSupportedExtensions,
 		DefaultNames:        []string{b.configPrefix},
-		EnvPrefixes: map[EnvironmentType][]string{
-			EnvDevelopment: {"dev", "development", "local"},
-			EnvTest:        {"test", "testing"},
-			EnvStaging:     {"staging", "stage", "pre", "preprod"},
-			EnvProduction:  {"prod", "production", "release"},
-		},
+		EnvPrefixes:         DefaultEnvPrefixes,
 	}
 
 	configFiles, err := prefixDiscovery.DiscoverConfigFiles(b.searchPath, b.environment)
@@ -267,7 +262,8 @@ func (b *ManagerBuilder[T]) resolveByPrefix(discovery *ConfigDiscovery) (string,
 		}
 	}
 
-	return "", fmt.Errorf("未找到前缀为 '%s' 的配置文件", b.configPrefix)
+	// 找不到配置文件时，打印支持的环境前缀帮助用户排查
+	return "", b.buildConfigNotFoundError(b.configPrefix)
 }
 
 // resolveByAutoDiscovery 使用自动发现解析
@@ -284,7 +280,56 @@ func (b *ManagerBuilder[T]) resolveByAutoDiscovery(discovery *ConfigDiscovery) (
 		}
 	}
 
-	return "", fmt.Errorf("在路径 '%s' 中未找到有效配置文件", b.searchPath)
+	// 找不到配置文件时，打印支持的环境前缀帮助用户排查
+	return "", b.buildConfigNotFoundError("")
+}
+
+// buildConfigNotFoundError 构建配置文件未找到的详细错误信息
+func (b *ManagerBuilder[T]) buildConfigNotFoundError(prefix string) error {
+	var msg string
+	if prefix != "" {
+		msg = fmt.Sprintf("未找到前缀为 '%s' 的配置文件", prefix)
+	} else {
+		msg = fmt.Sprintf("在路径 '%s' 中未找到有效配置文件", b.searchPath)
+	}
+
+	// 获取当前环境支持的后缀
+	var supportedSuffixes []string
+	if suffixes, ok := DefaultEnvPrefixes[b.environment]; ok {
+		supportedSuffixes = suffixes
+	}
+
+	// 构建详细错误信息
+	logger.GetGlobalLogger().Error("❌ %s", msg)
+	logger.GetGlobalLogger().Error("📍 搜索路径: %s", b.searchPath)
+	logger.GetGlobalLogger().Error("🌍 当前环境: %s", b.environment)
+
+	if len(supportedSuffixes) > 0 {
+		logger.GetGlobalLogger().Error("📋 当前环境支持的配置文件后缀: %v", supportedSuffixes)
+		if prefix != "" {
+			logger.GetGlobalLogger().Error("💡 建议创建以下配置文件之一:")
+			for _, suffix := range supportedSuffixes {
+				for _, ext := range DefaultSupportedExtensions[:2] { // 只显示 .yaml 和 .yml
+					logger.GetGlobalLogger().Error("   - %s-%s%s", prefix, suffix, ext)
+				}
+			}
+		}
+	} else {
+		logger.GetGlobalLogger().Error("⚠️ 当前环境 '%s' 未在 DefaultEnvPrefixes 中注册", b.environment)
+		logger.GetGlobalLogger().Error("📋 已注册的环境及其后缀:")
+		for env, suffixes := range DefaultEnvPrefixes {
+			logger.GetGlobalLogger().Error("   - %s: %v", env, suffixes)
+		}
+		logger.GetGlobalLogger().Error("")
+		logger.GetGlobalLogger().Error("💡 如需注册自定义环境，请在程序启动前注册:")
+		logger.GetGlobalLogger().Error("")
+		logger.GetGlobalLogger().Error("   示例代码:")
+		logger.GetGlobalLogger().Error("   func init() {")
+		logger.GetGlobalLogger().Error("       goconfig.RegisterEnvPrefixes(\"%s\", \"%s\", \"custom-alias\")", b.environment, b.environment)
+		logger.GetGlobalLogger().Error("   }")
+	}
+
+	return fmt.Errorf("%s (环境: %s, 搜索路径: %s)", msg, b.environment, b.searchPath)
 }
 
 // resolveByDirectPath 使用直接路径解析
