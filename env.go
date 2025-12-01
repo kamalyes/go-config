@@ -239,6 +239,13 @@ func (em *EnvironmentManager) DetectEnvironmentType(envString string) (Environme
 // 全局环境管理器实例
 var defaultEnvManager = NewEnvironmentManager()
 
+// init 包初始化时自动初始化全局环境实例
+func init() {
+	// 自动初始化全局环境实例
+	initGlobalEnvironment()
+	log.Printf("go-config包已自动初始化，当前环境: %s", GetCurrentEnvironment())
+}
+
 // GetGlobalEnvManager 获取全局环境管理器
 // 可用于注册自定义环境类型及其别名
 func GetGlobalEnvManager() *EnvironmentManager {
@@ -520,15 +527,23 @@ func (e *Environment) StopWatch() {
 	close(e.quit) // 关闭 quit 信道以停止监控
 }
 
-// GetEnvironment 从上下文中获取环境变量
+// GetEnvironment 从上下文中获取环境变量并解析为正确的环境类型
 func GetEnvironment() EnvironmentType {
 	// 尝试获取环境变量
-	currentOsEnv, err := getEnv(envContextKey) // 使用普通赋值而非短变量声明
+	currentOsEnv, err := getEnv(envContextKey)
 	if err != nil {
 		log.Printf("获取环境变量 %s 失败: %v", envContextKey, err)
 		return DefaultEnv
 	}
-	return currentOsEnv // 确保返回获取到的环境变量值
+
+	// 尝试检测环境类型
+	if detectedEnv, found := defaultEnvManager.DetectEnvironmentType(currentOsEnv.String()); found {
+		return detectedEnv
+	}
+
+	// 如果检测失败，返回原始值
+	log.Printf("警告: 环境变量 %s='%s' 无法映射到已知环境类型，使用原始值", envContextKey, currentOsEnv)
+	return currentOsEnv
 }
 
 // setEnv 设置环境变量并记录日志
@@ -593,4 +608,159 @@ func DefaultEnvironment() Environment {
 		quit:           make(chan struct{}),
 		callbacks:      make(map[string]*EnvironmentCallbackInfo),
 	}
+}
+
+// 全局环境实例，自动初始化
+var globalEnvironment *Environment
+var globalEnvOnce sync.Once
+
+// initGlobalEnvironment 初始化全局环境实例
+func initGlobalEnvironment() {
+	globalEnvOnce.Do(func() {
+		globalEnvironment = NewEnvironment()
+		log.Printf("全局环境实例已自动初始化，当前环境: %s", globalEnvironment.Value)
+	})
+}
+
+// GetGlobalEnvironment 获取全局环境实例，如果未初始化则自动初始化
+func GetGlobalEnvironment() *Environment {
+	initGlobalEnvironment()
+	return globalEnvironment
+}
+
+// GetCurrentEnvironment 获取当前环境类型（便捷函数）
+func GetCurrentEnvironment() EnvironmentType {
+	globalEnv := GetGlobalEnvironment()
+	globalEnv.mu.RLock()
+	defer globalEnv.mu.RUnlock()
+	return globalEnv.Value
+}
+
+// SetCurrentEnvironment 设置当前环境类型（便捷函数）
+func SetCurrentEnvironment(env EnvironmentType) {
+	globalEnv := GetGlobalEnvironment()
+	globalEnv.SetEnvironment(env)
+	// 立即更新全局环境实例的值
+	globalEnv.mu.Lock()
+	globalEnv.Value = env
+	globalEnv.mu.Unlock()
+}
+
+// 环境类型判断函数
+
+// IsDev 判断当前环境是否为开发环境
+func IsDev() bool {
+	env := GetCurrentEnvironment()
+	return defaultEnvManager.IsEnvironment(env.String(), EnvDevelopment)
+}
+
+// IsTest 判断当前环境是否为测试环境
+func IsTest() bool {
+	env := GetCurrentEnvironment()
+	return defaultEnvManager.IsEnvironment(env.String(), EnvTest)
+}
+
+// IsStaging 判断当前环境是否为预发布环境
+func IsStaging() bool {
+	env := GetCurrentEnvironment()
+	return defaultEnvManager.IsEnvironment(env.String(), EnvStaging)
+}
+
+// IsUAT 判断当前环境是否为用户验收测试环境
+func IsUAT() bool {
+	env := GetCurrentEnvironment()
+	return defaultEnvManager.IsEnvironment(env.String(), EnvUAT)
+}
+
+// IsProduction 判断当前环境是否为生产环境
+func IsProduction() bool {
+	env := GetCurrentEnvironment()
+	return defaultEnvManager.IsEnvironment(env.String(), EnvProduction)
+}
+
+// IsLocal 判断当前环境是否为本地环境
+func IsLocal() bool {
+	env := GetCurrentEnvironment()
+	return defaultEnvManager.IsEnvironment(env.String(), EnvLocal)
+}
+
+// IsDebug 判断当前环境是否为调试环境
+func IsDebug() bool {
+	env := GetCurrentEnvironment()
+	return defaultEnvManager.IsEnvironment(env.String(), EnvDebug)
+}
+
+// IsDemo 判断当前环境是否为演示环境
+func IsDemo() bool {
+	env := GetCurrentEnvironment()
+	return defaultEnvManager.IsEnvironment(env.String(), EnvDemo)
+}
+
+// IsIntegration 判断当前环境是否为集成环境
+func IsIntegration() bool {
+	env := GetCurrentEnvironment()
+	return defaultEnvManager.IsEnvironment(env.String(), EnvIntegration)
+}
+
+// IsEnvironment 通用环境判断函数
+// env: 要检查的环境类型
+func IsEnvironment(env EnvironmentType) bool {
+	currentEnv := GetCurrentEnvironment()
+	return defaultEnvManager.IsEnvironment(currentEnv.String(), env)
+}
+
+// IsAnyOf 判断当前环境是否为指定环境类型中的任意一种
+// envs: 要检查的环境类型列表
+func IsAnyOf(envs ...EnvironmentType) bool {
+	currentEnv := GetCurrentEnvironment()
+	for _, env := range envs {
+		if defaultEnvManager.IsEnvironment(currentEnv.String(), env) {
+			return true
+		}
+	}
+	return false
+}
+
+// GetEnvironmentLevel 获取环境级别（用于比较环境的重要程度）
+// 数字越小表示环境级别越高（生产环境最高）
+func GetEnvironmentLevel(env EnvironmentType) int {
+	switch env {
+	case EnvLocal, EnvDebug:
+		return 1
+	case EnvDevelopment:
+		return 2
+	case EnvTest:
+		return 3
+	case EnvIntegration:
+		return 4
+	case EnvStaging, EnvUAT:
+		return 5
+	case EnvDemo:
+		return 6
+	case EnvProduction:
+		return 10
+	default:
+		return 0
+	}
+}
+
+// GetCurrentEnvironmentLevel 获取当前环境级别
+func GetCurrentEnvironmentLevel() int {
+	return GetEnvironmentLevel(GetCurrentEnvironment())
+}
+
+// IsProductionLevel 判断当前环境是否为生产级别
+func IsProductionLevel() bool {
+	return GetCurrentEnvironmentLevel() >= 10
+}
+
+// IsTestingLevel 判断当前环境是否为测试级别
+func IsTestingLevel() bool {
+	level := GetCurrentEnvironmentLevel()
+	return level >= 3 && level < 10
+}
+
+// IsDevelopmentLevel 判断当前环境是否为开发级别
+func IsDevelopmentLevel() bool {
+	return GetCurrentEnvironmentLevel() <= 2
 }

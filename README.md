@@ -172,6 +172,37 @@ headers:
 
 现在修改配置文件，程序会自动检测变化并重载配置！
 
+## 🌟 环境管理功能
+
+- ✅ **自动环境初始化** - 包导入时自动初始化，无需手动调用
+- 🎯 **便捷判断函数** - 提供 `IsDev()`, `IsProduction()` 等直观的环境判断函数
+- 📊 **环境级别管理** - 按重要程度对环境进行分级管理
+- 🔄 **环境变更监听** - 支持环境变更回调机制
+- 🛠️ **自定义环境注册** - 灵活注册自定义环境类型
+
+### 快速使用环境判断
+
+```go
+import goconfig "github.com/kamalyes/go-config"
+
+func main() {
+    // 无需手动初始化，直接使用
+    if goconfig.IsDev() {
+        log.SetLevel(log.DebugLevel)
+    } else if goconfig.IsProduction() {
+        log.SetLevel(log.WarnLevel)
+    }
+    
+    // 环境级别判断
+    if goconfig.IsProductionLevel() {
+        // 启用生产级别的监控和安全功能
+        enableProductionFeatures()
+    }
+}
+```
+
+**📖 详细使用说明请参考：[环境管理器使用文档](ENV_USAGE.md)**
+
 ## 🎯 支持的配置模块
 
 | 类别 | 模块 | 描述 |

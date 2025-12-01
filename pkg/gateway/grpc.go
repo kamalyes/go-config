@@ -40,6 +40,7 @@ type GRPCServer struct {
 type GRPCClient struct {
 	ServiceName       string   `mapstructure:"service-name" yaml:"service-name" json:"serviceName"`                     // 服务名称
 	Endpoints         []string `mapstructure:"endpoints" yaml:"endpoints" json:"endpoints"`                             // 服务端点列表
+	Network           string   `mapstructure:"network" yaml:"network" json:"network"`                                   // 网络类型 (tcp, tcp4, tcp6, unix)
 	MaxRecvMsgSize    int      `mapstructure:"max-recv-msg-size" yaml:"max-recv-msg-size" json:"maxRecvMsgSize"`        // 最大接收消息大小(字节)
 	MaxSendMsgSize    int      `mapstructure:"max-send-msg-size" yaml:"max-send-msg-size" json:"maxSendMsgSize"`        // 最大发送消息大小(字节)
 	KeepaliveTime     int      `mapstructure:"keepalive-time" yaml:"keepalive-time" json:"keepaliveTime"`               // Keepalive时间(秒)
@@ -103,6 +104,7 @@ func DefaultGRPCClient(serviceName string, endpoints []string) *GRPCClient {
 	return &GRPCClient{
 		ServiceName:       serviceName,
 		Endpoints:         endpoints,
+		Network:           "tcp4", // 默认使用 tcp4 强制 IPv4
 		MaxRecvMsgSize:    4 * 1024 * 1024, // 4MB
 		MaxSendMsgSize:    4 * 1024 * 1024, // 4MB
 		KeepaliveTime:     30,
@@ -151,6 +153,7 @@ func (g *GRPCClient) Clone() *GRPCClient {
 	return &GRPCClient{
 		ServiceName:       g.ServiceName,
 		Endpoints:         endpoints,
+		Network:           g.Network,
 		MaxRecvMsgSize:    g.MaxRecvMsgSize,
 		MaxSendMsgSize:    g.MaxSendMsgSize,
 		KeepaliveTime:     g.KeepaliveTime,
@@ -288,5 +291,11 @@ func (g *GRPCClient) WithEndpoints(endpoints []string) *GRPCClient {
 // AddEndpoint 添加服务端点
 func (g *GRPCClient) AddEndpoint(endpoint string) *GRPCClient {
 	g.Endpoints = append(g.Endpoints, endpoint)
+	return g
+}
+
+// WithNetwork 设置网络类型
+func (g *GRPCClient) WithNetwork(network string) *GRPCClient {
+	g.Network = network
 	return g
 }
