@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-11 18:00:00
+ * @LastEditTime: 2025-12-04 13:20:28
  * @FilePath: \go-config\pkg\logging\logging.go
  * @Description: 日志中间件配置模块
  *
@@ -15,19 +15,23 @@ import "github.com/kamalyes/go-config/internal"
 
 // Logging 日志中间件配置
 type Logging struct {
-	ModuleName     string   `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`             // 模块名称
-	Enabled        bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                        // 是否启用日志
-	Level          string   `mapstructure:"level" yaml:"level" json:"level"`                              // 日志级别
-	Format         string   `mapstructure:"format" yaml:"format" json:"format"`                           // 日志格式 (json, text)
-	Output         string   `mapstructure:"output" yaml:"output" json:"output"`                           // 输出目标 (stdout, file)
-	FilePath       string   `mapstructure:"file-path" yaml:"file-path" json:"filePath"`                   // 日志文件路径
-	MaxSize        int      `mapstructure:"max-size" yaml:"max-size" json:"maxSize"`                      // 最大文件大小(MB)
-	MaxBackups     int      `mapstructure:"max-backups" yaml:"max-backups" json:"maxBackups"`             // 最大备份文件数
-	MaxAge         int      `mapstructure:"max-age" yaml:"max-age" json:"maxAge"`                         // 最大保存天数
-	Compress       bool     `mapstructure:"compress" yaml:"compress" json:"compress"`                     // 是否压缩
-	SkipPaths      []string `mapstructure:"skip-paths" yaml:"skip-paths" json:"skipPaths"`                // 跳过的路径
-	EnableRequest  bool     `mapstructure:"enable-request" yaml:"enable-request" json:"enableRequest"`    // 是否记录请求
-	EnableResponse bool     `mapstructure:"enable-response" yaml:"enable-response" json:"enableResponse"` // 是否记录响应
+	ModuleName           string   `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                 // 模块名称
+	Enabled              bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                            // 是否启用日志
+	Level                string   `mapstructure:"level" yaml:"level" json:"level"`                                                  // 日志级别
+	Format               string   `mapstructure:"format" yaml:"format" json:"format"`                                               // 日志格式 (json, text)
+	Output               string   `mapstructure:"output" yaml:"output" json:"output"`                                               // 输出目标 (stdout, file)
+	FilePath             string   `mapstructure:"file-path" yaml:"file-path" json:"filePath"`                                       // 日志文件路径
+	MaxSize              int      `mapstructure:"max-size" yaml:"max-size" json:"maxSize"`                                          // 最大文件大小(MB)
+	MaxBackups           int      `mapstructure:"max-backups" yaml:"max-backups" json:"maxBackups"`                                 // 最大备份文件数
+	MaxAge               int      `mapstructure:"max-age" yaml:"max-age" json:"maxAge"`                                             // 最大保存天数
+	Compress             bool     `mapstructure:"compress" yaml:"compress" json:"compress"`                                         // 是否压缩
+	SkipPaths            []string `mapstructure:"skip-paths" yaml:"skip-paths" json:"skipPaths"`                                    // 跳过的路径
+	EnableRequest        bool     `mapstructure:"enable-request" yaml:"enable-request" json:"enableRequest"`                        // 是否记录请求
+	EnableResponse       bool     `mapstructure:"enable-response" yaml:"enable-response" json:"enableResponse"`                     // 是否记录响应
+	MaxBodySize          int      `mapstructure:"max-body-size" yaml:"max-body-size" json:"maxBodySize"`                            // 最大日志体大小(字节)
+	SensitiveMask        string   `mapstructure:"sensitive-mask" yaml:"sensitive-mask" json:"sensitiveMask"`                        // 敏感数据掩码
+	SensitiveKeys        []string `mapstructure:"sensitive-keys" yaml:"sensitive-keys" json:"sensitiveKeys"`                        // 敏感字段关键词
+	LoggableContentTypes []string `mapstructure:"loggable-content-types" yaml:"loggable-content-types" json:"loggableContentTypes"` // 可记录的 Content-Type
 }
 
 // Default 创建默认日志配置
@@ -43,9 +47,17 @@ func Default() *Logging {
 		MaxBackups:     3,
 		MaxAge:         28,
 		Compress:       true,
-		SkipPaths:      []string{"/health", "/metrics"},
+		SkipPaths:      []string{"/health", "/metrics", "/favicon.ico", "/ping", "/readiness", "/liveness"},
 		EnableRequest:  true,
 		EnableResponse: false,
+		MaxBodySize:    2048,
+		SensitiveMask:  "***REDACTED***",
+		SensitiveKeys: []string{
+			"password", "passwd", "token", "access_token", "refresh_token",
+			"secret", "authorization", "api_key", "apikey",
+			"mobile", "phone", "id_card", "credit_card",
+		},
+		LoggableContentTypes: []string{"application/json", "application/xml", "application/x-www-form-urlencoded", "text/"},
 	}
 }
 
@@ -76,8 +88,12 @@ func (l *Logging) Clone() internal.Configurable {
 		Compress:       l.Compress,
 		EnableRequest:  l.EnableRequest,
 		EnableResponse: l.EnableResponse,
+		MaxBodySize:    l.MaxBodySize,
+		SensitiveMask:  l.SensitiveMask,
 	}
 	clone.SkipPaths = append([]string(nil), l.SkipPaths...)
+	clone.SensitiveKeys = append([]string(nil), l.SensitiveKeys...)
+	clone.LoggableContentTypes = append([]string(nil), l.LoggableContentTypes...)
 	return clone
 }
 
@@ -187,8 +203,7 @@ func (l *Logging) Validate() error {
 
 // Enable 启用日志中间件
 func (l *Logging) Enable() *Logging {
-	l.Enabled = true
-	return l
+	return l.EnableLogging()
 }
 
 // Disable 禁用日志中间件

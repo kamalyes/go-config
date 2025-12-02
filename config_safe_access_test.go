@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-15 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-23 17:49:08
+ * @LastEditTime: 2025-12-04 13:22:40
  * @FilePath: \go-config\config_safe_access_test.go
  * @Description: 配置安全访问辅助工具测试
  *
@@ -12,6 +12,9 @@
 package goconfig
 
 import (
+	"testing"
+	"time"
+
 	"github.com/kamalyes/go-config/pkg/captcha"
 	"github.com/kamalyes/go-config/pkg/consul"
 	"github.com/kamalyes/go-config/pkg/email"
@@ -34,8 +37,6 @@ import (
 	"github.com/kamalyes/go-config/pkg/youzan"
 	"github.com/kamalyes/go-config/pkg/zap"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 // TestSafeConfig_BasicAccess 测试基本安全访问
@@ -573,9 +574,6 @@ func TestSafeConfig_WSCConfig(t *testing.T) {
 	wscConfig.NodeIP = "192.168.1.1"
 	wscConfig.NodePort = 8080
 	wscConfig.HeartbeatInterval = 30 // 秒
-	wscConfig.Distributed.Enabled = true
-	wscConfig.Group.Enabled = true
-	wscConfig.Enhancement.Enabled = true
 
 	safeConfig := SafeConfig(wscConfig)
 

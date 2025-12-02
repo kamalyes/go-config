@@ -111,6 +111,9 @@ configs/*.yaml export-ignore
 *-local.yaml export-ignore
 *-local.json export-ignore
 
+# Exclude test files from archives
+*_test.go export-ignore
+
 # Exclude development directories from archives
 examples/** export-ignore
 scripts/** export-ignore
