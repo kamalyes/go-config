@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2025-12-02 09:21:01
+# 生成时间: 2025-12-02 09:38:17
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -795,6 +795,7 @@ wsc:
     enabled: false
     node-ip: 0.0.0.0
     node-port: 8080
+    network: tcp
     heartbeat-interval: 30
     client-timeout: 90
     message-buffer-size: 256

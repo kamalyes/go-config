@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-13 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-12-02 09:21:45
+ * @LastEditTime: 2025-12-02 09:37:10
  * @FilePath: \go-config\pkg\wsc\wsc.go
  * @Description: WebSocket 通信核心配置模块
  *
@@ -24,6 +24,7 @@ type WSC struct {
 	Enabled            bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                      // 是否启用
 	NodeIP             string        `mapstructure:"node-ip" yaml:"node-ip" json:"nodeIp"`                                       // 节点IP
 	NodePort           int           `mapstructure:"node-port" yaml:"node-port" json:"nodePort"`                                 // 节点端口
+	Network            string        `mapstructure:"network" yaml:"network" json:"network"`                                      // 网络类型: tcp, tcp4, tcp6
 	HeartbeatInterval  int           `mapstructure:"heartbeat-interval" yaml:"heartbeat-interval" json:"heartbeatInterval"`      // 心跳间隔(秒)
 	ClientTimeout      int           `mapstructure:"client-timeout" yaml:"client-timeout" json:"clientTimeout"`                  // 客户端超时(秒)
 	MessageBufferSize  int           `mapstructure:"message-buffer-size" yaml:"message-buffer-size" json:"messageBufferSize"`    // 消息缓冲区大小
@@ -107,6 +108,7 @@ func Default() *WSC {
 	return &WSC{
 		Enabled:            false,
 		NodeIP:             "0.0.0.0",
+		Network:            "tcp",
 		NodePort:           8080,
 		HeartbeatInterval:  30,
 		ClientTimeout:      90,
@@ -300,6 +302,12 @@ func (c *WSC) WithNodeIP(ip string) *WSC {
 // WithNodePort 设置节点端口
 func (c *WSC) WithNodePort(port int) *WSC {
 	c.NodePort = port
+	return c
+}
+
+// WithNetwork 设置网络类型
+func (c *WSC) WithNetwork(network string) *WSC {
+	c.Network = network
 	return c
 }
 
