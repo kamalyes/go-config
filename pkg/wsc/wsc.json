@@ -2,14 +2,13 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2025-11-29 00:30:37
+// 生成时间: 2025-12-02 09:21:01
 // 注意: 此文件由配置生成器自动生成
 
 {
   "enabled": false,
   "nodeIp": "0.0.0.0",
   "nodePort": 8080,
-  "network": "tcp4",
   "heartbeatInterval": 30,
   "clientTimeout": 90,
   "messageBufferSize": 256,
@@ -27,7 +26,7 @@
   "maxRetries": 3,
   "baseDelay": 100000000,
   "maxDelay": 5000000000,
-  "ackTimeoutMs": 500000000,
+  "ackTimeout": 500000000,
   "ackMaxRetries": 3,
   "enableAck": false,
   "backoffFactor": 2,
@@ -43,30 +42,9 @@
     "permission",
     "validation"
   ],
-  "enableCircuitBreaker": false,
   "sseHeartbeat": 0,
   "sseTimeout": 120,
   "sseMessageBuffer": 100,
-  "distributed": {
-    "enabled": false,
-    "nodeDiscovery": "redis",
-    "nodeSyncInterval": 30,
-    "messageRouting": "hash",
-    "enableLoadBalance": true,
-    "healthCheckInterval": 10,
-    "nodeTimeout": 60,
-    "clusterName": "wsc-cluster"
-  },
-  "group": {
-    "enabled": false,
-    "maxGroupSize": 500,
-    "maxGroupsPerUser": 100,
-    "enableBroadcast": true,
-    "broadcastRateLimit": 10,
-    "groupCacheExpire": 3600,
-    "autoCreateGroup": false,
-    "enableMessageRecord": true
-  },
   "performance": {
     "maxConnectionsPerNode": 10000,
     "readBufferSize": 4,
@@ -95,116 +73,12 @@
     "maxLoginAttempts": 5,
     "loginLockDuration": 300
   },
-  "enhancement": {
-    "enabled": false,
-    "smartRouting": true,
-    "loadBalancing": true,
-    "smartQueue": true,
-    "monitoring": true,
-    "clusterManagement": false,
-    "ruleEngine": true,
-    "circuitBreaker": true,
-    "messageFiltering": true,
-    "performanceTracking": true,
-    "advancedMetrics": false,
-    "alertSystem": true,
-    "failureThreshold": 5,
-    "successThreshold": 3,
-    "circuitTimeout": 30,
-    "maxQueueSize": 1000,
-    "metricsInterval": 60,
-    "maxSamples": 1000,
-    "loadBalanceAlgorithm": "round-robin"
-  },
   "database": {
     "enabled": true,
     "autoMigrate": true,
     "tablePrefix": "wsc_",
     "logLevel": "warn",
     "slowThreshold": 200000000
-  },
-  "queue": {
-    "enabled": false,
-    "type": "redis",
-    "batchSize": 10,
-    "maxRetries": 3,
-    "retryInterval": 5000000000,
-    "processTimeout": 30000000000,
-    "prefetchCount": 1,
-    "deadLetterTtl": 86400000000000,
-    "priority": true,
-    "persistent": true
-  },
-  "jobs": {
-    "enabled": false,
-    "tasks": {
-      "cleanup": {
-        "enabled": true,
-        "cron": "",
-        "interval": 300000000000,
-        "timeout": 60000000000,
-        "maxRetries": 3,
-        "description": "清理过期连接和数据",
-        "concurrency": 1,
-        "skipIfRunning": true,
-        "params": null
-      },
-      "message-archive": {
-        "enabled": true,
-        "cron": "0 0 2 * * *",
-        "interval": 0,
-        "timeout": 1800000000000,
-        "maxRetries": 3,
-        "description": "归档旧消息（3天前归档，60天后删除）",
-        "concurrency": 1,
-        "skipIfRunning": true,
-        "params": null
-      },
-      "offline-message": {
-        "enabled": true,
-        "cron": "",
-        "interval": 60000000000,
-        "timeout": 30000000000,
-        "maxRetries": 3,
-        "description": "推送离线消息",
-        "concurrency": 1,
-        "skipIfRunning": true,
-        "params": null
-      },
-      "queue-process": {
-        "enabled": true,
-        "cron": "",
-        "interval": 10000000000,
-        "timeout": 30000000000,
-        "maxRetries": 5,
-        "description": "处理队列任务",
-        "concurrency": 2,
-        "skipIfRunning": true,
-        "params": null
-      },
-      "stats-collect": {
-        "enabled": true,
-        "cron": "0 */5 * * * *",
-        "interval": 0,
-        "timeout": 60000000000,
-        "maxRetries": 3,
-        "description": "收集统计数据",
-        "concurrency": 1,
-        "skipIfRunning": true,
-        "params": null
-      },
-      "status-sync": {
-        "enabled": true,
-        "cron": "",
-        "interval": 30000000000,
-        "timeout": 15000000000,
-        "maxRetries": 3,
-        "description": "同步用户在线状态",
-        "concurrency": 1,
-        "skipIfRunning": true,
-        "params": null
-      }
-    }
   },
   "logging": {
     "moduleName": "wsc",

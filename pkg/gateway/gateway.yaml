@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2025-12-01 19:17:47
+# 生成时间: 2025-12-02 09:21:01
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -795,7 +795,6 @@ wsc:
     enabled: false
     node-ip: 0.0.0.0
     node-port: 8080
-    network: tcp4
     heartbeat-interval: 30
     client-timeout: 90
     message-buffer-size: 256
@@ -812,7 +811,7 @@ wsc:
     max-retries: 3
     base-delay: 100ms
     max-delay: 5s
-    ack-timeout-ms: 500ms
+    ack-timeout: 500ms
     ack-max-retries: 3
     enable-ack: false
     backoff-factor: 2
@@ -826,30 +825,9 @@ wsc:
         - user_offline
         - permission
         - validation
-    enable-circuit-breaker: false
     sse-heartbeat: 0
     sse-timeout: 120
     sse-message-buffer: 100
-    distributed:
-        # 是否启用网关
-        enabled: false
-        node-discovery: redis
-        node-sync-interval: 30
-        message-routing: hash
-        enable-load-balance: true
-        health-check-interval: 10
-        node-timeout: 60
-        cluster-name: wsc-cluster
-    group:
-        # 是否启用网关
-        enabled: false
-        max-group-size: 500
-        max-groups-per-user: 100
-        enable-broadcast: true
-        broadcast-rate-limit: 10
-        group-cache-expire: 3600
-        auto-create-group: false
-        enable-message-record: true
     performance:
         max-connections-per-node: 10000
         read-buffer-size: 4
@@ -876,28 +854,6 @@ wsc:
         token-expiration: 3600
         max-login-attempts: 5
         login-lock-duration: 300
-    enhancement:
-        # 是否启用网关
-        enabled: false
-        smart-routing: true
-        load-balancing: true
-        smart-queue: true
-        # 监控配置
-        monitoring: true
-        cluster-management: false
-        rule-engine: true
-        circuit-breaker: true
-        message-filtering: true
-        performance-tracking: true
-        advanced-metrics: false
-        alert-system: true
-        failure-threshold: 5
-        success-threshold: 3
-        circuit-timeout: 30
-        max-queue-size: 1000
-        metrics-interval: 60
-        max-samples: 1000
-        load-balance-algorithm: round-robin
     # 数据库统一配置
     database:
         # 是否启用网关
@@ -906,88 +862,6 @@ wsc:
         table-prefix: wsc_
         log-level: warn
         slow-threshold: 200ms
-    queue:
-        # 是否启用网关
-        enabled: false
-        type: redis
-        batch-size: 10
-        max-retries: 3
-        retry-interval: 5s
-        process-timeout: 30s
-        prefetch-count: 1
-        dead-letter-ttl: 24h0m0s
-        priority: true
-        persistent: true
-    jobs:
-        # 是否启用网关
-        enabled: false
-        tasks:
-            cleanup:
-                # 是否启用网关
-                enabled: true
-                cron: ""
-                interval: 5m0s
-                timeout: 1m0s
-                max-retries: 3
-                description: 清理过期连接和数据
-                concurrency: 1
-                skip-if-running: true
-                params: {}
-            message-archive:
-                # 是否启用网关
-                enabled: true
-                cron: 0 0 2 * * *
-                interval: 0s
-                timeout: 30m0s
-                max-retries: 3
-                description: 归档旧消息（3天前归档，60天后删除）
-                concurrency: 1
-                skip-if-running: true
-                params: {}
-            offline-message:
-                # 是否启用网关
-                enabled: true
-                cron: ""
-                interval: 1m0s
-                timeout: 30s
-                max-retries: 3
-                description: 推送离线消息
-                concurrency: 1
-                skip-if-running: true
-                params: {}
-            queue-process:
-                # 是否启用网关
-                enabled: true
-                cron: ""
-                interval: 10s
-                timeout: 30s
-                max-retries: 5
-                description: 处理队列任务
-                concurrency: 2
-                skip-if-running: true
-                params: {}
-            stats-collect:
-                # 是否启用网关
-                enabled: true
-                cron: 0 */5 * * * *
-                interval: 0s
-                timeout: 1m0s
-                max-retries: 3
-                description: 收集统计数据
-                concurrency: 1
-                skip-if-running: true
-                params: {}
-            status-sync:
-                # 是否启用网关
-                enabled: true
-                cron: ""
-                interval: 30s
-                timeout: 15s
-                max-retries: 3
-                description: 同步用户在线状态
-                concurrency: 1
-                skip-if-running: true
-                params: {}
     logging:
         # 模块名称
         module-name: wsc

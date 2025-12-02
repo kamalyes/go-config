@@ -2,7 +2,7 @@
 # 模块名称: wsc
 # 包名: wsc  
 # 描述: WebSocket通信模块
-# 生成时间: 2025-11-29 00:30:37
+# 生成时间: 2025-12-02 09:21:01
 # 注意: 此文件由配置生成器自动生成
 
 # 是否启用
@@ -11,8 +11,6 @@ enabled: false
 node-ip: 0.0.0.0
 # 节点端口
 node-port: 8080
-# 网络类型: tcp, tcp4, tcp6
-network: tcp4
 # 心跳间隔(秒)
 heartbeat-interval: 30
 # 客户端超时(秒)
@@ -22,11 +20,11 @@ message-buffer-size: 256
 # 允许的WebSocket Origin
 websocket-origins:
     - '*'
-# 读取超时(秒)
+# 读取超时
 read-timeout: 10s
-# 写入超时(秒)
+# 写入超时
 write-timeout: 10s
-# 空闲超时(秒)
+# 空闲超时
 idle-timeout: 2m0s
 # 最大消息长度
 max-message-size: 512
@@ -44,8 +42,8 @@ max-retries: 3
 base-delay: 100ms
 # 最大重试延迟
 max-delay: 5s
-# 消息确认超时(毫秒)
-ack-timeout-ms: 500ms
+# 消息确认超时
+ack-timeout: 500ms
 # 消息确认最大重试次数
 ack-max-retries: 3
 # 是否启用消息确认
@@ -65,36 +63,12 @@ non-retryable-errors:
     - user_offline
     - permission
     - validation
-# 是否启用熔断器
-enable-circuit-breaker: false
 # SSE心跳间隔(秒)
 sse-heartbeat: 0
 # SSE超时(秒)
 sse-timeout: 120
 # SSE消息缓冲区大小
 sse-message-buffer: 100
-# 分布式配置
-distributed:
-    # 是否启用
-    enabled: false
-    node-discovery: redis
-    node-sync-interval: 30
-    message-routing: hash
-    enable-load-balance: true
-    health-check-interval: 10
-    node-timeout: 60
-    cluster-name: wsc-cluster
-# 群组配置
-group:
-    # 是否启用
-    enabled: false
-    max-group-size: 500
-    max-groups-per-user: 100
-    enable-broadcast: true
-    broadcast-rate-limit: 10
-    group-cache-expire: 3600
-    auto-create-group: false
-    enable-message-record: true
 # 性能配置
 performance:
     max-connections-per-node: 10000
@@ -123,28 +97,6 @@ security:
     token-expiration: 3600
     max-login-attempts: 5
     login-lock-duration: 300
-# 增强功能配置
-enhancement:
-    # 是否启用
-    enabled: false
-    smart-routing: true
-    load-balancing: true
-    smart-queue: true
-    monitoring: true
-    cluster-management: false
-    rule-engine: true
-    circuit-breaker: true
-    message-filtering: true
-    performance-tracking: true
-    advanced-metrics: false
-    alert-system: true
-    failure-threshold: 5
-    success-threshold: 3
-    circuit-timeout: 30
-    max-queue-size: 1000
-    metrics-interval: 60
-    max-samples: 1000
-    load-balance-algorithm: round-robin
 # 数据库名称 (嵌套配置对象)
 database:
     # 是否启用
@@ -153,97 +105,6 @@ database:
     table-prefix: wsc_
     log-level: warn
     slow-threshold: 200ms
-# 队列配置
-queue:
-    # 是否启用
-    enabled: false
-    type: redis
-    batch-size: 10
-    # 最大重试次数
-    max-retries: 3
-    retry-interval: 5s
-    process-timeout: 30s
-    prefetch-count: 1
-    dead-letter-ttl: 24h0m0s
-    priority: true
-    persistent: true
-# 定时任务配置
-jobs:
-    # 是否启用
-    enabled: false
-    tasks:
-        cleanup:
-            # 是否启用
-            enabled: true
-            cron: ""
-            interval: 5m0s
-            timeout: 1m0s
-            # 最大重试次数
-            max-retries: 3
-            description: 清理过期连接和数据
-            concurrency: 1
-            skip-if-running: true
-            params: {}
-        message-archive:
-            # 是否启用
-            enabled: true
-            cron: 0 0 2 * * *
-            interval: 0s
-            timeout: 30m0s
-            # 最大重试次数
-            max-retries: 3
-            description: 归档旧消息（3天前归档，60天后删除）
-            concurrency: 1
-            skip-if-running: true
-            params: {}
-        offline-message:
-            # 是否启用
-            enabled: true
-            cron: ""
-            interval: 1m0s
-            timeout: 30s
-            # 最大重试次数
-            max-retries: 3
-            description: 推送离线消息
-            concurrency: 1
-            skip-if-running: true
-            params: {}
-        queue-process:
-            # 是否启用
-            enabled: true
-            cron: ""
-            interval: 10s
-            timeout: 30s
-            # 最大重试次数
-            max-retries: 5
-            description: 处理队列任务
-            concurrency: 2
-            skip-if-running: true
-            params: {}
-        stats-collect:
-            # 是否启用
-            enabled: true
-            cron: 0 */5 * * * *
-            interval: 0s
-            timeout: 1m0s
-            # 最大重试次数
-            max-retries: 3
-            description: 收集统计数据
-            concurrency: 1
-            skip-if-running: true
-            params: {}
-        status-sync:
-            # 是否启用
-            enabled: true
-            cron: ""
-            interval: 30s
-            timeout: 15s
-            # 最大重试次数
-            max-retries: 3
-            description: 同步用户在线状态
-            concurrency: 1
-            skip-if-running: true
-            params: {}
 # 日志配置
 logging:
     module-name: wsc
