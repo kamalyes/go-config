@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-26 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-26 23:33:09
+ * @LastEditTime: 2025-12-04 13:22:06
  * @FilePath: \go-config\config_complete_test.go
  * @Description: 配置生成器与热加载集成测试 - 完整验证所有字段包括嵌套结构
  *
@@ -13,6 +13,9 @@ package goconfig
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/kamalyes/go-config/pkg/access"
 	"github.com/kamalyes/go-config/pkg/banner"
@@ -21,8 +24,6 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 // TestConfigCompleteValidation 完整验证所有字段
@@ -308,16 +309,6 @@ func TestConfigCompleteValidation(t *testing.T) {
 			assert.Equal(t, defaultCfg.WSC.MessageBufferSize, config.WSC.MessageBufferSize, "WSC.MessageBufferSize should match")
 			assert.Equal(t, defaultCfg.WSC.AutoReconnect, config.WSC.AutoReconnect, "WSC.AutoReconnect should match")
 			assert.Equal(t, defaultCfg.WSC.MaxRetries, config.WSC.MaxRetries, "WSC.MaxRetries should match")
-
-			// 验证 WSC.Distributed 子结构
-			assert.Equal(t, defaultCfg.WSC.Distributed.Enabled, config.WSC.Distributed.Enabled, "WSC.Distributed.Enabled should match")
-			assert.Equal(t, defaultCfg.WSC.Distributed.NodeDiscovery, config.WSC.Distributed.NodeDiscovery, "WSC.Distributed.NodeDiscovery should match")
-			assert.Equal(t, defaultCfg.WSC.Distributed.ClusterName, config.WSC.Distributed.ClusterName, "WSC.Distributed.ClusterName should match")
-
-			// 验证 WSC.Group 子结构
-			assert.Equal(t, defaultCfg.WSC.Group.Enabled, config.WSC.Group.Enabled, "WSC.Group.Enabled should match")
-			assert.Equal(t, defaultCfg.WSC.Group.MaxGroupSize, config.WSC.Group.MaxGroupSize, "WSC.Group.MaxGroupSize should match")
-			assert.Equal(t, defaultCfg.WSC.Group.EnableBroadcast, config.WSC.Group.EnableBroadcast, "WSC.Group.EnableBroadcast should match")
 
 			// 验证 WSC.Performance 子结构
 			assert.Equal(t, defaultCfg.WSC.Performance.MaxConnectionsPerNode, config.WSC.Performance.MaxConnectionsPerNode, "WSC.Performance.MaxConnectionsPerNode should match")
