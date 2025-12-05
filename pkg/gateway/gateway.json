@@ -828,6 +828,7 @@
     "network": "tcp4",
     "nodeIp": "0.0.0.0",
     "nodePort": 8080,
+    "path": "/ws",
     "heartbeatInterval": 30,
     "clientTimeout": 90,
     "messageBufferSize": 256,

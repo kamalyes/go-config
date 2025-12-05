@@ -838,6 +838,7 @@ wsc:
     network: tcp4
     node-ip: 0.0.0.0
     node-port: 8080
+    path: /ws
     heartbeat-interval: 30
     client-timeout: 90
     message-buffer-size: 256
