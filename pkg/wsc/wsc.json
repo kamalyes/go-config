@@ -2,11 +2,12 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2025-12-02 09:21:01
+// 生成时间: 2025-12-05 16:12:46
 // 注意: 此文件由配置生成器自动生成
 
 {
   "enabled": false,
+  "network": "tcp4",
   "nodeIp": "0.0.0.0",
   "nodePort": 8080,
   "heartbeatInterval": 30,
@@ -71,7 +72,41 @@
     "enableIpWhitelist": false,
     "tokenExpiration": 3600,
     "maxLoginAttempts": 5,
-    "loginLockDuration": 300
+    "loginLockDuration": 300,
+    "messageEncryption": {
+      "enabled": false,
+      "algorithm": "AES-256-GCM",
+      "key": "your-32-byte-secret-key-for-aes256",
+      "enableKeyRotate": false,
+      "keyRotateHours": 24,
+      "compress": true,
+      "encryptPrefix": "ENC:",
+      "backupKeys": 3
+    },
+    "messageRateLimit": {
+      "enabled": true,
+      "window": 60000000000,
+      "maxMessages": 100,
+      "alertThreshold": 80,
+      "blockDuration": 300000000000,
+      "useRedis": true,
+      "redisKeyPrefix": "wsc:rate_limit:",
+      "enableEmailAlert": false,
+      "emailAlert": {
+        "smtpHost": "",
+        "smtpPort": 587,
+        "username": "",
+        "password": "",
+        "from": "",
+        "to": [],
+        "enableTls": true,
+        "subjectAlert": "[WebSocket风控预警] 用户消息频率异常",
+        "subjectBlock": "[WebSocket风控封禁] 用户已被封禁",
+        "templateAlert": "\u003c!DOCTYPE html\u003e\n\u003chtml\u003e\n\u003chead\u003e\n    \u003cmeta charset=\"UTF-8\"\u003e\n    \u003cstyle\u003e\n        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n        .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n        .header { background: #ff9800; color: white; padding: 20px; border-radius: 5px 5px 0 0; }\n        .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }\n        .info-table { width: 100%; border-collapse: collapse; margin: 15px 0; }\n        .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }\n        .info-table td:first-child { font-weight: bold; width: 150px; }\n        .footer { background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #666; }\n        .warning { background: #fff3cd; border-left: 4px solid #ff9800; padding: 12px; margin: 15px 0; }\n    \u003c/style\u003e\n\u003c/head\u003e\n\u003cbody\u003e\n    \u003cdiv class=\"container\"\u003e\n        \u003cdiv class=\"header\"\u003e\n            \u003ch2\u003e⚠️ 消息频率预警 - {{.AppName}}\u003c/h2\u003e\n        \u003c/div\u003e\n        \u003cdiv class=\"content\"\u003e\n            \u003cdiv class=\"warning\"\u003e\n                \u003cstrong\u003e用户消息发送频率达到预警阈值，请关注该用户行为\u003c/strong\u003e\n            \u003c/div\u003e\n            \u003ctable class=\"info-table\"\u003e\n                \u003ctr\u003e\u003ctd\u003e用户ID\u003c/td\u003e\u003ctd\u003e{{.UserID}}\u003c/td\u003e\u003c/tr\u003e\n                \u003ctr\u003e\u003ctd\u003e用户类型\u003c/td\u003e\u003ctd\u003e{{.UserType}}\u003c/td\u003e\u003c/tr\u003e\n                \u003ctr\u003e\u003ctd\u003e当前分钟消息数\u003c/td\u003e\u003ctd\u003e\u003cstrong style=\"color: #ff9800; font-size: 18px;\"\u003e{{.MinuteCount}} 条\u003c/strong\u003e\u003c/td\u003e\u003c/tr\u003e\n                \u003ctr\u003e\u003ctd\u003e当前小时消息数\u003c/td\u003e\u003ctd\u003e\u003cstrong style=\"color: #ff9800; font-size: 18px;\"\u003e{{.HourCount}} 条\u003c/strong\u003e\u003c/td\u003e\u003c/tr\u003e\n                \u003ctr\u003e\u003ctd\u003e触发时间\u003c/td\u003e\u003ctd\u003e{{.TriggerTime}}\u003c/td\u003e\u003c/tr\u003e\n            \u003c/table\u003e\n            \u003cp\u003e\u003cstrong\u003e建议操作：\u003c/strong\u003e\u003c/p\u003e\n            \u003cul\u003e\n                \u003cli\u003e立即检查该用户的消息内容\u003c/li\u003e\n                \u003cli\u003e确认是否为恶意刷屏行为\u003c/li\u003e\n                \u003cli\u003e必要时联系用户或执行封禁操作\u003c/li\u003e\n            \u003c/ul\u003e\n        \u003c/div\u003e\n        \u003cdiv class=\"footer\"\u003e\n            \u003cp\u003e此邮件由 {{.AppName}} 自动发送，请勿直接回复\u003c/p\u003e\n            \u003cp\u003eGenerated at {{.GenerateTime}}\u003c/p\u003e\n        \u003c/div\u003e\n    \u003c/div\u003e\n\u003c/body\u003e\n\u003c/html\u003e",
+        "templateBlock": "\u003c!DOCTYPE html\u003e\n\u003chtml\u003e\n\u003chead\u003e\n    \u003cmeta charset=\"UTF-8\"\u003e\n    \u003cstyle\u003e\n        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n        .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n        .header { background: #f44336; color: white; padding: 20px; border-radius: 5px 5px 0 0; }\n        .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }\n        .info-table { width: 100%; border-collapse: collapse; margin: 15px 0; }\n        .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }\n        .info-table td:first-child { font-weight: bold; width: 150px; }\n        .footer { background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #666; }\n        .warning { background: #ffebee; border-left: 4px solid #f44336; padding: 12px; margin: 15px 0; }\n    \u003c/style\u003e\n\u003c/head\u003e\n\u003cbody\u003e\n    \u003cdiv class=\"container\"\u003e\n        \u003cdiv class=\"header\"\u003e\n            \u003ch2\u003e🚫 用户已被封禁 - {{.AppName}}\u003c/h2\u003e\n        \u003c/div\u003e\n        \u003cdiv class=\"content\"\u003e\n            \u003cdiv class=\"warning\"\u003e\n                \u003cstrong\u003e用户消息发送频率超过限制，已被临时封禁\u003c/strong\u003e\n            \u003c/div\u003e\n            \u003ctable class=\"info-table\"\u003e\n                \u003ctr\u003e\u003ctd\u003e用户ID\u003c/td\u003e\u003ctd\u003e{{.UserID}}\u003c/td\u003e\u003c/tr\u003e\n                \u003ctr\u003e\u003ctd\u003e用户类型\u003c/td\u003e\u003ctd\u003e{{.UserType}}\u003c/td\u003e\u003c/tr\u003e\n                \u003ctr\u003e\u003ctd\u003e当前分钟消息数\u003c/td\u003e\u003ctd\u003e\u003cstrong style=\"color: #f44336; font-size: 18px;\"\u003e{{.MinuteCount}} 条\u003c/strong\u003e\u003c/td\u003e\u003c/tr\u003e\n                \u003ctr\u003e\u003ctd\u003e当前小时消息数\u003c/td\u003e\u003ctd\u003e\u003cstrong style=\"color: #f44336; font-size: 18px;\"\u003e{{.HourCount}} 条\u003c/strong\u003e\u003c/td\u003e\u003c/tr\u003e\n                \u003ctr\u003e\u003ctd\u003e封禁时间\u003c/td\u003e\u003ctd\u003e{{.TriggerTime}}\u003c/td\u003e\u003c/tr\u003e\n            \u003c/table\u003e\n            \u003cp\u003e\u003cstrong\u003e紧急处理：\u003c/strong\u003e\u003c/p\u003e\n            \u003cul\u003e\n                \u003cli\u003e立即审查该用户的所有消息内容\u003c/li\u003e\n                \u003cli\u003e评估是否需要永久封禁\u003c/li\u003e\n                \u003cli\u003e通知相关运维人员\u003c/li\u003e\n                \u003cli\u003e记录异常行为日志\u003c/li\u003e\n            \u003c/ul\u003e\n        \u003c/div\u003e\n        \u003cdiv class=\"footer\"\u003e\n            \u003cp\u003e此邮件由 {{.AppName}} 自动发送，请勿直接回复\u003c/p\u003e\n            \u003cp\u003eGenerated at {{.GenerateTime}}\u003c/p\u003e\n        \u003c/div\u003e\n    \u003c/div\u003e\n\u003c/body\u003e\n\u003c/html\u003e",
+        "appName": "WebSocket消息系统"
+      }
+    }
   },
   "database": {
     "enabled": true,
@@ -93,9 +128,36 @@
     "compress": true,
     "skipPaths": [
       "/health",
-      "/metrics"
+      "/metrics",
+      "/favicon.ico",
+      "/ping",
+      "/readiness",
+      "/liveness"
     ],
     "enableRequest": true,
-    "enableResponse": false
+    "enableResponse": false,
+    "maxBodySize": 2048,
+    "sensitiveMask": "***REDACTED***",
+    "sensitiveKeys": [
+      "password",
+      "passwd",
+      "token",
+      "access_token",
+      "refresh_token",
+      "secret",
+      "authorization",
+      "api_key",
+      "apikey",
+      "mobile",
+      "phone",
+      "id_card",
+      "credit_card"
+    ],
+    "loggableContentTypes": [
+      "application/json",
+      "application/xml",
+      "application/x-www-form-urlencoded",
+      "text/"
+    ]
   }
 }

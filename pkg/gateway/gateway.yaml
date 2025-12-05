@@ -525,8 +525,33 @@ middleware:
         skip-paths:
             - /health
             - /metrics
+            - /favicon.ico
+            - /ping
+            - /readiness
+            - /liveness
         enable-request: true
         enable-response: false
+        max-body-size: 2048
+        sensitive-mask: '***REDACTED***'
+        sensitive-keys:
+            - password
+            - passwd
+            - token
+            - access_token
+            - refresh_token
+            - secret
+            - authorization
+            - api_key
+            - apikey
+            - mobile
+            - phone
+            - id_card
+            - credit_card
+        loggable-content-types:
+            - application/json
+            - application/xml
+            - application/x-www-form-urlencoded
+            - text/
     recovery:
         # 模块名称
         module-name: recovery
@@ -789,10 +814,28 @@ rate-limit:
         redis: null
     custom-rule-loader: ""
     enable-dynamic-rule: false
+    email-alert-config:
+        # 是否启用网关
+        enabled: false
+        to:
+            - admin@example.com
+        cc: []
+        app-name: RateLimit System
+        # 环境 (dev, test, prod)
+        environment: production
+        subject-alert: ⚠️ 风控预警 - {{.AppName}}
+        subject-block: "\U0001F6AB 风控封禁 - {{.AppName}}"
+        template-alert: "\n<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>风控预警通知</title>\n    <style>\n        body {\n            margin: 0;\n            padding: 0;\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            background-color: #f5f5f5;\n        }\n        .email-container {\n            max-width: 600px;\n            margin: 20px auto;\n            background-color: #ffffff;\n            border-radius: 8px;\n            overflow: hidden;\n            box-shadow: 0 2px 8px rgba(0,0,0,0.1);\n        }\n        .email-header {\n            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);\n            color: #ffffff;\n            padding: 30px;\n            text-align: center;\n        }\n        .email-header h1 {\n            margin: 0;\n            font-size: 28px;\n            font-weight: 600;\n        }\n        .email-header .icon {\n            font-size: 48px;\n            margin-bottom: 10px;\n        }\n        .email-body {\n            padding: 30px;\n        }\n        .alert-info {\n            background-color: #fff3cd;\n            border-left: 4px solid #ffc107;\n            padding: 15px;\n            margin: 20px 0;\n            border-radius: 4px;\n        }\n        .alert-info h2 {\n            margin: 0 0 10px 0;\n            color: #856404;\n            font-size: 18px;\n        }\n        .info-table {\n            width: 100%;\n            border-collapse: collapse;\n            margin: 20px 0;\n        }\n        .info-table th,\n        .info-table td {\n            padding: 12px;\n            text-align: left;\n            border-bottom: 1px solid #e0e0e0;\n        }\n        .info-table th {\n            background-color: #f8f9fa;\n            font-weight: 600;\n            color: #333;\n            width: 35%;\n        }\n        .info-table td {\n            color: #666;\n        }\n        .metric-card {\n            display: inline-block;\n            width: 48%;\n            margin: 1%;\n            padding: 15px;\n            background-color: #f8f9fa;\n            border-radius: 6px;\n            text-align: center;\n            box-sizing: border-box;\n        }\n        .metric-card .label {\n            font-size: 12px;\n            color: #666;\n            margin-bottom: 5px;\n        }\n        .metric-card .value {\n            font-size: 24px;\n            font-weight: bold;\n            color: #ffc107;\n        }\n        .threshold-bar {\n            width: 100%;\n            height: 30px;\n            background-color: #e0e0e0;\n            border-radius: 15px;\n            overflow: hidden;\n            margin: 20px 0;\n        }\n        .threshold-fill {\n            height: 100%;\n            background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            color: white;\n            font-weight: bold;\n            font-size: 12px;\n        }\n        .action-section {\n            background-color: #e8f4fd;\n            border-left: 4px solid #2196f3;\n            padding: 15px;\n            margin: 20px 0;\n            border-radius: 4px;\n        }\n        .action-section h3 {\n            margin: 0 0 10px 0;\n            color: #1976d2;\n            font-size: 16px;\n        }\n        .action-section ul {\n            margin: 0;\n            padding-left: 20px;\n        }\n        .action-section li {\n            margin: 8px 0;\n            color: #666;\n        }\n        .email-footer {\n            background-color: #f8f9fa;\n            padding: 20px;\n            text-align: center;\n            color: #999;\n            font-size: 12px;\n        }\n        .email-footer a {\n            color: #2196f3;\n            text-decoration: none;\n        }\n        @media only screen and (max-width: 600px) {\n            .metric-card {\n                width: 100%;\n                margin: 10px 0;\n            }\n        }\n    </style>\n</head>\n<body>\n    <div class=\"email-container\">\n        <!-- 邮件头部 -->\n        <div class=\"email-header\">\n            <div class=\"icon\">⚠️</div>\n            <h1>风控预警通知</h1>\n            <p style=\"margin: 10px 0 0 0; opacity: 0.9;\">{{.AppName}} - {{.Environment}}</p>\n        </div>\n\n        <!-- 邮件正文 -->\n        <div class=\"email-body\">\n            <!-- 预警信息 -->\n            <div class=\"alert-info\">\n                <h2>⚠️ 检测到异常行为</h2>\n                <p style=\"margin: 5px 0 0 0; color: #856404;\">\n                    用户 <strong>{{.UserID}}</strong> ({{.UserType}}) 的消息发送频率已达到预警阈值\n                </p>\n            </div>\n\n            <!-- 详细信息表格 -->\n            <table class=\"info-table\">\n                <tr>\n                    <th>\U0001F194 用户ID</th>\n                    <td>{{.UserID}}</td>\n                </tr>\n                <tr>\n                    <th>\U0001F464 用户类型</th>\n                    <td>{{.UserType}}</td>\n                </tr>\n                <tr>\n                    <th>\U0001F4CA 分钟计数</th>\n                    <td><strong>{{.MinuteCount}}</strong> 条/分钟</td>\n                </tr>\n                <tr>\n                    <th>\U0001F4CA 小时计数</th>\n                    <td><strong>{{.HourCount}}</strong> 条/小时</td>\n                </tr>\n                <tr>\n                    <th>\U0001F3AF 预警阈值</th>\n                    <td>{{.AlertThreshold}} 条/分钟</td>\n                </tr>\n                <tr>\n                    <th>\U0001F6AB 封禁阈值</th>\n                    <td>{{.BlockThreshold}} 条/分钟</td>\n                </tr>\n                <tr>\n                    <th>\U0001F550 触发时间</th>\n                    <td>{{.Timestamp}}</td>\n                </tr>\n            </table>\n\n            <!-- 统计指标卡片 -->\n            <div style=\"margin: 20px 0;\">\n                <div class=\"metric-card\">\n                    <div class=\"label\">分钟消息数</div>\n                    <div class=\"value\">{{.MinuteCount}}</div>\n                </div>\n                <div class=\"metric-card\">\n                    <div class=\"label\">小时消息数</div>\n                    <div class=\"value\">{{.HourCount}}</div>\n                </div>\n            </div>\n\n            <!-- 阈值进度条 -->\n            <div style=\"margin: 20px 0;\">\n                <p style=\"margin: 0 0 8px 0; font-size: 14px; color: #666;\">预警阈值进度</p>\n                <div class=\"threshold-bar\">\n                    <div class=\"threshold-fill\" style=\"width: {{.AlertPercentage}}%;\">\n                        {{.AlertPercentage}}%\n                    </div>\n                </div>\n            </div>\n\n            <!-- 建议操作 -->\n            <div class=\"action-section\">\n                <h3>\U0001F4CB 建议处理措施</h3>\n                <ul>\n                    <li>立即检查用户 {{.UserID}} 的行为日志</li>\n                    <li>确认是否为正常业务操作还是恶意行为</li>\n                    <li>如确认异常，可手动封禁该用户</li>\n                    <li>监控后续行为，防止达到自动封禁阈值</li>\n                    <li>如有必要，调整风控策略参数</li>\n                </ul>\n            </div>\n\n            <!-- 系统信息 -->\n            <div style=\"margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;\">\n                <p style=\"margin: 0; font-size: 12px; color: #999;\">\n                    \U0001F4CC 此邮件由 {{.AppName}} 风控系统自动发送<br>\n                    \U0001F3E2 环境: {{.Environment}}<br>\n                    \U0001F550 发送时间: {{.Timestamp}}\n                </p>\n            </div>\n        </div>\n\n        <!-- 邮件尾部 -->\n        <div class=\"email-footer\">\n            <p>© 2025 {{.AppName}}. All rights reserved.</p>\n            <p>\n                如有疑问，请联系 <a href=\"mailto:{{.SupportEmail}}\">技术支持</a>\n            </p>\n        </div>\n    </div>\n</body>\n</html>\n"
+        template-block: "\n<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>风控封禁通知</title>\n    <style>\n        body {\n            margin: 0;\n            padding: 0;\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            background-color: #f5f5f5;\n        }\n        .email-container {\n            max-width: 600px;\n            margin: 20px auto;\n            background-color: #ffffff;\n            border-radius: 8px;\n            overflow: hidden;\n            box-shadow: 0 2px 8px rgba(0,0,0,0.1);\n        }\n        .email-header {\n            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);\n            color: #ffffff;\n            padding: 30px;\n            text-align: center;\n        }\n        .email-header h1 {\n            margin: 0;\n            font-size: 28px;\n            font-weight: 600;\n        }\n        .email-header .icon {\n            font-size: 48px;\n            margin-bottom: 10px;\n        }\n        .email-body {\n            padding: 30px;\n        }\n        .alert-danger {\n            background-color: #f8d7da;\n            border-left: 4px solid #dc3545;\n            padding: 15px;\n            margin: 20px 0;\n            border-radius: 4px;\n        }\n        .alert-danger h2 {\n            margin: 0 0 10px 0;\n            color: #721c24;\n            font-size: 18px;\n        }\n        .info-table {\n            width: 100%;\n            border-collapse: collapse;\n            margin: 20px 0;\n        }\n        .info-table th,\n        .info-table td {\n            padding: 12px;\n            text-align: left;\n            border-bottom: 1px solid #e0e0e0;\n        }\n        .info-table th {\n            background-color: #f8f9fa;\n            font-weight: 600;\n            color: #333;\n            width: 35%;\n        }\n        .info-table td {\n            color: #666;\n        }\n        .metric-card {\n            display: inline-block;\n            width: 48%;\n            margin: 1%;\n            padding: 15px;\n            background-color: #f8f9fa;\n            border-radius: 6px;\n            text-align: center;\n            box-sizing: border-box;\n        }\n        .metric-card .label {\n            font-size: 12px;\n            color: #666;\n            margin-bottom: 5px;\n        }\n        .metric-card .value {\n            font-size: 24px;\n            font-weight: bold;\n            color: #dc3545;\n        }\n        .threshold-bar {\n            width: 100%;\n            height: 30px;\n            background-color: #e0e0e0;\n            border-radius: 15px;\n            overflow: hidden;\n            margin: 20px 0;\n        }\n        .threshold-fill {\n            height: 100%;\n            background: linear-gradient(90deg, #dc3545 0%, #c82333 100%);\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            color: white;\n            font-weight: bold;\n            font-size: 12px;\n        }\n        .action-section {\n            background-color: #fff3cd;\n            border-left: 4px solid #ffc107;\n            padding: 15px;\n            margin: 20px 0;\n            border-radius: 4px;\n        }\n        .action-section h3 {\n            margin: 0 0 10px 0;\n            color: #856404;\n            font-size: 16px;\n        }\n        .action-section ul {\n            margin: 0;\n            padding-left: 20px;\n        }\n        .action-section li {\n            margin: 8px 0;\n            color: #666;\n        }\n        .critical-warning {\n            background-color: #fff3cd;\n            border: 2px solid #ffc107;\n            padding: 20px;\n            margin: 20px 0;\n            border-radius: 6px;\n            text-align: center;\n        }\n        .critical-warning .warning-icon {\n            font-size: 48px;\n            margin-bottom: 10px;\n        }\n        .critical-warning h3 {\n            margin: 0 0 10px 0;\n            color: #856404;\n            font-size: 20px;\n        }\n        .email-footer {\n            background-color: #f8f9fa;\n            padding: 20px;\n            text-align: center;\n            color: #999;\n            font-size: 12px;\n        }\n        .email-footer a {\n            color: #2196f3;\n            text-decoration: none;\n        }\n        @media only screen and (max-width: 600px) {\n            .metric-card {\n                width: 100%;\n                margin: 10px 0;\n            }\n        }\n    </style>\n</head>\n<body>\n    <div class=\"email-container\">\n        <!-- 邮件头部 -->\n        <div class=\"email-header\">\n            <div class=\"icon\">\U0001F6AB</div>\n            <h1>风控封禁通知</h1>\n            <p style=\"margin: 10px 0 0 0; opacity: 0.9;\">{{.AppName}} - {{.Environment}}</p>\n        </div>\n\n        <!-- 邮件正文 -->\n        <div class=\"email-body\">\n            <!-- 严重警告 -->\n            <div class=\"critical-warning\">\n                <div class=\"warning-icon\">⚠️</div>\n                <h3>用户已被自动封禁</h3>\n                <p style=\"margin: 10px 0 0 0; color: #856404; font-weight: 600;\">\n                    检测到严重的频率滥用行为，系统已自动执行封禁操作\n                </p>\n            </div>\n\n            <!-- 封禁信息 -->\n            <div class=\"alert-danger\">\n                <h2>\U0001F6AB 封禁详情</h2>\n                <p style=\"margin: 5px 0 0 0; color: #721c24;\">\n                    用户 <strong>{{.UserID}}</strong> ({{.UserType}}) 因超过最大消息频率阈值被封禁\n                </p>\n            </div>\n\n            <!-- 详细信息表格 -->\n            <table class=\"info-table\">\n                <tr>\n                    <th>\U0001F194 用户ID</th>\n                    <td>{{.UserID}}</td>\n                </tr>\n                <tr>\n                    <th>\U0001F464 用户类型</th>\n                    <td>{{.UserType}}</td>\n                </tr>\n                <tr>\n                    <th>\U0001F4CA 分钟计数</th>\n                    <td><strong style=\"color: #dc3545;\">{{.MinuteCount}}</strong> 条/分钟</td>\n                </tr>\n                <tr>\n                    <th>\U0001F4CA 小时计数</th>\n                    <td><strong style=\"color: #dc3545;\">{{.HourCount}}</strong> 条/小时</td>\n                </tr>\n                <tr>\n                    <th>\U0001F6AB 封禁阈值</th>\n                    <td>{{.BlockThreshold}} 条/分钟</td>\n                </tr>\n                <tr>\n                    <th>\U0001F4C8 超出比例</th>\n                    <td><strong style=\"color: #dc3545;\">{{.ExceedPercentage}}%</strong></td>\n                </tr>\n                <tr>\n                    <th>\U0001F550 封禁时间</th>\n                    <td>{{.Timestamp}}</td>\n                </tr>\n            </table>\n\n            <!-- 统计指标卡片 -->\n            <div style=\"margin: 20px 0;\">\n                <div class=\"metric-card\">\n                    <div class=\"label\">分钟消息数</div>\n                    <div class=\"value\">{{.MinuteCount}}</div>\n                </div>\n                <div class=\"metric-card\">\n                    <div class=\"label\">小时消息数</div>\n                    <div class=\"value\">{{.HourCount}}</div>\n                </div>\n            </div>\n\n            <!-- 阈值进度条 -->\n            <div style=\"margin: 20px 0;\">\n                <p style=\"margin: 0 0 8px 0; font-size: 14px; color: #666;\">封禁阈值进度（已超限）</p>\n                <div class=\"threshold-bar\">\n                    <div class=\"threshold-fill\" style=\"width: 100%;\">\n                        超限 {{.ExceedPercentage}}%\n                    </div>\n                </div>\n            </div>\n\n            <!-- 紧急处理建议 -->\n            <div class=\"action-section\">\n                <h3>\U0001F525 紧急处理措施</h3>\n                <ul>\n                    <li><strong>立即调查</strong>用户 {{.UserID}} 的完整行为日志</li>\n                    <li><strong>确认来源</strong>：是机器人攻击还是误封正常用户</li>\n                    <li><strong>评估影响</strong>：检查是否还有其他受影响的用户</li>\n                    <li><strong>通知相关方</strong>：如确认为攻击，通知安全团队</li>\n                    <li><strong>手动解封</strong>：如确认误封，及时手动解除封禁</li>\n                    <li><strong>调整策略</strong>：根据实际情况优化风控阈值</li>\n                </ul>\n            </div>\n\n            <!-- 后续行动 -->\n            <div style=\"background-color: #e8f4fd; border-left: 4px solid #2196f3; padding: 15px; margin: 20px 0; border-radius: 4px;\">\n                <h3 style=\"margin: 0 0 10px 0; color: #1976d2; font-size: 16px;\">\U0001F4CB 后续跟进</h3>\n                <p style=\"margin: 0; color: #666; line-height: 1.6;\">\n                    1. 在系统中记录此次封禁事件<br>\n                    2. 建立用户行为分析报告<br>\n                    3. 评估是否需要升级风控策略<br>\n                    4. 定期审查封禁用户列表\n                </p>\n            </div>\n\n            <!-- 系统信息 -->\n            <div style=\"margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;\">\n                <p style=\"margin: 0; font-size: 12px; color: #999;\">\n                    \U0001F4CC 此邮件由 {{.AppName}} 风控系统自动发送<br>\n                    \U0001F3E2 环境: {{.Environment}}<br>\n                    \U0001F550 封禁时间: {{.Timestamp}}<br>\n                    ⚠️ 优先级: <strong style=\"color: #dc3545;\">紧急</strong>\n                </p>\n            </div>\n        </div>\n\n        <!-- 邮件尾部 -->\n        <div class=\"email-footer\">\n            <p>© 2025 {{.AppName}}. All rights reserved.</p>\n            <p>\n                紧急联系: <a href=\"mailto:{{.SecurityEmail}}\">安全团队</a> | \n                技术支持: <a href=\"mailto:{{.SupportEmail}}\">技术支持</a>\n            </p>\n        </div>\n    </div>\n</body>\n</html>\n"
+        cooldown-minutes: 5
+        max-alerts-per-hour: 20
+        support-email: support@example.com
+        security-email: security@example.com
 # WebSocket通信配置
 wsc:
     # 是否启用网关
     enabled: false
+    network: tcp4
     node-ip: 0.0.0.0
     node-port: 8080
     heartbeat-interval: 30
@@ -854,6 +897,85 @@ wsc:
         token-expiration: 3600
         max-login-attempts: 5
         login-lock-duration: 300
+        message-encryption:
+            # 是否启用网关
+            enabled: false
+            algorithm: AES-256-GCM
+            key: your-32-byte-secret-key-for-aes256
+            enable-key-rotate: false
+            key-rotate-hours: 24
+            compress: true
+            encrypt-prefix: 'ENC:'
+            backup-keys: 3
+        message-rate-limit:
+            # 是否启用网关
+            enabled: true
+            window: 1m0s
+            max-messages: 100
+            alert-threshold: 80
+            block-duration: 5m0s
+            use-redis: true
+            redis-key-prefix: 'wsc:rate_limit:'
+            enable-email-alert: false
+            email-alert:
+                smtp-host: ""
+                smtp-port: 587
+                username: ""
+                password: ""
+                from: ""
+                to: []
+                enable-tls: true
+                subject-alert: '[WebSocket风控预警] 用户消息频率异常'
+                subject-block: '[WebSocket风控封禁] 用户已被封禁'
+                template-alert: |-
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <style>
+                            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                            .header { background: #ff9800; color: white; padding: 20px; border-radius: 5px 5px 0 0; }
+                            .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }
+                            .info-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                            .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }
+                            .info-table td:first-child { font-weight: bold; width: 150px; }
+                            .footer { background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #666; }
+                            .warning { background: #fff3cd; border-left: 4px solid #ff9800; padding: 12px; margin: 15px 0; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="header">
+                                <h2>⚠️ 消息频率预警 - {{.AppName}}</h2>
+                            </div>
+                            <div class="content">
+                                <div class="warning">
+                                    <strong>用户消息发送频率达到预警阈值，请关注该用户行为</strong>
+                                </div>
+                                <table class="info-table">
+                                    <tr><td>用户ID</td><td>{{.UserID}}</td></tr>
+                                    <tr><td>用户类型</td><td>{{.UserType}}</td></tr>
+                                    <tr><td>当前分钟消息数</td><td><strong style="color: #ff9800; font-size: 18px;">{{.MinuteCount}} 条</strong></td></tr>
+                                    <tr><td>当前小时消息数</td><td><strong style="color: #ff9800; font-size: 18px;">{{.HourCount}} 条</strong></td></tr>
+                                    <tr><td>触发时间</td><td>{{.TriggerTime}}</td></tr>
+                                </table>
+                                <p><strong>建议操作：</strong></p>
+                                <ul>
+                                    <li>立即检查该用户的消息内容</li>
+                                    <li>确认是否为恶意刷屏行为</li>
+                                    <li>必要时联系用户或执行封禁操作</li>
+                                </ul>
+                            </div>
+                            <div class="footer">
+                                <p>此邮件由 {{.AppName}} 自动发送，请勿直接回复</p>
+                                <p>Generated at {{.GenerateTime}}</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                template-block: "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <style>\n        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n        .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n        .header { background: #f44336; color: white; padding: 20px; border-radius: 5px 5px 0 0; }\n        .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }\n        .info-table { width: 100%; border-collapse: collapse; margin: 15px 0; }\n        .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }\n        .info-table td:first-child { font-weight: bold; width: 150px; }\n        .footer { background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #666; }\n        .warning { background: #ffebee; border-left: 4px solid #f44336; padding: 12px; margin: 15px 0; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h2>\U0001F6AB 用户已被封禁 - {{.AppName}}</h2>\n        </div>\n        <div class=\"content\">\n            <div class=\"warning\">\n                <strong>用户消息发送频率超过限制，已被临时封禁</strong>\n            </div>\n            <table class=\"info-table\">\n                <tr><td>用户ID</td><td>{{.UserID}}</td></tr>\n                <tr><td>用户类型</td><td>{{.UserType}}</td></tr>\n                <tr><td>当前分钟消息数</td><td><strong style=\"color: #f44336; font-size: 18px;\">{{.MinuteCount}} 条</strong></td></tr>\n                <tr><td>当前小时消息数</td><td><strong style=\"color: #f44336; font-size: 18px;\">{{.HourCount}} 条</strong></td></tr>\n                <tr><td>封禁时间</td><td>{{.TriggerTime}}</td></tr>\n            </table>\n            <p><strong>紧急处理：</strong></p>\n            <ul>\n                <li>立即审查该用户的所有消息内容</li>\n                <li>评估是否需要永久封禁</li>\n                <li>通知相关运维人员</li>\n                <li>记录异常行为日志</li>\n            </ul>\n        </div>\n        <div class=\"footer\">\n            <p>此邮件由 {{.AppName}} 自动发送，请勿直接回复</p>\n            <p>Generated at {{.GenerateTime}}</p>\n        </div>\n    </div>\n</body>\n</html>"
+                app-name: WebSocket消息系统
     # 数据库统一配置
     database:
         # 是否启用网关
@@ -878,5 +1000,30 @@ wsc:
         skip-paths:
             - /health
             - /metrics
+            - /favicon.ico
+            - /ping
+            - /readiness
+            - /liveness
         enable-request: true
         enable-response: false
+        max-body-size: 2048
+        sensitive-mask: '***REDACTED***'
+        sensitive-keys:
+            - password
+            - passwd
+            - token
+            - access_token
+            - refresh_token
+            - secret
+            - authorization
+            - api_key
+            - apikey
+            - mobile
+            - phone
+            - id_card
+            - credit_card
+        loggable-content-types:
+            - application/json
+            - application/xml
+            - application/x-www-form-urlencoded
+            - text/

@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-14 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-27 00:21:50
+ * @LastEditTime: 2025-12-05 16:15:52
  * @FilePath: \go-config\pkg\ratelimit\ratelimit.go
  * @Description: 增强的限流配置（支持路由级别、用户级别、IP级别等）
  *
@@ -12,8 +12,9 @@
 package ratelimit
 
 import (
-	"github.com/kamalyes/go-config/internal"
 	"time"
+
+	"github.com/kamalyes/go-config/internal"
 )
 
 // Strategy 限流策略类型
@@ -38,17 +39,18 @@ const (
 
 // RateLimit 增强限流配置
 type RateLimit struct {
-	ModuleName        string        `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                        // 模块名称
-	Enabled           bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                   // 是否启用
-	Strategy          Strategy      `mapstructure:"strategy" yaml:"strategy" json:"strategy"`                                // 限流策略
-	DefaultScope      Scope         `mapstructure:"default-scope" yaml:"default-scope" json:"defaultScope"`                  // 默认作用域
-	GlobalLimit       *LimitRule    `mapstructure:"global-limit" yaml:"global-limit" json:"globalLimit"`                     // 全局限流规则
-	Routes            []RouteLimit  `mapstructure:"routes" yaml:"routes" json:"routes"`                                      // 路由级别限流
-	IPRules           []IPRule      `mapstructure:"ip-rules" yaml:"ip-rules" json:"ipRules"`                                 // IP规则
-	UserRules         []UserRule    `mapstructure:"user-rules" yaml:"user-rules" json:"userRules"`                           // 用户规则
-	Storage           StorageConfig `mapstructure:"storage" yaml:"storage" json:"storage"`                                   // 存储配置
-	CustomRuleLoader  string        `mapstructure:"custom-rule-loader" yaml:"custom-rule-loader" json:"customRuleLoader"`    // 自定义规则加载器名称
-	EnableDynamicRule bool          `mapstructure:"enable-dynamic-rule" yaml:"enable-dynamic-rule" json:"enableDynamicRule"` // 是否启用动态规则
+	ModuleName        string            `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                        // 模块名称
+	Enabled           bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                   // 是否启用
+	Strategy          Strategy          `mapstructure:"strategy" yaml:"strategy" json:"strategy"`                                // 限流策略
+	DefaultScope      Scope             `mapstructure:"default-scope" yaml:"default-scope" json:"defaultScope"`                  // 默认作用域
+	GlobalLimit       *LimitRule        `mapstructure:"global-limit" yaml:"global-limit" json:"globalLimit"`                     // 全局限流规则
+	Routes            []RouteLimit      `mapstructure:"routes" yaml:"routes" json:"routes"`                                      // 路由级别限流
+	IPRules           []IPRule          `mapstructure:"ip-rules" yaml:"ip-rules" json:"ipRules"`                                 // IP规则
+	UserRules         []UserRule        `mapstructure:"user-rules" yaml:"user-rules" json:"userRules"`                           // 用户规则
+	Storage           StorageConfig     `mapstructure:"storage" yaml:"storage" json:"storage"`                                   // 存储配置
+	CustomRuleLoader  string            `mapstructure:"custom-rule-loader" yaml:"custom-rule-loader" json:"customRuleLoader"`    // 自定义规则加载器名称
+	EnableDynamicRule bool              `mapstructure:"enable-dynamic-rule" yaml:"enable-dynamic-rule" json:"enableDynamicRule"` // 是否启用动态规则
+	EmailAlertConfig  *EmailAlertConfig `mapstructure:"email-alert-config" yaml:"email-alert-config" json:"emailAlertConfig"`    // 邮件告警配置名称
 }
 
 // LimitRule 限流规则
@@ -130,6 +132,7 @@ func Default() *RateLimit {
 		IPRules:           []IPRule{},
 		UserRules:         []UserRule{},
 		EnableDynamicRule: false,
+		EmailAlertConfig:  DefaultEmailAlertConfig(),
 	}
 }
 

@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-13 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-12-04 13:29:15
+ * @LastEditTime: 2025-12-05 16:11:55
  * @FilePath: \go-config\pkg\wsc\wsc.go
  * @Description: WebSocket 通信核心配置模块
  *
@@ -92,6 +92,53 @@ type Security struct {
 	TokenExpiration   int      `mapstructure:"token-expiration" yaml:"token-expiration" json:"tokenExpiration"`         // Token过期时间(秒)
 	MaxLoginAttempts  int      `mapstructure:"max-login-attempts" yaml:"max-login-attempts" json:"maxLoginAttempts"`    // 最大登录尝试次数
 	LoginLockDuration int      `mapstructure:"login-lock-duration" yaml:"login-lock-duration" json:"loginLockDuration"` // 登录锁定时长(秒)
+
+	// 消息加密配置
+	MessageEncryption *MessageEncryption `mapstructure:"message-encryption" yaml:"message-encryption" json:"messageEncryption"` // 消息加密配置
+
+	// 消息风控配置
+	MessageRateLimit *MessageRateLimit `mapstructure:"message-rate-limit" yaml:"message-rate-limit" json:"messageRateLimit"` // 消息风控配置
+}
+
+// MessageEncryption 消息加密配置
+type MessageEncryption struct {
+	Enabled         bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                             // 是否启用消息数据加密
+	Algorithm       string `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"`                       // 加密算法: AES-256-GCM, AES-128-GCM
+	Key             string `mapstructure:"key" yaml:"key" json:"key"`                                         // 加密密钥 (32字节用于AES-256, 16字节用于AES-128)
+	EnableKeyRotate bool   `mapstructure:"enable-key-rotate" yaml:"enable-key-rotate" json:"enableKeyRotate"` // 是否启用密钥轮换
+	KeyRotateHours  int    `mapstructure:"key-rotate-hours" yaml:"key-rotate-hours" json:"keyRotateHours"`    // 密钥轮换间隔(小时)
+	Compress        bool   `mapstructure:"compress" yaml:"compress" json:"compress"`                          // 加密前是否压缩数据
+	EncryptPrefix   string `mapstructure:"encrypt-prefix" yaml:"encrypt-prefix" json:"encryptPrefix"`         // 加密数据前缀标识
+	BackupKeys      int    `mapstructure:"backup-keys" yaml:"backup-keys" json:"backupKeys"`                  // 保留的备份密钥数量
+}
+
+// MessageRateLimit 消息风控配置
+type MessageRateLimit struct {
+	Enabled          bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                // 是否启用消息风控
+	Window           time.Duration `mapstructure:"window" yaml:"window" json:"window"`                                   // 时间窗口
+	MaxMessages      int           `mapstructure:"max-messages" yaml:"max-messages" json:"maxMessages"`                  // 窗口内最大消息数
+	AlertThreshold   int           `mapstructure:"alert-threshold" yaml:"alert-threshold" json:"alertThreshold"`         // 预警阈值(百分比)
+	BlockDuration    time.Duration `mapstructure:"block-duration" yaml:"block-duration" json:"blockDuration"`            // 封禁时长
+	UseRedis         bool          `mapstructure:"use-redis" yaml:"use-redis" json:"useRedis"`                           // 是否使用Redis存储
+	RedisKeyPrefix   string        `mapstructure:"redis-key-prefix" yaml:"redis-key-prefix" json:"redisKeyPrefix"`       // Redis键前缀
+	EnableEmailAlert bool          `mapstructure:"enable-email-alert" yaml:"enable-email-alert" json:"enableEmailAlert"` // 是否启用邮件预警
+	EmailAlertConfig *EmailAlert   `mapstructure:"email-alert" yaml:"email-alert" json:"emailAlert"`                     // 邮件预警配置
+}
+
+// EmailAlert 邮件预警配置
+type EmailAlert struct {
+	SMTPHost      string   `mapstructure:"smtp-host" yaml:"smtp-host" json:"smtpHost"`                // SMTP服务器地址
+	SMTPPort      int      `mapstructure:"smtp-port" yaml:"smtp-port" json:"smtpPort"`                // SMTP端口
+	Username      string   `mapstructure:"username" yaml:"username" json:"username"`                  // SMTP用户名
+	Password      string   `mapstructure:"password" yaml:"password" json:"password"`                  // SMTP密码
+	From          string   `mapstructure:"from" yaml:"from" json:"from"`                              // 发件人地址
+	To            []string `mapstructure:"to" yaml:"to" json:"to"`                                    // 收件人列表
+	EnableTLS     bool     `mapstructure:"enable-tls" yaml:"enable-tls" json:"enableTls"`             // 是否启用TLS
+	SubjectAlert  string   `mapstructure:"subject-alert" yaml:"subject-alert" json:"subjectAlert"`    // 预警邮件主题
+	SubjectBlock  string   `mapstructure:"subject-block" yaml:"subject-block" json:"subjectBlock"`    // 封禁邮件主题
+	TemplateAlert string   `mapstructure:"template-alert" yaml:"template-alert" json:"templateAlert"` // 预警邮件HTML模板
+	TemplateBlock string   `mapstructure:"template-block" yaml:"template-block" json:"templateBlock"` // 封禁邮件HTML模板
+	AppName       string   `mapstructure:"app-name" yaml:"app-name" json:"appName"`                   // 应用名称
 }
 
 // Database 数据库持久化配置
@@ -181,7 +228,157 @@ func DefaultSecurity() *Security {
 		TokenExpiration:   3600,
 		MaxLoginAttempts:  5,
 		LoginLockDuration: 300,
+		MessageEncryption: DefaultMessageEncryption(),
+		MessageRateLimit:  DefaultMessageRateLimit(),
 	}
+}
+
+// DefaultMessageEncryption 默认消息加密配置
+func DefaultMessageEncryption() *MessageEncryption {
+	return &MessageEncryption{
+		Enabled:         false,
+		Algorithm:       "AES-256-GCM",
+		Key:             "your-32-byte-secret-key-for-aes256", // 32字节密钥,实际使用时应该通过环境变量或安全配置提供
+		EnableKeyRotate: false,
+		KeyRotateHours:  24,
+		Compress:        true,
+		EncryptPrefix:   "ENC:",
+		BackupKeys:      3,
+	}
+}
+
+// DefaultMessageRateLimit 默认消息风控配置
+func DefaultMessageRateLimit() *MessageRateLimit {
+	return &MessageRateLimit{
+		Enabled:          true,
+		Window:           time.Minute,
+		MaxMessages:      100,
+		AlertThreshold:   80,
+		BlockDuration:    5 * time.Minute,
+		UseRedis:         true,
+		RedisKeyPrefix:   "wsc:rate_limit:",
+		EnableEmailAlert: false,
+		EmailAlertConfig: DefaultEmailAlert(),
+	}
+}
+
+// DefaultEmailAlert 默认邮件预警配置
+func DefaultEmailAlert() *EmailAlert {
+	return &EmailAlert{
+		SMTPHost:      "",
+		SMTPPort:      587,
+		Username:      "",
+		Password:      "",
+		From:          "",
+		To:            []string{},
+		EnableTLS:     true,
+		SubjectAlert:  "[WebSocket风控预警] 用户消息频率异常",
+		SubjectBlock:  "[WebSocket风控封禁] 用户已被封禁",
+		TemplateAlert: defaultAlertEmailTemplate(),
+		TemplateBlock: defaultBlockEmailTemplate(),
+		AppName:       "WebSocket消息系统",
+	}
+}
+
+// defaultAlertEmailTemplate 默认预警邮件模板
+func defaultAlertEmailTemplate() string {
+	return `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #ff9800; color: white; padding: 20px; border-radius: 5px 5px 0 0; }
+        .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }
+        .info-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }
+        .info-table td:first-child { font-weight: bold; width: 150px; }
+        .footer { background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #666; }
+        .warning { background: #fff3cd; border-left: 4px solid #ff9800; padding: 12px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>⚠️ 消息频率预警 - {{.AppName}}</h2>
+        </div>
+        <div class="content">
+            <div class="warning">
+                <strong>用户消息发送频率达到预警阈值，请关注该用户行为</strong>
+            </div>
+            <table class="info-table">
+                <tr><td>用户ID</td><td>{{.UserID}}</td></tr>
+                <tr><td>用户类型</td><td>{{.UserType}}</td></tr>
+                <tr><td>当前分钟消息数</td><td><strong style="color: #ff9800; font-size: 18px;">{{.MinuteCount}} 条</strong></td></tr>
+                <tr><td>当前小时消息数</td><td><strong style="color: #ff9800; font-size: 18px;">{{.HourCount}} 条</strong></td></tr>
+                <tr><td>触发时间</td><td>{{.TriggerTime}}</td></tr>
+            </table>
+            <p><strong>建议操作：</strong></p>
+            <ul>
+                <li>立即检查该用户的消息内容</li>
+                <li>确认是否为恶意刷屏行为</li>
+                <li>必要时联系用户或执行封禁操作</li>
+            </ul>
+        </div>
+        <div class="footer">
+            <p>此邮件由 {{.AppName}} 自动发送，请勿直接回复</p>
+            <p>Generated at {{.GenerateTime}}</p>
+        </div>
+    </div>
+</body>
+</html>`
+}
+
+// defaultBlockEmailTemplate 默认封禁邮件模板
+func defaultBlockEmailTemplate() string {
+	return `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f44336; color: white; padding: 20px; border-radius: 5px 5px 0 0; }
+        .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }
+        .info-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }
+        .info-table td:first-child { font-weight: bold; width: 150px; }
+        .footer { background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #666; }
+        .warning { background: #ffebee; border-left: 4px solid #f44336; padding: 12px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>🚫 用户已被封禁 - {{.AppName}}</h2>
+        </div>
+        <div class="content">
+            <div class="warning">
+                <strong>用户消息发送频率超过限制，已被临时封禁</strong>
+            </div>
+            <table class="info-table">
+                <tr><td>用户ID</td><td>{{.UserID}}</td></tr>
+                <tr><td>用户类型</td><td>{{.UserType}}</td></tr>
+                <tr><td>当前分钟消息数</td><td><strong style="color: #f44336; font-size: 18px;">{{.MinuteCount}} 条</strong></td></tr>
+                <tr><td>当前小时消息数</td><td><strong style="color: #f44336; font-size: 18px;">{{.HourCount}} 条</strong></td></tr>
+                <tr><td>封禁时间</td><td>{{.TriggerTime}}</td></tr>
+            </table>
+            <p><strong>紧急处理：</strong></p>
+            <ul>
+                <li>立即审查该用户的所有消息内容</li>
+                <li>评估是否需要永久封禁</li>
+                <li>通知相关运维人员</li>
+                <li>记录异常行为日志</li>
+            </ul>
+        </div>
+        <div class="footer">
+            <p>此邮件由 {{.AppName}} 自动发送，请勿直接回复</p>
+            <p>Generated at {{.GenerateTime}}</p>
+        </div>
+    </div>
+</body>
+</html>`
 }
 
 // DefaultLogging 创建默认日志配置
