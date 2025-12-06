@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-26 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-12-04 13:22:06
+ * @LastEditTime: 2025-12-06 10:27:05
  * @FilePath: \go-config\config_complete_test.go
  * @Description: 配置生成器与热加载集成测试 - 完整验证所有字段包括嵌套结构
  *
@@ -13,9 +13,6 @@ package goconfig
 
 import (
 	"context"
-	"testing"
-	"time"
-
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/kamalyes/go-config/pkg/access"
 	"github.com/kamalyes/go-config/pkg/banner"
@@ -24,6 +21,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"testing"
+	"time"
 )
 
 // TestConfigCompleteValidation 完整验证所有字段
@@ -262,7 +261,6 @@ func TestConfigCompleteValidation(t *testing.T) {
 			// 验证 OSS 嵌套结构
 			assert.Equal(t, defaultCfg.OSS.Type, config.OSS.Type, "OSS.Type should match")
 			assert.Equal(t, defaultCfg.OSS.Enabled, config.OSS.Enabled, "OSS.Enabled should match")
-			assert.Equal(t, defaultCfg.OSS.Default, config.OSS.Default, "OSS.Default should match")
 
 			// 验证 OSS.Minio 子结构
 			assert.Equal(t, defaultCfg.OSS.Minio.Endpoint, config.OSS.Minio.Endpoint, "OSS.Minio.Endpoint should match")

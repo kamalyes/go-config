@@ -13,6 +13,7 @@ package middleware
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-config/pkg/access"
 	"github.com/kamalyes/go-config/pkg/alerting"
 	"github.com/kamalyes/go-config/pkg/breaker"
 	"github.com/kamalyes/go-config/pkg/i18n"
@@ -21,6 +22,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/pprof"
 	"github.com/kamalyes/go-config/pkg/recovery"
 	"github.com/kamalyes/go-config/pkg/requestid"
+	"github.com/kamalyes/go-config/pkg/signature"
 	"github.com/kamalyes/go-config/pkg/tracing"
 )
 
@@ -37,6 +39,8 @@ type Middleware struct {
 	PProf          *pprof.PProf            `mapstructure:"pprof" yaml:"pprof" json:"pprof"`                              // PProf中间件
 	CircuitBreaker *breaker.CircuitBreaker `mapstructure:"circuit-breaker" yaml:"circuit-breaker" json:"circuitBreaker"` // 断路器配置
 	Alerting       *alerting.Alerting      `mapstructure:"alerting" yaml:"alerting" json:"alerting"`                     // 告警配置
+	Access         *access.Access          `mapstructure:"access" yaml:"access" json:"access"`                           // 访问记录中间件
+	Signature      *signature.Signature    `mapstructure:"signature" yaml:"signature" json:"signature"`                  // 签名验证中间件
 }
 
 // Default 创建默认中间件配置
@@ -53,6 +57,8 @@ func Default() *Middleware {
 		PProf:          pprof.Default(),
 		CircuitBreaker: breaker.Default(),
 		Alerting:       alerting.Default(),
+		Access:         access.Default(),
+		Signature:      signature.Default(),
 	}
 }
 
@@ -95,6 +101,18 @@ func (m *Middleware) Clone() internal.Configurable {
 	}
 	if m.PProf != nil {
 		clone.PProf = m.PProf.Clone().(*pprof.PProf)
+	}
+	if m.CircuitBreaker != nil {
+		clone.CircuitBreaker = m.CircuitBreaker.Clone().(*breaker.CircuitBreaker)
+	}
+	if m.Alerting != nil {
+		clone.Alerting = m.Alerting.Clone().(*alerting.Alerting)
+	}
+	if m.Access != nil {
+		clone.Access = m.Access.Clone().(*access.Access)
+	}
+	if m.Signature != nil {
+		clone.Signature = m.Signature.Clone().(*signature.Signature)
 	}
 
 	return clone
@@ -230,4 +248,60 @@ func (m *Middleware) Disable() *Middleware {
 // IsEnabled 检查是否启用
 func (m *Middleware) IsEnabled() bool {
 	return m.Enabled
+}
+
+// WithCircuitBreaker 设置断路器配置
+func (m *Middleware) WithCircuitBreaker(circuitBreaker *breaker.CircuitBreaker) *Middleware {
+	m.CircuitBreaker = circuitBreaker
+	return m
+}
+
+// WithAlerting 设置告警配置
+func (m *Middleware) WithAlerting(alerting *alerting.Alerting) *Middleware {
+	m.Alerting = alerting
+	return m
+}
+
+// WithAccess 设置访问记录中间件配置
+func (m *Middleware) WithAccess(access *access.Access) *Middleware {
+	m.Access = access
+	return m
+}
+
+// WithSignature 设置签名验证中间件配置
+func (m *Middleware) WithSignature(signature *signature.Signature) *Middleware {
+	m.Signature = signature
+	return m
+}
+
+// EnableCircuitBreaker 启用断路器
+func (m *Middleware) EnableCircuitBreaker() *Middleware {
+	if m.CircuitBreaker != nil {
+		m.CircuitBreaker.Enable()
+	}
+	return m
+}
+
+// EnableAlerting 启用告警
+func (m *Middleware) EnableAlerting() *Middleware {
+	if m.Alerting != nil {
+		m.Alerting.Enable()
+	}
+	return m
+}
+
+// EnableAccess 启用访问记录
+func (m *Middleware) EnableAccess() *Middleware {
+	if m.Access != nil {
+		m.Access.Enable()
+	}
+	return m
+}
+
+// EnableSignature 启用签名验证
+func (m *Middleware) EnableSignature() *Middleware {
+	if m.Signature != nil {
+		m.Signature.Enable()
+	}
+	return m
 }

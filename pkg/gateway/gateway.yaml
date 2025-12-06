@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2025-12-02 09:21:01
+# 生成时间: 2025-12-06 10:29:41
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -210,7 +210,6 @@ oss:
     type: minio
     # 是否启用网关
     enabled: true
-    default: minio
     minio:
         endpoint: localhost
         access-key: minioadmin
@@ -705,6 +704,47 @@ middleware:
         enabled: false
         webhooks: []
         channels: []
+    access:
+        # 模块名称
+        module-name: access
+        # 是否启用网关
+        enabled: true
+        service-name: rpc-gateway
+        retention-days: 60
+        include-body: true
+        include-response: true
+        include-headers:
+            - User-Agent
+            - X-Request-ID
+            - X-Trace-ID
+            - Authorization
+            - Content-Type
+        exclude-paths:
+            - /health
+            - /metrics
+            - /debug
+        max-body-size: 1048576
+        max-response-size: 5242880
+    signature:
+        # 模块名称
+        module-name: signature
+        # 是否启用网关
+        enabled: false
+        secret-key: default-secret-key-change-in-production
+        signature-header: X-Signature
+        timestamp-header: X-Timestamp
+        nonce-header: X-Nonce
+        algorithm: sha256
+        timeout-window: 5m0s
+        ignore-paths:
+            - /health
+            - /metrics
+            - /ping
+        required-headers:
+            - X-Timestamp
+            - X-Nonce
+        skip-query: false
+        skip-body: false
 # CORS配置
 cors:
     allowed-origins:

@@ -13,9 +13,8 @@ package oss
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/kamalyes/go-config/internal"
+	"strings"
 )
 
 // OSSType 定义OSS存储类型
@@ -67,7 +66,6 @@ type OSSProvider interface {
 type OSSConfig struct {
 	Type      OSSType    `mapstructure:"type" yaml:"type" json:"type"`          // OSS类型
 	Enabled   bool       `mapstructure:"enabled" yaml:"enabled" json:"enabled"` // 是否启用
-	Default   string     `mapstructure:"default" yaml:"default" json:"default"` // 默认使用的OSS服务
 	Minio     *Minio     `mapstructure:"minio" yaml:"minio" json:"minio"`       // Minio配置
 	S3        *S3        `mapstructure:"s3" yaml:"s3" json:"s3"`                // AWS S3配置
 	AliyunOSS *AliyunOss `mapstructure:"aliyun" yaml:"aliyun" json:"aliyun"`    // 阿里云OSS配置
@@ -79,7 +77,6 @@ func NewOSSConfig() *OSSConfig {
 	return &OSSConfig{
 		Type:      OSSTypeMinio,
 		Enabled:   true,
-		Default:   string(OSSTypeMinio),
 		Minio:     DefaultMinioConfig(),
 		S3:        DefaultS3Config(),
 		AliyunOSS: DefaultAliyunOSSConfig(),
@@ -113,18 +110,6 @@ func (c *OSSConfig) GetProvider(ossType OSSType) (OSSProvider, error) {
 	default:
 		return nil, fmt.Errorf("unsupported oss type: %s", ossType)
 	}
-}
-
-// GetDefaultProvider 获取默认的OSS提供商
-func (c *OSSConfig) GetDefaultProvider() (OSSProvider, error) {
-	defaultType := OSSType(c.Default)
-	return c.GetProvider(defaultType)
-}
-
-// SetDefaultProvider 设置默认OSS提供商
-func (c *OSSConfig) SetDefaultProvider(ossType OSSType) {
-	c.Default = string(ossType)
-	c.Type = ossType
 }
 
 // ListAvailableProviders 列出所有可用的OSS提供商
@@ -175,7 +160,6 @@ func (c *OSSConfig) Clone() internal.Configurable {
 	newConfig := &OSSConfig{
 		Type:    c.Type,
 		Enabled: c.Enabled,
-		Default: c.Default,
 	}
 
 	if c.Minio != nil {
@@ -209,16 +193,6 @@ func (c *OSSConfig) Validate() error {
 		return nil
 	}
 
-	// 验证默认提供商设置
-	if c.Default == "" {
-		return fmt.Errorf("default oss provider not specified")
-	}
-
-	defaultType := OSSType(c.Default)
-	if err := c.ValidateProvider(defaultType); err != nil {
-		return fmt.Errorf("default provider validation failed: %w", err)
-	}
-
 	return nil
 }
 
@@ -233,11 +207,7 @@ func (c *OSSConfig) EnsureDefaults() {
 	if c.AliyunOSS == nil {
 		c.AliyunOSS = DefaultAliyunOSSConfig()
 	}
-
 	// 如果没有设置默认类型，使用MinIO
-	if c.Default == "" {
-		c.Default = string(OSSTypeMinio)
-	}
 	if c.Type == "" {
 		c.Type = OSSTypeMinio
 	}
@@ -261,16 +231,6 @@ func (c *OSSConfig) BeforeLoad() error {
 // AfterLoad 配置加载后的钩子
 func (c *OSSConfig) AfterLoad() error {
 	c.EnsureDefaults()
-
-	// 验证默认提供商配置的有效性
-	if c.Default != "" {
-		if err := c.ValidateProvider(OSSType(c.Default)); err != nil {
-			// 如果默认提供商配置无效，回退到MinIO
-			c.Default = string(OSSTypeMinio)
-			c.Type = OSSTypeMinio
-		}
-	}
-
 	return nil
 }
 

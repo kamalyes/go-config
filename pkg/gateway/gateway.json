@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2025-12-02 09:21:01
+// 生成时间: 2025-12-06 10:29:41
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -204,7 +204,6 @@
   "oss": {
     "type": "minio",
     "enabled": true,
-    "default": "minio",
     "minio": {
       "endpoint": "localhost",
       "accessKey": "minioadmin",
@@ -698,6 +697,49 @@
       "enabled": false,
       "webhooks": [],
       "channels": []
+    },
+    "access": {
+      "moduleName": "access",
+      "enabled": true,
+      "serviceName": "rpc-gateway",
+      "retentionDays": 60,
+      "includeBody": true,
+      "includeResponse": true,
+      "includeHeaders": [
+        "User-Agent",
+        "X-Request-ID",
+        "X-Trace-ID",
+        "Authorization",
+        "Content-Type"
+      ],
+      "excludePaths": [
+        "/health",
+        "/metrics",
+        "/debug"
+      ],
+      "maxBodySize": 1048576,
+      "maxResponseSize": 5242880
+    },
+    "signature": {
+      "moduleName": "signature",
+      "enabled": false,
+      "secretKey": "default-secret-key-change-in-production",
+      "signatureHeader": "X-Signature",
+      "timestampHeader": "X-Timestamp",
+      "nonceHeader": "X-Nonce",
+      "algorithm": "sha256",
+      "timeoutWindow": 300000000000,
+      "ignorePaths": [
+        "/health",
+        "/metrics",
+        "/ping"
+      ],
+      "requiredHeaders": [
+        "X-Timestamp",
+        "X-Nonce"
+      ],
+      "skipQuery": false,
+      "skipBody": false
     }
   },
   "cors": {
