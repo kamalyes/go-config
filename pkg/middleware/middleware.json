@@ -2,7 +2,7 @@
 // 模块名称: middleware
 // 包名: middleware  
 // 描述: 中间件模块
-// 生成时间: 2025-11-28 00:26:08
+// 生成时间: 2025-12-11 15:35:01
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -21,10 +21,40 @@
     "compress": true,
     "skipPaths": [
       "/health",
-      "/metrics"
+      "/metrics",
+      "/favicon.ico",
+      "/ping",
+      "/readiness",
+      "/liveness"
     ],
     "enableRequest": true,
-    "enableResponse": false
+    "enableResponse": false,
+    "maxBodySize": 2048,
+    "sensitiveMask": "***REDACTED***",
+    "sensitiveKeys": [
+      "password",
+      "passwd",
+      "token",
+      "access_token",
+      "refresh_token",
+      "secret",
+      "authorization",
+      "api_key",
+      "apikey",
+      "mobile",
+      "phone",
+      "id_card",
+      "credit_card"
+    ],
+    "slowHttpThreshold": 1000,
+    "slowGrpcThreshold": 1000,
+    "slowStreamThreshold": 5000,
+    "loggableContentTypes": [
+      "application/json",
+      "application/xml",
+      "application/x-www-form-urlencoded",
+      "text/"
+    ]
   },
   "recovery": {
     "moduleName": "recovery",
@@ -180,5 +210,26 @@
     "enabled": false,
     "webhooks": [],
     "channels": []
+  },
+  "signature": {
+    "moduleName": "signature",
+    "enabled": false,
+    "secretKey": "default-secret-key-change-in-production",
+    "signatureHeader": "X-Signature",
+    "timestampHeader": "X-Timestamp",
+    "nonceHeader": "X-Nonce",
+    "algorithm": "sha256",
+    "timeoutWindow": 300000000000,
+    "ignorePaths": [
+      "/health",
+      "/metrics",
+      "/ping"
+    ],
+    "requiredHeaders": [
+      "X-Timestamp",
+      "X-Nonce"
+    ],
+    "skipQuery": false,
+    "skipBody": false
   }
 }

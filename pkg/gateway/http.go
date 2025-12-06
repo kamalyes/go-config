@@ -13,6 +13,7 @@ package gateway
 
 import (
 	"fmt"
+
 	"github.com/kamalyes/go-config/internal"
 )
 
@@ -21,7 +22,7 @@ type HTTPServer struct {
 	ModuleName         string            `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                           // 模块名称
 	Host               string            `mapstructure:"host" yaml:"host" json:"host"`                                               // 主机地址
 	Port               int               `mapstructure:"port" yaml:"port" json:"port"`                                               // 端口
-	Network            string            `mapstructure:"network" yaml:"network" json:"network"`                                       // 网络类型: tcp, tcp4, tcp6
+	Network            string            `mapstructure:"network" yaml:"network" json:"network"`                                      // 网络类型: tcp, tcp4, tcp6
 	ReadTimeout        int               `mapstructure:"read-timeout" yaml:"read-timeout" json:"readTimeout"`                        // 读取超时(秒)
 	WriteTimeout       int               `mapstructure:"write-timeout" yaml:"write-timeout" json:"writeTimeout"`                     // 写入超时(秒)
 	IdleTimeout        int               `mapstructure:"idle-timeout" yaml:"idle-timeout" json:"idleTimeout"`                        // 空闲超时(秒)
@@ -87,7 +88,7 @@ func (h *HTTPServer) GetEndpoint() string {
 }
 
 // Clone 返回配置的副本
-func (h *HTTPServer) Clone() *HTTPServer {
+func (h *HTTPServer) Clone() internal.Configurable {
 	cloned := &HTTPServer{
 		ModuleName:         h.ModuleName,
 		Host:               h.Host,
@@ -112,6 +113,18 @@ func (h *HTTPServer) Clone() *HTTPServer {
 	}
 	internal.CallAfterLoad(cloned) // 重新计算衍生字段
 	return cloned
+}
+
+// Get 返回配置接口
+func (h *HTTPServer) Get() interface{} {
+	return h
+}
+
+// Set 设置配置数据
+func (h *HTTPServer) Set(data interface{}) {
+	if cfg, ok := data.(*HTTPServer); ok {
+		*h = *cfg
+	}
 }
 
 // Validate 验证配置

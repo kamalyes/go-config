@@ -13,6 +13,7 @@ package gateway
 
 import (
 	"fmt"
+
 	"github.com/kamalyes/go-config/internal"
 )
 
@@ -68,7 +69,7 @@ func DefaultGRPCServer() *GRPCServer {
 	g := &GRPCServer{
 		Host:              "0.0.0.0",
 		Port:              9090,
-		Network:           "tcp4", // 默认使用 tcp4 强制 IPv4
+		Network:           "tcp4",          // 默认使用 tcp4 强制 IPv4
 		MaxRecvMsgSize:    4 * 1024 * 1024, // 4MB
 		MaxSendMsgSize:    4 * 1024 * 1024, // 4MB
 		KeepaliveTime:     30,
@@ -104,7 +105,7 @@ func DefaultGRPCClient(serviceName string, endpoints []string) *GRPCClient {
 	return &GRPCClient{
 		ServiceName:       serviceName,
 		Endpoints:         endpoints,
-		Network:           "tcp4", // 默认使用 tcp4 强制 IPv4
+		Network:           "tcp4",          // 默认使用 tcp4 强制 IPv4
 		MaxRecvMsgSize:    4 * 1024 * 1024, // 4MB
 		MaxSendMsgSize:    4 * 1024 * 1024, // 4MB
 		KeepaliveTime:     30,
@@ -118,7 +119,7 @@ func DefaultGRPCClient(serviceName string, endpoints []string) *GRPCClient {
 }
 
 // Clone 返回配置的副本
-func (g *GRPC) Clone() *GRPC {
+func (g *GRPC) Clone() internal.Configurable {
 	clients := make(map[string]*GRPCClient)
 	for k, v := range g.Clients {
 		clients[k] = v.Clone()
@@ -166,6 +167,18 @@ func (g *GRPCClient) Clone() *GRPCClient {
 		TLSCertFile:       g.TLSCertFile,
 		TLSKeyFile:        g.TLSKeyFile,
 		TLSCAFile:         g.TLSCAFile,
+	}
+}
+
+// Get 返回配置接口
+func (g *GRPC) Get() interface{} {
+	return g
+}
+
+// Set 设置配置数据
+func (g *GRPC) Set(data interface{}) {
+	if cfg, ok := data.(*GRPC); ok {
+		*g = *cfg
 	}
 }
 

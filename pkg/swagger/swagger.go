@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 17:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 23:16:53
+ * @LastEditTime: 2025-12-11 15:27:31
  * @FilePath: \go-config\pkg\swagger\swagger.go
  * @Description: Swagger配置模块 - 基于go-config设计模式
  *
@@ -13,6 +13,7 @@ package swagger
 
 import (
 	"fmt"
+
 	"github.com/kamalyes/go-config/internal"
 )
 
@@ -94,7 +95,7 @@ type Swagger struct {
 func Default() *Swagger {
 	return &Swagger{
 		ModuleName:  "swagger",
-		Enabled:     true, // 默认启用Swagger
+		Enabled:     false, // 默认不启用Swagger
 		JSONPath:    "/swagger/doc.json",
 		UIPath:      "/swagger",
 		YamlPath:    "/swagger/doc.yaml",

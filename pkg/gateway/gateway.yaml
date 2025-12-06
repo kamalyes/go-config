@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2025-12-02 09:21:01
+# 生成时间: 2025-12-11 17:33:50
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -60,7 +60,7 @@ cache:
     module-name: default
     type: memory
     # 是否启用网关
-    enabled: true
+    enabled: false
     default-ttl: 30m0s
     key-prefix: 'cache:'
     serializer: json
@@ -210,7 +210,6 @@ oss:
     type: minio
     # 是否启用网关
     enabled: true
-    default: minio
     minio:
         endpoint: localhost
         access-key: minioadmin
@@ -503,6 +502,11 @@ security:
             require-https: false
             username: ""
             password: ""
+    csp:
+        # 是否启用网关
+        enabled: true
+        mode: balanced
+        custom: ""
 # 中间件配置
 middleware:
     # 模块名称
@@ -547,6 +551,9 @@ middleware:
             - phone
             - id_card
             - credit_card
+        slow-http-threshold: 1000
+        slow-grpc-threshold: 1000
+        slow-stream-threshold: 5000
         loggable-content-types:
             - application/json
             - application/xml
@@ -705,6 +712,26 @@ middleware:
         enabled: false
         webhooks: []
         channels: []
+    signature:
+        # 模块名称
+        module-name: signature
+        # 是否启用网关
+        enabled: false
+        secret-key: default-secret-key-change-in-production
+        signature-header: X-Signature
+        timestamp-header: X-Timestamp
+        nonce-header: X-Nonce
+        algorithm: sha256
+        timeout-window: 5m0s
+        ignore-paths:
+            - /health
+            - /metrics
+            - /ping
+        required-headers:
+            - X-Timestamp
+            - X-Nonce
+        skip-query: false
+        skip-body: false
 # CORS配置
 cors:
     allowed-origins:
@@ -748,7 +775,7 @@ swagger:
     # 模块名称
     module-name: swagger
     # 是否启用网关
-    enabled: true
+    enabled: false
     json-path: /swagger/doc.json
     ui-path: /swagger
     yaml-path: /swagger/doc.yaml
@@ -1023,8 +1050,28 @@ wsc:
             - phone
             - id_card
             - credit_card
+        slow-http-threshold: 1000
+        slow-grpc-threshold: 1000
+        slow-stream-threshold: 5000
         loggable-content-types:
             - application/json
             - application/xml
             - application/x-www-form-urlencoded
             - text/
+# Job调度配置
+jobs:
+    # 是否启用网关
+    enabled: true
+    timezone: Asia/Shanghai
+    graceful-shutdown: 30
+    max-retries: 3
+    retry-interval: 5
+    tasks:
+        cleanup:
+            # 是否启用网关
+            enabled: true
+            cron-spec: 0 */5 * * * *
+            immediate-start: false
+            timeout: 300
+            overlap-prevent: true
+            description: 定期清理过期数据和无效缓存

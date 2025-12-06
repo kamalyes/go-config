@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-08 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-22 00:06:09
+ * @LastEditTime: 2025-12-11 15:28:28
  * @FilePath: \go-config\pkg\cache\cache.go
  * @Description: 缓存总配置定义
  *
@@ -12,8 +12,9 @@
 package cache
 
 import (
-	"github.com/kamalyes/go-config/internal"
 	"time"
+
+	"github.com/kamalyes/go-config/internal"
 )
 
 // CacheType 缓存类型
@@ -168,7 +169,7 @@ func DefaultCache() Cache {
 	return Cache{
 		ModuleName: "default",
 		Type:       CacheTypeMemory,
-		Enabled:    true,
+		Enabled:    false,
 		DefaultTTL: 30 * time.Minute,
 		KeyPrefix:  "cache:",
 		Serializer: "json",

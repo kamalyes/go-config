@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-26 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-12-04 13:22:06
+ * @LastEditTime: 2025-12-11 15:33:26
  * @FilePath: \go-config\config_complete_test.go
  * @Description: 配置生成器与热加载集成测试 - 完整验证所有字段包括嵌套结构
  *
@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/go-viper/mapstructure/v2"
-	"github.com/kamalyes/go-config/pkg/access"
 	"github.com/kamalyes/go-config/pkg/banner"
 	"github.com/kamalyes/go-config/pkg/cache"
 	"github.com/kamalyes/go-config/pkg/gateway"
@@ -43,29 +42,6 @@ func TestConfigCompleteValidation(t *testing.T) {
 	// 生成所有配置文件
 	err = generator.GenerateAllConfigs()
 	require.NoError(t, err)
-
-	// 测试 Access 模块 - 完整字段验证
-	t.Run("Access Complete", func(t *testing.T) {
-		testCompleteModuleConfig(t, tmpDir, "access", &access.Access{}, func(cfg interface{}) {
-			config := cfg.(*access.Access)
-			defaultCfg := access.Default()
-
-			// 验证所有字段
-			assert.Equal(t, defaultCfg.ModuleName, config.ModuleName, "ModuleName should match")
-			assert.Equal(t, defaultCfg.Enabled, config.Enabled, "Enabled should match")
-			assert.Equal(t, defaultCfg.ServiceName, config.ServiceName, "ServiceName should match")
-			assert.Equal(t, defaultCfg.RetentionDays, config.RetentionDays, "RetentionDays should match")
-			assert.Equal(t, defaultCfg.IncludeBody, config.IncludeBody, "IncludeBody should match")
-			assert.Equal(t, defaultCfg.IncludeResponse, config.IncludeResponse, "IncludeResponse should match")
-			assert.Equal(t, defaultCfg.IncludeHeaders, config.IncludeHeaders, "IncludeHeaders should match")
-			assert.Equal(t, defaultCfg.ExcludePaths, config.ExcludePaths, "ExcludePaths should match")
-			assert.Equal(t, defaultCfg.MaxBodySize, config.MaxBodySize, "MaxBodySize should match")
-			assert.Equal(t, defaultCfg.MaxResponseSize, config.MaxResponseSize, "MaxResponseSize should match")
-
-			t.Logf("✅ Access 模块所有字段验证通过")
-		})
-	})
-
 	// 测试 Banner 模块 - 完整字段验证
 	t.Run("Banner Complete", func(t *testing.T) {
 		testCompleteModuleConfig(t, tmpDir, "banner", &banner.Banner{}, func(cfg interface{}) {
@@ -262,7 +238,6 @@ func TestConfigCompleteValidation(t *testing.T) {
 			// 验证 OSS 嵌套结构
 			assert.Equal(t, defaultCfg.OSS.Type, config.OSS.Type, "OSS.Type should match")
 			assert.Equal(t, defaultCfg.OSS.Enabled, config.OSS.Enabled, "OSS.Enabled should match")
-			assert.Equal(t, defaultCfg.OSS.Default, config.OSS.Default, "OSS.Default should match")
 
 			// 验证 OSS.Minio 子结构
 			assert.Equal(t, defaultCfg.OSS.Minio.Endpoint, config.OSS.Minio.Endpoint, "OSS.Minio.Endpoint should match")

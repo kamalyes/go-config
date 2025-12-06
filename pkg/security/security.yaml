@@ -85,3 +85,9 @@ protection:
         require-https: false
         username: ""
         password: ""
+# CSP内容安全策略配置
+csp:
+    # 是否启用安全功能
+    enabled: true
+    mode: balanced
+    custom: ""

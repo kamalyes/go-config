@@ -2,7 +2,7 @@
 # 模块名称: logging
 # 包名: logging  
 # 描述: 日志记录模块
-# 生成时间: 2025-11-28 00:26:08
+# 生成时间: 2025-12-11 13:55:50
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -29,7 +29,42 @@ compress: true
 skip-paths:
     - /health
     - /metrics
+    - /favicon.ico
+    - /ping
+    - /readiness
+    - /liveness
 # 是否记录请求
 enable-request: true
 # 是否记录响应
 enable-response: false
+# 最大日志体大小(字节)
+max-body-size: 2048
+# 敏感数据掩码
+sensitive-mask: '***REDACTED***'
+# 敏感字段关键词
+sensitive-keys:
+    - password
+    - passwd
+    - token
+    - access_token
+    - refresh_token
+    - secret
+    - authorization
+    - api_key
+    - apikey
+    - mobile
+    - phone
+    - id_card
+    - credit_card
+# HTTP慢请求阈值(毫秒)
+slow-http-threshold: 1000
+# GRPC慢请求阈值(毫秒)
+slow-grpc-threshold: 1000
+# 流式请求慢请求阈值(毫秒)
+slow-stream-threshold: 5000
+# 可记录的 Content-Type
+loggable-content-types:
+    - application/json
+    - application/xml
+    - application/x-www-form-urlencoded
+    - text/

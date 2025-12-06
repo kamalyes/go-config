@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-18 13:09:55
+ * @LastEditTime: 2025-12-11 15:17:09
  * @FilePath: \go-config\pkg\gateway\gateway.go
  * @Description: Gateway网关统一配置模块
  *
@@ -20,6 +20,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/elasticsearch"
 	"github.com/kamalyes/go-config/pkg/etcd"
 	"github.com/kamalyes/go-config/pkg/health"
+	"github.com/kamalyes/go-config/pkg/jobs"
 	"github.com/kamalyes/go-config/pkg/jwt"
 	"github.com/kamalyes/go-config/pkg/kafka"
 	"github.com/kamalyes/go-config/pkg/middleware"
@@ -62,6 +63,7 @@ type Gateway struct {
 	Banner        *banner.Banner               `mapstructure:"banner" yaml:"banner" json:"banner"`                      // Banner配置
 	RateLimit     *ratelimit.RateLimit         `mapstructure:"rate-limit" yaml:"rate-limit" json:"rateLimit"`           // 限流配置
 	WSC           *wsc.WSC                     `mapstructure:"wsc" yaml:"wsc" json:"wsc"`                               // WebSocket通信配置
+	Jobs          *jobs.Jobs                   `mapstructure:"jobs" yaml:"jobs" json:"jobs"`                            // Job调度配置
 }
 
 // Default 创建默认Gateway配置
@@ -94,6 +96,7 @@ func Default() *Gateway {
 		Swagger:       swagger.Default(),
 		Banner:        banner.Default(),
 		WSC:           wsc.Default(),
+		Jobs:          jobs.Default(),
 	}
 }
 
@@ -142,9 +145,9 @@ func (c *Gateway) Clone() internal.Configurable {
 		Debug:         c.Debug,
 		Version:       c.Version,
 		Environment:   c.Environment,
-		JSON:          c.JSON.Clone(),
-		HTTPServer:    c.HTTPServer.Clone(),
-		GRPC:          c.GRPC.Clone(),
+		JSON:          c.JSON.Clone().(*JSON),
+		HTTPServer:    c.HTTPServer.Clone().(*HTTPServer),
+		GRPC:          c.GRPC.Clone().(*GRPC),
 		Cache:         c.Cache.Clone().(*cache.Cache),
 		Database:      c.Database.Clone().(*database.Database),
 		Etcd:          c.Etcd.Clone().(*etcd.Etcd),
@@ -162,6 +165,7 @@ func (c *Gateway) Clone() internal.Configurable {
 		Swagger:       c.Swagger.Clone().(*swagger.Swagger),
 		Banner:        c.Banner.Clone().(*banner.Banner),
 		WSC:           c.WSC.Clone().(*wsc.WSC),
+		Jobs:          c.Jobs.Clone().(*jobs.Jobs),
 	}
 }
 
@@ -262,6 +266,11 @@ func (c *Gateway) Validate() error {
 	}
 	if c.WSC != nil {
 		if err := c.WSC.Validate(); err != nil {
+			return err
+		}
+	}
+	if c.Jobs != nil {
+		if err := c.Jobs.Validate(); err != nil {
 			return err
 		}
 	}
@@ -455,6 +464,44 @@ func (c *Gateway) EnableWSC() *Gateway {
 // WithWSC 设置 WebSocket 通信配置
 func (c *Gateway) WithWSC(cfg *wsc.WSC) *Gateway {
 	c.WSC = cfg
+	return c
+}
+
+// EnableJob 启用 Job 调度
+func (c *Gateway) EnableJob() *Gateway {
+	if c.Jobs != nil {
+		c.Jobs.Enable()
+	}
+	return c
+}
+
+// WithJob 设置 Job 调度配置
+func (c *Gateway) WithJob(cfg *jobs.Jobs) *Gateway {
+	c.Jobs = cfg
+	return c
+}
+
+// AddJobTask 添加 Job 任务
+func (c *Gateway) AddJobTask(name string, task jobs.TaskCfg) *Gateway {
+	if c.Jobs != nil {
+		c.Jobs.AddTask(name, task)
+	}
+	return c
+}
+
+// EnableJobTask 启用指定 Job 任务
+func (c *Gateway) EnableJobTask(name string) *Gateway {
+	if c.Jobs != nil {
+		c.Jobs.EnableTask(name)
+	}
+	return c
+}
+
+// DisableJobTask 禁用指定 Job 任务
+func (c *Gateway) DisableJobTask(name string) *Gateway {
+	if c.Jobs != nil {
+		c.Jobs.DisableTask(name)
+	}
 	return c
 }
 

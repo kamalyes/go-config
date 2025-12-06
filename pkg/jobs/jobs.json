@@ -1,0 +1,24 @@
+// jobs模块配置文件
+// 模块名称: jobs
+// 包名: jobs  
+// 描述: 任务调度模块
+// 生成时间: 2025-12-11 13:36:01
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "enabled": true,
+  "timezone": "Asia/Shanghai",
+  "gracefulShutdown": 30,
+  "maxRetries": 3,
+  "retryInterval": 5,
+  "tasks": {
+    "cleanup": {
+      "enabled": true,
+      "cronSpec": "0 */5 * * * *",
+      "immediateStart": false,
+      "timeout": 300,
+      "overlapPrevent": true,
+      "description": "定期清理过期数据和无效缓存"
+    }
+  }
+}

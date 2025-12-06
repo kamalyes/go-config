@@ -31,6 +31,9 @@ type Logging struct {
 	MaxBodySize          int      `mapstructure:"max-body-size" yaml:"max-body-size" json:"maxBodySize"`                            // 最大日志体大小(字节)
 	SensitiveMask        string   `mapstructure:"sensitive-mask" yaml:"sensitive-mask" json:"sensitiveMask"`                        // 敏感数据掩码
 	SensitiveKeys        []string `mapstructure:"sensitive-keys" yaml:"sensitive-keys" json:"sensitiveKeys"`                        // 敏感字段关键词
+	SlowHTTPThreshold    int64    `mapstructure:"slow-http-threshold" yaml:"slow-http-threshold" json:"slowHttpThreshold"`          // HTTP慢请求阈值(毫秒)
+	SlowGRPCThreshold    int64    `mapstructure:"slow-grpc-threshold" yaml:"slow-grpc-threshold" json:"slowGrpcThreshold"`          // GRPC慢请求阈值(毫秒)
+	SlowStreamThreshold  int64    `mapstructure:"slow-stream-threshold" yaml:"slow-stream-threshold" json:"slowStreamThreshold"`    // 流式请求慢请求阈值(毫秒)
 	LoggableContentTypes []string `mapstructure:"loggable-content-types" yaml:"loggable-content-types" json:"loggableContentTypes"` // 可记录的 Content-Type
 }
 
@@ -57,6 +60,9 @@ func Default() *Logging {
 			"secret", "authorization", "api_key", "apikey",
 			"mobile", "phone", "id_card", "credit_card",
 		},
+		SlowHTTPThreshold:    1000,
+		SlowGRPCThreshold:    1000,
+		SlowStreamThreshold:  5000,
 		LoggableContentTypes: []string{"application/json", "application/xml", "application/x-www-form-urlencoded", "text/"},
 	}
 }
@@ -76,20 +82,23 @@ func (l *Logging) Set(data interface{}) {
 // Clone 返回配置的副本
 func (l *Logging) Clone() internal.Configurable {
 	clone := &Logging{
-		ModuleName:     l.ModuleName,
-		Enabled:        l.Enabled,
-		Level:          l.Level,
-		Format:         l.Format,
-		Output:         l.Output,
-		FilePath:       l.FilePath,
-		MaxSize:        l.MaxSize,
-		MaxBackups:     l.MaxBackups,
-		MaxAge:         l.MaxAge,
-		Compress:       l.Compress,
-		EnableRequest:  l.EnableRequest,
-		EnableResponse: l.EnableResponse,
-		MaxBodySize:    l.MaxBodySize,
-		SensitiveMask:  l.SensitiveMask,
+		ModuleName:          l.ModuleName,
+		Enabled:             l.Enabled,
+		Level:               l.Level,
+		Format:              l.Format,
+		Output:              l.Output,
+		FilePath:            l.FilePath,
+		MaxSize:             l.MaxSize,
+		MaxBackups:          l.MaxBackups,
+		MaxAge:              l.MaxAge,
+		Compress:            l.Compress,
+		EnableRequest:       l.EnableRequest,
+		EnableResponse:      l.EnableResponse,
+		MaxBodySize:         l.MaxBodySize,
+		SensitiveMask:       l.SensitiveMask,
+		SlowHTTPThreshold:   l.SlowHTTPThreshold,
+		SlowGRPCThreshold:   l.SlowGRPCThreshold,
+		SlowStreamThreshold: l.SlowStreamThreshold,
 	}
 	clone.SkipPaths = append([]string(nil), l.SkipPaths...)
 	clone.SensitiveKeys = append([]string(nil), l.SensitiveKeys...)

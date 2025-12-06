@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-22 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-28 00:37:13
+ * @LastEditTime: 2025-12-11 15:36:15
  * @FilePath: \go-config\config_init_generator.go
  * @Description: 配置文件自动生成器 - 智能生成和更新所有模块的配置文件
  *
@@ -14,7 +14,17 @@ package goconfig
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/kamalyes/go-config/pkg/access"
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"os"
+	"path/filepath"
+	"reflect"
+	"regexp"
+	"sort"
+	"strings"
+	"time"
+
 	"github.com/kamalyes/go-config/pkg/alerting"
 	"github.com/kamalyes/go-config/pkg/banner"
 	"github.com/kamalyes/go-config/pkg/breaker"
@@ -32,6 +42,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/health"
 	"github.com/kamalyes/go-config/pkg/i18n"
 	"github.com/kamalyes/go-config/pkg/jaeger"
+	"github.com/kamalyes/go-config/pkg/jobs"
 	"github.com/kamalyes/go-config/pkg/jwt"
 	"github.com/kamalyes/go-config/pkg/kafka"
 	"github.com/kamalyes/go-config/pkg/logging"
@@ -62,17 +73,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/youzan"
 	"github.com/kamalyes/go-config/pkg/zap"
 	gologger "github.com/kamalyes/go-logger"
-	"go/ast"
-	"go/parser"
-	"go/token"
 	"gopkg.in/yaml.v3"
-	"os"
-	"path/filepath"
-	"reflect"
-	"regexp"
-	"sort"
-	"strings"
-	"time"
 )
 
 // ModuleConfig 模块配置信息
@@ -152,7 +153,6 @@ func (sg *SmartConfigGenerator) WithBackupExisting(backup bool) *SmartConfigGene
 // registerAllModules 自动注册所有模块
 func (sg *SmartConfigGenerator) registerAllModules() {
 	modules := []ModuleConfig{
-		{Name: "access", PackageName: "access", DefaultFunc: func() interface{} { return access.Default() }, OutputSubDir: "access", Description: "访问控制模块", Enabled: true},
 		{Name: "alerting", PackageName: "alerting", DefaultFunc: func() interface{} { return alerting.Default() }, OutputSubDir: "alerting", Description: "告警模块", Enabled: true},
 		{Name: "banner", PackageName: "banner", DefaultFunc: func() interface{} { return banner.Default() }, OutputSubDir: "banner", Description: "Banner显示模块", Enabled: true},
 		{Name: "breaker", PackageName: "breaker", DefaultFunc: func() interface{} { return breaker.Default() }, OutputSubDir: "breaker", Description: "熔断器模块", Enabled: true},
@@ -203,6 +203,7 @@ func (sg *SmartConfigGenerator) registerAllModules() {
 		{Name: "wsc", PackageName: "wsc", DefaultFunc: func() interface{} { return wsc.Default() }, OutputSubDir: "wsc", Description: "WebSocket通信模块", Enabled: true},
 		{Name: "youzan", PackageName: "youzan", DefaultFunc: func() interface{} { return youzan.Default() }, OutputSubDir: "youzan", Description: "有赞电商模块", Enabled: true},
 		{Name: "zap", PackageName: "zap", DefaultFunc: func() interface{} { return zap.Default() }, OutputSubDir: "zap", Description: "Zap日志模块", Enabled: true},
+		{Name: "jobs", PackageName: "jobs", DefaultFunc: func() interface{} { return jobs.Default() }, OutputSubDir: "jobs", Description: "任务调度模块", Enabled: true},
 	}
 
 	for _, module := range modules {

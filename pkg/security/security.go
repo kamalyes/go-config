@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-13 00:00:57
+ * @LastEditTime: 2025-12-11 17:36:03
  * @FilePath: \go-config\pkg\security\security.go
  * @Description: 统一安全配置模块 - 管理所有安全相关功能
  *
@@ -20,6 +20,7 @@ type Security struct {
 	JWT        *JWT        `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                        // JWT配置
 	Auth       *Auth       `mapstructure:"auth" yaml:"auth" json:"auth"`                     // 通用认证配置
 	Protection *Protection `mapstructure:"protection" yaml:"protection" json:"protection"`   // 服务保护配置
+	CSP        *CSP        `mapstructure:"csp" yaml:"csp" json:"csp"`                        // CSP内容安全策略配置
 }
 
 // JWT JWT配置
@@ -104,6 +105,40 @@ type ServiceProtection struct {
 	Password     string   `mapstructure:"password" yaml:"password" json:"password"`               // 密码
 }
 
+// CSP 内容安全策略配置
+type CSP struct {
+	Enabled bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"` // 是否启用CSP
+	Mode    string `mapstructure:"mode" yaml:"mode" json:"mode"`          // CSP模式: strict, development, balanced, relaxed, api, custom
+	Custom  string `mapstructure:"custom" yaml:"custom" json:"custom"`    // 自定义CSP策略（当mode=custom时使用）
+}
+
+// GetPolicy 获取CSP策略字符串
+func (c *CSP) GetPolicy() string {
+	if !c.Enabled {
+		return ""
+	}
+
+	// 如果是自定义模式，直接返回自定义策略
+	if c.Mode == "custom" && c.Custom != "" {
+		return c.Custom
+	}
+
+	// 根据模式返回预定义策略
+	switch c.Mode {
+	case "strict":
+		return "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws: wss:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+	case "development":
+		return "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' ws: wss: http: https:; media-src 'self'; object-src 'none'; frame-src 'self'; base-uri 'self'; form-action 'self'"
+	case "relaxed":
+		return "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' ws: wss: http: https:; media-src 'self' https:; object-src 'none'; frame-src 'self' https:; base-uri 'self'; form-action 'self'"
+	case "api":
+		return "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+	default:
+		// 默认使用平衡模式
+		return "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' ws: wss:; media-src 'self'; object-src 'none'; frame-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+	}
+}
+
 // Default 创建默认安全配置
 func Default() *Security {
 	return &Security{
@@ -164,6 +199,11 @@ func Default() *Security {
 				AuthRequired: false,
 				IPWhitelist:  []string{},
 			},
+		},
+		CSP: &CSP{
+			Enabled: true,
+			Mode:    "balanced", // 默认使用平衡模式
+			Custom:  "",
 		},
 	}
 }

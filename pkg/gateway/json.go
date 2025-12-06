@@ -42,11 +42,23 @@ func (j *JSON) AfterLoad() error {
 }
 
 // Clone 返回配置的副本
-func (j *JSON) Clone() *JSON {
+func (j *JSON) Clone() internal.Configurable {
 	return &JSON{
 		UseProtoNames:   j.UseProtoNames,
 		EmitUnpopulated: j.EmitUnpopulated,
 		DiscardUnknown:  j.DiscardUnknown,
+	}
+}
+
+// Get 返回配置接口
+func (j *JSON) Get() interface{} {
+	return j
+}
+
+// Set 设置配置数据
+func (j *JSON) Set(data interface{}) {
+	if cfg, ok := data.(*JSON); ok {
+		*j = *cfg
 	}
 }
 

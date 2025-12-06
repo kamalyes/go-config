@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2025-12-02 09:21:01
+// 生成时间: 2025-12-11 15:35:01
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -56,7 +56,7 @@
   "cache": {
     "moduleName": "default",
     "type": "memory",
-    "enabled": true,
+    "enabled": false,
     "defaultTtl": 1800000000000,
     "keyPrefix": "cache:",
     "serializer": "json",
@@ -204,7 +204,6 @@
   "oss": {
     "type": "minio",
     "enabled": true,
-    "default": "minio",
     "minio": {
       "endpoint": "localhost",
       "accessKey": "minioadmin",
@@ -494,6 +493,11 @@
         "username": "",
         "password": ""
       }
+    },
+    "csp": {
+      "enabled": true,
+      "mode": "balanced",
+      "custom": ""
     }
   },
   "middleware": {
@@ -537,6 +541,9 @@
         "id_card",
         "credit_card"
       ],
+      "slowHttpThreshold": 1000,
+      "slowGrpcThreshold": 1000,
+      "slowStreamThreshold": 5000,
       "loggableContentTypes": [
         "application/json",
         "application/xml",
@@ -698,6 +705,27 @@
       "enabled": false,
       "webhooks": [],
       "channels": []
+    },
+    "signature": {
+      "moduleName": "signature",
+      "enabled": false,
+      "secretKey": "default-secret-key-change-in-production",
+      "signatureHeader": "X-Signature",
+      "timestampHeader": "X-Timestamp",
+      "nonceHeader": "X-Nonce",
+      "algorithm": "sha256",
+      "timeoutWindow": 300000000000,
+      "ignorePaths": [
+        "/health",
+        "/metrics",
+        "/ping"
+      ],
+      "requiredHeaders": [
+        "X-Timestamp",
+        "X-Nonce"
+      ],
+      "skipQuery": false,
+      "skipBody": false
     }
   },
   "cors": {
@@ -741,7 +769,7 @@
   },
   "swagger": {
     "moduleName": "swagger",
-    "enabled": true,
+    "enabled": false,
     "jsonPath": "/swagger/doc.json",
     "uiPath": "/swagger",
     "yamlPath": "/swagger/doc.yaml",
@@ -972,12 +1000,32 @@
         "id_card",
         "credit_card"
       ],
+      "slowHttpThreshold": 1000,
+      "slowGrpcThreshold": 1000,
+      "slowStreamThreshold": 5000,
       "loggableContentTypes": [
         "application/json",
         "application/xml",
         "application/x-www-form-urlencoded",
         "text/"
       ]
+    }
+  },
+  "jobs": {
+    "enabled": true,
+    "timezone": "Asia/Shanghai",
+    "gracefulShutdown": 30,
+    "maxRetries": 3,
+    "retryInterval": 5,
+    "tasks": {
+      "cleanup": {
+        "enabled": true,
+        "cronSpec": "0 */5 * * * *",
+        "immediateStart": false,
+        "timeout": 300,
+        "overlapPrevent": true,
+        "description": "定期清理过期数据和无效缓存"
+      }
     }
   }
 }

@@ -100,3 +100,98 @@ func (wb *WebSocketBreaker) Init() error {
 func (wb *WebSocketBreaker) Validate() error {
 	return internal.ValidateStruct(wb)
 }
+
+// Clone 返回配置的副本
+func (cb *CircuitBreaker) Clone() internal.Configurable {
+	preventionPaths := make([]string, len(cb.PreventionPaths))
+	copy(preventionPaths, cb.PreventionPaths)
+
+	excludePaths := make([]string, len(cb.ExcludePaths))
+	copy(excludePaths, cb.ExcludePaths)
+
+	return &CircuitBreaker{
+		ModuleName:          cb.ModuleName,
+		Enabled:             cb.Enabled,
+		FailureThreshold:    cb.FailureThreshold,
+		SuccessThreshold:    cb.SuccessThreshold,
+		Timeout:             cb.Timeout,
+		VolumeThreshold:     cb.VolumeThreshold,
+		SlidingWindowSize:   cb.SlidingWindowSize,
+		SlidingWindowBucket: cb.SlidingWindowBucket,
+		PreventionPaths:     preventionPaths,
+		ExcludePaths:        excludePaths,
+	}
+}
+
+// Enable 启用断路器
+func (cb *CircuitBreaker) Enable() *CircuitBreaker {
+	cb.Enabled = true
+	return cb
+}
+
+// Disable 禁用断路器
+func (cb *CircuitBreaker) Disable() *CircuitBreaker {
+	cb.Enabled = false
+	return cb
+}
+
+// IsEnabled 检查是否启用
+func (cb *CircuitBreaker) IsEnabled() bool {
+	return cb.Enabled
+}
+
+// Get 返回配置接口
+func (cb *CircuitBreaker) Get() interface{} {
+	return cb
+}
+
+// Set 设置配置数据
+func (cb *CircuitBreaker) Set(data interface{}) {
+	if cfg, ok := data.(*CircuitBreaker); ok {
+		*cb = *cfg
+	}
+}
+
+// Clone 返回 WebSocket 断路器配置的副本
+func (wb *WebSocketBreaker) Clone() internal.Configurable {
+	return &WebSocketBreaker{
+		ModuleName:          wb.ModuleName,
+		Enabled:             wb.Enabled,
+		FailureThreshold:    wb.FailureThreshold,
+		SuccessThreshold:    wb.SuccessThreshold,
+		Timeout:             wb.Timeout,
+		MaxRetries:          wb.MaxRetries,
+		RetryBackoffFactor:  wb.RetryBackoffFactor,
+		HealthCheckInterval: wb.HealthCheckInterval,
+		MessageQueueSize:    wb.MessageQueueSize,
+	}
+}
+
+// Enable 启用 WebSocket 断路器
+func (wb *WebSocketBreaker) Enable() *WebSocketBreaker {
+	wb.Enabled = true
+	return wb
+}
+
+// Disable 禁用 WebSocket 断路器
+func (wb *WebSocketBreaker) Disable() *WebSocketBreaker {
+	wb.Enabled = false
+	return wb
+}
+
+// IsEnabled 检查是否启用
+func (wb *WebSocketBreaker) IsEnabled() bool {
+	return wb.Enabled
+}
+
+// Get 返回配置接口
+func (wb *WebSocketBreaker) Get() interface{} {
+	return wb
+}
+
+// Set 设置配置数据
+func (wb *WebSocketBreaker) Set(data interface{}) {
+	if cfg, ok := data.(*WebSocketBreaker); ok {
+		*wb = *cfg
+	}
+}

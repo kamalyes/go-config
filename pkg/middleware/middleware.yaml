@@ -2,7 +2,7 @@
 # 模块名称: middleware
 # 包名: middleware  
 # 描述: 中间件模块
-# 生成时间: 2025-11-28 00:26:08
+# 生成时间: 2025-12-11 15:35:01
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -26,8 +26,36 @@ logging:
     skip-paths:
         - /health
         - /metrics
+        - /favicon.ico
+        - /ping
+        - /readiness
+        - /liveness
     enable-request: true
     enable-response: false
+    max-body-size: 2048
+    sensitive-mask: '***REDACTED***'
+    sensitive-keys:
+        - password
+        - passwd
+        - token
+        - access_token
+        - refresh_token
+        - secret
+        - authorization
+        - api_key
+        - apikey
+        - mobile
+        - phone
+        - id_card
+        - credit_card
+    slow-http-threshold: 1000
+    slow-grpc-threshold: 1000
+    slow-stream-threshold: 5000
+    loggable-content-types:
+        - application/json
+        - application/xml
+        - application/x-www-form-urlencoded
+        - text/
 # 恢复中间件
 recovery:
     # 模块名称
@@ -188,3 +216,24 @@ alerting:
     enabled: false
     webhooks: []
     channels: []
+# 签名验证中间件
+signature:
+    # 模块名称
+    module-name: signature
+    # 是否启用中间件
+    enabled: false
+    secret-key: default-secret-key-change-in-production
+    signature-header: X-Signature
+    timestamp-header: X-Timestamp
+    nonce-header: X-Nonce
+    algorithm: sha256
+    timeout-window: 5m0s
+    ignore-paths:
+        - /health
+        - /metrics
+        - /ping
+    required-headers:
+        - X-Timestamp
+        - X-Nonce
+    skip-query: false
+    skip-body: false
