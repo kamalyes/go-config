@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-12-11 17:36:03
+ * @LastEditTime: 2025-12-13 12:05:20
  * @FilePath: \go-config\pkg\security\security.go
  * @Description: 统一安全配置模块 - 管理所有安全相关功能
  *
@@ -143,7 +143,7 @@ func (c *CSP) GetPolicy() string {
 func Default() *Security {
 	return &Security{
 		ModuleName: "security",
-		Enabled:    true,
+		Enabled:    false,
 		JWT: &JWT{
 			Enabled:   false,
 			Secret:    "jwt_secret_key_please_change_in_production",
@@ -195,13 +195,13 @@ func Default() *Security {
 				IPWhitelist:  []string{},
 			},
 			API: &ServiceProtection{
-				Enabled:      true,
+				Enabled:      false,
 				AuthRequired: false,
 				IPWhitelist:  []string{},
 			},
 		},
 		CSP: &CSP{
-			Enabled: true,
+			Enabled: false,
 			Mode:    "balanced", // 默认使用平衡模式
 			Custom:  "",
 		},

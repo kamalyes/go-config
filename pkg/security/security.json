@@ -7,7 +7,7 @@
 
 {
   "moduleName": "security",
-  "enabled": true,
+  "enabled": false,
   "jwt": {
     "enabled": false,
     "secret": "jwt_secret_key_please_change_in_production",
@@ -78,7 +78,7 @@
       "password": ""
     },
     "api": {
-      "enabled": true,
+      "enabled": false,
       "authRequired": false,
       "authType": "",
       "ipWhitelist": [],
@@ -88,7 +88,7 @@
     }
   },
   "csp": {
-    "enabled": true,
+    "enabled": false,
     "mode": "balanced",
     "custom": ""
   }

@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 22:33:51
+ * @LastEditTime: 2025-12-13 11:32:55
  * @FilePath: \go-config\pkg\oss\oss.go
  * @Description: OSS对象存储统一配置管理
  *
@@ -13,8 +13,9 @@ package oss
 
 import (
 	"fmt"
-	"github.com/kamalyes/go-config/internal"
 	"strings"
+
+	"github.com/kamalyes/go-config/internal"
 )
 
 // OSSType 定义OSS存储类型
@@ -76,7 +77,7 @@ type OSSConfig struct {
 func NewOSSConfig() *OSSConfig {
 	return &OSSConfig{
 		Type:      OSSTypeMinio,
-		Enabled:   true,
+		Enabled:   false,
 		Minio:     DefaultMinioConfig(),
 		S3:        DefaultS3Config(),
 		AliyunOSS: DefaultAliyunOSSConfig(),

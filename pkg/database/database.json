@@ -7,7 +7,7 @@
 
 {
   "type": "mysql",
-  "enabled": true,
+  "enabled": false,
   "default": "mysql",
   "mysql": {
     "moduleName": "mysql",

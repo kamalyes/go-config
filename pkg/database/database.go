@@ -81,7 +81,7 @@ type Database struct {
 func NewDatabase() *Database {
 	return &Database{
 		Type:       DBTypeMySQL,
-		Enabled:    true,
+		Enabled:    false,
 		Default:    string(DBTypeMySQL),
 		MySQL:      DefaultMySQL(),
 		PostgreSQL: DefaultPostgreSQL(),

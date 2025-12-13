@@ -7,7 +7,7 @@
 
 {
   "moduleName": "middleware",
-  "enabled": true,
+  "enabled": false,
   "logging": {
     "moduleName": "logging",
     "enabled": true,
@@ -115,7 +115,7 @@
   },
   "requestId": {
     "moduleName": "requestid",
-    "enabled": true,
+    "enabled": false,
     "headerName": "X-Request-ID",
     "generator": "uuid"
   },

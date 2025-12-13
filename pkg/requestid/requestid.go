@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-11 18:00:00
+ * @LastEditTime: 2025-12-13 11:33:15
  * @FilePath: \go-config\pkg\requestid\requestid.go
  * @Description: 请求ID中间件配置模块
  *
@@ -25,7 +25,7 @@ type RequestID struct {
 func Default() *RequestID {
 	return &RequestID{
 		ModuleName: "requestid",
-		Enabled:    true,
+		Enabled:    false,
 		HeaderName: "X-Request-ID",
 		Generator:  "uuid",
 	}

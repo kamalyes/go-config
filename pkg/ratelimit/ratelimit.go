@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-14 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-12-05 16:15:52
+ * @LastEditTime: 2025-12-13 11:33:06
  * @FilePath: \go-config\pkg\ratelimit\ratelimit.go
  * @Description: 增强的限流配置（支持路由级别、用户级别、IP级别等）
  *
@@ -114,7 +114,7 @@ type RedisStorage struct {
 func Default() *RateLimit {
 	return &RateLimit{
 		ModuleName:   "ratelimit",
-		Enabled:      true,
+		Enabled:      false,
 		Strategy:     StrategyTokenBucket,
 		DefaultScope: ScopeGlobal,
 		GlobalLimit: &LimitRule{

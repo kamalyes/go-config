@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-17 14:51:53
- * @FilePath: \im-access-control-service\go-config\pkg\smtp\smtp.go
+ * @LastEditTime: 2025-12-13 11:33:50
+ * @FilePath: \go-config\pkg\smtp\smtp.go
  * @Description: 邮箱配置模块
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.
@@ -32,14 +32,14 @@ type Smtp struct {
 func Default() *Smtp {
 	return &Smtp{
 		ModuleName:  "smtp",
-		Enabled:     true,
+		Enabled:     false,
 		SMTPHost:    "127.0.0.1",
 		SMTPPort:    587,
 		Username:    "smtp_user",
 		Password:    "smtp_password",
 		FromAddress: "noreply@example.com",
 		ToAddresses: []string{"admin@example.com"},
-		EnableTLS:   true,
+		EnableTLS:   false,
 		Headers:     make(map[string]string),
 		PoolSize:    5,
 	}

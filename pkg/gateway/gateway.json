@@ -40,6 +40,7 @@
   },
   "grpc": {
     "server": {
+      "enable": false,
       "host": "0.0.0.0",
       "port": 9090,
       "network": "tcp4",
@@ -130,7 +131,7 @@
   },
   "database": {
     "type": "mysql",
-    "enabled": true,
+    "enabled": false,
     "default": "mysql",
     "mysql": {
       "moduleName": "mysql",
@@ -203,7 +204,7 @@
   },
   "oss": {
     "type": "minio",
-    "enabled": true,
+    "enabled": false,
     "minio": {
       "endpoint": "localhost",
       "accessKey": "minioadmin",
@@ -264,7 +265,7 @@
   },
   "smtp": {
     "moduleName": "smtp",
-    "enabled": true,
+    "enabled": false,
     "smtpHost": "127.0.0.1",
     "smtpPort": 587,
     "username": "smtp_user",
@@ -273,7 +274,7 @@
     "toAddresses": [
       "admin@example.com"
     ],
-    "enableTls": true,
+    "enableTls": false,
     "headers": {},
     "poolSize": 5
   },
@@ -364,7 +365,7 @@
       "tags": {}
     },
     "metrics": {
-      "enabled": true,
+      "enabled": false,
       "requestCount": true,
       "duration": true,
       "responseSize": true,
@@ -414,7 +415,7 @@
   },
   "security": {
     "moduleName": "security",
-    "enabled": true,
+    "enabled": false,
     "jwt": {
       "enabled": false,
       "secret": "jwt_secret_key_please_change_in_production",
@@ -485,7 +486,7 @@
         "password": ""
       },
       "api": {
-        "enabled": true,
+        "enabled": false,
         "authRequired": false,
         "authType": "",
         "ipWhitelist": [],
@@ -495,14 +496,14 @@
       }
     },
     "csp": {
-      "enabled": true,
+      "enabled": false,
       "mode": "balanced",
       "custom": ""
     }
   },
   "middleware": {
     "moduleName": "middleware",
-    "enabled": true,
+    "enabled": false,
     "logging": {
       "moduleName": "logging",
       "enabled": true,
@@ -610,7 +611,7 @@
     },
     "requestId": {
       "moduleName": "requestid",
-      "enabled": true,
+      "enabled": false,
       "headerName": "X-Request-ID",
       "generator": "uuid"
     },
@@ -798,8 +799,25 @@
       "enabled": false,
       "mode": "merge",
       "services": [],
-      "uiLayout": "tabs"
-    }
+      "uiLayout": "tabs",
+      "sharedDefinitionPrefixes": [
+        "common",
+        "rpcStatus",
+        "protobuf",
+        "google",
+        "googleapis",
+        "protoc"
+      ]
+    },
+    "cdnVersion": "5.30.2",
+    "cdnBaseURL": "https://unpkg.com/swagger-ui-dist@5.30.2",
+    "cdnCSSURL": "https://unpkg.com/swagger-ui-dist@5.30.2/swagger-ui.css",
+    "cdnBundleJS": "https://unpkg.com/swagger-ui-dist@5.30.2/swagger-ui-bundle.js",
+    "cdnPresetJS": "https://unpkg.com/swagger-ui-dist@5.30.2/swagger-ui-standalone-preset.js",
+    "cdnFavicon32": "https://unpkg.com/swagger-ui-dist@5.30.2/favicon-32x32.png",
+    "cdnFavicon16": "https://unpkg.com/swagger-ui-dist@5.30.2/favicon-16x16.png",
+    "useCDN": true,
+    "cdnFallbackURL": "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.30.2"
   },
   "banner": {
     "moduleName": "banner",
@@ -813,7 +831,7 @@
   },
   "rateLimit": {
     "moduleName": "ratelimit",
-    "enabled": true,
+    "enabled": false,
     "strategy": "token-bucket",
     "defaultScope": "global",
     "globalLimit": {

@@ -8,7 +8,7 @@
 # 模块名称
 module-name: smtp
 # 是否启用
-enabled: true
+enabled: false
 # SMTP主机
 smtp-host: 127.0.0.1
 # SMTP端口
@@ -23,7 +23,7 @@ from-address: noreply@example.com
 to-addresses:
     - admin@example.com
 # 是否启用TLS
-enable-tls: true
+enable-tls: false
 # 自定义头部
 headers: {}
 # 连接池大小

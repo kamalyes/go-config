@@ -7,7 +7,7 @@
 
 {
   "moduleName": "ratelimit",
-  "enabled": true,
+  "enabled": false,
   "strategy": "token-bucket",
   "defaultScope": "global",
   "globalLimit": {

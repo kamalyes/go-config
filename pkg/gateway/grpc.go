@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-12 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-27 00:20:55
+ * @LastEditTime: 2025-12-13 11:53:15
  * @FilePath: \go-config\pkg\gateway\grpc.go
  * @Description: GRPC配置
  *
@@ -25,6 +25,7 @@ type GRPC struct {
 
 // GRPCServer GRPC服务端配置
 type GRPCServer struct {
+	Enable            bool   `mapstructure:"enable" yaml:"enable" json:"enable"`                                    // 是否启用GRPC服务
 	Host              string `mapstructure:"host" yaml:"host" json:"host"`                                          // 主机地址
 	Port              int    `mapstructure:"port" yaml:"port" json:"port"`                                          // 端口
 	Network           string `mapstructure:"network" yaml:"network" json:"network"`                                 // 网络类型 (tcp, tcp4, tcp6, unix)
@@ -67,6 +68,7 @@ func DefaultGRPC() *GRPC {
 // DefaultGRPCServer 创建默认GRPC服务端配置
 func DefaultGRPCServer() *GRPCServer {
 	g := &GRPCServer{
+		Enable:            false, // 默认不启用，需要显式配置
 		Host:              "0.0.0.0",
 		Port:              9090,
 		Network:           "tcp4",          // 默认使用 tcp4 强制 IPv4
@@ -133,6 +135,7 @@ func (g *GRPC) Clone() internal.Configurable {
 // Clone 返回GRPC服务端配置的副本
 func (g *GRPCServer) Clone() *GRPCServer {
 	cloned := &GRPCServer{
+		Enable:            g.Enable,
 		Host:              g.Host,
 		Port:              g.Port,
 		Network:           g.Network,

@@ -8,7 +8,7 @@
 # 模块名称
 module-name: ratelimit
 # 是否启用
-enabled: true
+enabled: false
 # 限流策略
 strategy: token-bucket
 # 默认作用域

@@ -7,7 +7,7 @@
 
 {
   "moduleName": "smtp",
-  "enabled": true,
+  "enabled": false,
   "smtpHost": "127.0.0.1",
   "smtpPort": 587,
   "username": "smtp_user",
@@ -16,7 +16,7 @@
   "toAddresses": [
     "admin@example.com"
   ],
-  "enableTls": true,
+  "enableTls": false,
   "headers": {},
   "poolSize": 5
 }

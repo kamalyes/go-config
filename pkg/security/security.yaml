@@ -8,7 +8,7 @@
 # 模块名称
 module-name: security
 # 是否启用安全功能
-enabled: true
+enabled: false
 # JWT配置
 jwt:
     # 是否启用安全功能
@@ -78,7 +78,7 @@ protection:
         password: ""
     api:
         # 是否启用安全功能
-        enabled: true
+        enabled: false
         auth-required: false
         auth-type: ""
         ip-whitelist: []
@@ -88,6 +88,6 @@ protection:
 # CSP内容安全策略配置
 csp:
     # 是否启用安全功能
-    enabled: true
+    enabled: false
     mode: balanced
     custom: ""

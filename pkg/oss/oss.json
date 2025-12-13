@@ -7,8 +7,7 @@
 
 {
   "type": "minio",
-  "enabled": true,
-  "default": "minio",
+  "enabled": false,
   "minio": {
     "endpoint": "localhost",
     "accessKey": "minioadmin",

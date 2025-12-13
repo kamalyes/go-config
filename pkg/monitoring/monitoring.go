@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 01:27:26
+ * @LastEditTime: 2025-12-13 11:32:50
  * @FilePath: \go-config\pkg\monitoring\monitoring.go
  * @Description: 监控配置模块 - 统一管理所有监控相关功能
  *
@@ -111,7 +111,7 @@ func Default() *Monitoring {
 		Grafana:    grafana.Default(),
 		Jaeger:     jaeger.Default(),
 		Metrics: &Metrics{
-			Enabled:           true,
+			Enabled:           false,
 			RequestCount:      true,
 			Duration:          true,
 			ResponseSize:      true,

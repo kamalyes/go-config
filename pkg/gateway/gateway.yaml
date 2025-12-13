@@ -44,6 +44,7 @@ http:
 # GRPC配置
 grpc:
     server:
+        enable: false
         host: 0.0.0.0
         port: 9090
         network: tcp4
@@ -134,7 +135,7 @@ cache:
 database:
     type: mysql
     # 是否启用网关
-    enabled: true
+    enabled: false
     default: mysql
     mysql:
         # 模块名称
@@ -209,7 +210,7 @@ kafka:
 oss:
     type: minio
     # 是否启用网关
-    enabled: true
+    enabled: false
     minio:
         endpoint: localhost
         access-key: minioadmin
@@ -274,7 +275,7 @@ smtp:
     # 模块名称
     module-name: smtp
     # 是否启用网关
-    enabled: true
+    enabled: false
     smtp-host: 127.0.0.1
     smtp-port: 587
     username: smtp_user
@@ -282,7 +283,7 @@ smtp:
     from-address: noreply@example.com
     to-addresses:
         - admin@example.com
-    enable-tls: true
+    enable-tls: false
     headers: {}
     pool-size: 5
 # 健康检查配置
@@ -376,7 +377,7 @@ monitoring:
         tags: {}
     metrics:
         # 是否启用网关
-        enabled: true
+        enabled: false
         request-count: true
         duration: true
         response-size: true
@@ -425,7 +426,7 @@ security:
     # 模块名称
     module-name: security
     # 是否启用网关
-    enabled: true
+    enabled: false
     # JWT配置
     jwt:
         # 是否启用网关
@@ -495,7 +496,7 @@ security:
             password: ""
         api:
             # 是否启用网关
-            enabled: true
+            enabled: false
             auth-required: false
             auth-type: ""
             ip-whitelist: []
@@ -504,7 +505,7 @@ security:
             password: ""
     csp:
         # 是否启用网关
-        enabled: true
+        enabled: false
         mode: balanced
         custom: ""
 # 中间件配置
@@ -512,7 +513,7 @@ middleware:
     # 模块名称
     module-name: middleware
     # 是否启用网关
-    enabled: true
+    enabled: false
     logging:
         # 模块名称
         module-name: logging
@@ -621,7 +622,7 @@ middleware:
         # 模块名称
         module-name: requestid
         # 是否启用网关
-        enabled: true
+        enabled: false
         header-name: X-Request-ID
         generator: uuid
     i18n:
@@ -806,6 +807,22 @@ swagger:
         mode: merge
         services: []
         ui-layout: tabs
+        shared-definition-prefixes:
+            - common
+            - rpcStatus
+            - protobuf
+            - google
+            - googleapis
+            - protoc
+    cdn-version: 5.30.2
+    cdn-base-url: https://unpkg.com/swagger-ui-dist@5.30.2
+    cdn-css-url: https://unpkg.com/swagger-ui-dist@5.30.2/swagger-ui.css
+    cdn-bundle-js: https://unpkg.com/swagger-ui-dist@5.30.2/swagger-ui-bundle.js
+    cdn-preset-js: https://unpkg.com/swagger-ui-dist@5.30.2/swagger-ui-standalone-preset.js
+    cdn-favicon32: https://unpkg.com/swagger-ui-dist@5.30.2/favicon-32x32.png
+    cdn-favicon16: https://unpkg.com/swagger-ui-dist@5.30.2/favicon-16x16.png
+    use-cdn: true
+    cdn-fallback-url: https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.30.2
 # Banner配置
 banner:
     # 模块名称
@@ -823,7 +840,7 @@ rate-limit:
     # 模块名称
     module-name: ratelimit
     # 是否启用网关
-    enabled: true
+    enabled: false
     strategy: token-bucket
     default-scope: global
     global-limit:

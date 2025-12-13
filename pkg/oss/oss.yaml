@@ -8,9 +8,7 @@
 # OSS类型
 type: minio
 # 是否启用
-enabled: true
-# 默认使用的OSS服务
-default: minio
+enabled: false
 # Minio配置
 minio:
     endpoint: localhost

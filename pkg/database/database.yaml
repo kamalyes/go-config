@@ -8,7 +8,7 @@
 # 数据库类型
 type: mysql
 # 是否启用
-enabled: true
+enabled: false
 # 默认使用的数据库
 default: mysql
 # MySQL配置

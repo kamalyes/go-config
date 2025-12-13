@@ -2,8 +2,8 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-12 01:12:30
- * @FilePath: \go-rpc-gateway\go-config\pkg\pprof\pprof.go
+ * @LastEditTime: 2025-12-13 11:33:01
+ * @FilePath: \go-config\pkg\pprof\pprof.go
  * @Description: PProf性能分析配置模块
  *
  * Copyright (c) 2025 by kamalyes, All Rights Reserved.

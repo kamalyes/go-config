@@ -8,7 +8,7 @@
 # 模块名称
 module-name: middleware
 # 是否启用中间件
-enabled: true
+enabled: false
 # 日志中间件
 logging:
     # 模块名称
@@ -121,7 +121,7 @@ request-id:
     # 模块名称
     module-name: requestid
     # 是否启用中间件
-    enabled: true
+    enabled: false
     header-name: X-Request-ID
     generator: uuid
 # 国际化中间件

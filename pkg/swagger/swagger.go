@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 17:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-12-11 15:27:31
+ * @LastEditTime: 2025-12-13 19:55:55
  * @FilePath: \go-config\pkg\swagger\swagger.go
  * @Description: Swagger配置模块 - 基于go-config设计模式
  *
@@ -15,6 +15,20 @@ import (
 	"fmt"
 
 	"github.com/kamalyes/go-config/internal"
+)
+
+// CDN 资源路径常量
+const (
+	// CDN 资源文件路径
+	CDNPathCSS       = "/swagger-ui.css"
+	CDNPathBundleJS  = "/swagger-ui-bundle.js"
+	CDNPathPresetJS  = "/swagger-ui-standalone-preset.js"
+	CDNPathFavicon32 = "/favicon-32x32.png"
+	CDNPathFavicon16 = "/favicon-16x16.png"
+
+	// CDN 基础 URL 模板
+	CDNBaseURLUnpkg    = "https://unpkg.com/swagger-ui-dist@"
+	CDNBaseURLJsDelivr = "https://cdn.jsdelivr.net/npm/swagger-ui-dist@"
 )
 
 // AuthType Swagger认证类型
@@ -68,10 +82,11 @@ type ServiceSpec struct {
 
 // AggregateConfig 聚合Swagger配置
 type AggregateConfig struct {
-	Enabled  bool           `mapstructure:"enabled" yaml:"enabled" json:"enabled"`      // 是否启用聚合
-	Mode     string         `mapstructure:"mode" yaml:"mode" json:"mode"`               // 聚合模式: merge|selector
-	Services []*ServiceSpec `mapstructure:"services" yaml:"services" json:"services"`   // 微服务列表
-	UILayout string         `mapstructure:"ui-layout" yaml:"ui-layout" json:"uiLayout"` // UI布局: tabs|dropdown|list
+	Enabled                  bool           `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                        // 是否启用聚合
+	Mode                     string         `mapstructure:"mode" yaml:"mode" json:"mode"`                                                                 // 聚合模式: merge|selector
+	Services                 []*ServiceSpec `mapstructure:"services" yaml:"services" json:"services"`                                                     // 微服务列表
+	UILayout                 string         `mapstructure:"ui-layout" yaml:"ui-layout" json:"uiLayout"`                                                   // UI布局: tabs|dropdown|list
+	SharedDefinitionPrefixes []string       `mapstructure:"shared-definition-prefixes" yaml:"shared-definition-prefixes" json:"sharedDefinitionPrefixes"` // 共享定义前缀列表（不添加服务名前缀）
 }
 
 // Swagger Swagger配置结构
@@ -89,10 +104,24 @@ type Swagger struct {
 	License     *License         `mapstructure:"license" yaml:"license" json:"license"`             // 许可证信息
 	Auth        *AuthConfig      `mapstructure:"auth" yaml:"auth" json:"auth"`                      // 认证配置
 	Aggregate   *AggregateConfig `mapstructure:"aggregate" yaml:"aggregate" json:"aggregate"`       // 聚合配置
+
+	// CDN 资源配置
+	CDNVersion     string `mapstructure:"cdn-version" yaml:"cdn-version" json:"cdnVersion"`               // Swagger UI CDN版本
+	CDNBaseURL     string `mapstructure:"cdn-base-url" yaml:"cdn-base-url" json:"cdnBaseURL"`             // CDN基础URL
+	CDNCSSURL      string `mapstructure:"cdn-css-url" yaml:"cdn-css-url" json:"cdnCSSURL"`                // CSS文件URL
+	CDNBundleJS    string `mapstructure:"cdn-bundle-js" yaml:"cdn-bundle-js" json:"cdnBundleJS"`          // Bundle JS URL
+	CDNPresetJS    string `mapstructure:"cdn-preset-js" yaml:"cdn-preset-js" json:"cdnPresetJS"`          // Preset JS URL
+	CDNFavicon32   string `mapstructure:"cdn-favicon32" yaml:"cdn-favicon32" json:"cdnFavicon32"`         // 32x32 Favicon URL
+	CDNFavicon16   string `mapstructure:"cdn-favicon16" yaml:"cdn-favicon16" json:"cdnFavicon16"`         // 16x16 Favicon URL
+	UseCDN         bool   `mapstructure:"use-cdn" yaml:"use-cdn" json:"useCDN"`                           // 是否使用CDN资源
+	CDNFallbackURL string `mapstructure:"cdn-fallback-url" yaml:"cdn-fallback-url" json:"cdnFallbackURL"` // CDN备用URL
 }
 
 // Default 创建默认Swagger配置
 func Default() *Swagger {
+	cdnVersion := "5.30.2"
+	cdnBaseURL := CDNBaseURLUnpkg + cdnVersion
+
 	return &Swagger{
 		ModuleName:  "swagger",
 		Enabled:     false, // 默认不启用Swagger
@@ -116,11 +145,22 @@ func Default() *Swagger {
 			Type: AuthNone,
 		},
 		Aggregate: &AggregateConfig{
-			Enabled:  false,
-			Mode:     "merge",
-			Services: []*ServiceSpec{},
-			UILayout: "tabs",
+			Enabled:                  false,
+			Mode:                     "merge",
+			Services:                 []*ServiceSpec{},
+			UILayout:                 "tabs",
+			SharedDefinitionPrefixes: []string{"common", "rpcStatus", "protobuf", "google", "googleapis", "protoc"},
 		},
+		// CDN 默认配置
+		UseCDN:         true,
+		CDNVersion:     cdnVersion,
+		CDNBaseURL:     cdnBaseURL,
+		CDNCSSURL:      cdnBaseURL + CDNPathCSS,
+		CDNBundleJS:    cdnBaseURL + CDNPathBundleJS,
+		CDNPresetJS:    cdnBaseURL + CDNPathPresetJS,
+		CDNFavicon32:   cdnBaseURL + CDNPathFavicon32,
+		CDNFavicon16:   cdnBaseURL + CDNPathFavicon16,
+		CDNFallbackURL: CDNBaseURLJsDelivr + cdnVersion,
 	}
 }
 
@@ -282,9 +322,10 @@ func (c *Swagger) WithAggregateUILayout(layout string) *Swagger {
 func (c *Swagger) EnableAggregate() *Swagger {
 	if c.Aggregate == nil {
 		c.Aggregate = &AggregateConfig{
-			Mode:     "merge",
-			UILayout: "tabs",
-			Services: []*ServiceSpec{},
+			Mode:                     "merge",
+			UILayout:                 "tabs",
+			Services:                 []*ServiceSpec{},
+			SharedDefinitionPrefixes: []string{"common", "api", "protobuf", "google"},
 		}
 	}
 	c.Aggregate.Enabled = true
@@ -297,6 +338,134 @@ func (c *Swagger) DisableAggregate() *Swagger {
 		c.Aggregate.Enabled = false
 	}
 	return c
+}
+
+// WithSharedDefinitionPrefixes 设置共享定义前缀列表
+func (c *Swagger) WithSharedDefinitionPrefixes(prefixes []string) *Swagger {
+	c.Aggregate.SharedDefinitionPrefixes = prefixes
+	return c
+}
+
+// AddSharedDefinitionPrefix 添加单个共享定义前缀
+func (c *Swagger) AddSharedDefinitionPrefix(prefix string) *Swagger {
+	c.Aggregate.SharedDefinitionPrefixes = append(c.Aggregate.SharedDefinitionPrefixes, prefix)
+	return c
+}
+
+// GetSharedDefinitionPrefixes 获取共享定义前缀列表
+func (c *Swagger) GetSharedDefinitionPrefixes() []string {
+	if c.Aggregate == nil || len(c.Aggregate.SharedDefinitionPrefixes) == 0 {
+		return []string{"common", "api", "protobuf", "google"} // 默认值
+	}
+	return c.Aggregate.SharedDefinitionPrefixes
+}
+
+// WithCDNVersion 设置CDN版本
+func (c *Swagger) WithCDNVersion(version string) *Swagger {
+	c.CDNVersion = version
+	// 自动更新相关的CDN URLs
+	c.CDNBaseURL = CDNBaseURLUnpkg + version
+	c.CDNCSSURL = c.CDNBaseURL + CDNPathCSS
+	c.CDNBundleJS = c.CDNBaseURL + CDNPathBundleJS
+	c.CDNPresetJS = c.CDNBaseURL + CDNPathPresetJS
+	c.CDNFavicon32 = c.CDNBaseURL + CDNPathFavicon32
+	c.CDNFavicon16 = c.CDNBaseURL + CDNPathFavicon16
+	c.CDNFallbackURL = CDNBaseURLJsDelivr + version
+	return c
+}
+
+// WithCDNBaseURL 设置CDN基础URL
+func (c *Swagger) WithCDNBaseURL(baseURL string) *Swagger {
+	c.CDNBaseURL = baseURL
+	c.CDNCSSURL = baseURL + CDNPathCSS
+	c.CDNBundleJS = baseURL + CDNPathBundleJS
+	c.CDNPresetJS = baseURL + CDNPathPresetJS
+	c.CDNFavicon32 = baseURL + CDNPathFavicon32
+	c.CDNFavicon16 = baseURL + CDNPathFavicon16
+	return c
+}
+
+// WithCustomCDNURLs 自定义CDN资源URLs
+func (c *Swagger) WithCustomCDNURLs(cssURL, bundleJS, presetJS, favicon32, favicon16 string) *Swagger {
+	c.CDNCSSURL = cssURL
+	c.CDNBundleJS = bundleJS
+	c.CDNPresetJS = presetJS
+	c.CDNFavicon32 = favicon32
+	c.CDNFavicon16 = favicon16
+	return c
+}
+
+// WithCDNFallbackURL 设置CDN备用URL
+func (c *Swagger) WithCDNFallbackURL(fallbackURL string) *Swagger {
+	c.CDNFallbackURL = fallbackURL
+	return c
+}
+
+// EnableCDN 启用CDN资源
+func (c *Swagger) EnableCDN() *Swagger {
+	c.UseCDN = true
+	return c
+}
+
+// DisableCDN 禁用CDN资源（使用本地资源）
+func (c *Swagger) DisableCDN() *Swagger {
+	c.UseCDN = false
+	return c
+}
+
+// GetCDNCSSURL 获取CSS URL（支持备用）
+func (c *Swagger) GetCDNCSSURL() string {
+	if c.CDNCSSURL != "" {
+		return c.CDNCSSURL
+	}
+	if c.CDNFallbackURL != "" {
+		return c.CDNFallbackURL + CDNPathCSS
+	}
+	return c.CDNBaseURL + CDNPathCSS
+}
+
+// GetCDNBundleJS 获取Bundle JS URL（支持备用）
+func (c *Swagger) GetCDNBundleJS() string {
+	if c.CDNBundleJS != "" {
+		return c.CDNBundleJS
+	}
+	if c.CDNFallbackURL != "" {
+		return c.CDNFallbackURL + CDNPathBundleJS
+	}
+	return c.CDNBaseURL + CDNPathBundleJS
+}
+
+// GetCDNPresetJS 获取Preset JS URL（支持备用）
+func (c *Swagger) GetCDNPresetJS() string {
+	if c.CDNPresetJS != "" {
+		return c.CDNPresetJS
+	}
+	if c.CDNFallbackURL != "" {
+		return c.CDNFallbackURL + CDNPathPresetJS
+	}
+	return c.CDNBaseURL + CDNPathPresetJS
+}
+
+// GetCDNFavicon32 获取32x32 Favicon URL（支持备用）
+func (c *Swagger) GetCDNFavicon32() string {
+	if c.CDNFavicon32 != "" {
+		return c.CDNFavicon32
+	}
+	if c.CDNFallbackURL != "" {
+		return c.CDNFallbackURL + CDNPathFavicon32
+	}
+	return c.CDNBaseURL + CDNPathFavicon32
+}
+
+// GetCDNFavicon16 获取16x16 Favicon URL（支持备用）
+func (c *Swagger) GetCDNFavicon16() string {
+	if c.CDNFavicon16 != "" {
+		return c.CDNFavicon16
+	}
+	if c.CDNFallbackURL != "" {
+		return c.CDNFallbackURL + CDNPathFavicon16
+	}
+	return c.CDNBaseURL + CDNPathFavicon16
 }
 
 // IsAggregateEnabled 检查聚合功能是否启用
@@ -394,6 +563,11 @@ func (c *Swagger) Clone() internal.Configurable {
 			Enabled:  c.Aggregate.Enabled,
 			Mode:     c.Aggregate.Mode,
 			UILayout: c.Aggregate.UILayout,
+		}
+		// 克隆共享定义前缀
+		if len(c.Aggregate.SharedDefinitionPrefixes) > 0 {
+			clone.Aggregate.SharedDefinitionPrefixes = make([]string, len(c.Aggregate.SharedDefinitionPrefixes))
+			copy(clone.Aggregate.SharedDefinitionPrefixes, c.Aggregate.SharedDefinitionPrefixes)
 		}
 		// 克隆服务列表
 		if len(c.Aggregate.Services) > 0 {

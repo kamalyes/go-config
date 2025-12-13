@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-11 18:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-12-11 15:29:37
+ * @LastEditTime: 2025-12-13 11:53:15
  * @FilePath: \go-config\pkg\middleware\middleware.go
  * @Description: 中间件配置模块
  *
@@ -45,7 +45,7 @@ type Middleware struct {
 func Default() *Middleware {
 	return &Middleware{
 		ModuleName:     "middleware",
-		Enabled:        true,
+		Enabled:        false,
 		Logging:        logging.Default(),
 		Recovery:       recovery.Default(),
 		Tracing:        tracing.Default(),

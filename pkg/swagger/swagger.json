@@ -7,7 +7,7 @@
 
 {
   "moduleName": "swagger",
-  "enabled": true,
+  "enabled": false,
   "jsonPath": "/swagger/doc.json",
   "uiPath": "/swagger",
   "yamlPath": "/swagger/doc.yaml",
@@ -36,6 +36,23 @@
     "enabled": false,
     "mode": "merge",
     "services": [],
-    "uiLayout": "tabs"
-  }
+    "uiLayout": "tabs",
+    "sharedDefinitionPrefixes": [
+      "common",
+      "rpcStatus",
+      "protobuf",
+      "google",
+      "googleapis",
+      "protoc"
+    ]
+  },
+  "cdnVersion": "5.30.2",
+  "cdnBaseURL": "https://unpkg.com/swagger-ui-dist@5.30.2",
+  "cdnCSSURL": "https://unpkg.com/swagger-ui-dist@5.30.2/swagger-ui.css",
+  "cdnBundleJS": "https://unpkg.com/swagger-ui-dist@5.30.2/swagger-ui-bundle.js",
+  "cdnPresetJS": "https://unpkg.com/swagger-ui-dist@5.30.2/swagger-ui-standalone-preset.js",
+  "cdnFavicon32": "https://unpkg.com/swagger-ui-dist@5.30.2/favicon-32x32.png",
+  "cdnFavicon16": "https://unpkg.com/swagger-ui-dist@5.30.2/favicon-16x16.png",
+  "useCDN": true,
+  "cdnFallbackURL": "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.30.2"
 }
