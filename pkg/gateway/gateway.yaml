@@ -17,6 +17,18 @@ debug: true
 version: v1.0.0
 # 环境 (dev, test, prod)
 environment: dev
+# 构建时间
+build-time: "2025-12-18T13:55:20+08:00"
+# 构建用户
+build-user: kamalyes
+# Go版本
+go-version: 1.25.1
+# Git提交哈希
+git-commit: 93318280d5ff55d9041d434f79131de1
+# Git分支
+git-branch: master
+# Git标签
+git-tag: v1.0.0
 # JSON序列化配置
 json:
     use-proto-names: true

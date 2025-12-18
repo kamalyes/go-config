@@ -12,6 +12,8 @@
 package gateway
 
 import (
+	"time"
+
 	"github.com/kamalyes/go-config/internal"
 	"github.com/kamalyes/go-config/pkg/banner"
 	"github.com/kamalyes/go-config/pkg/cache"
@@ -32,6 +34,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/smtp"
 	"github.com/kamalyes/go-config/pkg/swagger"
 	"github.com/kamalyes/go-config/pkg/wsc"
+	"github.com/kamalyes/go-toolbox/pkg/osx"
 )
 
 // Gateway网关统一配置
@@ -42,6 +45,12 @@ type Gateway struct {
 	Debug         bool                         `mapstructure:"debug" yaml:"debug" json:"debug"`                         // 是否启用调试模式
 	Version       string                       `mapstructure:"version" yaml:"version" json:"version"`                   // 版本号
 	Environment   string                       `mapstructure:"environment" yaml:"environment" json:"environment"`       // 环境 (dev, test, prod)
+	BuildTime     string                       `mapstructure:"build-time" yaml:"build-time" json:"buildTime"`           // 构建时间
+	BuildUser     string                       `mapstructure:"build-user" yaml:"build-user" json:"buildUser"`           // 构建用户
+	GoVersion     string                       `mapstructure:"go-version" yaml:"go-version" json:"goVersion"`           // Go版本
+	GitCommit     string                       `mapstructure:"git-commit" yaml:"git-commit" json:"gitCommit"`           // Git提交哈希
+	GitBranch     string                       `mapstructure:"git-branch" yaml:"git-branch" json:"gitBranch"`           // Git分支
+	GitTag        string                       `mapstructure:"git-tag" yaml:"git-tag" json:"gitTag"`                    // Git标签
 	JSON          *JSON                        `mapstructure:"json" yaml:"json" json:"json"`                            // JSON序列化配置
 	HTTPServer    *HTTPServer                  `mapstructure:"http" yaml:"http" json:"http"`                            // HTTP服务器配置
 	GRPC          *GRPC                        `mapstructure:"grpc" yaml:"grpc" json:"grpc"`                            // GRPC配置
@@ -75,6 +84,12 @@ func Default() *Gateway {
 		Debug:         true,
 		Version:       "v1.0.0",
 		Environment:   "dev",
+		BuildTime:     time.Now().Format(time.RFC3339),
+		BuildUser:     "kamalyes",
+		GoVersion:     "1.25.1",
+		GitCommit:     osx.HashUnixMicroCipherText(),
+		GitBranch:     "master",
+		GitTag:        "v1.0.0",
 		JSON:          DefaultJSON(),
 		HTTPServer:    DefaultHTTPServer(),
 		GRPC:          DefaultGRPC(),
@@ -145,6 +160,12 @@ func (c *Gateway) Clone() internal.Configurable {
 		Debug:         c.Debug,
 		Version:       c.Version,
 		Environment:   c.Environment,
+		BuildTime:     c.BuildTime,
+		BuildUser:     c.BuildUser,
+		GoVersion:     c.GoVersion,
+		GitCommit:     c.GitCommit,
+		GitBranch:     c.GitBranch,
+		GitTag:        c.GitTag,
 		JSON:          c.JSON.Clone().(*JSON),
 		HTTPServer:    c.HTTPServer.Clone().(*HTTPServer),
 		GRPC:          c.GRPC.Clone().(*GRPC),

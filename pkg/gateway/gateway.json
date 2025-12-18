@@ -12,6 +12,12 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
+  "buildTime": "2025-12-18T13:55:20+08:00",
+  "buildUser": "kamalyes",
+  "goVersion": "1.25.1",
+  "gitCommit": "93318280d5ff55d9041d434f79131de1",
+  "gitBranch": "master",
+  "gitTag": "v1.0.0",
   "json": {
     "useProtoNames": true,
     "emitUnpopulated": true,
