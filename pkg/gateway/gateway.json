@@ -884,6 +884,7 @@
     "heartbeatInterval": 30,
     "clientTimeout": 90,
     "messageBufferSize": 256,
+    "maxPendingQueueSize": 20000,
     "websocketOrigins": [
       "*"
     ],
@@ -917,6 +918,27 @@
     "sseHeartbeat": 0,
     "sseTimeout": 120,
     "sseMessageBuffer": 100,
+    "redisRepository": {
+      "onlineStatus": {
+        "keyPrefix": "wsc:online_status:",
+        "ttl": 90000000000
+      },
+      "stats": {
+        "keyPrefix": "wsc:stats:",
+        "ttl": 600000000000
+      },
+      "workload": {
+        "keyPrefix": "wsc:workload:",
+        "ttl": 60000000000
+      },
+      "offlineMessage": {
+        "keyPrefix": "wsc:offline_messages:",
+        "queueTTL": 604800000000000,
+        "autoStore": true,
+        "autoPush": true,
+        "maxCount": 50
+      }
+    },
     "performance": {
       "maxConnectionsPerNode": 10000,
       "readBufferSize": 4,

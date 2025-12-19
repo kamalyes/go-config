@@ -21,6 +21,8 @@ heartbeat-interval: 30
 client-timeout: 90
 # 消息缓冲区大小
 message-buffer-size: 256
+# 最大待发送消息队列大小
+max-pending-queue-size: 20000
 # 允许的WebSocket Origin
 websocket-origins:
     - '*'
@@ -73,6 +75,23 @@ sse-heartbeat: 0
 sse-timeout: 120
 # SSE消息缓冲区大小
 sse-message-buffer: 100
+# Redis仓库配置
+redis-repository:
+    online-status:
+        key-prefix: 'wsc:online_status:'
+        ttl: 1m30s
+    stats:
+        key-prefix: 'wsc:stats:'
+        ttl: 10m0s
+    workload:
+        key-prefix: 'wsc:workload:'
+        ttl: 1m0s
+    offline-message:
+        key-prefix: 'wsc:offline_messages:'
+        queue-ttl: 168h0m0s
+        auto-store: true
+        auto-push: true
+        max-count: 50
 # 性能配置
 performance:
     max-connections-per-node: 10000
@@ -226,6 +245,9 @@ logging:
         - phone
         - id_card
         - credit_card
+    slow-http-threshold: 1000
+    slow-grpc-threshold: 1000
+    slow-stream-threshold: 5000
     loggable-content-types:
         - application/json
         - application/xml
