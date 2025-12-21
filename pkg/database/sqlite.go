@@ -16,26 +16,48 @@ import (
 
 // SQLite SQLite数据库配置
 type SQLite struct {
-	ModuleName      string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                     // 模块名称
-	Config          string `mapstructure:"config" yaml:"config" json:"config"          validate:"required"`                      // 后缀配置
-	LogLevel        string `mapstructure:"log-level" yaml:"log-level" json:"logLevel"       validate:"required"`                 // SQL 日志等级
-	DbPath          string `mapstructure:"db-path" yaml:"db-path" json:"dbPath"`                                                 // SQLite 文件存放位置
-	Vacuum          bool   `mapstructure:"vacuum" yaml:"vacuum" json:"vacuum"`                                                   // 是否执行清除命令
-	MaxIdleConns    int    `mapstructure:"max-idle-conns" yaml:"max-idle-conns" json:"maxIdleConns"  validate:"min=0"`           // 最大空闲连接数
-	MaxOpenConns    int    `mapstructure:"max-open-conns" yaml:"max-open-conns" json:"maxOpenConns"  validate:"min=0"`           // 最大连接数
-	ConnMaxIdleTime int    `mapstructure:"conn-max-idle-time" yaml:"conn-max-idle-time" json:"connMaxIdleTime" validate:"min=0"` // 连接最大空闲时间 单位：秒
-	ConnMaxLifeTime int    `mapstructure:"conn-max-life-time" yaml:"conn-max-life-time" json:"connMaxLifeTime" validate:"min=0"` // 连接最大生命周期 单位：秒
+	ModuleName                               string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                                                                                   // 模块名称
+	Config                                   string `mapstructure:"config" yaml:"config" json:"config"          validate:"required"`                                                                                    // 后缀配置
+	LogLevel                                 string `mapstructure:"log-level" yaml:"log-level" json:"logLevel"       validate:"required"`                                                                               // SQL 日志等级
+	SlowThreshold                            int    `mapstructure:"slow-threshold" yaml:"slow-threshold" json:"slowThreshold"`                                                                                          // 慢查询阈值（毫秒）
+	IgnoreRecordNotFoundError                bool   `mapstructure:"ignore-record-not-found-error" yaml:"ignore-record-not-found-error" json:"ignoreRecordNotFoundError"`                                                // 是否忽略ErrRecordNotFound错误
+	DbPath                                   string `mapstructure:"db-path" yaml:"db-path" json:"dbPath"`                                                                                                               // SQLite 文件存放位置
+	Vacuum                                   bool   `mapstructure:"vacuum" yaml:"vacuum" json:"vacuum"`                                                                                                                 // 是否执行清除命令
+	MaxIdleConns                             int    `mapstructure:"max-idle-conns" yaml:"max-idle-conns" json:"maxIdleConns"  validate:"min=0"`                                                                         // 最大空闲连接数
+	MaxOpenConns                             int    `mapstructure:"max-open-conns" yaml:"max-open-conns" json:"maxOpenConns"  validate:"min=0"`                                                                         // 最大连接数
+	ConnMaxIdleTime                          int    `mapstructure:"conn-max-idle-time" yaml:"conn-max-idle-time" json:"connMaxIdleTime" validate:"min=0"`                                                               // 连接最大空闲时间 单位：秒
+	ConnMaxLifeTime                          int    `mapstructure:"conn-max-life-time" yaml:"conn-max-life-time" json:"connMaxLifeTime" validate:"min=0"`                                                               // 连接最大生命周期 单位：秒
+	SkipDefaultTransaction                   bool   `mapstructure:"skip-default-transaction" yaml:"skip-default-transaction" json:"skipDefaultTransaction"`                                                             // 跳过默认事务
+	PrepareStmt                              bool   `mapstructure:"prepare-stmt" yaml:"prepare-stmt" json:"prepareStmt"`                                                                                                // 预编译语句
+	DisableForeignKeyConstraintWhenMigrating bool   `mapstructure:"disable-foreign-key-constraint-when-migrating" yaml:"disable-foreign-key-constraint-when-migrating" json:"disableForeignKeyConstraintWhenMigrating"` // 禁用自动创建外键约束
+	DisableNestedTransaction                 bool   `mapstructure:"disable-nested-transaction" yaml:"disable-nested-transaction" json:"disableNestedTransaction"`                                                       // 禁用嵌套事务
+	AllowGlobalUpdate                        bool   `mapstructure:"allow-global-update" yaml:"allow-global-update" json:"allowGlobalUpdate"`                                                                            // 允许全局更新
+	QueryFields                              bool   `mapstructure:"query-fields" yaml:"query-fields" json:"queryFields"`                                                                                                // 执行查询时选择所有字段
+	CreateBatchSize                          int    `mapstructure:"create-batch-size" yaml:"create-batch-size" json:"createBatchSize"`                                                                                  // 批量创建大小
+	SingularTable                            bool   `mapstructure:"singular-table" yaml:"singular-table" json:"singularTable"`                                                                                          // 使用单数表名
 }
 
 // 为SQLite配置实现DatabaseProvider接口
-func (s *SQLite) GetDBType() DBType                        { return DBTypeSQLite }
-func (s *SQLite) GetHost() string                          { return "" }       // SQLite无需host
-func (s *SQLite) GetPort() string                          { return "" }       // SQLite无需port
-func (s *SQLite) GetDBName() string                        { return s.DbPath } // SQLite使用文件路径
-func (s *SQLite) GetUsername() string                      { return "" }       // SQLite无需用户名
-func (s *SQLite) GetPassword() string                      { return "" }       // SQLite无需密码
-func (s *SQLite) GetConfig() string                        { return s.Config }
-func (s *SQLite) GetModuleName() string                    { return s.ModuleName }
+func (s *SQLite) GetDBType() DBType                  { return DBTypeSQLite }
+func (s *SQLite) GetHost() string                    { return "" }       // SQLite无需host
+func (s *SQLite) GetPort() string                    { return "" }       // SQLite无需port
+func (s *SQLite) GetDBName() string                  { return s.DbPath } // SQLite使用文件路径
+func (s *SQLite) GetUsername() string                { return "" }       // SQLite无需用户名
+func (s *SQLite) GetPassword() string                { return "" }       // SQLite无需密码
+func (s *SQLite) GetConfig() string                  { return s.Config }
+func (s *SQLite) GetModuleName() string              { return s.ModuleName }
+func (s *SQLite) GetSlowThreshold() int              { return s.SlowThreshold }
+func (s *SQLite) GetIgnoreRecordNotFoundError() bool { return s.IgnoreRecordNotFoundError }
+func (s *SQLite) GetSkipDefaultTransaction() bool    { return s.SkipDefaultTransaction }
+func (s *SQLite) GetPrepareStmt() bool               { return s.PrepareStmt }
+func (s *SQLite) GetDisableForeignKeyConstraintWhenMigrating() bool {
+	return s.DisableForeignKeyConstraintWhenMigrating
+}
+func (s *SQLite) GetDisableNestedTransaction() bool        { return s.DisableNestedTransaction }
+func (s *SQLite) GetAllowGlobalUpdate() bool               { return s.AllowGlobalUpdate }
+func (s *SQLite) GetQueryFields() bool                     { return s.QueryFields }
+func (s *SQLite) GetCreateBatchSize() int                  { return s.CreateBatchSize }
+func (s *SQLite) GetSingularTable() bool                   { return s.SingularTable }
 func (s *SQLite) SetCredentials(username, password string) {} // SQLite不支持凭证
 func (s *SQLite) SetHost(host string)                      {} // SQLite不支持host
 func (s *SQLite) SetPort(port string)                      {} // SQLite不支持port
@@ -43,15 +65,25 @@ func (s *SQLite) SetDBName(dbName string)                  { s.DbPath = dbName }
 
 func (s *SQLite) Clone() internal.Configurable {
 	return &SQLite{
-		ModuleName:      s.ModuleName,
-		Config:          s.Config,
-		LogLevel:        s.LogLevel,
-		DbPath:          s.DbPath,
-		Vacuum:          s.Vacuum,
-		MaxIdleConns:    s.MaxIdleConns,
-		MaxOpenConns:    s.MaxOpenConns,
-		ConnMaxIdleTime: s.ConnMaxIdleTime,
-		ConnMaxLifeTime: s.ConnMaxLifeTime,
+		ModuleName:                               s.ModuleName,
+		Config:                                   s.Config,
+		LogLevel:                                 s.LogLevel,
+		SlowThreshold:                            s.SlowThreshold,
+		IgnoreRecordNotFoundError:                s.IgnoreRecordNotFoundError,
+		DbPath:                                   s.DbPath,
+		Vacuum:                                   s.Vacuum,
+		MaxIdleConns:                             s.MaxIdleConns,
+		MaxOpenConns:                             s.MaxOpenConns,
+		ConnMaxIdleTime:                          s.ConnMaxIdleTime,
+		ConnMaxLifeTime:                          s.ConnMaxLifeTime,
+		SkipDefaultTransaction:                   s.SkipDefaultTransaction,
+		PrepareStmt:                              s.PrepareStmt,
+		DisableForeignKeyConstraintWhenMigrating: s.DisableForeignKeyConstraintWhenMigrating,
+		DisableNestedTransaction:                 s.DisableNestedTransaction,
+		AllowGlobalUpdate:                        s.AllowGlobalUpdate,
+		QueryFields:                              s.QueryFields,
+		CreateBatchSize:                          s.CreateBatchSize,
+		SingularTable:                            s.SingularTable,
 	}
 }
 func (s *SQLite) Get() interface{} { return s }
@@ -65,15 +97,25 @@ func (s *SQLite) Validate() error { return internal.ValidateStruct(s) }
 // DefaultSQLite 创建默认SQLite配置
 func DefaultSQLite() *SQLite {
 	return &SQLite{
-		ModuleName:      "sqlite",
-		DbPath:          "./data.db",
-		Config:          "_foreign_keys=on",
-		LogLevel:        "info",
-		Vacuum:          false,
-		MaxIdleConns:    10,
-		MaxOpenConns:    1, // SQLite 通常使用单连接
-		ConnMaxIdleTime: 300,
-		ConnMaxLifeTime: 3600,
+		ModuleName:                               "sqlite",
+		DbPath:                                   "./data.db",
+		Config:                                   "_foreign_keys=on",
+		LogLevel:                                 "info",
+		SlowThreshold:                            100,   // 100毫秒
+		IgnoreRecordNotFoundError:                false, // 不忽略record not found错误
+		Vacuum:                                   false,
+		MaxIdleConns:                             10,
+		MaxOpenConns:                             1, // SQLite 通常使用单连接
+		ConnMaxIdleTime:                          300,
+		ConnMaxLifeTime:                          3600,
+		SkipDefaultTransaction:                   false, // 使用默认事务
+		PrepareStmt:                              true,  // 启用预编译语句缓存
+		DisableForeignKeyConstraintWhenMigrating: true,  // 禁用外键约束
+		DisableNestedTransaction:                 false, // 允许嵌套事务
+		AllowGlobalUpdate:                        false, // 禁止全局更新
+		QueryFields:                              true,  // 查询时选择所有字段
+		CreateBatchSize:                          100,   // 批量创建大小
+		SingularTable:                            true,  // 使用单数表名
 	}
 }
 

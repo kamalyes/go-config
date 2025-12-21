@@ -2,7 +2,7 @@
 # 模块名称: sqlite
 # 包名: database  
 # 描述: SQLite数据库
-# 生成时间: 2025-11-28 00:26:09
+# 生成时间: 2025-12-22 00:17:03
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -11,6 +11,10 @@ module-name: sqlite
 config: _foreign_keys=on
 # SQL 日志等级
 log-level: info
+# 慢查询阈值（毫秒）
+slow-threshold: 100
+# 是否忽略ErrRecordNotFound错误
+ignore-record-not-found-error: false
 # SQLite 文件存放位置
 db-path: ./data.db
 # 是否执行清除命令
@@ -23,3 +27,19 @@ max-open-conns: 1
 conn-max-idle-time: 300
 # 连接最大生命周期 单位：秒
 conn-max-life-time: 3600
+# 跳过默认事务
+skip-default-transaction: false
+# 预编译语句
+prepare-stmt: true
+# 禁用自动创建外键约束
+disable-foreign-key-constraint-when-migrating: true
+# 禁用嵌套事务
+disable-nested-transaction: false
+# 允许全局更新
+allow-global-update: false
+# 执行查询时选择所有字段
+query-fields: true
+# 批量创建大小
+create-batch-size: 100
+# 使用单数表名
+singular-table: true

@@ -2,7 +2,7 @@
 # 模块名称: database
 # 包名: database  
 # 描述: 数据库模块
-# 生成时间: 2025-11-28 00:26:08
+# 生成时间: 2025-12-22 00:17:02
 # 注意: 此文件由配置生成器自动生成
 
 # 数据库类型
@@ -18,6 +18,8 @@ mysql:
     port: "3306"
     config: charset=utf8mb4&parseTime=True&loc=Local
     log-level: info
+    slow-threshold: 100
+    ignore-record-not-found-error: false
     db-name: test
     username: root
     password: mysql_password
@@ -25,6 +27,14 @@ mysql:
     max-open-conns: 100
     conn-max-idle-time: 300
     conn-max-life-time: 3600
+    skip-default-transaction: false
+    prepare-stmt: true
+    disable-foreign-key-constraint-when-migrating: true
+    disable-nested-transaction: false
+    allow-global-update: false
+    query-fields: true
+    create-batch-size: 100
+    singular-table: true
 # PostgreSQL配置
 postgresql:
     module-name: postgresql
@@ -32,6 +42,8 @@ postgresql:
     port: "5432"
     config: sslmode=disable
     log-level: info
+    slow-threshold: 100
+    ignore-record-not-found-error: false
     db-name: postgres
     username: postgres
     password: postgres_password
@@ -39,14 +51,32 @@ postgresql:
     max-open-conns: 100
     conn-max-idle-time: 300
     conn-max-life-time: 3600
+    skip-default-transaction: false
+    prepare-stmt: true
+    disable-foreign-key-constraint-when-migrating: true
+    disable-nested-transaction: false
+    allow-global-update: false
+    query-fields: true
+    create-batch-size: 100
+    singular-table: true
 # SQLite配置
 sqlite:
     module-name: sqlite
     config: _foreign_keys=on
     log-level: info
+    slow-threshold: 100
+    ignore-record-not-found-error: false
     db-path: ./data.db
     vacuum: false
     max-idle-conns: 10
     max-open-conns: 1
     conn-max-idle-time: 300
     conn-max-life-time: 3600
+    skip-default-transaction: false
+    prepare-stmt: true
+    disable-foreign-key-constraint-when-migrating: true
+    disable-nested-transaction: false
+    allow-global-update: false
+    query-fields: true
+    create-batch-size: 100
+    singular-table: true

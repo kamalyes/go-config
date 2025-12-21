@@ -12,8 +12,9 @@
 package database
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPostgreSQL_DefaultPostgreSQL(t *testing.T) {
@@ -30,6 +31,17 @@ func TestPostgreSQL_DefaultPostgreSQL(t *testing.T) {
 	assert.Equal(t, "postgres_password", pg.Password)
 	assert.Equal(t, 10, pg.MaxIdleConns)
 	assert.Equal(t, 100, pg.MaxOpenConns)
+	// GORM 配置字段
+	assert.Equal(t, 100, pg.SlowThreshold)
+	assert.Equal(t, false, pg.IgnoreRecordNotFoundError)
+	assert.Equal(t, false, pg.SkipDefaultTransaction)
+	assert.Equal(t, true, pg.PrepareStmt)
+	assert.Equal(t, true, pg.DisableForeignKeyConstraintWhenMigrating)
+	assert.Equal(t, false, pg.DisableNestedTransaction)
+	assert.Equal(t, false, pg.AllowGlobalUpdate)
+	assert.Equal(t, true, pg.QueryFields)
+	assert.Equal(t, 100, pg.CreateBatchSize)
+	assert.Equal(t, true, pg.SingularTable)
 }
 
 func TestPostgreSQL_GetDBType(t *testing.T) {
@@ -122,6 +134,54 @@ func TestPostgreSQL_Get(t *testing.T) {
 	resultPG, ok := result.(*PostgreSQL)
 	assert.True(t, ok)
 	assert.Equal(t, pg, resultPG)
+}
+
+func TestPostgreSQL_GormConfigGetters(t *testing.T) {
+	pg := DefaultPostgreSQL()
+
+	// 测试 GORM 配置 Getter 方法
+	assert.Equal(t, 100, pg.GetSlowThreshold())
+	assert.Equal(t, false, pg.GetIgnoreRecordNotFoundError())
+	assert.Equal(t, false, pg.GetSkipDefaultTransaction())
+	assert.Equal(t, true, pg.GetPrepareStmt())
+	assert.Equal(t, true, pg.GetDisableForeignKeyConstraintWhenMigrating())
+	assert.Equal(t, false, pg.GetDisableNestedTransaction())
+	assert.Equal(t, false, pg.GetAllowGlobalUpdate())
+	assert.Equal(t, true, pg.GetQueryFields())
+	assert.Equal(t, 100, pg.GetCreateBatchSize())
+	assert.Equal(t, true, pg.GetSingularTable())
+}
+
+func TestPostgreSQL_GormConfigCustom(t *testing.T) {
+	pg := &PostgreSQL{
+		ModuleName:                               "test_pg",
+		Host:                                     "localhost",
+		Port:                                     "5432",
+		Dbname:                                   "test",
+		Username:                                 "postgres",
+		Password:                                 "pass",
+		SlowThreshold:                            250,
+		IgnoreRecordNotFoundError:                true,
+		SkipDefaultTransaction:                   true,
+		PrepareStmt:                              false,
+		DisableForeignKeyConstraintWhenMigrating: false,
+		DisableNestedTransaction:                 true,
+		AllowGlobalUpdate:                        true,
+		QueryFields:                              false,
+		CreateBatchSize:                          300,
+		SingularTable:                            false,
+	}
+
+	assert.Equal(t, 250, pg.GetSlowThreshold())
+	assert.Equal(t, true, pg.GetIgnoreRecordNotFoundError())
+	assert.Equal(t, true, pg.GetSkipDefaultTransaction())
+	assert.Equal(t, false, pg.GetPrepareStmt())
+	assert.Equal(t, false, pg.GetDisableForeignKeyConstraintWhenMigrating())
+	assert.Equal(t, true, pg.GetDisableNestedTransaction())
+	assert.Equal(t, true, pg.GetAllowGlobalUpdate())
+	assert.Equal(t, false, pg.GetQueryFields())
+	assert.Equal(t, 300, pg.GetCreateBatchSize())
+	assert.Equal(t, false, pg.GetSingularTable())
 }
 
 func TestPostgreSQL_Set(t *testing.T) {

@@ -2,17 +2,27 @@
 // 模块名称: sqlite
 // 包名: database  
 // 描述: SQLite数据库
-// 生成时间: 2025-11-28 00:26:09
+// 生成时间: 2025-12-22 00:17:03
 // 注意: 此文件由配置生成器自动生成
 
 {
   "moduleName": "sqlite",
   "config": "_foreign_keys=on",
   "logLevel": "info",
+  "slowThreshold": 100,
+  "ignoreRecordNotFoundError": false,
   "dbPath": "./data.db",
   "vacuum": false,
   "maxIdleConns": 10,
   "maxOpenConns": 1,
   "connMaxIdleTime": 300,
-  "connMaxLifeTime": 3600
+  "connMaxLifeTime": 3600,
+  "skipDefaultTransaction": false,
+  "prepareStmt": true,
+  "disableForeignKeyConstraintWhenMigrating": true,
+  "disableNestedTransaction": false,
+  "allowGlobalUpdate": false,
+  "queryFields": true,
+  "createBatchSize": 100,
+  "singularTable": true
 }

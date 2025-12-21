@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-22 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-11-27 00:44:04
+ * @LastEditTime: 2025-11-27 00:55:05
  * @FilePath: \go-config\pkg\database\mysql_test.go
  * @Description: MySQL数据库配置测试
  *
@@ -12,8 +12,9 @@
 package database
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMySQL_DefaultMySQL(t *testing.T) {
@@ -32,6 +33,17 @@ func TestMySQL_DefaultMySQL(t *testing.T) {
 	assert.Equal(t, 100, mysql.MaxOpenConns)
 	assert.Equal(t, 300, mysql.ConnMaxIdleTime)
 	assert.Equal(t, 3600, mysql.ConnMaxLifeTime)
+	// GORM 配置字段
+	assert.Equal(t, 100, mysql.SlowThreshold)
+	assert.Equal(t, false, mysql.IgnoreRecordNotFoundError)
+	assert.Equal(t, false, mysql.SkipDefaultTransaction)
+	assert.Equal(t, true, mysql.PrepareStmt)
+	assert.Equal(t, true, mysql.DisableForeignKeyConstraintWhenMigrating)
+	assert.Equal(t, false, mysql.DisableNestedTransaction)
+	assert.Equal(t, false, mysql.AllowGlobalUpdate)
+	assert.Equal(t, true, mysql.QueryFields)
+	assert.Equal(t, 100, mysql.CreateBatchSize)
+	assert.Equal(t, true, mysql.SingularTable)
 }
 
 func TestMySQL_GetDBType(t *testing.T) {
@@ -124,6 +136,54 @@ func TestMySQL_Get(t *testing.T) {
 	resultMySQL, ok := result.(*MySQL)
 	assert.True(t, ok)
 	assert.Equal(t, mysql, resultMySQL)
+}
+
+func TestMySQL_GormConfigGetters(t *testing.T) {
+	mysql := DefaultMySQL()
+
+	// 测试 GORM 配置 Getter 方法
+	assert.Equal(t, 100, mysql.GetSlowThreshold())
+	assert.Equal(t, false, mysql.GetIgnoreRecordNotFoundError())
+	assert.Equal(t, false, mysql.GetSkipDefaultTransaction())
+	assert.Equal(t, true, mysql.GetPrepareStmt())
+	assert.Equal(t, true, mysql.GetDisableForeignKeyConstraintWhenMigrating())
+	assert.Equal(t, false, mysql.GetDisableNestedTransaction())
+	assert.Equal(t, false, mysql.GetAllowGlobalUpdate())
+	assert.Equal(t, true, mysql.GetQueryFields())
+	assert.Equal(t, 100, mysql.GetCreateBatchSize())
+	assert.Equal(t, true, mysql.GetSingularTable())
+}
+
+func TestMySQL_GormConfigCustom(t *testing.T) {
+	mysql := &MySQL{
+		ModuleName:                               "test_mysql",
+		Host:                                     "localhost",
+		Port:                                     "3306",
+		Dbname:                                   "test",
+		Username:                                 "root",
+		Password:                                 "pass",
+		SlowThreshold:                            200,
+		IgnoreRecordNotFoundError:                true,
+		SkipDefaultTransaction:                   true,
+		PrepareStmt:                              false,
+		DisableForeignKeyConstraintWhenMigrating: false,
+		DisableNestedTransaction:                 true,
+		AllowGlobalUpdate:                        true,
+		QueryFields:                              false,
+		CreateBatchSize:                          500,
+		SingularTable:                            false,
+	}
+
+	assert.Equal(t, 200, mysql.GetSlowThreshold())
+	assert.Equal(t, true, mysql.GetIgnoreRecordNotFoundError())
+	assert.Equal(t, true, mysql.GetSkipDefaultTransaction())
+	assert.Equal(t, false, mysql.GetPrepareStmt())
+	assert.Equal(t, false, mysql.GetDisableForeignKeyConstraintWhenMigrating())
+	assert.Equal(t, true, mysql.GetDisableNestedTransaction())
+	assert.Equal(t, true, mysql.GetAllowGlobalUpdate())
+	assert.Equal(t, false, mysql.GetQueryFields())
+	assert.Equal(t, 500, mysql.GetCreateBatchSize())
+	assert.Equal(t, false, mysql.GetSingularTable())
 }
 
 func TestMySQL_Set(t *testing.T) {

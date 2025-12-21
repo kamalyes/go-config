@@ -12,8 +12,9 @@
 package database
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSQLite_DefaultSQLite(t *testing.T) {
@@ -25,6 +26,17 @@ func TestSQLite_DefaultSQLite(t *testing.T) {
 	assert.Equal(t, "info", sqlite.LogLevel)
 	assert.Equal(t, 10, sqlite.MaxIdleConns)
 	assert.Equal(t, 1, sqlite.MaxOpenConns)
+	// GORM 配置字段
+	assert.Equal(t, 100, sqlite.SlowThreshold)
+	assert.Equal(t, false, sqlite.IgnoreRecordNotFoundError)
+	assert.Equal(t, false, sqlite.SkipDefaultTransaction)
+	assert.Equal(t, true, sqlite.PrepareStmt)
+	assert.Equal(t, true, sqlite.DisableForeignKeyConstraintWhenMigrating)
+	assert.Equal(t, false, sqlite.DisableNestedTransaction)
+	assert.Equal(t, false, sqlite.AllowGlobalUpdate)
+	assert.Equal(t, true, sqlite.QueryFields)
+	assert.Equal(t, 100, sqlite.CreateBatchSize)
+	assert.Equal(t, true, sqlite.SingularTable)
 }
 
 func TestSQLite_GetDBType(t *testing.T) {
@@ -108,4 +120,48 @@ func TestSQLite_ChainedCalls(t *testing.T) {
 
 	err := sqlite.Validate()
 	assert.NoError(t, err)
+}
+
+func TestSQLite_GormConfigGetters(t *testing.T) {
+	sqlite := DefaultSQLite()
+
+	// 测试 GORM 配置 Getter 方法
+	assert.Equal(t, 100, sqlite.GetSlowThreshold())
+	assert.Equal(t, false, sqlite.GetIgnoreRecordNotFoundError())
+	assert.Equal(t, false, sqlite.GetSkipDefaultTransaction())
+	assert.Equal(t, true, sqlite.GetPrepareStmt())
+	assert.Equal(t, true, sqlite.GetDisableForeignKeyConstraintWhenMigrating())
+	assert.Equal(t, false, sqlite.GetDisableNestedTransaction())
+	assert.Equal(t, false, sqlite.GetAllowGlobalUpdate())
+	assert.Equal(t, true, sqlite.GetQueryFields())
+	assert.Equal(t, 100, sqlite.GetCreateBatchSize())
+	assert.Equal(t, true, sqlite.GetSingularTable())
+}
+
+func TestSQLite_GormConfigCustom(t *testing.T) {
+	sqlite := &SQLite{
+		ModuleName:                               "test_sqlite",
+		DbPath:                                   "/test/db.sqlite",
+		SlowThreshold:                            150,
+		IgnoreRecordNotFoundError:                true,
+		SkipDefaultTransaction:                   true,
+		PrepareStmt:                              false,
+		DisableForeignKeyConstraintWhenMigrating: false,
+		DisableNestedTransaction:                 true,
+		AllowGlobalUpdate:                        true,
+		QueryFields:                              false,
+		CreateBatchSize:                          200,
+		SingularTable:                            false,
+	}
+
+	assert.Equal(t, 150, sqlite.GetSlowThreshold())
+	assert.Equal(t, true, sqlite.GetIgnoreRecordNotFoundError())
+	assert.Equal(t, true, sqlite.GetSkipDefaultTransaction())
+	assert.Equal(t, false, sqlite.GetPrepareStmt())
+	assert.Equal(t, false, sqlite.GetDisableForeignKeyConstraintWhenMigrating())
+	assert.Equal(t, true, sqlite.GetDisableNestedTransaction())
+	assert.Equal(t, true, sqlite.GetAllowGlobalUpdate())
+	assert.Equal(t, false, sqlite.GetQueryFields())
+	assert.Equal(t, 200, sqlite.GetCreateBatchSize())
+	assert.Equal(t, false, sqlite.GetSingularTable())
 }

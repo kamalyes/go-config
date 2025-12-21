@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2025-12-11 17:33:50
+# 生成时间: 2025-12-22 00:17:02
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -18,13 +18,13 @@ version: v1.0.0
 # 环境 (dev, test, prod)
 environment: dev
 # 构建时间
-build-time: "2025-12-18T13:55:20+08:00"
+build-time: "2025-12-22T00:17:02+08:00"
 # 构建用户
 build-user: kamalyes
 # Go版本
 go-version: 1.25.1
 # Git提交哈希
-git-commit: 93318280d5ff55d9041d434f79131de1
+git-commit: a33b93a5526ce5f4cec4654ccee57218
 # Git分支
 git-branch: master
 # Git标签
@@ -156,6 +156,8 @@ database:
         port: "3306"
         config: charset=utf8mb4&parseTime=True&loc=Local
         log-level: info
+        slow-threshold: 100
+        ignore-record-not-found-error: false
         db-name: test
         username: root
         password: mysql_password
@@ -163,6 +165,14 @@ database:
         max-open-conns: 100
         conn-max-idle-time: 300
         conn-max-life-time: 3600
+        skip-default-transaction: false
+        prepare-stmt: true
+        disable-foreign-key-constraint-when-migrating: true
+        disable-nested-transaction: false
+        allow-global-update: false
+        query-fields: true
+        create-batch-size: 100
+        singular-table: true
     postgresql:
         # 模块名称
         module-name: postgresql
@@ -170,6 +180,8 @@ database:
         port: "5432"
         config: sslmode=disable
         log-level: info
+        slow-threshold: 100
+        ignore-record-not-found-error: false
         db-name: postgres
         username: postgres
         password: postgres_password
@@ -177,17 +189,35 @@ database:
         max-open-conns: 100
         conn-max-idle-time: 300
         conn-max-life-time: 3600
+        skip-default-transaction: false
+        prepare-stmt: true
+        disable-foreign-key-constraint-when-migrating: true
+        disable-nested-transaction: false
+        allow-global-update: false
+        query-fields: true
+        create-batch-size: 100
+        singular-table: true
     sqlite:
         # 模块名称
         module-name: sqlite
         config: _foreign_keys=on
         log-level: info
+        slow-threshold: 100
+        ignore-record-not-found-error: false
         db-path: ./data.db
         vacuum: false
         max-idle-conns: 10
         max-open-conns: 1
         conn-max-idle-time: 300
         conn-max-life-time: 3600
+        skip-default-transaction: false
+        prepare-stmt: true
+        disable-foreign-key-constraint-when-migrating: true
+        disable-nested-transaction: false
+        allow-global-update: false
+        query-fields: true
+        create-batch-size: 100
+        singular-table: true
 # Etcd配置
 etcd:
     # 模块名称

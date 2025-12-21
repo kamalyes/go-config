@@ -2,7 +2,7 @@
 // 模块名称: postgresql
 // 包名: database  
 // 描述: PostgreSQL数据库
-// 生成时间: 2025-11-28 00:26:08
+// 生成时间: 2025-12-22 00:17:02
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -11,11 +11,21 @@
   "port": "5432",
   "config": "sslmode=disable",
   "logLevel": "info",
+  "slowThreshold": 100,
+  "ignoreRecordNotFoundError": false,
   "dbName": "postgres",
   "username": "postgres",
   "password": "postgres_password",
   "maxIdleConns": 10,
   "maxOpenConns": 100,
   "connMaxIdleTime": 300,
-  "connMaxLifeTime": 3600
+  "connMaxLifeTime": 3600,
+  "skipDefaultTransaction": false,
+  "prepareStmt": true,
+  "disableForeignKeyConstraintWhenMigrating": true,
+  "disableNestedTransaction": false,
+  "allowGlobalUpdate": false,
+  "queryFields": true,
+  "createBatchSize": 100,
+  "singularTable": true
 }

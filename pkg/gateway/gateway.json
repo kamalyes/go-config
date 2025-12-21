@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2025-12-11 15:35:01
+// 生成时间: 2025-12-22 00:17:02
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2025-12-18T13:55:20+08:00",
+  "buildTime": "2025-12-22T00:17:02+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "93318280d5ff55d9041d434f79131de1",
+  "gitCommit": "a33b93a5526ce5f4cec4654ccee57218",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -145,13 +145,23 @@
       "port": "3306",
       "config": "charset=utf8mb4\u0026parseTime=True\u0026loc=Local",
       "logLevel": "info",
+      "slowThreshold": 100,
+      "ignoreRecordNotFoundError": false,
       "dbName": "test",
       "username": "root",
       "password": "mysql_password",
       "maxIdleConns": 10,
       "maxOpenConns": 100,
       "connMaxIdleTime": 300,
-      "connMaxLifeTime": 3600
+      "connMaxLifeTime": 3600,
+      "skipDefaultTransaction": false,
+      "prepareStmt": true,
+      "disableForeignKeyConstraintWhenMigrating": true,
+      "disableNestedTransaction": false,
+      "allowGlobalUpdate": false,
+      "queryFields": true,
+      "createBatchSize": 100,
+      "singularTable": true
     },
     "postgresql": {
       "moduleName": "postgresql",
@@ -159,24 +169,44 @@
       "port": "5432",
       "config": "sslmode=disable",
       "logLevel": "info",
+      "slowThreshold": 100,
+      "ignoreRecordNotFoundError": false,
       "dbName": "postgres",
       "username": "postgres",
       "password": "postgres_password",
       "maxIdleConns": 10,
       "maxOpenConns": 100,
       "connMaxIdleTime": 300,
-      "connMaxLifeTime": 3600
+      "connMaxLifeTime": 3600,
+      "skipDefaultTransaction": false,
+      "prepareStmt": true,
+      "disableForeignKeyConstraintWhenMigrating": true,
+      "disableNestedTransaction": false,
+      "allowGlobalUpdate": false,
+      "queryFields": true,
+      "createBatchSize": 100,
+      "singularTable": true
     },
     "sqlite": {
       "moduleName": "sqlite",
       "config": "_foreign_keys=on",
       "logLevel": "info",
+      "slowThreshold": 100,
+      "ignoreRecordNotFoundError": false,
       "dbPath": "./data.db",
       "vacuum": false,
       "maxIdleConns": 10,
       "maxOpenConns": 1,
       "connMaxIdleTime": 300,
-      "connMaxLifeTime": 3600
+      "connMaxLifeTime": 3600,
+      "skipDefaultTransaction": false,
+      "prepareStmt": true,
+      "disableForeignKeyConstraintWhenMigrating": true,
+      "disableNestedTransaction": false,
+      "allowGlobalUpdate": false,
+      "queryFields": true,
+      "createBatchSize": 100,
+      "singularTable": true
     }
   },
   "etcd": {

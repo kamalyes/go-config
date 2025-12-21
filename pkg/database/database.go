@@ -54,6 +54,37 @@ type DatabaseProvider interface {
 	// GetModuleName 获取模块名称
 	GetModuleName() string
 
+	// GetSlowThreshold 获取慢查询阈值（毫秒）
+	GetSlowThreshold() int
+
+	// GetIgnoreRecordNotFoundError 获取是否忽略RecordNotFound错误
+	GetIgnoreRecordNotFoundError() bool
+
+	// GORM 性能配置 Getter 方法
+	// GetSkipDefaultTransaction 获取是否跳过默认事务
+	GetSkipDefaultTransaction() bool
+
+	// GetPrepareStmt 获取是否启用预编译语句
+	GetPrepareStmt() bool
+
+	// GetDisableForeignKeyConstraintWhenMigrating 获取迁移时是否禁用外键约束
+	GetDisableForeignKeyConstraintWhenMigrating() bool
+
+	// GetDisableNestedTransaction 获取是否禁用嵌套事务
+	GetDisableNestedTransaction() bool
+
+	// GetAllowGlobalUpdate 获取是否允许全局更新
+	GetAllowGlobalUpdate() bool
+
+	// GetQueryFields 获取是否在查询时选择所有字段
+	GetQueryFields() bool
+
+	// GetCreateBatchSize 获取批量创建的大小
+	GetCreateBatchSize() int
+
+	// GetSingularTable 获取是否使用单数表名
+	GetSingularTable() bool
+
 	// SetCredentials 设置凭证
 	SetCredentials(username, password string)
 
