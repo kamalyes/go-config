@@ -11,7 +11,10 @@
 
 package security
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Security 统一安全配置 - 直接使用Security而不是SecurityConfig
 type Security struct {
@@ -222,11 +225,12 @@ func (s *Security) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (s *Security) Clone() internal.Configurable {
-	cloned := Default() // 创建默认配置作为基础
-	cloned.ModuleName = s.ModuleName
-	cloned.Enabled = s.Enabled
-	// 简化处理，实际可以进行深度克隆
-	return cloned
+	var cloned Security
+	if err := syncx.DeepCopy(&cloned, s); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Security{}
+	}
+	return &cloned
 }
 
 // Validate 验证配置

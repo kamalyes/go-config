@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Jobs Job调度配置
@@ -28,7 +29,7 @@ type Jobs struct {
 	RetryInterval     int                `mapstructure:"retry-interval" yaml:"retry-interval" json:"retryInterval"`               // 重试间隔(秒)
 	RetryJitter       float64            `mapstructure:"retry-jitter" yaml:"retry-jitter" json:"retryJitter"`                     // 重试间隔抖动百分比(0-1)
 	MaxConcurrentJobs int                `mapstructure:"max-concurrent-jobs" yaml:"max-concurrent-jobs" json:"maxConcurrentJobs"` // 最大并发任务数，0表示不限制
-	EnableDistribute  bool               `mapstructure:"enable-distribute" yaml:"enable-distribute" json:"enableDistribute"`      // 是否启用分布式调度
+	Distribute        bool               `mapstructure:"distribute" yaml:"distribute" json:"distribute"`                          // 是否启用分布式调度
 	Tasks             map[string]TaskCfg `mapstructure:"tasks" yaml:"tasks" json:"tasks"`                                         // 任务配置
 }
 
@@ -227,66 +228,12 @@ func (c *Jobs) IsTaskEnabled(name string) bool {
 
 // Clone 返回配置的副本
 func (c *Jobs) Clone() internal.Configurable {
-	// 深拷贝 Tasks map
-	tasks := make(map[string]TaskCfg, len(c.Tasks))
-	for k, v := range c.Tasks {
-		// 深拷贝 Tags
-		tags := make([]string, len(v.Tags))
-		copy(tags, v.Tags)
-
-		// 深拷贝 Dependencies
-		deps := make([]DependencyTask, len(v.Dependencies))
-		for i, dep := range v.Dependencies {
-			deps[i] = DependencyTask{
-				TaskName: dep.TaskName,
-			}
-			// 深拷贝内联任务配置
-			if dep.Inline != nil {
-				inlineCopy := *dep.Inline
-				// 递归拷贝内联任务的 Tags
-				if len(inlineCopy.Tags) > 0 {
-					inlineCopy.Tags = make([]string, len(inlineCopy.Tags))
-					copy(inlineCopy.Tags, dep.Inline.Tags)
-				}
-				// 递归拷贝内联任务的 Dependencies
-				if len(inlineCopy.Dependencies) > 0 {
-					inlineCopy.Dependencies = make([]DependencyTask, len(dep.Inline.Dependencies))
-					copy(inlineCopy.Dependencies, dep.Inline.Dependencies)
-				}
-				deps[i].Inline = &inlineCopy
-			}
-		}
-
-		// 深拷贝每个任务配置
-		tasks[k] = TaskCfg{
-			Enabled:        v.Enabled,
-			CronSpec:       v.CronSpec,
-			ImmediateStart: v.ImmediateStart,
-			Timeout:        v.Timeout,
-			OverlapPrevent: v.OverlapPrevent,
-			MaxRetries:     v.MaxRetries,
-			RetryInterval:  v.RetryInterval,
-			RetryJitter:    v.RetryJitter,
-			Priority:       v.Priority,
-			Dependencies:   deps,
-			MaxConcurrent:  v.MaxConcurrent,
-			Tags:           tags,
-			Description:    v.Description,
-			Breaker:        v.Breaker, // BreakerCfg 是值类型，自动深拷贝
-		}
+	var cloned Jobs
+	if err := syncx.DeepCopy(&cloned, c); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Jobs{}
 	}
-
-	return &Jobs{
-		Enabled:           c.Enabled,
-		TimeZone:          c.TimeZone,
-		GracefulShutdown:  c.GracefulShutdown,
-		MaxRetries:        c.MaxRetries,
-		RetryInterval:     c.RetryInterval,
-		RetryJitter:       c.RetryJitter,
-		MaxConcurrentJobs: c.MaxConcurrentJobs,
-		EnableDistribute:  c.EnableDistribute,
-		Tasks:             tasks,
-	}
+	return &cloned
 }
 
 // Get 返回配置接口
@@ -337,6 +284,30 @@ func (c *Jobs) WithRetryInterval(seconds int) *Jobs {
 	return c
 }
 
+// WithRetryJitter 设置重试抖动
+func (c *Jobs) WithRetryJitter(jitter float64) *Jobs {
+	c.RetryJitter = jitter
+	return c
+}
+
+// WithMaxConcurrentJobs 设置最大并发任务数
+func (c *Jobs) WithMaxConcurrentJobs(max int) *Jobs {
+	c.MaxConcurrentJobs = max
+	return c
+}
+
+// EnableDistribute 启用分布式调度
+func (c *Jobs) EnableDistribute() *Jobs {
+	c.Distribute = true
+	return c
+}
+
+// DisableDistribute 禁用分布式调度
+func (c *Jobs) DisableDistribute() *Jobs {
+	c.Distribute = false
+	return c
+}
+
 // AddTask 添加任务配置
 func (c *Jobs) AddTask(name string, task TaskCfg) *Jobs {
 	if c.Tasks == nil {
@@ -370,4 +341,139 @@ func (c *Jobs) DisableTask(name string) *Jobs {
 		c.Tasks[name] = task
 	}
 	return c
+}
+
+// GetAllTaskNames 获取所有任务名称
+func (c *Jobs) GetAllTaskNames() []string {
+	names := make([]string, 0, len(c.Tasks))
+	for name := range c.Tasks {
+		names = append(names, name)
+	}
+	return names
+}
+
+// GetEnabledTasks 获取所有启用的任务
+func (c *Jobs) GetEnabledTasks() map[string]TaskCfg {
+	enabled := make(map[string]TaskCfg)
+	for name, task := range c.Tasks {
+		if task.Enabled {
+			enabled[name] = task
+		}
+	}
+	return enabled
+}
+
+// AddDependencyToTask 为任务添加依赖
+func (c *Jobs) AddDependencyToTask(taskName string, dep DependencyTask) *Jobs {
+	if task, exists := c.Tasks[taskName]; exists {
+		task.Dependencies = append(task.Dependencies, dep)
+		c.Tasks[taskName] = task
+	}
+	return c
+}
+
+// RemoveDependencyFromTask 从任务中移除依赖
+func (c *Jobs) RemoveDependencyFromTask(taskName string, depTaskName string) *Jobs {
+	if task, exists := c.Tasks[taskName]; exists {
+		deps := make([]DependencyTask, 0)
+		for _, dep := range task.Dependencies {
+			if dep.TaskName != depTaskName {
+				deps = append(deps, dep)
+			}
+		}
+		task.Dependencies = deps
+		c.Tasks[taskName] = task
+	}
+	return c
+}
+
+// AddTagToTask 为任务添加标签
+func (c *Jobs) AddTagToTask(taskName string, tag string) *Jobs {
+	if task, exists := c.Tasks[taskName]; exists {
+		// 检查标签是否已存在
+		for _, t := range task.Tags {
+			if t == tag {
+				return c
+			}
+		}
+		task.Tags = append(task.Tags, tag)
+		c.Tasks[taskName] = task
+	}
+	return c
+}
+
+// RemoveTagFromTask 从任务中移除标签
+func (c *Jobs) RemoveTagFromTask(taskName string, tag string) *Jobs {
+	if task, exists := c.Tasks[taskName]; exists {
+		tags := make([]string, 0)
+		for _, t := range task.Tags {
+			if t != tag {
+				tags = append(tags, t)
+			}
+		}
+		task.Tags = tags
+		c.Tasks[taskName] = task
+	}
+	return c
+}
+
+// SetTaskPriority 设置任务优先级
+func (c *Jobs) SetTaskPriority(taskName string, priority int) *Jobs {
+	if task, exists := c.Tasks[taskName]; exists {
+		task.Priority = priority
+		c.Tasks[taskName] = task
+	}
+	return c
+}
+
+// SetTaskTimeout 设置任务超时时间
+func (c *Jobs) SetTaskTimeout(taskName string, timeout int) *Jobs {
+	if task, exists := c.Tasks[taskName]; exists {
+		task.Timeout = timeout
+		c.Tasks[taskName] = task
+	}
+	return c
+}
+
+// SetTaskMaxRetries 设置任务最大重试次数
+func (c *Jobs) SetTaskMaxRetries(taskName string, maxRetries int) *Jobs {
+	if task, exists := c.Tasks[taskName]; exists {
+		task.MaxRetries = maxRetries
+		c.Tasks[taskName] = task
+	}
+	return c
+}
+
+// SetTaskCronSpec 设置任务的 Cron 表达式
+func (c *Jobs) SetTaskCronSpec(taskName string, cronSpec string) *Jobs {
+	if task, exists := c.Tasks[taskName]; exists {
+		task.CronSpec = cronSpec
+		c.Tasks[taskName] = task
+	}
+	return c
+}
+
+// GetTasksByTag 根据标签获取任务
+func (c *Jobs) GetTasksByTag(tag string) map[string]TaskCfg {
+	tasks := make(map[string]TaskCfg)
+	for name, task := range c.Tasks {
+		for _, t := range task.Tags {
+			if t == tag {
+				tasks[name] = task
+				break
+			}
+		}
+	}
+	return tasks
+}
+
+// GetTasksByPriority 根据优先级范围获取任务
+func (c *Jobs) GetTasksByPriority(minPriority, maxPriority int) map[string]TaskCfg {
+	tasks := make(map[string]TaskCfg)
+	for name, task := range c.Tasks {
+		if task.Priority >= minPriority && task.Priority <= maxPriority {
+			tasks[name] = task
+		}
+	}
+	return tasks
 }

@@ -13,6 +13,7 @@ package sts
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // AliyunSts 结构体表示 STS 配置
@@ -37,14 +38,12 @@ func NewAliyunSts(opt *AliyunSts) *AliyunSts {
 
 // Clone 返回 AliyunSts 配置的副本
 func (a *AliyunSts) Clone() internal.Configurable {
-	return &AliyunSts{
-		ModuleName:      a.ModuleName,
-		RegionID:        a.RegionID,
-		AccessKeyID:     a.AccessKeyID,
-		AccessKeySecret: a.AccessKeySecret,
-		RoleArn:         a.RoleArn,
-		RoleSessionName: a.RoleSessionName,
+	var cloned AliyunSts
+	if err := syncx.DeepCopy(&cloned, a); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &AliyunSts{}
 	}
+	return &cloned
 }
 
 // Get 返回 AliyunSts 配置的所有字段

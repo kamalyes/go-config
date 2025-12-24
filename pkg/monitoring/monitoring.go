@@ -16,6 +16,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/grafana"
 	"github.com/kamalyes/go-config/pkg/jaeger"
 	"github.com/kamalyes/go-config/pkg/prometheus"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Monitoring 监控配置 - 去掉Config后缀
@@ -168,53 +169,13 @@ func (m *Monitoring) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (m *Monitoring) Clone() internal.Configurable {
-	metrics := &Metrics{}
-	alerting := &Alerting{}
-
-	if m.Metrics != nil {
-		*metrics = *m.Metrics
-		metrics.Buckets = append([]float64(nil), m.Metrics.Buckets...)
-		metrics.CustomMetrics = make([]CustomMetric, len(m.Metrics.CustomMetrics))
-		for i, cm := range m.Metrics.CustomMetrics {
-			metrics.CustomMetrics[i] = CustomMetric{
-				Name:       cm.Name,
-				Type:       cm.Type,
-				Help:       cm.Help,
-				Labels:     append([]string(nil), cm.Labels...),
-				Buckets:    append([]float64(nil), cm.Buckets...),
-				Objectives: cm.Objectives,
-			}
-		}
-	}
-
-	if m.Alerting != nil {
-		*alerting = *m.Alerting
-		alerting.Rules = make([]AlertRule, len(m.Alerting.Rules))
-		copy(alerting.Rules, m.Alerting.Rules)
-		alerting.Webhooks = make([]Webhook, len(m.Alerting.Webhooks))
-		copy(alerting.Webhooks, m.Alerting.Webhooks)
-		if m.Alerting.Email != nil {
-			email := *m.Alerting.Email
-			email.To = append([]string(nil), m.Alerting.Email.To...)
-			alerting.Email = &email
-		}
-		if m.Alerting.Slack != nil {
-			slack := *m.Alerting.Slack
-			alerting.Slack = &slack
-		}
-	}
-
-	cloned := &Monitoring{
-		ModuleName: m.ModuleName,
-		Enabled:    m.Enabled,
-		Prometheus: m.Prometheus.Clone().(*prometheus.Prometheus),
-		Grafana:    m.Grafana.Clone().(*grafana.Grafana),
-		Jaeger:     m.Jaeger.Clone().(*jaeger.Jaeger),
-		Metrics:    metrics,
-		Alerting:   alerting,
+	var cloned Monitoring
+	if err := syncx.DeepCopy(&cloned, m); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Monitoring{}
 	}
 	internal.CallAfterLoad(cloned) // 重新计算 Endpoint
-	return cloned
+	return &cloned
 }
 
 // Validate 验证配置

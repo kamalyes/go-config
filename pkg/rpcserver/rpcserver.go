@@ -13,6 +13,7 @@ package rpcserver
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // RpcServer 结构体表示 RPC 服务器配置
@@ -80,71 +81,12 @@ func NewRpcServer(opt *RpcServer) *RpcServer {
 
 // Clone 返回 RpcServer 配置的副本
 func (r *RpcServer) Clone() internal.Configurable {
-	var tls *TLSConfig
-	var rateLimit *RateLimit
-	var recovery *Recovery
-	var tracing *Tracing
-
-	if r.TLS != nil {
-		tls = &TLSConfig{
-			Enabled:    r.TLS.Enabled,
-			CertFile:   r.TLS.CertFile,
-			KeyFile:    r.TLS.KeyFile,
-			CACertFile: r.TLS.CACertFile,
-		}
+	var cloned RpcServer
+	if err := syncx.DeepCopy(&cloned, r); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &RpcServer{}
 	}
-
-	if r.RateLimit != nil {
-		rateLimit = &RateLimit{
-			Enabled: r.RateLimit.Enabled,
-			Seconds: r.RateLimit.Seconds,
-			Quota:   r.RateLimit.Quota,
-		}
-	}
-
-	if r.Recovery != nil {
-		recovery = &Recovery{
-			Enabled:    r.Recovery.Enabled,
-			StackTrace: r.Recovery.StackTrace,
-			LogErrors:  r.Recovery.LogErrors,
-		}
-	}
-
-	if r.Tracing != nil {
-		tracing = &Tracing{
-			Enabled:     r.Tracing.Enabled,
-			Endpoint:    r.Tracing.Endpoint,
-			Sampler:     r.Tracing.Sampler,
-			ServiceName: r.Tracing.ServiceName,
-		}
-	}
-
-	headers := make(map[string]string)
-	for k, v := range r.Headers {
-		headers[k] = v
-	}
-
-	return &RpcServer{
-		ModuleName:    r.ModuleName,
-		Enabled:       r.Enabled,
-		Name:          r.Name,
-		ListenOn:      r.ListenOn,
-		Mode:          r.Mode,
-		MaxConns:      r.MaxConns,
-		MaxMsgSize:    r.MaxMsgSize,
-		Timeout:       r.Timeout,
-		CpuThreshold:  r.CpuThreshold,
-		Health:        r.Health,
-		Auth:          r.Auth,
-		StrictControl: r.StrictControl,
-		MetricsUrl:    r.MetricsUrl,
-		Headers:       headers,
-		Middlewares:   append([]string(nil), r.Middlewares...),
-		TLS:           tls,
-		RateLimit:     rateLimit,
-		Recovery:      recovery,
-		Tracing:       tracing,
-	}
+	return &cloned
 }
 
 // Get 返回 RpcServer 配置的所有字段

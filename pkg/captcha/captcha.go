@@ -13,6 +13,7 @@ package captcha
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Captcha 结构体
@@ -37,14 +38,12 @@ func NewCaptcha(opt *Captcha) *Captcha {
 
 // Clone 返回 Captcha 配置的副本
 func (c *Captcha) Clone() internal.Configurable {
-	return &Captcha{
-		ModuleName: c.ModuleName,
-		KeyLen:     c.KeyLen,
-		ImgWidth:   c.ImgWidth,
-		ImgHeight:  c.ImgHeight,
-		MaxSkew:    c.MaxSkew,
-		DotCount:   c.DotCount,
+	var cloned Captcha
+	if err := syncx.DeepCopy(&cloned, c); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Captcha{}
 	}
+	return &cloned
 }
 
 // Get 返回 Captcha 配置的所有字段

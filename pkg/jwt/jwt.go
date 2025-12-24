@@ -13,6 +13,7 @@ package jwt
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // JWT 结构体用于配置 JSON Web Token 的相关参数
@@ -44,20 +45,12 @@ func NewJWT(opt *JWT) *JWT {
 
 // Clone 返回 JWT 配置的副本
 func (j *JWT) Clone() internal.Configurable {
-	return &JWT{
-		ModuleName:       j.ModuleName,
-		SigningKey:       j.SigningKey,
-		ExpiresTime:      j.ExpiresTime,
-		BufferTime:       j.BufferTime,
-		UseMultipoint:    j.UseMultipoint,
-		Issuer:           j.Issuer,
-		Audience:         j.Audience,
-		Algorithm:        j.Algorithm,
-		EnableRefresh:    j.EnableRefresh,
-		RefreshTokenLife: j.RefreshTokenLife,
-		Subject:          j.Subject,
-		CustomClaims:     j.CustomClaims,
+	var cloned JWT
+	if err := syncx.DeepCopy(&cloned, j); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &JWT{}
 	}
+	return &cloned
 }
 
 // Get 返回 JWT 配置的所有字段

@@ -13,6 +13,7 @@ package email
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Email 邮件配置结构体
@@ -38,15 +39,12 @@ func NewEmail(opt *Email) *Email {
 
 // Clone 返回 Email 配置的副本
 func (e *Email) Clone() internal.Configurable {
-	return &Email{
-		ModuleName: e.ModuleName,
-		To:         e.To,
-		From:       e.From,
-		Host:       e.Host,
-		Port:       e.Port,
-		IsSSL:      e.IsSSL,
-		Secret:     e.Secret,
+	var cloned Email
+	if err := syncx.DeepCopy(&cloned, e); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Email{}
 	}
+	return &cloned
 }
 
 // Get 返回 Email 配置的所有字段

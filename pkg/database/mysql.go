@@ -12,6 +12,7 @@ package database
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // MySQL MySQL数据库配置
@@ -69,30 +70,12 @@ func (m *MySQL) SetPort(port string)     { m.Port = port }
 func (m *MySQL) SetDBName(dbName string) { m.Dbname = dbName }
 
 func (m *MySQL) Clone() internal.Configurable {
-	return &MySQL{
-		ModuleName:                               m.ModuleName,
-		Host:                                     m.Host,
-		Port:                                     m.Port,
-		Config:                                   m.Config,
-		LogLevel:                                 m.LogLevel,
-		SlowThreshold:                            m.SlowThreshold,
-		IgnoreRecordNotFoundError:                m.IgnoreRecordNotFoundError,
-		Dbname:                                   m.Dbname,
-		Username:                                 m.Username,
-		Password:                                 m.Password,
-		MaxIdleConns:                             m.MaxIdleConns,
-		MaxOpenConns:                             m.MaxOpenConns,
-		ConnMaxIdleTime:                          m.ConnMaxIdleTime,
-		ConnMaxLifeTime:                          m.ConnMaxLifeTime,
-		SkipDefaultTransaction:                   m.SkipDefaultTransaction,
-		PrepareStmt:                              m.PrepareStmt,
-		DisableForeignKeyConstraintWhenMigrating: m.DisableForeignKeyConstraintWhenMigrating,
-		DisableNestedTransaction:                 m.DisableNestedTransaction,
-		AllowGlobalUpdate:                        m.AllowGlobalUpdate,
-		QueryFields:                              m.QueryFields,
-		CreateBatchSize:                          m.CreateBatchSize,
-		SingularTable:                            m.SingularTable,
+	var cloned MySQL
+	if err := syncx.DeepCopy(&cloned, m); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &MySQL{}
 	}
+	return &cloned
 }
 
 func (m *MySQL) Get() interface{} { return m }

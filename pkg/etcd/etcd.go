@@ -13,6 +13,7 @@ package etcd
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Etcd 结构体表示 Etcd 的配置
@@ -44,21 +45,12 @@ func NewEtcd(opt *Etcd) *Etcd {
 
 // Clone 返回 Etcd 配置的副本
 func (e *Etcd) Clone() internal.Configurable {
-	return &Etcd{
-		ModuleName:         e.ModuleName,
-		Hosts:              append([]string(nil), e.Hosts...),
-		Key:                e.Key,
-		ID:                 e.ID,
-		User:               e.User,
-		Pass:               e.Pass,
-		CertFile:           e.CertFile,
-		CertKeyFile:        e.CertKeyFile,
-		CACertFile:         e.CACertFile,
-		InsecureSkipVerify: e.InsecureSkipVerify,
-		Namespace:          e.Namespace,
-		DialTimeout:        e.DialTimeout,
-		RequestTimeout:     e.RequestTimeout,
+	var cloned Etcd
+	if err := syncx.DeepCopy(&cloned, e); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Etcd{}
 	}
+	return &cloned
 }
 
 // Get 返回 Etcd 配置的所有字段

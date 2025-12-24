@@ -12,8 +12,10 @@
 package cache
 
 import (
-	"github.com/kamalyes/go-config/internal"
 	"time"
+
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Expiring 过期缓存配置
@@ -38,15 +40,12 @@ func NewExpiring(opt *Expiring) *Expiring {
 
 // Clone 返回 Expiring 配置的副本
 func (e *Expiring) Clone() internal.Configurable {
-	return &Expiring{
-		ModuleName:       e.ModuleName,
-		CleanupInterval:  e.CleanupInterval,
-		DefaultTTL:       e.DefaultTTL,
-		MaxSize:          e.MaxSize,
-		EvictionPolicy:   e.EvictionPolicy,
-		EnableLazyExpiry: e.EnableLazyExpiry,
-		MaxMemoryUsage:   e.MaxMemoryUsage,
+	var cloned Expiring
+	if err := syncx.DeepCopy(&cloned, e); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Expiring{}
 	}
+	return &cloned
 }
 
 // Get 返回 Expiring 配置的所有字段

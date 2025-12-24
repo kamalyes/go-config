@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Strategy 限流策略类型
@@ -138,37 +139,12 @@ func Default() *RateLimit {
 
 // Clone 返回配置副本
 func (r *RateLimit) Clone() internal.Configurable {
-	cloned := &RateLimit{
-		ModuleName:        r.ModuleName,
-		Enabled:           r.Enabled,
-		Strategy:          r.Strategy,
-		DefaultScope:      r.DefaultScope,
-		Storage:           r.Storage,
-		CustomRuleLoader:  r.CustomRuleLoader,
-		EnableDynamicRule: r.EnableDynamicRule,
+	var cloned RateLimit
+	if err := syncx.DeepCopy(&cloned, r); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &RateLimit{}
 	}
-
-	if r.GlobalLimit != nil {
-		limit := *r.GlobalLimit
-		cloned.GlobalLimit = &limit
-	}
-
-	if len(r.Routes) > 0 {
-		cloned.Routes = make([]RouteLimit, len(r.Routes))
-		copy(cloned.Routes, r.Routes)
-	}
-
-	if len(r.IPRules) > 0 {
-		cloned.IPRules = make([]IPRule, len(r.IPRules))
-		copy(cloned.IPRules, r.IPRules)
-	}
-
-	if len(r.UserRules) > 0 {
-		cloned.UserRules = make([]UserRule, len(r.UserRules))
-		copy(cloned.UserRules, r.UserRules)
-	}
-
-	return cloned
+	return &cloned
 }
 
 // Get 返回配置

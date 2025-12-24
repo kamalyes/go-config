@@ -13,6 +13,7 @@ package gateway
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // JSON JSON序列化配置
@@ -43,11 +44,12 @@ func (j *JSON) AfterLoad() error {
 
 // Clone 返回配置的副本
 func (j *JSON) Clone() internal.Configurable {
-	return &JSON{
-		UseProtoNames:   j.UseProtoNames,
-		EmitUnpopulated: j.EmitUnpopulated,
-		DiscardUnknown:  j.DiscardUnknown,
+	var cloned JSON
+	if err := syncx.DeepCopy(&cloned, j); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &JSON{}
 	}
+	return &cloned
 }
 
 // Get 返回配置接口

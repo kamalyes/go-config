@@ -13,6 +13,7 @@ package queue
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Mqtt 结构体用于配置 MQTT 相关参数
@@ -45,22 +46,12 @@ func NewMqtt(opt *Mqtt) *Mqtt {
 
 // Clone 返回 Mqtt 配置的副本
 func (m *Mqtt) Clone() internal.Configurable {
-	return &Mqtt{
-		ModuleName:           m.ModuleName,
-		Endpoint:             m.Endpoint,
-		ClientID:             m.ClientID,
-		Username:             m.Username,
-		Password:             m.Password,
-		ProtocolVersion:      m.ProtocolVersion,
-		CleanSession:         m.CleanSession,
-		AutoReconnect:        m.AutoReconnect,
-		KeepAlive:            m.KeepAlive,
-		MaxReconnectInterval: m.MaxReconnectInterval,
-		PingTimeout:          m.PingTimeout,
-		WriteTimeout:         m.WriteTimeout,
-		ConnectTimeout:       m.ConnectTimeout,
-		WillTopic:            m.WillTopic,
+	var cloned Mqtt
+	if err := syncx.DeepCopy(&cloned, m); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Mqtt{}
 	}
+	return &cloned
 }
 
 // Get 返回 Mqtt 配置的所有字段

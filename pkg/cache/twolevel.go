@@ -12,8 +12,10 @@
 package cache
 
 import (
-	"github.com/kamalyes/go-config/internal"
 	"time"
+
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // TwoLevel 二级缓存配置
@@ -40,17 +42,12 @@ func NewTwoLevel(opt *TwoLevel) *TwoLevel {
 
 // Clone 返回 TwoLevel 配置的副本
 func (t *TwoLevel) Clone() internal.Configurable {
-	return &TwoLevel{
-		ModuleName:       t.ModuleName,
-		L1Type:           t.L1Type,
-		L2Type:           t.L2Type,
-		L1TTL:            t.L1TTL,
-		L2TTL:            t.L2TTL,
-		SyncStrategy:     t.SyncStrategy,
-		L1Size:           t.L1Size,
-		L2Size:           t.L2Size,
-		PromoteThreshold: t.PromoteThreshold,
+	var cloned TwoLevel
+	if err := syncx.DeepCopy(&cloned, t); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &TwoLevel{}
 	}
+	return &cloned
 }
 
 // Get 返回 TwoLevel 配置的所有字段

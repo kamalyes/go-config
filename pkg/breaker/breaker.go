@@ -9,8 +9,10 @@
 package breaker
 
 import (
-	"github.com/kamalyes/go-config/internal"
 	"time"
+
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // CircuitBreaker 断路器配置
@@ -103,24 +105,12 @@ func (wb *WebSocketBreaker) Validate() error {
 
 // Clone 返回配置的副本
 func (cb *CircuitBreaker) Clone() internal.Configurable {
-	preventionPaths := make([]string, len(cb.PreventionPaths))
-	copy(preventionPaths, cb.PreventionPaths)
-
-	excludePaths := make([]string, len(cb.ExcludePaths))
-	copy(excludePaths, cb.ExcludePaths)
-
-	return &CircuitBreaker{
-		ModuleName:          cb.ModuleName,
-		Enabled:             cb.Enabled,
-		FailureThreshold:    cb.FailureThreshold,
-		SuccessThreshold:    cb.SuccessThreshold,
-		Timeout:             cb.Timeout,
-		VolumeThreshold:     cb.VolumeThreshold,
-		SlidingWindowSize:   cb.SlidingWindowSize,
-		SlidingWindowBucket: cb.SlidingWindowBucket,
-		PreventionPaths:     preventionPaths,
-		ExcludePaths:        excludePaths,
+	var cloned CircuitBreaker
+	if err := syncx.DeepCopy(&cloned, cb); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &CircuitBreaker{}
 	}
+	return &cloned
 }
 
 // Enable 启用断路器
@@ -154,17 +144,12 @@ func (cb *CircuitBreaker) Set(data interface{}) {
 
 // Clone 返回 WebSocket 断路器配置的副本
 func (wb *WebSocketBreaker) Clone() internal.Configurable {
-	return &WebSocketBreaker{
-		ModuleName:          wb.ModuleName,
-		Enabled:             wb.Enabled,
-		FailureThreshold:    wb.FailureThreshold,
-		SuccessThreshold:    wb.SuccessThreshold,
-		Timeout:             wb.Timeout,
-		MaxRetries:          wb.MaxRetries,
-		RetryBackoffFactor:  wb.RetryBackoffFactor,
-		HealthCheckInterval: wb.HealthCheckInterval,
-		MessageQueueSize:    wb.MessageQueueSize,
+	var cloned WebSocketBreaker
+	if err := syncx.DeepCopy(&cloned, wb); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &WebSocketBreaker{}
 	}
+	return &cloned
 }
 
 // Enable 启用 WebSocket 断路器

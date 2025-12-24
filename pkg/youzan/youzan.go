@@ -13,6 +13,7 @@ package youzan
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // YouZan 结构体表示 YouZan 配置
@@ -38,15 +39,12 @@ func NewYouZan(opt *YouZan) *YouZan {
 
 // Clone 返回 YouZan 配置的副本
 func (y *YouZan) Clone() internal.Configurable {
-	return &YouZan{
-		ModuleName:    y.ModuleName,
-		Endpoint:      y.Endpoint,
-		ClientID:      y.ClientID,
-		ClientSecret:  y.ClientSecret,
-		AuthorizeType: y.AuthorizeType,
-		GrantID:       y.GrantID,
-		Refresh:       y.Refresh,
+	var cloned YouZan
+	if err := syncx.DeepCopy(&cloned, y); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &YouZan{}
 	}
+	return &cloned
 }
 
 // Get 返回 YouZan 配置的所有字段

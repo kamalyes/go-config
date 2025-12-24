@@ -13,6 +13,7 @@ package rpcclient
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // RpcClient 结构体表示 RPC 客户端配置
@@ -69,56 +70,12 @@ func NewRpcClient(opt *RpcClient) *RpcClient {
 
 // Clone 返回 RpcClient 配置的副本
 func (r *RpcClient) Clone() internal.Configurable {
-	var tls *TLSConfig
-	var cb *CircuitBreaker
-
-	if r.TLS != nil {
-		tls = &TLSConfig{
-			Enabled:            r.TLS.Enabled,
-			CertFile:           r.TLS.CertFile,
-			KeyFile:            r.TLS.KeyFile,
-			CACertFile:         r.TLS.CACertFile,
-			ServerName:         r.TLS.ServerName,
-			InsecureSkipVerify: r.TLS.InsecureSkipVerify,
-		}
+	var cloned RpcClient
+	if err := syncx.DeepCopy(&cloned, r); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &RpcClient{}
 	}
-
-	if r.CircuitBreaker != nil {
-		cb = &CircuitBreaker{
-			Enabled:          r.CircuitBreaker.Enabled,
-			MaxRequests:      r.CircuitBreaker.MaxRequests,
-			Interval:         r.CircuitBreaker.Interval,
-			Timeout:          r.CircuitBreaker.Timeout,
-			FailureThreshold: r.CircuitBreaker.FailureThreshold,
-			SuccessThreshold: r.CircuitBreaker.SuccessThreshold,
-			HalfOpenMaxCalls: r.CircuitBreaker.HalfOpenMaxCalls,
-		}
-	}
-
-	headers := make(map[string]string)
-	for k, v := range r.Headers {
-		headers[k] = v
-	}
-
-	return &RpcClient{
-		ModuleName:     r.ModuleName,
-		Enabled:        r.Enabled,
-		Endpoints:      append([]string(nil), r.Endpoints...),
-		Target:         r.Target,
-		App:            r.App,
-		Token:          r.Token,
-		NonBlock:       r.NonBlock,
-		Timeout:        r.Timeout,
-		KeepaliveTime:  r.KeepaliveTime,
-		DialTimeout:    r.DialTimeout,
-		MaxRetries:     r.MaxRetries,
-		RetryInterval:  r.RetryInterval,
-		LoadBalance:    r.LoadBalance,
-		Compression:    r.Compression,
-		Headers:        headers,
-		TLS:            tls,
-		CircuitBreaker: cb,
-	}
+	return &cloned
 }
 
 // Get 返回 RpcClient 配置的所有字段

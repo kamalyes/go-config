@@ -10,7 +10,10 @@
  */
 package elasticsearch
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Elasticsearch 结构体
 type Elasticsearch struct {
@@ -34,14 +37,12 @@ func NewElasticsearch(opt *Elasticsearch) *Elasticsearch {
 
 // Clone 返回 Elasticsearch 配置的副本
 func (e *Elasticsearch) Clone() internal.Configurable {
-	return &Elasticsearch{
-		Endpoint:    e.Endpoint,
-		HealthCheck: e.HealthCheck,
-		Sniff:       e.Sniff,
-		Gzip:        e.Gzip,
-		Timeout:     e.Timeout,
-		ModuleName:  e.ModuleName,
+	var cloned Elasticsearch
+	if err := syncx.DeepCopy(&cloned, e); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Elasticsearch{}
 	}
+	return &cloned
 }
 
 // Get 返回 Elasticsearch 配置的所有字段

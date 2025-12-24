@@ -13,6 +13,7 @@ package pay
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // AliPay 结构体用于配置支付宝支付相关参数
@@ -39,16 +40,12 @@ func NewAliPay(opt *AliPay) *AliPay {
 
 // Clone 返回 AliPay 配置的副本
 func (a *AliPay) Clone() internal.Configurable {
-	return &AliPay{
-		ModuleName: a.ModuleName,
-		Pid:        a.Pid,
-		AppId:      a.AppId,
-		PriKey:     a.PriKey,
-		PubKey:     a.PubKey,
-		SignType:   a.SignType,
-		NotifyUrl:  a.NotifyUrl,
-		Subject:    a.Subject,
+	var cloned AliPay
+	if err := syncx.DeepCopy(&cloned, a); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &AliPay{}
 	}
+	return &cloned
 }
 
 // Get 返回 AliPay 配置的所有字段

@@ -10,7 +10,10 @@
  */
 package kafka
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Kafka 结构体
 type Kafka struct {
@@ -38,18 +41,12 @@ func NewKafka(opt *Kafka) *Kafka {
 
 // Clone 返回 Kafka 配置的副本
 func (k *Kafka) Clone() internal.Configurable {
-	return &Kafka{
-		Brokers:     k.Brokers,
-		Topic:       k.Topic,
-		GroupID:     k.GroupID,
-		Username:    k.Username,
-		Password:    k.Password,
-		Partition:   k.Partition,
-		Offset:      k.Offset,
-		TryTimes:    k.TryTimes,
-		SyncESTopic: k.SyncESTopic,
-		ModuleName:  k.ModuleName,
+	var cloned Kafka
+	if err := syncx.DeepCopy(&cloned, k); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Kafka{}
 	}
+	return &cloned
 }
 
 // Get 返回 Kafka 配置的所有字段

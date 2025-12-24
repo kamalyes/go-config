@@ -13,6 +13,7 @@ package oss
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // S3 结构体用于配置 AWS S3 服务器的相关参数
@@ -40,17 +41,12 @@ func NewS3(opt *S3) *S3 {
 
 // Clone 返回 S3 配置的副本
 func (s *S3) Clone() internal.Configurable {
-	return &S3{
-		ModuleName:   s.ModuleName,
-		Endpoint:     s.Endpoint,
-		Region:       s.Region,
-		AccessKey:    s.AccessKey,
-		SecretKey:    s.SecretKey,
-		BucketPrefix: s.BucketPrefix,
-		SessionToken: s.SessionToken,
-		UseSSL:       s.UseSSL,
-		PathStyle:    s.PathStyle,
+	var cloned S3
+	if err := syncx.DeepCopy(&cloned, s); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &S3{}
 	}
+	return &cloned
 }
 
 // OSSProvider 接口实现

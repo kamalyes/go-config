@@ -13,6 +13,7 @@ package oss
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // BoltDB 结构体用于配置 BoltDB 本地存储
@@ -33,10 +34,12 @@ func NewBoltDB(opt *BoltDB) *BoltDB {
 
 // Clone 返回 BoltDB 配置的副本
 func (b *BoltDB) Clone() internal.Configurable {
-	return &BoltDB{
-		ModuleName: b.ModuleName,
-		Path:       b.Path,
+	var cloned BoltDB
+	if err := syncx.DeepCopy(&cloned, b); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &BoltDB{}
 	}
+	return &cloned
 }
 
 // OSSProvider 接口实现

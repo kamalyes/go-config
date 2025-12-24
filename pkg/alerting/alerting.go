@@ -11,7 +11,10 @@
 
 package alerting
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Alerting 告警配置
 type Alerting struct {
@@ -52,29 +55,12 @@ func (a *Alerting) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (a *Alerting) Clone() internal.Configurable {
-	clone := &Alerting{
-		ModuleName: a.ModuleName,
-		Enabled:    a.Enabled,
+	var cloned Alerting
+	if err := syncx.DeepCopy(&cloned, a); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Alerting{}
 	}
-
-	// 复制Webhooks
-	clone.Webhooks = append([]string(nil), a.Webhooks...)
-
-	// 复制Channels
-	clone.Channels = make([]NotificationChannel, len(a.Channels))
-	for i, channel := range a.Channels {
-		clone.Channels[i] = NotificationChannel{
-			Name: channel.Name,
-			Type: channel.Type,
-		}
-		// 复制Settings
-		clone.Channels[i].Settings = make(map[string]string)
-		for k, v := range channel.Settings {
-			clone.Channels[i].Settings[k] = v
-		}
-	}
-
-	return clone
+	return &cloned
 }
 
 // Validate 验证配置

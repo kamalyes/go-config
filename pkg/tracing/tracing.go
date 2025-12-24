@@ -11,7 +11,10 @@
 
 package tracing
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Tracing 追踪中间件配置
 type Tracing struct {
@@ -65,26 +68,12 @@ func (t *Tracing) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (t *Tracing) Clone() internal.Configurable {
-	clone := &Tracing{
-		ModuleName:         t.ModuleName,
-		Enabled:            t.Enabled,
-		ServiceName:        t.ServiceName,
-		ServiceVersion:     t.ServiceVersion,
-		Environment:        t.Environment,
-		Endpoint:           t.Endpoint,
-		ExporterType:       t.ExporterType,
-		ExporterEndpoint:   t.ExporterEndpoint,
-		SampleRate:         t.SampleRate,
-		SamplerType:        t.SamplerType,
-		SamplerProbability: t.SamplerProbability,
-		SamplerRate:        t.SamplerRate,
+	var cloned Tracing
+	if err := syncx.DeepCopy(&cloned, t); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Tracing{}
 	}
-	clone.Headers = append([]string(nil), t.Headers...)
-	clone.Attributes = make(map[string]string)
-	for k, v := range t.Attributes {
-		clone.Attributes[k] = v
-	}
-	return clone
+	return &cloned
 }
 
 // Validate 验证配置

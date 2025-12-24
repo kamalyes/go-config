@@ -12,6 +12,7 @@ package ftp
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Ftp 结构体用于配置 FTP 服务器的相关参数
@@ -36,13 +37,12 @@ func NewFtp(opt *Ftp) *Ftp {
 
 // Clone 返回 Ftp 配置的副本
 func (f *Ftp) Clone() internal.Configurable {
-	return &Ftp{
-		ModuleName: f.ModuleName,
-		Endpoint:   f.Endpoint,
-		Username:   f.Username,
-		Password:   f.Password,
-		Cwd:        f.Cwd,
+	var cloned Ftp
+	if err := syncx.DeepCopy(&cloned, f); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Ftp{}
 	}
+	return &cloned
 }
 
 // Get 返回 Ftp 配置的所有字段

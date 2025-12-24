@@ -12,6 +12,7 @@ package database
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // PostgreSQL PostgreSQL数据库配置
@@ -69,30 +70,12 @@ func (p *PostgreSQL) SetPort(port string)     { p.Port = port }
 func (p *PostgreSQL) SetDBName(dbName string) { p.Dbname = dbName }
 
 func (p *PostgreSQL) Clone() internal.Configurable {
-	return &PostgreSQL{
-		ModuleName:                               p.ModuleName,
-		Host:                                     p.Host,
-		Port:                                     p.Port,
-		Config:                                   p.Config,
-		LogLevel:                                 p.LogLevel,
-		SlowThreshold:                            p.SlowThreshold,
-		IgnoreRecordNotFoundError:                p.IgnoreRecordNotFoundError,
-		Dbname:                                   p.Dbname,
-		Username:                                 p.Username,
-		Password:                                 p.Password,
-		MaxIdleConns:                             p.MaxIdleConns,
-		MaxOpenConns:                             p.MaxOpenConns,
-		ConnMaxIdleTime:                          p.ConnMaxIdleTime,
-		ConnMaxLifeTime:                          p.ConnMaxLifeTime,
-		SkipDefaultTransaction:                   p.SkipDefaultTransaction,
-		PrepareStmt:                              p.PrepareStmt,
-		DisableForeignKeyConstraintWhenMigrating: p.DisableForeignKeyConstraintWhenMigrating,
-		DisableNestedTransaction:                 p.DisableNestedTransaction,
-		AllowGlobalUpdate:                        p.AllowGlobalUpdate,
-		QueryFields:                              p.QueryFields,
-		CreateBatchSize:                          p.CreateBatchSize,
-		SingularTable:                            p.SingularTable,
+	var cloned PostgreSQL
+	if err := syncx.DeepCopy(&cloned, p); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &PostgreSQL{}
 	}
+	return &cloned
 }
 func (p *PostgreSQL) Get() interface{} { return p }
 func (p *PostgreSQL) Set(data interface{}) {

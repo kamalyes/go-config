@@ -12,8 +12,10 @@
 package signature
 
 import (
-	"github.com/kamalyes/go-config/internal"
 	"time"
+
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Signature 签名验证中间件配置
@@ -71,26 +73,12 @@ func (s *Signature) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (s *Signature) Clone() internal.Configurable {
-	ignorePaths := make([]string, len(s.IgnorePaths))
-	copy(ignorePaths, s.IgnorePaths)
-
-	requiredHeaders := make([]string, len(s.RequiredHeaders))
-	copy(requiredHeaders, s.RequiredHeaders)
-
-	return &Signature{
-		ModuleName:      s.ModuleName,
-		Enabled:         s.Enabled,
-		SecretKey:       s.SecretKey,
-		SignatureHeader: s.SignatureHeader,
-		TimestampHeader: s.TimestampHeader,
-		NonceHeader:     s.NonceHeader,
-		Algorithm:       s.Algorithm,
-		TimeoutWindow:   s.TimeoutWindow,
-		IgnorePaths:     ignorePaths,
-		RequiredHeaders: requiredHeaders,
-		SkipQuery:       s.SkipQuery,
-		SkipBody:        s.SkipBody,
+	var cloned Signature
+	if err := syncx.DeepCopy(&cloned, s); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Signature{}
 	}
+	return &cloned
 }
 
 // Validate 验证配置

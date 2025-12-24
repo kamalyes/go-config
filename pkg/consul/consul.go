@@ -13,6 +13,7 @@ package consul
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Consul 结构体用于配置 Consul 注册中心相关参数
@@ -34,11 +35,12 @@ func NewConsul(opt *Consul) *Consul {
 
 // Clone 返回 Consul 配置的副本
 func (c *Consul) Clone() internal.Configurable {
-	return &Consul{
-		ModuleName:       c.ModuleName,
-		Endpoint:         c.Endpoint,
-		RegisterInterval: c.RegisterInterval,
+	var cloned Consul
+	if err := syncx.DeepCopy(&cloned, c); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Consul{}
 	}
+	return &cloned
 }
 
 // Get 返回 Consul 配置的所有字段

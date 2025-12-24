@@ -11,7 +11,10 @@
 
 package requestid
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // RequestID 请求ID中间件配置
 type RequestID struct {
@@ -45,12 +48,12 @@ func (r *RequestID) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (r *RequestID) Clone() internal.Configurable {
-	return &RequestID{
-		ModuleName: r.ModuleName,
-		Enabled:    r.Enabled,
-		HeaderName: r.HeaderName,
-		Generator:  r.Generator,
+	var cloned RequestID
+	if err := syncx.DeepCopy(&cloned, r); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &RequestID{}
 	}
+	return &cloned
 }
 
 // Validate 验证配置

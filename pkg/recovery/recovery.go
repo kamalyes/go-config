@@ -12,8 +12,10 @@
 package recovery
 
 import (
-	"github.com/kamalyes/go-config/internal"
 	"net/http"
+
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Recovery 恢复中间件配置
@@ -60,18 +62,12 @@ func (r *Recovery) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (r *Recovery) Clone() internal.Configurable {
-	return &Recovery{
-		ModuleName:      r.ModuleName,
-		Enabled:         r.Enabled,
-		EnableStack:     r.EnableStack,
-		StackSize:       r.StackSize,
-		EnableDebug:     r.EnableDebug,
-		ErrorMessage:    r.ErrorMessage,
-		LogLevel:        r.LogLevel,
-		EnableNotify:    r.EnableNotify,
-		RecoveryHandler: r.RecoveryHandler,
-		PrintStack:      r.PrintStack,
+	var cloned Recovery
+	if err := syncx.DeepCopy(&cloned, r); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Recovery{}
 	}
+	return &cloned
 }
 
 // Validate 验证配置

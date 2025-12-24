@@ -13,6 +13,7 @@ package zap
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Zap 结构体表示 Zap 日志配置
@@ -46,23 +47,12 @@ func NewZap(opt *Zap) *Zap {
 
 // Clone 返回 Zap 配置的副本
 func (z *Zap) Clone() internal.Configurable {
-	return &Zap{
-		ModuleName:    z.ModuleName,
-		Level:         z.Level,
-		Format:        z.Format,
-		Prefix:        z.Prefix,
-		Director:      z.Director,
-		MaxSize:       z.MaxSize,
-		MaxAge:        z.MaxAge,
-		MaxBackups:    z.MaxBackups,
-		Compress:      z.Compress,
-		LinkName:      z.LinkName,
-		ShowLine:      z.ShowLine,
-		EncodeLevel:   z.EncodeLevel,
-		StacktraceKey: z.StacktraceKey,
-		Development:   z.Development,
-		LogInConsole:  z.LogInConsole,
+	var cloned Zap
+	if err := syncx.DeepCopy(&cloned, z); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Zap{}
 	}
+	return &cloned
 }
 
 // Get 返回 Zap 配置的所有字段

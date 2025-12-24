@@ -11,7 +11,10 @@
 
 package smtp
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Smtp 邮箱配置
 type Smtp struct {
@@ -59,26 +62,12 @@ func (e *Smtp) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (e *Smtp) Clone() internal.Configurable {
-	clone := &Smtp{
-		ModuleName:  e.ModuleName,
-		SMTPHost:    e.SMTPHost,
-		SMTPPort:    e.SMTPPort,
-		Username:    e.Username,
-		Password:    e.Password,
-		FromAddress: e.FromAddress,
-		ToAddresses: make([]string, len(e.ToAddresses)),
-		EnableTLS:   e.EnableTLS,
-		PoolSize:    e.PoolSize,
+	var cloned Smtp
+	if err := syncx.DeepCopy(&cloned, e); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Smtp{}
 	}
-
-	copy(clone.ToAddresses, e.ToAddresses)
-
-	clone.Headers = make(map[string]string)
-	for k, v := range e.Headers {
-		clone.Headers[k] = v
-	}
-
-	return clone
+	return &cloned
 }
 
 // Validate 验证配置

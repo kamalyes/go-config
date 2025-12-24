@@ -12,6 +12,7 @@ package database
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // SQLite SQLite数据库配置
@@ -64,28 +65,14 @@ func (s *SQLite) SetPort(port string)                      {} // SQLite不支持
 func (s *SQLite) SetDBName(dbName string)                  { s.DbPath = dbName }
 
 func (s *SQLite) Clone() internal.Configurable {
-	return &SQLite{
-		ModuleName:                               s.ModuleName,
-		Config:                                   s.Config,
-		LogLevel:                                 s.LogLevel,
-		SlowThreshold:                            s.SlowThreshold,
-		IgnoreRecordNotFoundError:                s.IgnoreRecordNotFoundError,
-		DbPath:                                   s.DbPath,
-		Vacuum:                                   s.Vacuum,
-		MaxIdleConns:                             s.MaxIdleConns,
-		MaxOpenConns:                             s.MaxOpenConns,
-		ConnMaxIdleTime:                          s.ConnMaxIdleTime,
-		ConnMaxLifeTime:                          s.ConnMaxLifeTime,
-		SkipDefaultTransaction:                   s.SkipDefaultTransaction,
-		PrepareStmt:                              s.PrepareStmt,
-		DisableForeignKeyConstraintWhenMigrating: s.DisableForeignKeyConstraintWhenMigrating,
-		DisableNestedTransaction:                 s.DisableNestedTransaction,
-		AllowGlobalUpdate:                        s.AllowGlobalUpdate,
-		QueryFields:                              s.QueryFields,
-		CreateBatchSize:                          s.CreateBatchSize,
-		SingularTable:                            s.SingularTable,
+	var cloned SQLite
+	if err := syncx.DeepCopy(&cloned, s); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &SQLite{}
 	}
+	return &cloned
 }
+
 func (s *SQLite) Get() interface{} { return s }
 func (s *SQLite) Set(data interface{}) {
 	if cfg, ok := data.(*SQLite); ok {

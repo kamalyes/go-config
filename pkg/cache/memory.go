@@ -12,8 +12,10 @@
 package cache
 
 import (
-	"github.com/kamalyes/go-config/internal"
 	"time"
+
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Memory 内存缓存配置
@@ -36,13 +38,12 @@ func NewMemory(opt *Memory) *Memory {
 
 // Clone 返回 Memory 配置的副本
 func (m *Memory) Clone() internal.Configurable {
-	return &Memory{
-		ModuleName:  m.ModuleName,
-		Capacity:    m.Capacity,
-		DefaultTTL:  m.DefaultTTL,
-		CleanupSize: m.CleanupSize,
-		MaxSize:     m.MaxSize,
+	var cloned Memory
+	if err := syncx.DeepCopy(&cloned, m); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Memory{}
 	}
+	return &cloned
 }
 
 // Get 返回 Memory 配置的所有字段

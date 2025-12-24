@@ -13,6 +13,7 @@ package oss
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // AliyunOss 结构体用于配置 AliyunOss 服务器的相关参数
@@ -39,16 +40,12 @@ func NewAliyunOss(opt *AliyunOss) *AliyunOss {
 
 // Clone 返回 AliyunOss 配置的副本
 func (m *AliyunOss) Clone() internal.Configurable {
-	return &AliyunOss{
-		ModuleName:          m.ModuleName,
-		AccessKey:           m.AccessKey,
-		SecretKey:           m.SecretKey,
-		Endpoint:            m.Endpoint,
-		Bucket:              m.Bucket,
-		Region:              m.Region,
-		ReplaceOriginalHost: m.ReplaceOriginalHost,
-		ReplaceLaterHost:    m.ReplaceLaterHost,
+	var cloned AliyunOss
+	if err := syncx.DeepCopy(&cloned, m); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &AliyunOss{}
 	}
+	return &cloned
 }
 
 // OSSProvider 接口实现

@@ -11,7 +11,10 @@
 
 package prometheus
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Prometheus Prometheus配置
 type Prometheus struct {
@@ -73,25 +76,12 @@ func (p *Prometheus) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (p *Prometheus) Clone() internal.Configurable {
-	pushGateway := &PushGateway{}
-	scraping := &Scraping{}
-
-	if p.PushGateway != nil {
-		*pushGateway = *p.PushGateway
+	var cloned Prometheus
+	if err := syncx.DeepCopy(&cloned, p); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Prometheus{}
 	}
-	if p.Scraping != nil {
-		*scraping = *p.Scraping
-	}
-
-	return &Prometheus{
-		ModuleName:  p.ModuleName,
-		Enabled:     p.Enabled,
-		Path:        p.Path,
-		Port:        p.Port,
-		Endpoint:    p.Endpoint,
-		PushGateway: pushGateway,
-		Scraping:    scraping,
-	}
+	return &cloned
 }
 
 // Validate 验证配置

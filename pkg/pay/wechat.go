@@ -13,6 +13,7 @@ package pay
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // WechatPay 结构体用于配置微信支付相关参数
@@ -37,14 +38,12 @@ func NewWechatPay(opt *WechatPay) *WechatPay {
 
 // Clone 返回 WechatPay 配置的副本
 func (w *WechatPay) Clone() internal.Configurable {
-	return &WechatPay{
-		ModuleName:  w.ModuleName,
-		AppId:       w.AppId,
-		MchId:       w.MchId,
-		NotifyUrl:   w.NotifyUrl,
-		ApiKey:      w.ApiKey,
-		CertP12Path: w.CertP12Path,
+	var cloned WechatPay
+	if err := syncx.DeepCopy(&cloned, w); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &WechatPay{}
 	}
+	return &cloned
 }
 
 // Get 返回 WechatPay 配置的所有字段

@@ -11,7 +11,10 @@
 
 package pprof
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // PProf 性能分析配置
 type PProf struct {
@@ -132,43 +135,12 @@ func (c *PProf) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (c *PProf) Clone() internal.Configurable {
-	profiles := &ProfilesConfig{}
-	sampling := &SamplingConfig{}
-	auth := &AuthConfig{}
-	gateway := &GatewayConfig{}
-	webConfig := &WebConfig{}
-
-	if c.EnableProfiles != nil {
-		*profiles = *c.EnableProfiles
+	var cloned PProf
+	if err := syncx.DeepCopy(&cloned, c); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &PProf{}
 	}
-	if c.Sampling != nil {
-		*sampling = *c.Sampling
-	}
-	if c.Authentication != nil {
-		auth.Enabled = c.Authentication.Enabled
-		auth.AuthToken = c.Authentication.AuthToken
-		auth.AllowedIPs = append([]string(nil), c.Authentication.AllowedIPs...)
-		auth.RequireAuth = c.Authentication.RequireAuth
-		auth.Timeout = c.Authentication.Timeout
-	}
-	if c.Gateway != nil {
-		*gateway = *c.Gateway
-	}
-	if c.WebInterface != nil {
-		*webConfig = *c.WebInterface
-	}
-
-	return &PProf{
-		ModuleName:     c.ModuleName,
-		Enabled:        c.Enabled,
-		PathPrefix:     c.PathPrefix,
-		Port:           c.Port,
-		EnableProfiles: profiles,
-		Sampling:       sampling,
-		Authentication: auth,
-		Gateway:        gateway,
-		WebInterface:   webConfig,
-	}
+	return &cloned
 }
 
 // Validate 验证配置

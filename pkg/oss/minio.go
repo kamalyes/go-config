@@ -13,6 +13,7 @@ package oss
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Minio 结构体用于配置 Minio 服务器的相关参数
@@ -37,14 +38,12 @@ func NewMinio(opt *Minio) *Minio {
 
 // Clone 返回 Minio 配置的副本
 func (m *Minio) Clone() internal.Configurable {
-	return &Minio{
-		ModuleName: m.ModuleName,
-		Endpoint:   m.Endpoint,
-		AccessKey:  m.AccessKey,
-		SecretKey:  m.SecretKey,
-		Bucket:     m.Bucket,
-		UseSSL:     m.UseSSL,
+	var cloned Minio
+	if err := syncx.DeepCopy(&cloned, m); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Minio{}
 	}
+	return &cloned
 }
 
 // OSSProvider 接口实现

@@ -12,6 +12,7 @@ package sms
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // AliyunSms 结构体表示 SMS 配置
@@ -38,16 +39,12 @@ func NewAliyunSms(opt *AliyunSms) *AliyunSms {
 
 // Clone 返回 AliyunSms 配置的副本
 func (a *AliyunSms) Clone() internal.Configurable {
-	return &AliyunSms{
-		ModuleName:           a.ModuleName,
-		SecretID:             a.SecretID,
-		SecretKey:            a.SecretKey,
-		Sign:                 a.Sign,
-		ResourceOwnerAccount: a.ResourceOwnerAccount,
-		ResourceOwnerID:      a.ResourceOwnerID,
-		TemplateCodeVerify:   a.TemplateCodeVerify,
-		Endpoint:             a.Endpoint,
+	var cloned AliyunSms
+	if err := syncx.DeepCopy(&cloned, a); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &AliyunSms{}
 	}
+	return &cloned
 }
 
 // Get 返回 AliyunSms 配置的所有字段

@@ -11,7 +11,10 @@
 
 package banner
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Banner Banner配置
 type Banner struct {
@@ -61,16 +64,12 @@ func (b *Banner) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (b *Banner) Clone() internal.Configurable {
-	return &Banner{
-		ModuleName:  b.ModuleName,
-		Enabled:     b.Enabled,
-		Template:    b.Template,
-		Title:       b.Title,
-		Description: b.Description,
-		Author:      b.Author,
-		Email:       b.Email,
-		Website:     b.Website,
+	var cloned Banner
+	if err := syncx.DeepCopy(&cloned, b); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Banner{}
 	}
+	return &cloned
 }
 
 // Validate 验证配置

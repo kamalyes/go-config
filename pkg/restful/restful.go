@@ -13,6 +13,7 @@ package restful
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Restful 结构体表示 RESTful API 配置
@@ -103,99 +104,12 @@ func NewRestful(opt *Restful) *Restful {
 
 // Clone 返回 Restful 配置的副本
 func (r *Restful) Clone() internal.Configurable {
-	// 复制嵌套结构
-	var signature *Signature
-	var cors *CORS
-	var tls *TLS
-	var rateLimit *RateLimit
-	var compression *Compression
-	var static *Static
-
-	if r.Signature != nil {
-		signature = &Signature{
-			Enabled:     r.Signature.Enabled,
-			PrivateKeys: append([]string(nil), r.Signature.PrivateKeys...),
-			Strict:      r.Signature.Strict,
-			Expiry:      r.Signature.Expiry,
-		}
+	var cloned Restful
+	if err := syncx.DeepCopy(&cloned, r); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Restful{}
 	}
-
-	if r.CORS != nil {
-		cors = &CORS{
-			Enabled:          r.CORS.Enabled,
-			AllowOrigins:     append([]string(nil), r.CORS.AllowOrigins...),
-			AllowMethods:     append([]string(nil), r.CORS.AllowMethods...),
-			AllowHeaders:     append([]string(nil), r.CORS.AllowHeaders...),
-			ExposeHeaders:    append([]string(nil), r.CORS.ExposeHeaders...),
-			AllowCredentials: r.CORS.AllowCredentials,
-			MaxAge:           r.CORS.MaxAge,
-		}
-	}
-
-	if r.TLS != nil {
-		tls = &TLS{
-			Enabled:    r.TLS.Enabled,
-			CertFile:   r.TLS.CertFile,
-			KeyFile:    r.TLS.KeyFile,
-			CACertFile: r.TLS.CACertFile,
-		}
-	}
-
-	if r.RateLimit != nil {
-		rateLimit = &RateLimit{
-			Enabled: r.RateLimit.Enabled,
-			Seconds: r.RateLimit.Seconds,
-			Quota:   r.RateLimit.Quota,
-		}
-	}
-
-	if r.Compression != nil {
-		compression = &Compression{
-			Enabled:   r.Compression.Enabled,
-			Level:     r.Compression.Level,
-			MinLength: r.Compression.MinLength,
-			Types:     append([]string(nil), r.Compression.Types...),
-		}
-	}
-
-	if r.Static != nil {
-		static = &Static{
-			Enabled: r.Static.Enabled,
-			Root:    r.Static.Root,
-			Prefix:  r.Static.Prefix,
-			Index:   r.Static.Index,
-			Browse:  r.Static.Browse,
-		}
-	}
-
-	headers := make(map[string]string)
-	for k, v := range r.Headers {
-		headers[k] = v
-	}
-
-	return &Restful{
-		ModuleName:   r.ModuleName,
-		Enabled:      r.Enabled,
-		Name:         r.Name,
-		Host:         r.Host,
-		Port:         r.Port,
-		Mode:         r.Mode,
-		MaxConns:     r.MaxConns,
-		MaxBytes:     r.MaxBytes,
-		Timeout:      r.Timeout,
-		CpuThreshold: r.CpuThreshold,
-		Signature:    signature,
-		Auth:         r.Auth,
-		PrintRoutes:  r.PrintRoutes,
-		StrictSlash:  r.StrictSlash,
-		Headers:      headers,
-		Middlewares:  append([]string(nil), r.Middlewares...),
-		CORS:         cors,
-		TLS:          tls,
-		RateLimit:    rateLimit,
-		Compression:  compression,
-		Static:       static,
-	}
+	return &cloned
 }
 
 // Get 返回 Restful 配置的所有字段

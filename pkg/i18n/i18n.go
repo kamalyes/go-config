@@ -13,6 +13,7 @@ package i18n
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // MessageLoader 消息加载器接口
@@ -72,32 +73,12 @@ func (i *I18N) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (i *I18N) Clone() internal.Configurable {
-	clone := &I18N{
-		ModuleName:      i.ModuleName,
-		Enabled:         i.Enabled,
-		DefaultLanguage: i.DefaultLanguage,
-		LanguageParam:   i.LanguageParam,
-		LanguageHeader:  i.LanguageHeader,
-		MessagesPath:    i.MessagesPath,
-		EnableFallback:  i.EnableFallback,
-		MessageLoader:   i.MessageLoader,
-		CookieName:      i.CookieName,
+	var cloned I18N
+	if err := syncx.DeepCopy(&cloned, i); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &I18N{}
 	}
-	clone.SupportedLanguages = append([]string(nil), i.SupportedLanguages...)
-	clone.DetectionOrder = append([]string(nil), i.DetectionOrder...)
-
-	// 深拷贝映射
-	clone.LanguageMapping = make(map[string]string)
-	for k, v := range i.LanguageMapping {
-		clone.LanguageMapping[k] = v
-	}
-
-	clone.CustomMessagePaths = make(map[string]string)
-	for k, v := range i.CustomMessagePaths {
-		clone.CustomMessagePaths[k] = v
-	}
-
-	return clone
+	return &cloned
 }
 
 // Validate 验证配置

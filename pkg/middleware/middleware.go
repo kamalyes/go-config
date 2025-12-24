@@ -23,6 +23,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/requestid"
 	"github.com/kamalyes/go-config/pkg/signature"
 	"github.com/kamalyes/go-config/pkg/tracing"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Middleware 中间件配置
@@ -73,43 +74,12 @@ func (m *Middleware) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (m *Middleware) Clone() internal.Configurable {
-	clone := &Middleware{
-		ModuleName: m.ModuleName,
-		Enabled:    m.Enabled,
+	var cloned Middleware
+	if err := syncx.DeepCopy(&cloned, m); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Middleware{}
 	}
-
-	if m.Logging != nil {
-		clone.Logging = m.Logging.Clone().(*logging.Logging)
-	}
-	if m.Recovery != nil {
-		clone.Recovery = m.Recovery.Clone().(*recovery.Recovery)
-	}
-	if m.Tracing != nil {
-		clone.Tracing = m.Tracing.Clone().(*tracing.Tracing)
-	}
-	if m.Metrics != nil {
-		clone.Metrics = m.Metrics.Clone().(*metrics.Metrics)
-	}
-	if m.RequestID != nil {
-		clone.RequestID = m.RequestID.Clone().(*requestid.RequestID)
-	}
-	if m.I18N != nil {
-		clone.I18N = m.I18N.Clone().(*i18n.I18N)
-	}
-	if m.PProf != nil {
-		clone.PProf = m.PProf.Clone().(*pprof.PProf)
-	}
-	if m.CircuitBreaker != nil {
-		clone.CircuitBreaker = m.CircuitBreaker.Clone().(*breaker.CircuitBreaker)
-	}
-	if m.Alerting != nil {
-		clone.Alerting = m.Alerting.Clone().(*alerting.Alerting)
-	}
-	if m.Signature != nil {
-		clone.Signature = m.Signature.Clone().(*signature.Signature)
-	}
-
-	return clone
+	return &cloned
 }
 
 // Validate 验证配置

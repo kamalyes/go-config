@@ -13,6 +13,7 @@ package cors
 
 import (
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Cors 跨域资源共享配置
@@ -41,18 +42,12 @@ func NewCors(opt *Cors) *Cors {
 
 // Clone 返回 Cors 配置的副本
 func (c *Cors) Clone() internal.Configurable {
-	return &Cors{
-		ModuleName:          c.ModuleName,
-		AllowedAllOrigins:   c.AllowedAllOrigins,
-		AllowedAllMethods:   c.AllowedAllMethods,
-		AllowedOrigins:      c.AllowedOrigins,
-		AllowedMethods:      c.AllowedMethods,
-		AllowedHeaders:      c.AllowedHeaders,
-		MaxAge:              c.MaxAge,
-		ExposedHeaders:      c.ExposedHeaders,
-		AllowCredentials:    c.AllowCredentials,
-		OptionsResponseCode: c.OptionsResponseCode,
+	var cloned Cors
+	if err := syncx.DeepCopy(&cloned, c); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Cors{}
 	}
+	return &cloned
 }
 
 // Get 返回 Cors 配置的所有字段

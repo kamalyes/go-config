@@ -12,8 +12,10 @@
 package timeout
 
 import (
-	"github.com/kamalyes/go-config/internal"
 	"time"
+
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Timeout 超时中间件配置
@@ -72,12 +74,12 @@ func (t *Timeout) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (t *Timeout) Clone() internal.Configurable {
-	return &Timeout{
-		ModuleName: t.ModuleName,
-		Enabled:    t.Enabled,
-		Duration:   t.Duration,
-		Message:    t.Message,
+	var cloned Timeout
+	if err := syncx.DeepCopy(&cloned, t); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Timeout{}
 	}
+	return &cloned
 }
 
 // Validate 验证配置
