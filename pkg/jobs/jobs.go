@@ -21,22 +21,47 @@ import (
 // Jobs Job调度配置
 type Jobs struct {
 	// 全局配置
-	Enabled          bool               `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                              // 是否启用Job管理器
-	TimeZone         string             `mapstructure:"timezone" yaml:"timezone" json:"timezone"`                           // 时区配置(例如: Asia/Shanghai)
-	GracefulShutdown int                `mapstructure:"graceful-shutdown" yaml:"graceful-shutdown" json:"gracefulShutdown"` // 优雅关闭超时时间(秒)
-	MaxRetries       int                `mapstructure:"max-retries" yaml:"max-retries" json:"maxRetries"`                   // 失败最大重试次数
-	RetryInterval    int                `mapstructure:"retry-interval" yaml:"retry-interval" json:"retryInterval"`          // 重试间隔(秒)
-	Tasks            map[string]TaskCfg `mapstructure:"tasks" yaml:"tasks" json:"tasks"`                                    // 任务配置
+	Enabled           bool               `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                   // 是否启用Job管理器
+	TimeZone          string             `mapstructure:"timezone" yaml:"timezone" json:"timezone"`                                // 时区配置(例如: Asia/Shanghai)
+	GracefulShutdown  int                `mapstructure:"graceful-shutdown" yaml:"graceful-shutdown" json:"gracefulShutdown"`      // 优雅关闭超时时间(秒)
+	MaxRetries        int                `mapstructure:"max-retries" yaml:"max-retries" json:"maxRetries"`                        // 失败最大重试次数
+	RetryInterval     int                `mapstructure:"retry-interval" yaml:"retry-interval" json:"retryInterval"`               // 重试间隔(秒)
+	RetryJitter       float64            `mapstructure:"retry-jitter" yaml:"retry-jitter" json:"retryJitter"`                     // 重试间隔抖动百分比(0-1)
+	MaxConcurrentJobs int                `mapstructure:"max-concurrent-jobs" yaml:"max-concurrent-jobs" json:"maxConcurrentJobs"` // 最大并发任务数，0表示不限制
+	EnableDistribute  bool               `mapstructure:"enable-distribute" yaml:"enable-distribute" json:"enableDistribute"`      // 是否启用分布式调度
+	Tasks             map[string]TaskCfg `mapstructure:"tasks" yaml:"tasks" json:"tasks"`                                         // 任务配置
 }
 
 // TaskCfg 任务配置
 type TaskCfg struct {
-	Enabled        bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                        // 是否启用
-	CronSpec       string `mapstructure:"cron-spec" yaml:"cron-spec" json:"cronSpec"`                   // Cron表达式
-	ImmediateStart bool   `mapstructure:"immediate-start" yaml:"immediate-start" json:"immediateStart"` // 启动时立即执行一次
-	Timeout        int    `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                        // 任务超时时间(秒)，0表示无限制
-	OverlapPrevent bool   `mapstructure:"overlap-prevent" yaml:"overlap-prevent" json:"overlapPrevent"` // 是否阻止任务重叠执行
-	Description    string `mapstructure:"description" yaml:"description" json:"description"`            // 任务描述
+	Enabled        bool             `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                        // 是否启用
+	CronSpec       string           `mapstructure:"cron-spec" yaml:"cron-spec" json:"cronSpec"`                   // Cron表达式
+	ImmediateStart bool             `mapstructure:"immediate-start" yaml:"immediate-start" json:"immediateStart"` // 启动时立即执行一次
+	Timeout        int              `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                        // 任务超时时间(秒)，0表示无限制
+	OverlapPrevent bool             `mapstructure:"overlap-prevent" yaml:"overlap-prevent" json:"overlapPrevent"` // 是否阻止任务重叠执行
+	MaxRetries     int              `mapstructure:"max-retries" yaml:"max-retries" json:"maxRetries"`             // 任务级别的最大重试次数，0使用全局配置
+	RetryInterval  int              `mapstructure:"retry-interval" yaml:"retry-interval" json:"retryInterval"`    // 任务级别的重试间隔(秒)，0使用全局配置
+	RetryJitter    float64          `mapstructure:"retry-jitter" yaml:"retry-jitter" json:"retryJitter"`          // 任务级别的重试抖动，0使用全局配置
+	Priority       int              `mapstructure:"priority" yaml:"priority" json:"priority"`                     // 任务优先级(0-5, 0=最低, 5=最高)
+	Dependencies   []DependencyTask `mapstructure:"dependencies" yaml:"dependencies" json:"dependencies"`         // 任务依赖列表(工作流模式)，支持引用或内联配置
+	MaxConcurrent  int              `mapstructure:"max-concurrent" yaml:"max-concurrent" json:"maxConcurrent"`    // 最大并发执行数，0表示不限制
+	Tags           []string         `mapstructure:"tags" yaml:"tags" json:"tags"`                                 // 任务标签(用于分组和筛选)
+	Description    string           `mapstructure:"description" yaml:"description" json:"description"`            // 任务描述
+	Breaker        BreakerCfg       `mapstructure:"breaker" yaml:"breaker" json:"breaker"`                        // 熔断器配置
+}
+
+// DependencyTask 任务依赖配置
+type DependencyTask struct {
+	TaskName string   `mapstructure:"task-name" yaml:"task-name" json:"taskName"` // 依赖的任务名称(引用已定义的任务)
+	Inline   *TaskCfg `mapstructure:"inline" yaml:"inline" json:"inline"`         // 内联任务配置(可选，用于定义临时依赖任务)
+}
+
+// BreakerCfg 熔断器配置（任务保护）
+type BreakerCfg struct {
+	Enabled           bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                   // 是否启用熔断器
+	MaxFailures       int  `mapstructure:"max-failures" yaml:"max-failures" json:"maxFailures"`                     // 最大连续失败次数触发熔断
+	ResetTimeout      int  `mapstructure:"reset-timeout" yaml:"reset-timeout" json:"resetTimeout"`                  // 熔断恢复超时时间(秒)
+	HalfOpenSuccesses int  `mapstructure:"half-open-successes" yaml:"half-open-successes" json:"halfOpenSuccesses"` // 半开状态需要的成功次数才能完全恢复
 }
 
 // Default 默认Job配置
@@ -55,7 +80,46 @@ func Default() *Jobs {
 				ImmediateStart: false,
 				Timeout:        300,
 				OverlapPrevent: true,
+				MaxRetries:     3,
+				RetryInterval:  10,
 				Description:    "定期清理过期数据和无效缓存",
+				Breaker: BreakerCfg{
+					Enabled:           true,
+					MaxFailures:       5,
+					ResetTimeout:      30,
+					HalfOpenSuccesses: 2,
+				},
+			},
+			// 数据同步Job - 每小时执行，依赖清理任务
+			"data-sync": {
+				Enabled:        true,
+				CronSpec:       "0 0 * * * *",
+				ImmediateStart: false,
+				Timeout:        600,
+				OverlapPrevent: true,
+				MaxRetries:     3,
+				RetryInterval:  15,
+				Description:    "同步数据到远程服务器",
+				Dependencies: []DependencyTask{
+					{
+						TaskName: "cleanup", // 引用已定义的清理任务
+					},
+					{
+						Inline: &TaskCfg{ // 内联定义数据验证任务
+							Enabled:        true,
+							CronSpec:       "0 */30 * * * *",
+							Timeout:        60,
+							OverlapPrevent: true,
+							Description:    "数据验证前置任务",
+						},
+					},
+				},
+				Breaker: BreakerCfg{
+					Enabled:           true,
+					MaxFailures:       3,
+					ResetTimeout:      60,
+					HalfOpenSuccesses: 2,
+				},
 			},
 		},
 	}
@@ -104,6 +168,40 @@ func (t *TaskCfg) Validate(name string) error {
 		return fmt.Errorf("任务[%s]的timeout不能小于0", name)
 	}
 
+	if t.Priority < 0 || t.Priority > 99999 {
+		return fmt.Errorf("任务[%s]的priority必须在0-99999之间", name)
+	}
+
+	if t.MaxConcurrent < 0 {
+		return fmt.Errorf("任务[%s]的max_concurrent不能小于0", name)
+	}
+
+	// 验证熔断器配置
+	if err := t.Breaker.Validate(name); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Validate 验证熔断器配置
+func (b *BreakerCfg) Validate(taskName string) error {
+	if !b.Enabled {
+		return nil
+	}
+
+	if b.MaxFailures <= 0 {
+		return fmt.Errorf("任务[%s]的熔断器max_failures必须大于0", taskName)
+	}
+
+	if b.ResetTimeout <= 0 {
+		return fmt.Errorf("任务[%s]的熔断器reset_timeout必须大于0", taskName)
+	}
+
+	if b.HalfOpenSuccesses <= 0 {
+		return fmt.Errorf("任务[%s]的熔断器half_open_successes必须大于0", taskName)
+	}
+
 	return nil
 }
 
@@ -132,16 +230,62 @@ func (c *Jobs) Clone() internal.Configurable {
 	// 深拷贝 Tasks map
 	tasks := make(map[string]TaskCfg, len(c.Tasks))
 	for k, v := range c.Tasks {
-		tasks[k] = v
+		// 深拷贝 Tags
+		tags := make([]string, len(v.Tags))
+		copy(tags, v.Tags)
+
+		// 深拷贝 Dependencies
+		deps := make([]DependencyTask, len(v.Dependencies))
+		for i, dep := range v.Dependencies {
+			deps[i] = DependencyTask{
+				TaskName: dep.TaskName,
+			}
+			// 深拷贝内联任务配置
+			if dep.Inline != nil {
+				inlineCopy := *dep.Inline
+				// 递归拷贝内联任务的 Tags
+				if len(inlineCopy.Tags) > 0 {
+					inlineCopy.Tags = make([]string, len(inlineCopy.Tags))
+					copy(inlineCopy.Tags, dep.Inline.Tags)
+				}
+				// 递归拷贝内联任务的 Dependencies
+				if len(inlineCopy.Dependencies) > 0 {
+					inlineCopy.Dependencies = make([]DependencyTask, len(dep.Inline.Dependencies))
+					copy(inlineCopy.Dependencies, dep.Inline.Dependencies)
+				}
+				deps[i].Inline = &inlineCopy
+			}
+		}
+
+		// 深拷贝每个任务配置
+		tasks[k] = TaskCfg{
+			Enabled:        v.Enabled,
+			CronSpec:       v.CronSpec,
+			ImmediateStart: v.ImmediateStart,
+			Timeout:        v.Timeout,
+			OverlapPrevent: v.OverlapPrevent,
+			MaxRetries:     v.MaxRetries,
+			RetryInterval:  v.RetryInterval,
+			RetryJitter:    v.RetryJitter,
+			Priority:       v.Priority,
+			Dependencies:   deps,
+			MaxConcurrent:  v.MaxConcurrent,
+			Tags:           tags,
+			Description:    v.Description,
+			Breaker:        v.Breaker, // BreakerCfg 是值类型，自动深拷贝
+		}
 	}
 
 	return &Jobs{
-		Enabled:          c.Enabled,
-		TimeZone:         c.TimeZone,
-		GracefulShutdown: c.GracefulShutdown,
-		MaxRetries:       c.MaxRetries,
-		RetryInterval:    c.RetryInterval,
-		Tasks:            tasks,
+		Enabled:           c.Enabled,
+		TimeZone:          c.TimeZone,
+		GracefulShutdown:  c.GracefulShutdown,
+		MaxRetries:        c.MaxRetries,
+		RetryInterval:     c.RetryInterval,
+		RetryJitter:       c.RetryJitter,
+		MaxConcurrentJobs: c.MaxConcurrentJobs,
+		EnableDistribute:  c.EnableDistribute,
+		Tasks:             tasks,
 	}
 }
 

@@ -1142,6 +1142,9 @@ jobs:
     graceful-shutdown: 30
     max-retries: 3
     retry-interval: 5
+    retry-jitter: 0
+    max-concurrent-jobs: 0
+    enable-distribute: false
     tasks:
         cleanup:
             # 是否启用网关
@@ -1150,4 +1153,62 @@ jobs:
             immediate-start: false
             timeout: 300
             overlap-prevent: true
+            max-retries: 3
+            retry-interval: 10
+            retry-jitter: 0
+            priority: 0
+            dependencies: []
+            max-concurrent: 0
+            tags: []
             description: 定期清理过期数据和无效缓存
+            breaker:
+                # 是否启用网关
+                enabled: true
+                max-failures: 5
+                reset-timeout: 30
+                half-open-successes: 2
+        data-sync:
+            # 是否启用网关
+            enabled: true
+            cron-spec: 0 0 * * * *
+            immediate-start: false
+            timeout: 600
+            overlap-prevent: true
+            max-retries: 3
+            retry-interval: 15
+            retry-jitter: 0
+            priority: 0
+            dependencies:
+                - task-name: cleanup
+                  inline: null
+                - task-name: ""
+                  inline:
+                    # 是否启用网关
+                    enabled: true
+                    cron-spec: 0 */30 * * * *
+                    immediate-start: false
+                    timeout: 60
+                    overlap-prevent: true
+                    max-retries: 0
+                    retry-interval: 0
+                    retry-jitter: 0
+                    priority: 0
+                    dependencies: []
+                    max-concurrent: 0
+                    tags: []
+                    description: 数据验证前置任务
+                    breaker:
+                        # 是否启用网关
+                        enabled: false
+                        max-failures: 0
+                        reset-timeout: 0
+                        half-open-successes: 0
+            max-concurrent: 0
+            tags: []
+            description: 同步数据到远程服务器
+            breaker:
+                # 是否启用网关
+                enabled: true
+                max-failures: 3
+                reset-timeout: 60
+                half-open-successes: 2

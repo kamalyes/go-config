@@ -1093,6 +1093,9 @@
     "gracefulShutdown": 30,
     "maxRetries": 3,
     "retryInterval": 5,
+    "retryJitter": 0,
+    "maxConcurrentJobs": 0,
+    "enableDistribute": false,
     "tasks": {
       "cleanup": {
         "enabled": true,
@@ -1100,7 +1103,70 @@
         "immediateStart": false,
         "timeout": 300,
         "overlapPrevent": true,
-        "description": "定期清理过期数据和无效缓存"
+        "maxRetries": 3,
+        "retryInterval": 10,
+        "retryJitter": 0,
+        "priority": 0,
+        "dependencies": null,
+        "maxConcurrent": 0,
+        "tags": null,
+        "description": "定期清理过期数据和无效缓存",
+        "breaker": {
+          "enabled": true,
+          "maxFailures": 5,
+          "resetTimeout": 30,
+          "halfOpenSuccesses": 2
+        }
+      },
+      "data-sync": {
+        "enabled": true,
+        "cronSpec": "0 0 * * * *",
+        "immediateStart": false,
+        "timeout": 600,
+        "overlapPrevent": true,
+        "maxRetries": 3,
+        "retryInterval": 15,
+        "retryJitter": 0,
+        "priority": 0,
+        "dependencies": [
+          {
+            "taskName": "cleanup",
+            "inline": null
+          },
+          {
+            "taskName": "",
+            "inline": {
+              "enabled": true,
+              "cronSpec": "0 */30 * * * *",
+              "immediateStart": false,
+              "timeout": 60,
+              "overlapPrevent": true,
+              "maxRetries": 0,
+              "retryInterval": 0,
+              "retryJitter": 0,
+              "priority": 0,
+              "dependencies": null,
+              "maxConcurrent": 0,
+              "tags": null,
+              "description": "数据验证前置任务",
+              "breaker": {
+                "enabled": false,
+                "maxFailures": 0,
+                "resetTimeout": 0,
+                "halfOpenSuccesses": 0
+              }
+            }
+          }
+        ],
+        "maxConcurrent": 0,
+        "tags": null,
+        "description": "同步数据到远程服务器",
+        "breaker": {
+          "enabled": true,
+          "maxFailures": 3,
+          "resetTimeout": 60,
+          "halfOpenSuccesses": 2
+        }
       }
     }
   }
