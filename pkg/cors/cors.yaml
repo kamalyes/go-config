@@ -2,7 +2,7 @@
 # 模块名称: cors
 # 包名: cors  
 # 描述: CORS跨域模块
-# 生成时间: 2025-11-28 00:26:08
+# 生成时间: 2025-12-27 11:23:33
 # 注意: 此文件由配置生成器自动生成
 
 # 允许的来源
@@ -21,6 +21,20 @@ allowed-headers:
     - Content-Length
     - Content-Type
     - Authorization
+    - Accept
+    - Accept-Language
+    - Accept-Encoding
+    - Cache-Control
+    - X-Requested-With
+    - X-Request-ID
+    - X-Correlation-ID
+    - X-API-Key
+    - X-CSRF-Token
+    - X-Signature
+    - X-Timestamp
+    - X-Nonce
+    - User-Agent
+    - Referer
 # 最大缓存时间
 max-age: "86400"
 # 是否允许所有来源

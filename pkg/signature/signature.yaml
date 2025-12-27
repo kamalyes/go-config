@@ -2,7 +2,7 @@
 # 模块名称: signature
 # 包名: signature  
 # 描述: 数字签名模块
-# 生成时间: 2025-11-28 00:26:09
+# 生成时间: 2025-12-27 11:20:06
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -17,8 +17,8 @@ signature-header: X-Signature
 timestamp-header: X-Timestamp
 # 随机数请求头
 nonce-header: X-Nonce
-# 签名算法 (md5, sha1, sha256)
-algorithm: sha256
+# 签名算法 (MD5, SHA1, SHA224, SHA256, SHA384, SHA512)
+algorithm: SHA256
 # 请求时间窗口
 timeout-window: 5m0s
 # 忽略签名验证的路径
@@ -26,10 +26,6 @@ ignore-paths:
     - /health
     - /metrics
     - /ping
-# 必需的请求头参与签名
-required-headers:
-    - X-Timestamp
-    - X-Nonce
 # 是否跳过查询参数
 skip-query: false
 # 是否跳过请求体

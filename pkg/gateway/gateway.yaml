@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2025-12-22 00:17:02
+# 生成时间: 2025-12-27 11:23:33
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -18,13 +18,13 @@ version: v1.0.0
 # 环境 (dev, test, prod)
 environment: dev
 # 构建时间
-build-time: "2025-12-22T00:17:02+08:00"
+build-time: "2025-12-27T11:23:33+08:00"
 # 构建用户
 build-user: kamalyes
 # Go版本
 go-version: 1.25.1
 # Git提交哈希
-git-commit: a33b93a5526ce5f4cec4654ccee57218
+git-commit: c3b4bd9ae3b2130902a09f6b758c451c
 # Git分支
 git-branch: master
 # Git标签
@@ -764,15 +764,12 @@ middleware:
         signature-header: X-Signature
         timestamp-header: X-Timestamp
         nonce-header: X-Nonce
-        algorithm: sha256
+        algorithm: SHA256
         timeout-window: 5m0s
         ignore-paths:
             - /health
             - /metrics
             - /ping
-        required-headers:
-            - X-Timestamp
-            - X-Nonce
         skip-query: false
         skip-body: false
 # CORS配置
@@ -790,6 +787,20 @@ cors:
         - Content-Length
         - Content-Type
         - Authorization
+        - Accept
+        - Accept-Language
+        - Accept-Encoding
+        - Cache-Control
+        - X-Requested-With
+        - X-Request-ID
+        - X-Correlation-ID
+        - X-API-Key
+        - X-CSRF-Token
+        - X-Signature
+        - X-Timestamp
+        - X-Nonce
+        - User-Agent
+        - Referer
     max-age: "86400"
     allowed-all-origins: false
     allowed-all-methods: false
@@ -1144,7 +1155,7 @@ jobs:
     retry-interval: 5
     retry-jitter: 0
     max-concurrent-jobs: 0
-    enable-distribute: false
+    distribute: false
     tasks:
         cleanup:
             # 是否启用网关

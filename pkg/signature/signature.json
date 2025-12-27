@@ -12,16 +12,12 @@
   "signatureHeader": "X-Signature",
   "timestampHeader": "X-Timestamp",
   "nonceHeader": "X-Nonce",
-  "algorithm": "sha256",
+  "algorithm": "SHA256",
   "timeoutWindow": 300000000000,
   "ignorePaths": [
     "/health",
     "/metrics",
     "/ping"
-  ],
-  "requiredHeaders": [
-    "X-Timestamp",
-    "X-Nonce"
   ],
   "skipQuery": false,
   "skipBody": false

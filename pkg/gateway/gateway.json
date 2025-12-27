@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2025-12-22 00:17:02
+// 生成时间: 2025-12-27 11:23:33
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2025-12-22T00:17:02+08:00",
+  "buildTime": "2025-12-27T11:23:33+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "a33b93a5526ce5f4cec4654ccee57218",
+  "gitCommit": "c3b4bd9ae3b2130902a09f6b758c451c",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -750,16 +750,12 @@
       "signatureHeader": "X-Signature",
       "timestampHeader": "X-Timestamp",
       "nonceHeader": "X-Nonce",
-      "algorithm": "sha256",
+      "algorithm": "SHA256",
       "timeoutWindow": 300000000000,
       "ignorePaths": [
         "/health",
         "/metrics",
         "/ping"
-      ],
-      "requiredHeaders": [
-        "X-Timestamp",
-        "X-Nonce"
       ],
       "skipQuery": false,
       "skipBody": false
@@ -780,7 +776,21 @@
       "Origin",
       "Content-Length",
       "Content-Type",
-      "Authorization"
+      "Authorization",
+      "Accept",
+      "Accept-Language",
+      "Accept-Encoding",
+      "Cache-Control",
+      "X-Requested-With",
+      "X-Request-ID",
+      "X-Correlation-ID",
+      "X-API-Key",
+      "X-CSRF-Token",
+      "X-Signature",
+      "X-Timestamp",
+      "X-Nonce",
+      "User-Agent",
+      "Referer"
     ],
     "maxAge": "86400",
     "allowedAllOrigins": false,
@@ -1095,7 +1105,7 @@
     "retryInterval": 5,
     "retryJitter": 0,
     "maxConcurrentJobs": 0,
-    "enableDistribute": false,
+    "distribute": false,
     "tasks": {
       "cleanup": {
         "enabled": true,

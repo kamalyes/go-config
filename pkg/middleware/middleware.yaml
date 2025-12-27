@@ -2,7 +2,7 @@
 # 模块名称: middleware
 # 包名: middleware  
 # 描述: 中间件模块
-# 生成时间: 2025-12-11 15:35:01
+# 生成时间: 2025-12-27 11:23:33
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -226,14 +226,11 @@ signature:
     signature-header: X-Signature
     timestamp-header: X-Timestamp
     nonce-header: X-Nonce
-    algorithm: sha256
+    algorithm: SHA256
     timeout-window: 5m0s
     ignore-paths:
         - /health
         - /metrics
         - /ping
-    required-headers:
-        - X-Timestamp
-        - X-Nonce
     skip-query: false
     skip-body: false
