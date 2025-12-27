@@ -131,14 +131,15 @@ func (c *CSP) GetPolicy() string {
 	case "strict":
 		return "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws: wss:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 	case "development":
-		return "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' ws: wss: http: https:; media-src 'self'; object-src 'none'; frame-src 'self'; base-uri 'self'; form-action 'self'"
+		// 开发模式：允许所有HTTPS资源，方便开发调试
+		return "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' ws: wss: http: https:; media-src 'self' https:; object-src 'none'; frame-src 'self'; base-uri 'self'; form-action 'self'"
 	case "relaxed":
 		return "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' ws: wss: http: https:; media-src 'self' https:; object-src 'none'; frame-src 'self' https:; base-uri 'self'; form-action 'self'"
 	case "api":
 		return "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
 	default:
-		// 默认使用平衡模式
-		return "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' ws: wss:; media-src 'self'; object-src 'none'; frame-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+		// 默认使用平衡模式 - 生产环境推荐，允许HTTPS CDN但禁用unsafe-eval
+		return "default-src 'self'; script-src 'self' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' ws: wss:; media-src 'self' https:; object-src 'none'; frame-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
 	}
 }
 

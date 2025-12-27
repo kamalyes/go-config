@@ -15,23 +15,23 @@ import (
 	"time"
 
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/sign"
 	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Signature 签名验证中间件配置
 type Signature struct {
-	ModuleName      string        `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                // 模块名称
-	Enabled         bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                           // 是否启用签名验证
-	SecretKey       string        `mapstructure:"secret-key" yaml:"secret-key" json:"secretKey"`                   // 签名密钥
-	SignatureHeader string        `mapstructure:"signature-header" yaml:"signature-header" json:"signatureHeader"` // 签名请求头
-	TimestampHeader string        `mapstructure:"timestamp-header" yaml:"timestamp-header" json:"timestampHeader"` // 时间戳请求头
-	NonceHeader     string        `mapstructure:"nonce-header" yaml:"nonce-header" json:"nonceHeader"`             // 随机数请求头
-	Algorithm       string        `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"`                     // 签名算法 (md5, sha1, sha256)
-	TimeoutWindow   time.Duration `mapstructure:"timeout-window" yaml:"timeout-window" json:"timeoutWindow"`       // 请求时间窗口
-	IgnorePaths     []string      `mapstructure:"ignore-paths" yaml:"ignore-paths" json:"ignorePaths"`             // 忽略签名验证的路径
-	RequiredHeaders []string      `mapstructure:"required-headers" yaml:"required-headers" json:"requiredHeaders"` // 必需的请求头参与签名
-	SkipQuery       bool          `mapstructure:"skip-query" yaml:"skip-query" json:"skipQuery"`                   // 是否跳过查询参数
-	SkipBody        bool          `mapstructure:"skip-body" yaml:"skip-body" json:"skipBody"`                      // 是否跳过请求体
+	ModuleName      string              `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                // 模块名称
+	Enabled         bool                `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                           // 是否启用签名验证
+	SecretKey       string              `mapstructure:"secret-key" yaml:"secret-key" json:"secretKey"`                   // 签名密钥
+	SignatureHeader string              `mapstructure:"signature-header" yaml:"signature-header" json:"signatureHeader"` // 签名请求头
+	TimestampHeader string              `mapstructure:"timestamp-header" yaml:"timestamp-header" json:"timestampHeader"` // 时间戳请求头
+	NonceHeader     string              `mapstructure:"nonce-header" yaml:"nonce-header" json:"nonceHeader"`             // 随机数请求头
+	Algorithm       sign.HashCryptoFunc `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"`                     // 签名算法 (MD5, SHA1, SHA224, SHA256, SHA384, SHA512)
+	TimeoutWindow   time.Duration       `mapstructure:"timeout-window" yaml:"timeout-window" json:"timeoutWindow"`       // 请求时间窗口
+	IgnorePaths     []string            `mapstructure:"ignore-paths" yaml:"ignore-paths" json:"ignorePaths"`             // 忽略签名验证的路径
+	SkipQuery       bool                `mapstructure:"skip-query" yaml:"skip-query" json:"skipQuery"`                   // 是否跳过查询参数
+	SkipBody        bool                `mapstructure:"skip-body" yaml:"skip-body" json:"skipBody"`                      // 是否跳过请求体
 }
 
 // Default 创建默认签名验证配置
@@ -43,16 +43,12 @@ func Default() *Signature {
 		SignatureHeader: "X-Signature",
 		TimestampHeader: "X-Timestamp",
 		NonceHeader:     "X-Nonce",
-		Algorithm:       "sha256",
+		Algorithm:       sign.AlgorithmSHA256,
 		TimeoutWindow:   time.Minute * 5,
 		IgnorePaths: []string{
 			"/health",
 			"/metrics",
 			"/ping",
-		},
-		RequiredHeaders: []string{
-			"X-Timestamp",
-			"X-Nonce",
 		},
 		SkipQuery: false,
 		SkipBody:  false,
@@ -93,7 +89,7 @@ func (s *Signature) WithSecretKey(secretKey string) *Signature {
 }
 
 // WithAlgorithm 设置签名算法
-func (s *Signature) WithAlgorithm(algorithm string) *Signature {
+func (s *Signature) WithAlgorithm(algorithm sign.HashCryptoFunc) *Signature {
 	s.Algorithm = algorithm
 	return s
 }
@@ -125,12 +121,6 @@ func (s *Signature) WithNonceHeader(header string) *Signature {
 // AddIgnorePath 添加忽略路径
 func (s *Signature) AddIgnorePath(path string) *Signature {
 	s.IgnorePaths = append(s.IgnorePaths, path)
-	return s
-}
-
-// AddRequiredHeader 添加必需参与签名的请求头
-func (s *Signature) AddRequiredHeader(header string) *Signature {
-	s.RequiredHeaders = append(s.RequiredHeaders, header)
 	return s
 }
 

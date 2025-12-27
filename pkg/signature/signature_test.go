@@ -12,9 +12,10 @@
 package signature
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSignature_Default(t *testing.T) {
@@ -29,7 +30,6 @@ func TestSignature_Default(t *testing.T) {
 	assert.Equal(t, "sha256", config.Algorithm)
 	assert.Equal(t, time.Minute*5, config.TimeoutWindow)
 	assert.NotNil(t, config.IgnorePaths)
-	assert.NotNil(t, config.RequiredHeaders)
 	assert.False(t, config.SkipQuery)
 	assert.False(t, config.SkipBody)
 }
@@ -85,15 +85,6 @@ func TestSignature_AddIgnorePath(t *testing.T) {
 	assert.Equal(t, config, result)
 }
 
-func TestSignature_AddRequiredHeader(t *testing.T) {
-	config := Default()
-	initialLen := len(config.RequiredHeaders)
-	result := config.AddRequiredHeader("X-Custom-Header")
-	assert.Equal(t, initialLen+1, len(result.RequiredHeaders))
-	assert.Contains(t, result.RequiredHeaders, "X-Custom-Header")
-	assert.Equal(t, config, result)
-}
-
 func TestSignature_WithSkipQuery(t *testing.T) {
 	config := Default()
 	result := config.WithSkipQuery(true)
@@ -133,7 +124,7 @@ func TestSignature_IsEnabled(t *testing.T) {
 
 func TestSignature_Clone(t *testing.T) {
 	config := Default()
-	config.WithSecretKey("test-key").AddIgnorePath("/custom").AddRequiredHeader("X-Custom")
+	config.WithSecretKey("test-key").AddIgnorePath("/custom")
 
 	clone := config.Clone()
 	assert.NotNil(t, clone)
@@ -148,8 +139,6 @@ func TestSignature_Clone(t *testing.T) {
 	clonedConfig.IgnorePaths = append(clonedConfig.IgnorePaths, "/extra")
 	assert.NotEqual(t, len(config.IgnorePaths), len(clonedConfig.IgnorePaths))
 
-	clonedConfig.RequiredHeaders = append(clonedConfig.RequiredHeaders, "X-Extra")
-	assert.NotEqual(t, len(config.RequiredHeaders), len(clonedConfig.RequiredHeaders))
 }
 
 func TestSignature_Get(t *testing.T) {
@@ -193,7 +182,6 @@ func TestSignature_ChainedCalls(t *testing.T) {
 		WithNonceHeader("X-API-Nonce").
 		AddIgnorePath("/api/v1/public").
 		AddIgnorePath("/api/v1/status").
-		AddRequiredHeader("X-API-Key").
 		WithSkipQuery(true).
 		WithSkipBody(false).
 		Enable()
@@ -206,7 +194,6 @@ func TestSignature_ChainedCalls(t *testing.T) {
 	assert.Equal(t, "X-API-Nonce", config.NonceHeader)
 	assert.Contains(t, config.IgnorePaths, "/api/v1/public")
 	assert.Contains(t, config.IgnorePaths, "/api/v1/status")
-	assert.Contains(t, config.RequiredHeaders, "X-API-Key")
 	assert.True(t, config.SkipQuery)
 	assert.False(t, config.SkipBody)
 	assert.True(t, config.Enabled)
