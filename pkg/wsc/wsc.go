@@ -16,6 +16,7 @@ import (
 
 	"github.com/kamalyes/go-config/internal"
 	"github.com/kamalyes/go-config/pkg/logging"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // WSC WebSocket 通信核心配置
@@ -535,62 +536,12 @@ func (c *WSC) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (c *WSC) Clone() internal.Configurable {
-	origins := make([]string, len(c.WebSocketOrigins))
-	copy(origins, c.WebSocketOrigins)
-
-	cloned := &WSC{
-		Enabled:            c.Enabled,
-		NodeIP:             c.NodeIP,
-		NodePort:           c.NodePort,
-		HeartbeatInterval:  c.HeartbeatInterval,
-		ClientTimeout:      c.ClientTimeout,
-		MessageBufferSize:  c.MessageBufferSize,
-		WebSocketOrigins:   origins,
-		ReadTimeout:        c.ReadTimeout,
-		WriteTimeout:       c.WriteTimeout,
-		IdleTimeout:        c.IdleTimeout,
-		MaxMessageSize:     c.MaxMessageSize,
-		MinRecTime:         c.MinRecTime,
-		MaxRecTime:         c.MaxRecTime,
-		RecFactor:          c.RecFactor,
-		AutoReconnect:      c.AutoReconnect,
-		MaxRetries:         c.MaxRetries,
-		BaseDelay:          c.BaseDelay,
-		MaxDelay:           c.MaxDelay,
-		AckTimeout:         c.AckTimeout,
-		AckMaxRetries:      c.AckMaxRetries,
-		EnableAck:          c.EnableAck,
-		BackoffFactor:      c.BackoffFactor,
-		Jitter:             c.Jitter,
-		RetryableErrors:    append([]string{}, c.RetryableErrors...),
-		NonRetryableErrors: append([]string{}, c.NonRetryableErrors...),
-		SSEHeartbeat:       c.SSEHeartbeat,
-		SSETimeout:         c.SSETimeout,
-		SSEMessageBuffer:   c.SSEMessageBuffer,
+	var cloned WSC
+	if err := syncx.DeepCopy(&cloned, c); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &WSC{}
 	}
-
-	// 克隆嵌套配置
-	if c.Performance != nil {
-		perf := *c.Performance
-		cloned.Performance = &perf
-	}
-
-	if c.Security != nil {
-		sec := *c.Security
-		cloned.Security = &sec
-	}
-
-	if c.Database != nil {
-		db := *c.Database
-		cloned.Database = &db
-	}
-
-	if c.Logging != nil {
-		logging := c.Logging.Clone().(*logging.Logging)
-		cloned.Logging = logging
-	}
-
-	return cloned
+	return &cloned
 }
 
 // Validate 验证配置

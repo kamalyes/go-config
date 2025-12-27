@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Redis 结构体用于配置 Redis 相关参数（增强版配置）
@@ -54,26 +55,12 @@ func NewRedis(opt *Redis) *Redis {
 
 // Clone 返回 Redis 配置的副本
 func (r *Redis) Clone() internal.Configurable {
-	return &Redis{
-		ModuleName:      r.ModuleName,
-		Addr:            r.Addr,
-		Addrs:           append([]string(nil), r.Addrs...),
-		Username:        r.Username,
-		Password:        r.Password,
-		DB:              r.DB,
-		MaxRetries:      r.MaxRetries,
-		PoolSize:        r.PoolSize,
-		MinIdleConns:    r.MinIdleConns,
-		MaxIdleConns:    r.MaxIdleConns,
-		MaxConnAge:      r.MaxConnAge,
-		PoolTimeout:     r.PoolTimeout,
-		IdleTimeout:     r.IdleTimeout,
-		ReadTimeout:     r.ReadTimeout,
-		WriteTimeout:    r.WriteTimeout,
-		MinRetryBackoff: r.MinRetryBackoff,
-		MaxRetryBackoff: r.MaxRetryBackoff,
-		ClusterMode:     r.ClusterMode,
+	var cloned Redis
+	if err := syncx.DeepCopy(&cloned, r); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Redis{}
 	}
+	return &cloned
 }
 
 // Get 返回 Redis 配置的所有字段

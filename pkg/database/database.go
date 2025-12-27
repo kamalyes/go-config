@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // DBType 定义数据库类型
@@ -197,23 +198,12 @@ func (c *Database) ValidateAll() error {
 
 // Clone 返回Database配置的副本
 func (c *Database) Clone() internal.Configurable {
-	newConfig := &Database{
-		Type:    c.Type,
-		Enabled: c.Enabled,
-		Default: c.Default,
+	var cloned Database
+	if err := syncx.DeepCopy(&cloned, c); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Database{}
 	}
-
-	if c.MySQL != nil {
-		newConfig.MySQL = c.MySQL.Clone().(*MySQL)
-	}
-	if c.PostgreSQL != nil {
-		newConfig.PostgreSQL = c.PostgreSQL.Clone().(*PostgreSQL)
-	}
-	if c.SQLite != nil {
-		newConfig.SQLite = c.SQLite.Clone().(*SQLite)
-	}
-
-	return newConfig
+	return &cloned
 }
 
 // Get 返回Database配置

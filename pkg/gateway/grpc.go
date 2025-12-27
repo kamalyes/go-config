@@ -15,6 +15,7 @@ import (
 	"fmt"
 
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // GRPC GRPC服务配置（包含服务端和多个客户端）
@@ -47,7 +48,7 @@ type GRPCClient struct {
 	MaxSendMsgSize    int      `mapstructure:"max-send-msg-size" yaml:"max-send-msg-size" json:"maxSendMsgSize"`        // 最大发送消息大小(字节)
 	KeepaliveTime     int      `mapstructure:"keepalive-time" yaml:"keepalive-time" json:"keepaliveTime"`               // Keepalive时间(秒)
 	KeepaliveTimeout  int      `mapstructure:"keepalive-timeout" yaml:"keepalive-timeout" json:"keepaliveTimeout"`      // Keepalive超时(秒)
-	Timeout           int      `mapstructure:"timeout" yaml:"timeout" json:"timeout"`                                   // 请求超时(秒)
+	ConnectionTimeout int      `mapstructure:"connection-timeout" yaml:"connection-timeout" json:"connectionTimeout"`   // 连接超时(秒)
 	RetryTimes        int      `mapstructure:"retry-times" yaml:"retry-times" json:"retryTimes"`                        // 重试次数
 	EnableLoadBalance bool     `mapstructure:"enable-load-balance" yaml:"enable-load-balance" json:"enableLoadBalance"` // 是否启用负载均衡
 	LoadBalancePolicy string   `mapstructure:"load-balance-policy" yaml:"load-balance-policy" json:"loadBalancePolicy"` // 负载均衡策略
@@ -112,7 +113,7 @@ func DefaultGRPCClient(serviceName string, endpoints []string) *GRPCClient {
 		MaxSendMsgSize:    4 * 1024 * 1024, // 4MB
 		KeepaliveTime:     30,
 		KeepaliveTimeout:  10,
-		Timeout:           30,
+		ConnectionTimeout: 30,
 		RetryTimes:        3,
 		EnableLoadBalance: true,
 		LoadBalancePolicy: "round_robin",
@@ -122,55 +123,37 @@ func DefaultGRPCClient(serviceName string, endpoints []string) *GRPCClient {
 
 // Clone 返回配置的副本
 func (g *GRPC) Clone() internal.Configurable {
-	clients := make(map[string]*GRPCClient)
-	for k, v := range g.Clients {
-		clients[k] = v.Clone()
+	var cloned GRPC
+	if err := syncx.DeepCopy(&cloned, g); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &GRPC{}
 	}
-	return &GRPC{
-		Server:  g.Server.Clone(),
-		Clients: clients,
+	// 重新计算 Server Endpoint
+	if cloned.Server != nil {
+		internal.CallAfterLoad(cloned.Server)
 	}
+	return &cloned
 }
 
 // Clone 返回GRPC服务端配置的副本
 func (g *GRPCServer) Clone() *GRPCServer {
-	cloned := &GRPCServer{
-		Enable:            g.Enable,
-		Host:              g.Host,
-		Port:              g.Port,
-		Network:           g.Network,
-		MaxRecvMsgSize:    g.MaxRecvMsgSize,
-		MaxSendMsgSize:    g.MaxSendMsgSize,
-		KeepaliveTime:     g.KeepaliveTime,
-		KeepaliveTimeout:  g.KeepaliveTimeout,
-		ConnectionTimeout: g.ConnectionTimeout,
-		EnableReflection:  g.EnableReflection,
+	var cloned GRPCServer
+	if err := syncx.DeepCopy(&cloned, g); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &GRPCServer{}
 	}
-	internal.CallAfterLoad(cloned) // 重新计算 Endpoint
-	return cloned
+	internal.CallAfterLoad(&cloned) // 重新计算 Endpoint
+	return &cloned
 }
 
 // Clone 返回GRPC客户端配置的副本
 func (g *GRPCClient) Clone() *GRPCClient {
-	endpoints := make([]string, len(g.Endpoints))
-	copy(endpoints, g.Endpoints)
-	return &GRPCClient{
-		ServiceName:       g.ServiceName,
-		Endpoints:         endpoints,
-		Network:           g.Network,
-		MaxRecvMsgSize:    g.MaxRecvMsgSize,
-		MaxSendMsgSize:    g.MaxSendMsgSize,
-		KeepaliveTime:     g.KeepaliveTime,
-		KeepaliveTimeout:  g.KeepaliveTimeout,
-		Timeout:           g.Timeout,
-		RetryTimes:        g.RetryTimes,
-		EnableLoadBalance: g.EnableLoadBalance,
-		LoadBalancePolicy: g.LoadBalancePolicy,
-		EnableTLS:         g.EnableTLS,
-		TLSCertFile:       g.TLSCertFile,
-		TLSKeyFile:        g.TLSKeyFile,
-		TLSCAFile:         g.TLSCAFile,
+	var cloned GRPCClient
+	if err := syncx.DeepCopy(&cloned, g); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &GRPCClient{}
 	}
+	return &cloned
 }
 
 // Get 返回配置接口
@@ -270,9 +253,9 @@ func (g *GRPC) GetClient(name string) *GRPCClient {
 	return g.Clients[name]
 }
 
-// WithTimeout 设置超时
-func (g *GRPCClient) WithTimeout(timeout int) *GRPCClient {
-	g.Timeout = timeout
+// WithConnectionTimeout 设置连接超时
+func (g *GRPCClient) WithConnectionTimeout(timeout int) *GRPCClient {
+	g.ConnectionTimeout = timeout
 	return g
 }
 

@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // CacheType 缓存类型
@@ -61,20 +62,12 @@ func NewCache(opt *Cache) *Cache {
 
 // Clone 返回 Cache 配置的副本
 func (c *Cache) Clone() internal.Configurable {
-	return &Cache{
-		ModuleName: c.ModuleName,
-		Type:       c.Type,
-		Enabled:    c.Enabled,
-		Memory:     c.Memory,
-		Ristretto:  c.Ristretto,
-		Redis:      c.Redis,
-		Sharded:    c.Sharded,
-		TwoLevel:   c.TwoLevel,
-		Expiring:   c.Expiring,
-		DefaultTTL: c.DefaultTTL,
-		KeyPrefix:  c.KeyPrefix,
-		Serializer: c.Serializer,
+	var cloned Cache
+	if err := syncx.DeepCopy(&cloned, c); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Cache{}
 	}
+	return &cloned
 }
 
 // Get 返回 Cache 配置的所有字段

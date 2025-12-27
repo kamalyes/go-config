@@ -11,7 +11,10 @@
 
 package logging
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Logging 日志中间件配置
 type Logging struct {
@@ -81,29 +84,12 @@ func (l *Logging) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (l *Logging) Clone() internal.Configurable {
-	clone := &Logging{
-		ModuleName:          l.ModuleName,
-		Enabled:             l.Enabled,
-		Level:               l.Level,
-		Format:              l.Format,
-		Output:              l.Output,
-		FilePath:            l.FilePath,
-		MaxSize:             l.MaxSize,
-		MaxBackups:          l.MaxBackups,
-		MaxAge:              l.MaxAge,
-		Compress:            l.Compress,
-		EnableRequest:       l.EnableRequest,
-		EnableResponse:      l.EnableResponse,
-		MaxBodySize:         l.MaxBodySize,
-		SensitiveMask:       l.SensitiveMask,
-		SlowHTTPThreshold:   l.SlowHTTPThreshold,
-		SlowGRPCThreshold:   l.SlowGRPCThreshold,
-		SlowStreamThreshold: l.SlowStreamThreshold,
+	var cloned Logging
+	if err := syncx.DeepCopy(&cloned, l); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Logging{}
 	}
-	clone.SkipPaths = append([]string(nil), l.SkipPaths...)
-	clone.SensitiveKeys = append([]string(nil), l.SensitiveKeys...)
-	clone.LoggableContentTypes = append([]string(nil), l.LoggableContentTypes...)
-	return clone
+	return &cloned
 }
 
 // ========== Logging 链式调用方法 ==========

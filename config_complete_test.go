@@ -144,6 +144,12 @@ func TestConfigCompleteValidation(t *testing.T) {
 			assert.Equal(t, defaultCfg.Debug, config.Debug, "Debug should match")
 			assert.Equal(t, defaultCfg.Version, config.Version, "Version should match")
 			assert.Equal(t, defaultCfg.Environment, config.Environment, "Environment should match")
+			assert.Equal(t, defaultCfg.BuildTime, config.BuildTime, "BuildTime should match")
+			assert.Equal(t, defaultCfg.BuildUser, config.BuildUser, "BuildUser should match")
+			assert.Equal(t, defaultCfg.GoVersion, config.GoVersion, "GoVersion should match")
+			assert.Equal(t, defaultCfg.GitCommit, config.GitCommit, "GitCommit should match")
+			assert.Equal(t, defaultCfg.GitBranch, config.GitBranch, "GitBranch should match")
+			assert.Equal(t, defaultCfg.GitTag, config.GitTag, "GitTag should match")
 
 			// 验证 JSON 嵌套结构
 			assert.Equal(t, defaultCfg.JSON.UseProtoNames, config.JSON.UseProtoNames, "JSON.UseProtoNames should match")
@@ -247,6 +253,7 @@ func TestConfigCompleteValidation(t *testing.T) {
 
 			// 验证 CORS 嵌套结构
 			assert.Equal(t, defaultCfg.CORS.ModuleName, config.CORS.ModuleName, "CORS.ModuleName should match")
+			assert.Equal(t, defaultCfg.CORS.Enabled, config.CORS.Enabled, "CORS.Enabled should match")
 			assert.Equal(t, defaultCfg.CORS.AllowedOrigins, config.CORS.AllowedOrigins, "CORS.AllowedOrigins should match")
 			assert.Equal(t, defaultCfg.CORS.AllowedMethods, config.CORS.AllowedMethods, "CORS.AllowedMethods should match")
 			assert.Equal(t, defaultCfg.CORS.AllowedHeaders, config.CORS.AllowedHeaders, "CORS.AllowedHeaders should match")
@@ -254,6 +261,8 @@ func TestConfigCompleteValidation(t *testing.T) {
 			assert.Equal(t, defaultCfg.CORS.AllowCredentials, config.CORS.AllowCredentials, "CORS.AllowCredentials should match")
 			assert.Equal(t, defaultCfg.CORS.MaxAge, config.CORS.MaxAge, "CORS.MaxAge should match")
 			assert.Equal(t, defaultCfg.CORS.AllowedAllOrigins, config.CORS.AllowedAllOrigins, "CORS.AllowedAllOrigins should match")
+			assert.Equal(t, defaultCfg.CORS.AllowedAllMethods, config.CORS.AllowedAllMethods, "CORS.AllowedAllMethods should match")
+			assert.Equal(t, defaultCfg.CORS.OptionsResponseCode, config.CORS.OptionsResponseCode, "CORS.OptionsResponseCode should match")
 
 			// 验证 JWT 嵌套结构
 			assert.Equal(t, defaultCfg.JWT.ModuleName, config.JWT.ModuleName, "JWT.ModuleName should match")
@@ -368,7 +377,12 @@ func TestConfigCompleteValidation(t *testing.T) {
 
 			// 验证 Security 嵌套结构（完整）
 			assert.Equal(t, defaultCfg.Security.ModuleName, config.Security.ModuleName, "Security.ModuleName should match")
-			assert.Equal(t, defaultCfg.Security.Enabled, config.Security.Enabled, "Security.Enabled should match")
+
+			// 验证 Security.CSP 子结构
+			assert.NotNil(t, config.Security.CSP, "Security.CSP should not be nil")
+			assert.Equal(t, defaultCfg.Security.CSP.Enabled, config.Security.CSP.Enabled, "Security.CSP.Enabled should match")
+			assert.Equal(t, defaultCfg.Security.CSP.Mode, config.Security.CSP.Mode, "Security.CSP.Mode should match")
+			assert.Equal(t, defaultCfg.Security.CSP.Custom, config.Security.CSP.Custom, "Security.CSP.Custom should match")
 
 			// 验证 Security.JWT 子结构
 			assert.Equal(t, defaultCfg.Security.JWT.Enabled, config.Security.JWT.Enabled, "Security.JWT.Enabled should match")
@@ -383,9 +397,66 @@ func TestConfigCompleteValidation(t *testing.T) {
 			assert.Equal(t, defaultCfg.Security.Auth.HeaderName, config.Security.Auth.HeaderName, "Security.Auth.HeaderName should match")
 			assert.Equal(t, defaultCfg.Security.Auth.TokenPrefix, config.Security.Auth.TokenPrefix, "Security.Auth.TokenPrefix should match")
 
+			// 验证 Security.Auth.Basic 子结构
+			assert.NotNil(t, config.Security.Auth.Basic, "Security.Auth.Basic should not be nil")
+			assert.Equal(t, len(defaultCfg.Security.Auth.Basic.Users), len(config.Security.Auth.Basic.Users), "Security.Auth.Basic.Users length should match")
+
+			// 验证 Security.Auth.Bearer 子结构
+			assert.NotNil(t, config.Security.Auth.Bearer, "Security.Auth.Bearer should not be nil")
+			assert.Equal(t, len(defaultCfg.Security.Auth.Bearer.Tokens), len(config.Security.Auth.Bearer.Tokens), "Security.Auth.Bearer.Tokens length should match")
+
+			// 验证 Security.Auth.APIKey 子结构
+			assert.NotNil(t, config.Security.Auth.APIKey, "Security.Auth.APIKey should not be nil")
+			assert.Equal(t, len(defaultCfg.Security.Auth.APIKey.Keys), len(config.Security.Auth.APIKey.Keys), "Security.Auth.APIKey.Keys length should match")
+			assert.Equal(t, defaultCfg.Security.Auth.APIKey.HeaderName, config.Security.Auth.APIKey.HeaderName, "Security.Auth.APIKey.HeaderName should match")
+			assert.Equal(t, defaultCfg.Security.Auth.APIKey.QueryParam, config.Security.Auth.APIKey.QueryParam, "Security.Auth.APIKey.QueryParam should match")
+
+			// 验证 Security.Auth.Custom 子结构
+			assert.NotNil(t, config.Security.Auth.Custom, "Security.Auth.Custom should not be nil")
+			assert.Equal(t, defaultCfg.Security.Auth.Custom.HeaderName, config.Security.Auth.Custom.HeaderName, "Security.Auth.Custom.HeaderName should match")
+			assert.Equal(t, defaultCfg.Security.Auth.Custom.ExpectedValue, config.Security.Auth.Custom.ExpectedValue, "Security.Auth.Custom.ExpectedValue should match")
+			assert.Equal(t, len(defaultCfg.Security.Auth.Custom.Headers), len(config.Security.Auth.Custom.Headers), "Security.Auth.Custom.Headers length should match")
+
 			// 验证 Security.Protection 子结构
+			assert.NotNil(t, config.Security.Protection, "Security.Protection should not be nil")
+
+			// 验证 Security.Protection.Swagger 详细字段
+			assert.NotNil(t, config.Security.Protection.Swagger, "Security.Protection.Swagger should not be nil")
 			assert.Equal(t, defaultCfg.Security.Protection.Swagger.Enabled, config.Security.Protection.Swagger.Enabled, "Security.Protection.Swagger.Enabled should match")
+			assert.Equal(t, defaultCfg.Security.Protection.Swagger.AuthRequired, config.Security.Protection.Swagger.AuthRequired, "Security.Protection.Swagger.AuthRequired should match")
+			assert.Equal(t, defaultCfg.Security.Protection.Swagger.AuthType, config.Security.Protection.Swagger.AuthType, "Security.Protection.Swagger.AuthType should match")
+			assert.Equal(t, defaultCfg.Security.Protection.Swagger.IPWhitelist, config.Security.Protection.Swagger.IPWhitelist, "Security.Protection.Swagger.IPWhitelist should match")
+			assert.Equal(t, defaultCfg.Security.Protection.Swagger.RequireHTTPS, config.Security.Protection.Swagger.RequireHTTPS, "Security.Protection.Swagger.RequireHTTPS should match")
+			assert.Equal(t, defaultCfg.Security.Protection.Swagger.Username, config.Security.Protection.Swagger.Username, "Security.Protection.Swagger.Username should match")
+			assert.Equal(t, defaultCfg.Security.Protection.Swagger.Password, config.Security.Protection.Swagger.Password, "Security.Protection.Swagger.Password should match")
+
+			// 验证 Security.Protection.PProf 详细字段
+			assert.NotNil(t, config.Security.Protection.PProf, "Security.Protection.PProf should not be nil")
 			assert.Equal(t, defaultCfg.Security.Protection.PProf.Enabled, config.Security.Protection.PProf.Enabled, "Security.Protection.PProf.Enabled should match")
+			assert.Equal(t, defaultCfg.Security.Protection.PProf.AuthRequired, config.Security.Protection.PProf.AuthRequired, "Security.Protection.PProf.AuthRequired should match")
+			assert.Equal(t, defaultCfg.Security.Protection.PProf.AuthType, config.Security.Protection.PProf.AuthType, "Security.Protection.PProf.AuthType should match")
+			assert.Equal(t, defaultCfg.Security.Protection.PProf.IPWhitelist, config.Security.Protection.PProf.IPWhitelist, "Security.Protection.PProf.IPWhitelist should match")
+			assert.Equal(t, defaultCfg.Security.Protection.PProf.RequireHTTPS, config.Security.Protection.PProf.RequireHTTPS, "Security.Protection.PProf.RequireHTTPS should match")
+			assert.Equal(t, defaultCfg.Security.Protection.PProf.Username, config.Security.Protection.PProf.Username, "Security.Protection.PProf.Username should match")
+			assert.Equal(t, defaultCfg.Security.Protection.PProf.Password, config.Security.Protection.PProf.Password, "Security.Protection.PProf.Password should match")
+
+			// 验证 Security.Protection.Metrics 详细字段
+			assert.NotNil(t, config.Security.Protection.Metrics, "Security.Protection.Metrics should not be nil")
+			assert.Equal(t, defaultCfg.Security.Protection.Metrics.Enabled, config.Security.Protection.Metrics.Enabled, "Security.Protection.Metrics.Enabled should match")
+			assert.Equal(t, defaultCfg.Security.Protection.Metrics.AuthRequired, config.Security.Protection.Metrics.AuthRequired, "Security.Protection.Metrics.AuthRequired should match")
+			assert.Equal(t, defaultCfg.Security.Protection.Metrics.IPWhitelist, config.Security.Protection.Metrics.IPWhitelist, "Security.Protection.Metrics.IPWhitelist should match")
+
+			// 验证 Security.Protection.Health 详细字段
+			assert.NotNil(t, config.Security.Protection.Health, "Security.Protection.Health should not be nil")
+			assert.Equal(t, defaultCfg.Security.Protection.Health.Enabled, config.Security.Protection.Health.Enabled, "Security.Protection.Health.Enabled should match")
+			assert.Equal(t, defaultCfg.Security.Protection.Health.AuthRequired, config.Security.Protection.Health.AuthRequired, "Security.Protection.Health.AuthRequired should match")
+			assert.Equal(t, defaultCfg.Security.Protection.Health.IPWhitelist, config.Security.Protection.Health.IPWhitelist, "Security.Protection.Health.IPWhitelist should match")
+
+			// 验证 Security.Protection.API 详细字段
+			assert.NotNil(t, config.Security.Protection.API, "Security.Protection.API should not be nil")
+			assert.Equal(t, defaultCfg.Security.Protection.API.Enabled, config.Security.Protection.API.Enabled, "Security.Protection.API.Enabled should match")
+			assert.Equal(t, defaultCfg.Security.Protection.API.AuthRequired, config.Security.Protection.API.AuthRequired, "Security.Protection.API.AuthRequired should match")
+			assert.Equal(t, defaultCfg.Security.Protection.API.IPWhitelist, config.Security.Protection.API.IPWhitelist, "Security.Protection.API.IPWhitelist should match")
 
 			// 验证 Middleware 嵌套结构（完整）
 			assert.Equal(t, defaultCfg.Middleware.ModuleName, config.Middleware.ModuleName, "Middleware.ModuleName should match")
@@ -398,6 +469,16 @@ func TestConfigCompleteValidation(t *testing.T) {
 			assert.Equal(t, defaultCfg.Middleware.Metrics.Enabled, config.Middleware.Metrics.Enabled, "Middleware.Metrics.Enabled should match")
 			assert.Equal(t, defaultCfg.Middleware.RequestID.Enabled, config.Middleware.RequestID.Enabled, "Middleware.RequestID.Enabled should match")
 			assert.Equal(t, defaultCfg.Middleware.PProf.Enabled, config.Middleware.PProf.Enabled, "Middleware.PProf.Enabled should match")
+
+			// 验证 Middleware 额外子模块
+			assert.NotNil(t, config.Middleware.I18N, "Middleware.I18N should not be nil")
+			assert.Equal(t, defaultCfg.Middleware.I18N.Enabled, config.Middleware.I18N.Enabled, "Middleware.I18N.Enabled should match")
+			assert.NotNil(t, config.Middleware.CircuitBreaker, "Middleware.CircuitBreaker should not be nil")
+			assert.Equal(t, defaultCfg.Middleware.CircuitBreaker.Enabled, config.Middleware.CircuitBreaker.Enabled, "Middleware.CircuitBreaker.Enabled should match")
+			assert.NotNil(t, config.Middleware.Alerting, "Middleware.Alerting should not be nil")
+			assert.Equal(t, defaultCfg.Middleware.Alerting.Enabled, config.Middleware.Alerting.Enabled, "Middleware.Alerting.Enabled should match")
+			assert.NotNil(t, config.Middleware.Signature, "Middleware.Signature should not be nil")
+			assert.Equal(t, defaultCfg.Middleware.Signature.Enabled, config.Middleware.Signature.Enabled, "Middleware.Signature.Enabled should match")
 
 			// 验证 Swagger 嵌套结构（完整）
 			assert.Equal(t, defaultCfg.Swagger.ModuleName, config.Swagger.ModuleName, "Swagger.ModuleName should match")
@@ -418,6 +499,8 @@ func TestConfigCompleteValidation(t *testing.T) {
 			assert.Equal(t, defaultCfg.Swagger.License.URL, config.Swagger.License.URL, "Swagger.License.URL should match")
 
 			// 验证 Swagger.Auth 子结构
+			assert.NotNil(t, config.Swagger.Auth, "Swagger.Auth should not be nil")
+			assert.Equal(t, defaultCfg.Swagger.Auth.Enabled, config.Swagger.Auth.Enabled, "Swagger.Auth.Enabled should match")
 			assert.Equal(t, defaultCfg.Swagger.Auth.Type, config.Swagger.Auth.Type, "Swagger.Auth.Type should match")
 
 			// 验证 RateLimit 嵌套结构（完整）
@@ -433,6 +516,26 @@ func TestConfigCompleteValidation(t *testing.T) {
 			// 验证 RateLimit.Storage 子结构
 			assert.Equal(t, defaultCfg.RateLimit.Storage.Type, config.RateLimit.Storage.Type, "RateLimit.Storage.Type should match")
 			assert.Equal(t, defaultCfg.RateLimit.Storage.KeyPrefix, config.RateLimit.Storage.KeyPrefix, "RateLimit.Storage.KeyPrefix should match")
+			assert.Equal(t, defaultCfg.RateLimit.Storage.CleanInterval, config.RateLimit.Storage.CleanInterval, "RateLimit.Storage.CleanInterval should match")
+
+			// 验证 RateLimit 详细字段
+			assert.Equal(t, len(defaultCfg.RateLimit.Routes), len(config.RateLimit.Routes), "RateLimit.Routes length should match")
+			assert.Equal(t, len(defaultCfg.RateLimit.IPRules), len(config.RateLimit.IPRules), "RateLimit.IPRules length should match")
+			assert.Equal(t, len(defaultCfg.RateLimit.UserRules), len(config.RateLimit.UserRules), "RateLimit.UserRules length should match")
+			assert.Equal(t, defaultCfg.RateLimit.CustomRuleLoader, config.RateLimit.CustomRuleLoader, "RateLimit.CustomRuleLoader should match")
+			assert.Equal(t, defaultCfg.RateLimit.EnableDynamicRule, config.RateLimit.EnableDynamicRule, "RateLimit.EnableDynamicRule should match")
+
+			// 验证 Jobs 嵌套结构（完整）
+			assert.NotNil(t, config.Jobs, "Jobs should not be nil")
+			assert.Equal(t, defaultCfg.Jobs.Enabled, config.Jobs.Enabled, "Jobs.Enabled should match")
+			assert.Equal(t, defaultCfg.Jobs.TimeZone, config.Jobs.TimeZone, "Jobs.TimeZone should match")
+			assert.Equal(t, defaultCfg.Jobs.GracefulShutdown, config.Jobs.GracefulShutdown, "Jobs.GracefulShutdown should match")
+			assert.Equal(t, defaultCfg.Jobs.MaxRetries, config.Jobs.MaxRetries, "Jobs.MaxRetries should match")
+			assert.Equal(t, defaultCfg.Jobs.RetryInterval, config.Jobs.RetryInterval, "Jobs.RetryInterval should match")
+			assert.Equal(t, defaultCfg.Jobs.RetryJitter, config.Jobs.RetryJitter, "Jobs.RetryJitter should match")
+			assert.Equal(t, defaultCfg.Jobs.MaxConcurrentJobs, config.Jobs.MaxConcurrentJobs, "Jobs.MaxConcurrentJobs should match")
+			assert.Equal(t, defaultCfg.Jobs.Distribute, config.Jobs.Distribute, "Jobs.Distribute should match")
+			assert.Equal(t, len(defaultCfg.Jobs.Tasks), len(config.Jobs.Tasks), "Jobs.Tasks length should match")
 
 			t.Logf("✅ Gateway 模块所有字段（包括多层嵌套结构）验证通过")
 		})

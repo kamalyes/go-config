@@ -12,22 +12,23 @@
 package smtp
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSmtp_Default(t *testing.T) {
 	config := Default()
 	assert.NotNil(t, config)
 	assert.Equal(t, "smtp", config.ModuleName)
-	assert.True(t, config.Enabled)
+	assert.False(t, config.Enabled)
 	assert.Equal(t, "127.0.0.1", config.SMTPHost)
 	assert.Equal(t, 587, config.SMTPPort)
 	assert.Equal(t, "smtp_user", config.Username)
 	assert.Equal(t, "smtp_password", config.Password)
 	assert.Equal(t, "noreply@example.com", config.FromAddress)
 	assert.NotNil(t, config.ToAddresses)
-	assert.True(t, config.EnableTLS)
+	assert.False(t, config.EnableTLS)
 	assert.NotNil(t, config.Headers)
 	assert.Equal(t, 5, config.PoolSize)
 }

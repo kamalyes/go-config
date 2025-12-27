@@ -18,6 +18,7 @@ import (
 
 // Cors 跨域资源共享配置
 type Cors struct {
+	Enabled             bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                       // 是否启用CORS
 	AllowedOrigins      []string `mapstructure:"allowed-origins" yaml:"allowed-origins" json:"allowedOrigins"       validate:"dive,required"` // 允许的来源
 	AllowedMethods      []string `mapstructure:"allowed-methods" yaml:"allowed-methods" json:"allowedMethods"       validate:"dive,required"` // 允许的方法
 	AllowedHeaders      []string `mapstructure:"allowed-headers" yaml:"allowed-headers" json:"allowedHeaders"       validate:"dive,required"` // 允许的头部
@@ -58,6 +59,7 @@ func (c *Cors) Get() interface{} {
 // Set 更新 Cors 配置的字段
 func (c *Cors) Set(data interface{}) {
 	if configData, ok := data.(*Cors); ok {
+		c.Enabled = configData.Enabled
 		c.ModuleName = configData.ModuleName
 		c.AllowedAllOrigins = configData.AllowedAllOrigins
 		c.AllowedAllMethods = configData.AllowedAllMethods
@@ -79,9 +81,10 @@ func (c *Cors) Validate() error {
 // DefaultCors 返回默认Cors配置
 func DefaultCors() Cors {
 	return Cors{
+		Enabled:        true,
 		ModuleName:     "cors",
 		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"},
 		AllowedHeaders: []string{
 			"Origin",
 			"Content-Length",
@@ -115,6 +118,12 @@ func DefaultCors() Cors {
 func Default() *Cors {
 	config := DefaultCors()
 	return &config
+}
+
+// WithEnabled 设置是否启用CORS
+func (c *Cors) WithEnabled(enabled bool) *Cors {
+	c.Enabled = enabled
+	return c
 }
 
 // WithModuleName 设置模块名称

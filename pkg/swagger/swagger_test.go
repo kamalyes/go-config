@@ -12,15 +12,16 @@
 package swagger
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSwagger_Default(t *testing.T) {
 	config := Default()
 	assert.NotNil(t, config)
 	assert.Equal(t, "swagger", config.ModuleName)
-	assert.True(t, config.Enabled)
+	assert.False(t, config.Enabled)
 	assert.Equal(t, "/swagger/doc.json", config.JSONPath)
 	assert.Equal(t, "/swagger", config.UIPath)
 	assert.Equal(t, "/swagger/doc.yaml", config.YamlPath)
@@ -270,10 +271,10 @@ func TestSwagger_Disable(t *testing.T) {
 
 func TestSwagger_IsEnabled(t *testing.T) {
 	config := Default()
-	assert.True(t, config.IsEnabled())
-
-	config.Enabled = false
 	assert.False(t, config.IsEnabled())
+
+	config.Enabled = true
+	assert.True(t, config.IsEnabled())
 }
 
 func TestSwagger_IsAuthEnabled(t *testing.T) {
@@ -371,7 +372,7 @@ func TestSwagger_Reset(t *testing.T) {
 
 	result := config.Reset()
 	assert.Equal(t, "API Documentation", result.Title)
-	assert.True(t, result.Enabled)
+	assert.False(t, result.Enabled)
 	assert.Equal(t, config, result)
 }
 

@@ -11,7 +11,10 @@
 
 package metrics
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Metrics 指标中间件配置
 type Metrics struct {
@@ -59,20 +62,12 @@ func (m *Metrics) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (m *Metrics) Clone() internal.Configurable {
-	clone := &Metrics{
-		ModuleName:   m.ModuleName,
-		Enabled:      m.Enabled,
-		Path:         m.Path,
-		Namespace:    m.Namespace,
-		Subsystem:    m.Subsystem,
-		RequestCount: m.RequestCount,
-		Duration:     m.Duration,
-		RequestSize:  m.RequestSize,
-		ResponseSize: m.ResponseSize,
+	var cloned Metrics
+	if err := syncx.DeepCopy(&cloned, m); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Metrics{}
 	}
-	clone.SkipPaths = append([]string(nil), m.SkipPaths...)
-	clone.Buckets = append([]float64(nil), m.Buckets...)
-	return clone
+	return &cloned
 }
 
 // Validate 验证配置

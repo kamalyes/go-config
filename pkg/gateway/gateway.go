@@ -35,6 +35,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/swagger"
 	"github.com/kamalyes/go-config/pkg/wsc"
 	"github.com/kamalyes/go-toolbox/pkg/osx"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Gateway网关统一配置
@@ -153,41 +154,12 @@ func (c *Gateway) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (c *Gateway) Clone() internal.Configurable {
-	return &Gateway{
-		ModuleName:    c.ModuleName,
-		Name:          c.Name,
-		Enabled:       c.Enabled,
-		Debug:         c.Debug,
-		Version:       c.Version,
-		Environment:   c.Environment,
-		BuildTime:     c.BuildTime,
-		BuildUser:     c.BuildUser,
-		GoVersion:     c.GoVersion,
-		GitCommit:     c.GitCommit,
-		GitBranch:     c.GitBranch,
-		GitTag:        c.GitTag,
-		JSON:          c.JSON.Clone().(*JSON),
-		HTTPServer:    c.HTTPServer.Clone().(*HTTPServer),
-		GRPC:          c.GRPC.Clone().(*GRPC),
-		Cache:         c.Cache.Clone().(*cache.Cache),
-		Database:      c.Database.Clone().(*database.Database),
-		Etcd:          c.Etcd.Clone().(*etcd.Etcd),
-		Kafka:         c.Kafka.Clone().(*kafka.Kafka),
-		OSS:           c.OSS.Clone().(*oss.OSSConfig),
-		Mqtt:          c.Mqtt.Clone().(*queue.Mqtt),
-		Elasticsearch: c.Elasticsearch.Clone().(*elasticsearch.Elasticsearch),
-		Health:        c.Health.Clone().(*health.Health),
-		Monitoring:    c.Monitoring.Clone().(*monitoring.Monitoring),
-		Security:      c.Security.Clone().(*security.Security),
-		Middleware:    c.Middleware.Clone().(*middleware.Middleware),
-		CORS:          c.CORS.Clone().(*cors.Cors),
-		JWT:           c.JWT.Clone().(*jwt.JWT),
-		RateLimit:     c.RateLimit.Clone().(*ratelimit.RateLimit),
-		Swagger:       c.Swagger.Clone().(*swagger.Swagger),
-		Banner:        c.Banner.Clone().(*banner.Banner),
-		WSC:           c.WSC.Clone().(*wsc.WSC),
-		Jobs:          c.Jobs.Clone().(*jobs.Jobs),
+	var cloned Gateway
+	if err := syncx.DeepCopy(&cloned, c); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Gateway{}
 	}
+	return &cloned
 }
 
 // Validate 验证配置
@@ -446,14 +418,6 @@ func (c *Gateway) EnableHealth() *Gateway {
 func (c *Gateway) EnableMonitoring() *Gateway {
 	if c.Monitoring != nil {
 		c.Monitoring.Enable()
-	}
-	return c
-}
-
-// EnableSecurity 启用安全功能
-func (c *Gateway) EnableSecurity() *Gateway {
-	if c.Security != nil {
-		c.Security.Enable()
 	}
 	return c
 }

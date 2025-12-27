@@ -11,7 +11,10 @@
 
 package cache
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Sharded 分片缓存配置
 type Sharded struct {
@@ -33,13 +36,12 @@ func NewSharded(opt *Sharded) *Sharded {
 
 // Clone 返回 Sharded 配置的副本
 func (s *Sharded) Clone() internal.Configurable {
-	return &Sharded{
-		ModuleName:   s.ModuleName,
-		ShardCount:   s.ShardCount,
-		BaseType:     s.BaseType,
-		HashFunc:     s.HashFunc,
-		LoadBalancer: s.LoadBalancer,
+	var cloned Sharded
+	if err := syncx.DeepCopy(&cloned, s); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Sharded{}
 	}
+	return &cloned
 }
 
 // Get 返回 Sharded 配置的所有字段

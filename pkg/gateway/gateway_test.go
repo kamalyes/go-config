@@ -206,3 +206,178 @@ func TestGatewayBuilderMethods(t *testing.T) {
 	assert.True(t, gateway.Banner.Enabled)
 	assert.True(t, gateway.Swagger.Enabled)
 }
+
+// TestHTTPServer_Clone 测试 HTTPServer 克隆
+func TestHTTPServer_Clone(t *testing.T) {
+	original := &HTTPServer{
+		ModuleName:         "test-server",
+		Host:               "localhost",
+		Port:               8080,
+		Network:            "tcp",
+		ReadTimeout:        30,
+		WriteTimeout:       30,
+		IdleTimeout:        60,
+		MaxHeaderBytes:     1048576,
+		EnableTls:          true,
+		TLS:                &TLS{CertFile: "cert.pem", KeyFile: "key.pem", CAFile: "ca.pem"},
+		Headers:            map[string]string{"X-Custom": "value"},
+		Endpoint:           "http://localhost:8080",
+		EnableGzipCompress: true,
+	}
+
+	cloned := original.Clone().(*HTTPServer)
+
+	// 验证克隆后的值相等
+	assert.Equal(t, original.ModuleName, cloned.ModuleName)
+	assert.Equal(t, original.Host, cloned.Host)
+	assert.Equal(t, original.Port, cloned.Port)
+	assert.Equal(t, original.Network, cloned.Network)
+	assert.Equal(t, original.ReadTimeout, cloned.ReadTimeout)
+	assert.Equal(t, original.WriteTimeout, cloned.WriteTimeout)
+	assert.Equal(t, original.IdleTimeout, cloned.IdleTimeout)
+	assert.Equal(t, original.MaxHeaderBytes, cloned.MaxHeaderBytes)
+	assert.Equal(t, original.EnableTls, cloned.EnableTls)
+	assert.Equal(t, original.EnableGzipCompress, cloned.EnableGzipCompress)
+	assert.Equal(t, original.Endpoint, cloned.Endpoint)
+
+	// 验证 TLS 深拷贝
+	assert.NotSame(t, original.TLS, cloned.TLS)
+	assert.Equal(t, original.TLS.CertFile, cloned.TLS.CertFile)
+	assert.Equal(t, original.TLS.KeyFile, cloned.TLS.KeyFile)
+	assert.Equal(t, original.TLS.CAFile, cloned.TLS.CAFile)
+
+	// 验证 Headers 深拷贝
+	assert.Equal(t, original.Headers, cloned.Headers)
+
+	// 修改原始对象不应影响克隆对象
+	original.Port = 9090
+	original.Headers["X-Custom"] = "new-value"
+	original.TLS.CertFile = "new-cert.pem"
+
+	assert.NotEqual(t, original.Port, cloned.Port)
+	assert.NotEqual(t, original.Headers["X-Custom"], cloned.Headers["X-Custom"])
+	assert.NotEqual(t, original.TLS.CertFile, cloned.TLS.CertFile)
+}
+
+// TestGRPC_Clone 测试 GRPC 克隆
+func TestGRPC_Clone(t *testing.T) {
+	original := &GRPC{
+		Server: &GRPCServer{
+			Enable:            true,
+			Host:              "localhost",
+			Port:              50051,
+			Network:           "tcp",
+			MaxRecvMsgSize:    1024,
+			MaxSendMsgSize:    1024,
+			KeepaliveTime:     30,
+			KeepaliveTimeout:  10,
+			ConnectionTimeout: 5,
+			EnableReflection:  true,
+			Endpoint:          "localhost:50051",
+		},
+		Clients: map[string]*GRPCClient{
+			"service1": {
+				ServiceName:       "service1",
+				Endpoints:         []string{"localhost:50052", "localhost:50053"},
+				Network:           "tcp",
+				MaxRecvMsgSize:    2048,
+				MaxSendMsgSize:    2048,
+				KeepaliveTime:     60,
+				KeepaliveTimeout:  20,
+				ConnectionTimeout: 10,
+			},
+		},
+	}
+
+	cloned := original.Clone().(*GRPC)
+
+	// 验证 Server 深拷贝
+	assert.NotSame(t, original.Server, cloned.Server)
+	assert.Equal(t, original.Server.Enable, cloned.Server.Enable)
+	assert.Equal(t, original.Server.Host, cloned.Server.Host)
+	assert.Equal(t, original.Server.Port, cloned.Server.Port)
+	assert.Equal(t, original.Server.Endpoint, cloned.Server.Endpoint)
+
+	// 验证 Clients 深拷贝
+	assert.Equal(t, len(original.Clients), len(cloned.Clients))
+	assert.NotSame(t, original.Clients["service1"], cloned.Clients["service1"])
+	assert.Equal(t, original.Clients["service1"].ServiceName, cloned.Clients["service1"].ServiceName)
+	assert.Equal(t, original.Clients["service1"].Endpoints, cloned.Clients["service1"].Endpoints)
+
+	// 修改原始对象不应影响克隆对象
+	original.Server.Port = 50052
+	original.Clients["service1"].ServiceName = "new-service"
+
+	assert.NotEqual(t, original.Server.Port, cloned.Server.Port)
+	assert.NotEqual(t, original.Clients["service1"].ServiceName, cloned.Clients["service1"].ServiceName)
+}
+
+// TestGRPCServer_Clone 测试 GRPCServer 克隆
+func TestGRPCServer_Clone(t *testing.T) {
+	original := &GRPCServer{
+		Enable:            true,
+		Host:              "0.0.0.0",
+		Port:              50051,
+		Network:           "tcp",
+		MaxRecvMsgSize:    4194304,
+		MaxSendMsgSize:    4194304,
+		KeepaliveTime:     30,
+		KeepaliveTimeout:  10,
+		ConnectionTimeout: 5,
+		EnableReflection:  true,
+		Endpoint:          "0.0.0.0:50051",
+	}
+
+	cloned := original.Clone()
+
+	// 验证所有字段相等
+	assert.Equal(t, original.Enable, cloned.Enable)
+	assert.Equal(t, original.Host, cloned.Host)
+	assert.Equal(t, original.Port, cloned.Port)
+	assert.Equal(t, original.Network, cloned.Network)
+	assert.Equal(t, original.MaxRecvMsgSize, cloned.MaxRecvMsgSize)
+	assert.Equal(t, original.MaxSendMsgSize, cloned.MaxSendMsgSize)
+	assert.Equal(t, original.KeepaliveTime, cloned.KeepaliveTime)
+	assert.Equal(t, original.KeepaliveTimeout, cloned.KeepaliveTimeout)
+	assert.Equal(t, original.ConnectionTimeout, cloned.ConnectionTimeout)
+	assert.Equal(t, original.EnableReflection, cloned.EnableReflection)
+	assert.Equal(t, original.Endpoint, cloned.Endpoint)
+
+	// 修改原始对象不应影响克隆对象
+	original.Port = 50052
+	original.Endpoint = "0.0.0.0:50052"
+	assert.NotEqual(t, original.Port, cloned.Port)
+	assert.NotEqual(t, original.Endpoint, cloned.Endpoint)
+}
+
+// TestGRPCClient_Clone 测试 GRPCClient 克隆
+func TestGRPCClient_Clone(t *testing.T) {
+	original := &GRPCClient{
+		ServiceName:       "test-service",
+		Endpoints:         []string{"localhost:50051", "localhost:50052"},
+		Network:           "tcp",
+		MaxRecvMsgSize:    4194304,
+		MaxSendMsgSize:    4194304,
+		KeepaliveTime:     60,
+		KeepaliveTimeout:  20,
+		ConnectionTimeout: 10,
+	}
+
+	cloned := original.Clone()
+
+	// 验证所有字段相等
+	assert.Equal(t, original.ServiceName, cloned.ServiceName)
+	assert.Equal(t, original.Endpoints, cloned.Endpoints)
+	assert.Equal(t, original.Network, cloned.Network)
+	assert.Equal(t, original.MaxRecvMsgSize, cloned.MaxRecvMsgSize)
+	assert.Equal(t, original.MaxSendMsgSize, cloned.MaxSendMsgSize)
+	assert.Equal(t, original.KeepaliveTime, cloned.KeepaliveTime)
+	assert.Equal(t, original.KeepaliveTimeout, cloned.KeepaliveTimeout)
+	assert.Equal(t, original.ConnectionTimeout, cloned.ConnectionTimeout)
+
+	// 修改原始对象不应影响克隆对象
+	original.ServiceName = "new-service"
+	original.Endpoints[0] = "localhost:50053"
+	assert.NotEqual(t, original.ServiceName, cloned.ServiceName)
+	assert.NotEqual(t, original.Endpoints[0], cloned.Endpoints[0])
+}

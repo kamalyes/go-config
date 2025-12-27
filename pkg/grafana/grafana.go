@@ -11,7 +11,10 @@
 
 package grafana
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Grafana Grafana配置
 type Grafana struct {
@@ -101,44 +104,12 @@ func (g *Grafana) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (g *Grafana) Clone() internal.Configurable {
-	datasource := &Datasource{}
-	dashboard := &Dashboard{}
-	alerting := &Alerting{}
-
-	if g.Datasource != nil {
-		*datasource = *g.Datasource
+	var cloned Grafana
+	if err := syncx.DeepCopy(&cloned, g); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Grafana{}
 	}
-	if g.Dashboard != nil {
-		*dashboard = *g.Dashboard
-		dashboard.Templates = append([]string(nil), g.Dashboard.Templates...)
-	}
-	if g.Alerting != nil {
-		*alerting = *g.Alerting
-		alerting.Webhooks = append([]string(nil), g.Alerting.Webhooks...)
-		alerting.Channels = make([]NotificationChannel, len(g.Alerting.Channels))
-		for i, ch := range g.Alerting.Channels {
-			alerting.Channels[i] = NotificationChannel{
-				Name:     ch.Name,
-				Type:     ch.Type,
-				Settings: make(map[string]string),
-			}
-			for k, v := range ch.Settings {
-				alerting.Channels[i].Settings[k] = v
-			}
-		}
-	}
-
-	return &Grafana{
-		ModuleName: g.ModuleName,
-		Enabled:    g.Enabled,
-		Endpoint:   g.Endpoint,
-		Username:   g.Username,
-		Password:   g.Password,
-		APIKey:     g.APIKey,
-		Datasource: datasource,
-		Dashboard:  dashboard,
-		Alerting:   alerting,
-	}
+	return &cloned
 }
 
 // Validate 验证配置

@@ -11,7 +11,10 @@
 
 package health
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Health 健康检查配置
 type Health struct {
@@ -73,25 +76,12 @@ func (c *Health) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (c *Health) Clone() internal.Configurable {
-	redis := &RedisConfig{}
-	mysql := &MySQLConfig{}
-
-	if c.Redis != nil {
-		*redis = *c.Redis
+	var cloned Health
+	if err := syncx.DeepCopy(&cloned, c); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Health{}
 	}
-	if c.MySQL != nil {
-		*mysql = *c.MySQL
-	}
-
-	return &Health{
-		ModuleName: c.ModuleName,
-		Enabled:    c.Enabled,
-		Path:       c.Path,
-		Port:       c.Port,
-		Timeout:    c.Timeout,
-		Redis:      redis,
-		MySQL:      mysql,
-	}
+	return &cloned
 }
 
 // Validate 验证配置

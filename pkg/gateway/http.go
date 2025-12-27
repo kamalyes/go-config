@@ -15,6 +15,7 @@ import (
 	"fmt"
 
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // HTTPServer HTTP服务器配置
@@ -89,30 +90,13 @@ func (h *HTTPServer) GetEndpoint() string {
 
 // Clone 返回配置的副本
 func (h *HTTPServer) Clone() internal.Configurable {
-	cloned := &HTTPServer{
-		ModuleName:         h.ModuleName,
-		Host:               h.Host,
-		Port:               h.Port,
-		ReadTimeout:        h.ReadTimeout,
-		WriteTimeout:       h.WriteTimeout,
-		IdleTimeout:        h.IdleTimeout,
-		MaxHeaderBytes:     h.MaxHeaderBytes,
-		EnableTls:          h.EnableTls,
-		EnableGzipCompress: h.EnableGzipCompress,
+	var cloned HTTPServer
+	if err := syncx.DeepCopy(&cloned, h); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &HTTPServer{}
 	}
-	if h.TLS != nil {
-		cloned.TLS = &TLS{
-			CertFile: h.TLS.CertFile,
-			KeyFile:  h.TLS.KeyFile,
-			CAFile:   h.TLS.CAFile,
-		}
-	}
-	cloned.Headers = make(map[string]string)
-	for k, v := range h.Headers {
-		cloned.Headers[k] = v
-	}
-	internal.CallAfterLoad(cloned) // 重新计算衍生字段
-	return cloned
+	internal.CallAfterLoad(&cloned) // 重新计算衍生字段
+	return &cloned
 }
 
 // Get 返回配置接口

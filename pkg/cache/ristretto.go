@@ -11,7 +11,10 @@
 
 package cache
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Ristretto缓存配置
 type Ristretto struct {
@@ -36,16 +39,12 @@ func NewRistretto(opt *Ristretto) *Ristretto {
 
 // Clone 返回 Ristretto 配置的副本
 func (r *Ristretto) Clone() internal.Configurable {
-	return &Ristretto{
-		ModuleName:         r.ModuleName,
-		NumCounters:        r.NumCounters,
-		MaxCost:            r.MaxCost,
-		BufferItems:        r.BufferItems,
-		Metrics:            r.Metrics,
-		IgnoreInternalCost: r.IgnoreInternalCost,
-		KeyToHash:          r.KeyToHash,
-		Cost:               r.Cost,
+	var cloned Ristretto
+	if err := syncx.DeepCopy(&cloned, r); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Ristretto{}
 	}
+	return &cloned
 }
 
 // Get 返回 Ristretto 配置的所有字段

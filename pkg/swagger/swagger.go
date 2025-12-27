@@ -15,6 +15,7 @@ import (
 	"fmt"
 
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // CDN 资源路径常量
@@ -36,13 +37,13 @@ type AuthType string
 
 const (
 	// AuthNone 无认证
-	AuthNone AuthType = "none"
+	AuthNone AuthType = "NONE"
 	// AuthBasic 基本认证
-	AuthBasic AuthType = "basic"
+	AuthBasic AuthType = "BASIC"
 	// AuthBearer Bearer Token认证
-	AuthBearer AuthType = "bearer"
+	AuthBearer AuthType = "BEARER"
 	// AuthCustom 自定义认证
-	AuthCustom AuthType = "custom"
+	AuthCustom AuthType = "CUSTOM"
 )
 
 // Contact Swagger联系信息
@@ -60,6 +61,7 @@ type License struct {
 
 // AuthConfig Swagger认证配置
 type AuthConfig struct {
+	Enabled     bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`               // 是否启用认证
 	Type        AuthType `mapstructure:"type" yaml:"type" json:"type"`                        // 认证类型
 	Username    string   `mapstructure:"username" yaml:"username" json:"username"`            // 用户名（基本认证）
 	Password    string   `mapstructure:"password" yaml:"password" json:"password"`            // 密码（基本认证）
@@ -522,75 +524,12 @@ func (c *Swagger) WithDocumentInfo(title, description string) *Swagger {
 
 // Clone 克隆配置对象
 func (c *Swagger) Clone() internal.Configurable {
-	clone := &Swagger{
-		ModuleName:  c.ModuleName,
-		Enabled:     c.Enabled,
-		JSONPath:    c.JSONPath,
-		UIPath:      c.UIPath,
-		Title:       c.Title,
-		Description: c.Description,
-		Version:     c.Version,
+	var cloned Swagger
+	if err := syncx.DeepCopy(&cloned, c); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Swagger{}
 	}
-
-	if c.Auth != nil {
-		clone.Auth = &AuthConfig{
-			Type:        c.Auth.Type,
-			Username:    c.Auth.Username,
-			Password:    c.Auth.Password,
-			Token:       c.Auth.Token,
-			HeaderName:  c.Auth.HeaderName,
-			HeaderValue: c.Auth.HeaderValue,
-		}
-	}
-
-	if c.Contact != nil {
-		clone.Contact = &Contact{
-			Name:  c.Contact.Name,
-			URL:   c.Contact.URL,
-			Email: c.Contact.Email,
-		}
-	}
-
-	if c.License != nil {
-		clone.License = &License{
-			Name: c.License.Name,
-			URL:  c.License.URL,
-		}
-	}
-
-	if c.Aggregate != nil {
-		clone.Aggregate = &AggregateConfig{
-			Enabled:  c.Aggregate.Enabled,
-			Mode:     c.Aggregate.Mode,
-			UILayout: c.Aggregate.UILayout,
-		}
-		// 克隆共享定义前缀
-		if len(c.Aggregate.SharedDefinitionPrefixes) > 0 {
-			clone.Aggregate.SharedDefinitionPrefixes = make([]string, len(c.Aggregate.SharedDefinitionPrefixes))
-			copy(clone.Aggregate.SharedDefinitionPrefixes, c.Aggregate.SharedDefinitionPrefixes)
-		}
-		// 克隆服务列表
-		if len(c.Aggregate.Services) > 0 {
-			clone.Aggregate.Services = make([]*ServiceSpec, len(c.Aggregate.Services))
-			for i, service := range c.Aggregate.Services {
-				clone.Aggregate.Services[i] = &ServiceSpec{
-					Name:        service.Name,
-					Description: service.Description,
-					SpecPath:    service.SpecPath,
-					URL:         service.URL,
-					Version:     service.Version,
-					Enabled:     service.Enabled,
-					BasePath:    service.BasePath,
-				}
-				if len(service.Tags) > 0 {
-					clone.Aggregate.Services[i].Tags = make([]string, len(service.Tags))
-					copy(clone.Aggregate.Services[i].Tags, service.Tags)
-				}
-			}
-		}
-	}
-
-	return clone
+	return &cloned
 }
 
 // Get 返回 Swagger 配置的所有字段

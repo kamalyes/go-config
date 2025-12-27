@@ -11,7 +11,10 @@
 
 package jaeger
 
-import "github.com/kamalyes/go-config/internal"
+import (
+	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+)
 
 // Jaeger Jaeger配置
 type Jaeger struct {
@@ -95,37 +98,12 @@ func (j *Jaeger) Set(data interface{}) {
 
 // Clone 返回配置的副本
 func (j *Jaeger) Clone() internal.Configurable {
-	agent := &Agent{}
-	collector := &Collector{}
-	sampling := &Sampling{}
-	tags := make(map[string]string)
-
-	if j.Agent != nil {
-		*agent = *j.Agent
+	var cloned Jaeger
+	if err := syncx.DeepCopy(&cloned, j); err != nil {
+		// 如果深拷贝失败，返回空配置
+		return &Jaeger{}
 	}
-	if j.Collector != nil {
-		*collector = *j.Collector
-	}
-	if j.Sampling != nil {
-		*sampling = *j.Sampling
-		sampling.OperationSampling = make([]OperationSampling, len(j.Sampling.OperationSampling))
-		copy(sampling.OperationSampling, j.Sampling.OperationSampling)
-	}
-	for k, v := range j.Tags {
-		tags[k] = v
-	}
-
-	return &Jaeger{
-		ModuleName:  j.ModuleName,
-		Enabled:     j.Enabled,
-		Endpoint:    j.Endpoint,
-		ServiceName: j.ServiceName,
-		SampleRate:  j.SampleRate,
-		Agent:       agent,
-		Collector:   collector,
-		Sampling:    sampling,
-		Tags:        tags,
-	}
+	return &cloned
 }
 
 // Validate 验证配置

@@ -19,7 +19,6 @@ import (
 // Security 统一安全配置 - 直接使用Security而不是SecurityConfig
 type Security struct {
 	ModuleName string      `mapstructure:"module-name" yaml:"module-name" json:"moduleName"` // 模块名称
-	Enabled    bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`            // 是否启用安全功能
 	JWT        *JWT        `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                        // JWT配置
 	Auth       *Auth       `mapstructure:"auth" yaml:"auth" json:"auth"`                     // 通用认证配置
 	Protection *Protection `mapstructure:"protection" yaml:"protection" json:"protection"`   // 服务保护配置
@@ -147,7 +146,6 @@ func (c *CSP) GetPolicy() string {
 func Default() *Security {
 	return &Security{
 		ModuleName: "security",
-		Enabled:    false,
 		JWT: &JWT{
 			Enabled:   false,
 			Secret:    "jwt_secret_key_please_change_in_production",
@@ -245,17 +243,8 @@ func (s *Security) WithModuleName(moduleName string) *Security {
 	return s
 }
 
-// WithEnabled 设置是否启用安全功能
-func (s *Security) WithEnabled(enabled bool) *Security {
-	s.Enabled = enabled
-	return s
-}
-
 // WithJWT 设置JWT配置
 func (s *Security) WithJWT(enabled bool, secret string, expiry int, issuer, algorithm string) *Security {
-	if s.JWT == nil {
-		s.JWT = &JWT{}
-	}
 	s.JWT.Enabled = enabled
 	s.JWT.Secret = secret
 	s.JWT.Expiry = expiry
@@ -266,9 +255,6 @@ func (s *Security) WithJWT(enabled bool, secret string, expiry int, issuer, algo
 
 // WithAuth 设置认证配置
 func (s *Security) WithAuth(enabled bool, authType, headerName, tokenPrefix string) *Security {
-	if s.Auth == nil {
-		s.Auth = &Auth{}
-	}
 	s.Auth.Enabled = enabled
 	s.Auth.Type = authType
 	s.Auth.HeaderName = headerName
@@ -276,37 +262,43 @@ func (s *Security) WithAuth(enabled bool, authType, headerName, tokenPrefix stri
 	return s
 }
 
+// WithCSP 设置CSP配置
+func (s *Security) WithCSP(enabled bool, mode, custom string) *Security {
+	s.CSP.Enabled = enabled
+	s.CSP.Mode = mode
+	s.CSP.Custom = custom
+	return s
+}
+
 // EnableJWT 启用JWT
 func (s *Security) EnableJWT() *Security {
-	if s.JWT == nil {
-		s.JWT = &JWT{}
-	}
 	s.JWT.Enabled = true
 	return s
 }
 
 // EnableAuth 启用认证
 func (s *Security) EnableAuth() *Security {
-	if s.Auth == nil {
-		s.Auth = &Auth{}
-	}
 	s.Auth.Enabled = true
 	return s
 }
 
-// Enable 启用安全功能
-func (s *Security) Enable() *Security {
-	s.Enabled = true
+// EnableCSP 启用CSP
+func (s *Security) EnableCSP() *Security {
+	s.CSP.Enabled = true
 	return s
 }
 
-// Disable 禁用安全功能
-func (s *Security) Disable() *Security {
-	s.Enabled = false
-	return s
+// IsJWTEnabled 检查JWT是否启用
+func (s *Security) IsJWTEnabled() bool {
+	return s.JWT.Enabled
 }
 
-// IsEnabled 检查是否启用
-func (s *Security) IsEnabled() bool {
-	return s.Enabled
+// IsAuthEnabled 检查认证是否启用
+func (s *Security) IsAuthEnabled() bool {
+	return s.Auth.Enabled
+}
+
+// IsCSPEnabled 检查CSP是否启用
+func (s *Security) IsCSPEnabled() bool {
+	return s.CSP.Enabled
 }

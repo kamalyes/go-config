@@ -15,6 +15,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kamalyes/go-toolbox/pkg/sign"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,8 +44,8 @@ func TestSignature_WithSecretKey(t *testing.T) {
 
 func TestSignature_WithAlgorithm(t *testing.T) {
 	config := Default()
-	result := config.WithAlgorithm("sha512")
-	assert.Equal(t, "sha512", result.Algorithm)
+	result := config.WithAlgorithm(sign.HashCryptoFunc(sign.AlgorithmSHA512))
+	assert.Equal(t, sign.HashCryptoFunc(sign.AlgorithmSHA512), result.Algorithm)
 	assert.Equal(t, config, result)
 }
 
@@ -162,7 +163,7 @@ func TestSignature_Set(t *testing.T) {
 	assert.Equal(t, "custom-signature", config.ModuleName)
 	assert.True(t, config.Enabled)
 	assert.Equal(t, "new-key", config.SecretKey)
-	assert.Equal(t, "md5", config.Algorithm)
+	assert.Equal(t, sign.HashCryptoFunc(sign.AlgorithmMD5), config.Algorithm)
 	assert.Equal(t, time.Minute*15, config.TimeoutWindow)
 }
 
@@ -187,7 +188,7 @@ func TestSignature_ChainedCalls(t *testing.T) {
 		Enable()
 
 	assert.Equal(t, "production-secret", config.SecretKey)
-	assert.Equal(t, "sha512", config.Algorithm)
+	assert.Equal(t, sign.HashCryptoFunc(sign.AlgorithmSHA256), config.Algorithm)
 	assert.Equal(t, time.Minute*3, config.TimeoutWindow)
 	assert.Equal(t, "X-API-Signature", config.SignatureHeader)
 	assert.Equal(t, "X-API-Timestamp", config.TimestampHeader)
