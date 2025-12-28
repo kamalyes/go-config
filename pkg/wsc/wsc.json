@@ -2,7 +2,7 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2025-12-05 19:32:35
+// 生成时间: 2025-12-28 20:29:36
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -11,8 +11,17 @@
   "nodeIp": "0.0.0.0",
   "nodePort": 8080,
   "path": "/ws",
-  "heartbeatInterval": 30,
-  "clientTimeout": 90,
+  "allowMultiLogin": true,
+  "maxConnectionsPerUser": 3,
+  "connectionPolicy": "kick_old",
+  "sendKickNotification": true,
+  "kickNotificationMsg": "您的账号在其他设备登录",
+  "heartbeatInterval": 30000000000,
+  "performanceMetricsInterval": 300000000000,
+  "ackCleanupInterval": 60000000000,
+  "clientTimeout": 90000000000,
+  "shutdownBaseTimeout": 5000000000,
+  "shutdownMaxTimeout": 60000000000,
   "messageBufferSize": 256,
   "maxPendingQueueSize": 20000,
   "websocketOrigins": [
@@ -45,8 +54,8 @@
     "permission",
     "validation"
   ],
-  "sseHeartbeat": 0,
-  "sseTimeout": 120,
+  "sseHeartbeat": 30000000000,
+  "sseTimeout": 120000000000,
   "sseMessageBuffer": 100,
   "redisRepository": {
     "onlineStatus": {

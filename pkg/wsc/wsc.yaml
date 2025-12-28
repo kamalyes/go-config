@@ -2,7 +2,7 @@
 # 模块名称: wsc
 # 包名: wsc  
 # 描述: WebSocket通信模块
-# 生成时间: 2025-12-05 19:32:35
+# 生成时间: 2025-12-28 20:29:36
 # 注意: 此文件由配置生成器自动生成
 
 # 是否启用
@@ -15,10 +15,28 @@ node-ip: 0.0.0.0
 node-port: 8080
 # WebSocket服务路径
 path: /ws
-# 心跳间隔(秒)
-heartbeat-interval: 30
-# 客户端超时(秒)
-client-timeout: 90
+# 是否允许多端登录（异地多活）
+allow-multi-login: true
+# 每个用户最大连接数（0表示不限制）
+max-connections-per-user: 3
+# 连接冲突策略: kick_old(踢掉旧连接), kick_new(拒绝新连接), allow_all(允许所有)
+connection-policy: kick_old
+# 踢出时是否发送通知
+send-kick-notification: true
+# 踢出通知自定义消息
+kick-notification-msg: 您的账号在其他设备登录
+# 心跳间隔
+heartbeat-interval: 30s
+# 性能监控间隔
+performance-metrics-interval: 5m0s
+# ACK清理间隔
+ack-cleanup-interval: 1m0s
+# 客户端超时
+client-timeout: 1m30s
+# Hub关闭基础超时（5秒）
+shutdown-base-timeout: 5s
+# Hub关闭最大超时（60秒）
+shutdown-max-timeout: 1m0s
 # 消息缓冲区大小
 message-buffer-size: 256
 # 最大待发送消息队列大小
@@ -69,10 +87,10 @@ non-retryable-errors:
     - user_offline
     - permission
     - validation
-# SSE心跳间隔(秒)
-sse-heartbeat: 0
-# SSE超时(秒)
-sse-timeout: 120
+# SSE心跳间隔
+sse-heartbeat: 30s
+# SSE超时
+sse-timeout: 2m0s
 # SSE消息缓冲区大小
 sse-message-buffer: 100
 # Redis仓库配置

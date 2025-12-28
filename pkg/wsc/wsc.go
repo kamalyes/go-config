@@ -22,39 +22,48 @@ import (
 // WSC WebSocket 通信核心配置
 type WSC struct {
 	// === 基础配置 ===
-	Enabled             bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                           // 是否启用
-	Network             string        `mapstructure:"network" yaml:"network" json:"network"`                                           // 网络类型: tcp, tcp4, tcp6
-	NodeIP              string        `mapstructure:"node-ip" yaml:"node-ip" json:"nodeIp"`                                            // 节点IP
-	NodePort            int           `mapstructure:"node-port" yaml:"node-port" json:"nodePort"`                                      // 节点端口
-	Path                string        `mapstructure:"path" yaml:"path" json:"path"`                                                    // WebSocket服务路径
-	HeartbeatInterval   int           `mapstructure:"heartbeat-interval" yaml:"heartbeat-interval" json:"heartbeatInterval"`           // 心跳间隔(秒)
-	ClientTimeout       int           `mapstructure:"client-timeout" yaml:"client-timeout" json:"clientTimeout"`                       // 客户端超时(秒)
-	MessageBufferSize   int           `mapstructure:"message-buffer-size" yaml:"message-buffer-size" json:"messageBufferSize"`         // 消息缓冲区大小
-	MaxPendingQueueSize int           `mapstructure:"max-pending-queue-size" yaml:"max-pending-queue-size" json:"maxPendingQueueSize"` // 最大待发送消息队列大小
-	WebSocketOrigins    []string      `mapstructure:"websocket-origins" yaml:"websocket-origins" json:"websocketOrigins"`              // 允许的WebSocket Origin
-	ReadTimeout         time.Duration `mapstructure:"read-timeout" yaml:"read-timeout" json:"readTimeout"`                             // 读取超时
-	WriteTimeout        time.Duration `mapstructure:"write-timeout" yaml:"write-timeout" json:"writeTimeout"`                          // 写入超时
-	IdleTimeout         time.Duration `mapstructure:"idle-timeout" yaml:"idle-timeout" json:"idleTimeout"`                             // 空闲超时
-	MaxMessageSize      int64         `mapstructure:"max-message-size" yaml:"max-message-size" json:"maxMessageSize"`                  // 最大消息长度
-	MinRecTime          time.Duration `mapstructure:"min-rec-time" yaml:"min-rec-time" json:"minRecTime"`                              // 最小重连时间
-	MaxRecTime          time.Duration `mapstructure:"max-rec-time" yaml:"max-rec-time" json:"maxRecTime"`                              // 最大重连时间
-	RecFactor           float64       `mapstructure:"rec-factor" yaml:"rec-factor" json:"recFactor"`                                   // 重连因子
-	AutoReconnect       bool          `mapstructure:"auto-reconnect" yaml:"auto-reconnect" json:"autoReconnect"`                       // 是否自动重连
-	MaxRetries          int           `mapstructure:"max-retries" yaml:"max-retries" json:"maxRetries"`                                // 最大重试次数
-	BaseDelay           time.Duration `mapstructure:"base-delay" yaml:"base-delay" json:"baseDelay"`                                   // 基本重试延迟
-	MaxDelay            time.Duration `mapstructure:"max-delay" yaml:"max-delay" json:"maxDelay"`                                      // 最大重试延迟
-	AckTimeout          time.Duration `mapstructure:"ack-timeout" yaml:"ack-timeout" json:"ackTimeout"`                                // 消息确认超时
-	AckMaxRetries       int           `mapstructure:"ack-max-retries" yaml:"ack-max-retries" json:"ackMaxRetries"`                     // 消息确认最大重试次数
-	EnableAck           bool          `mapstructure:"enable-ack" yaml:"enable-ack" json:"enableAck"`                                   // 是否启用消息确认
-	BackoffFactor       float64       `mapstructure:"backoff-factor" yaml:"backoff-factor" json:"backoffFactor"`                       // 重试延迟倍数
-	Jitter              bool          `mapstructure:"jitter" yaml:"jitter" json:"jitter"`                                              // 是否添加随机抖动
-	RetryableErrors     []string      `mapstructure:"retryable-errors" yaml:"retryable-errors" json:"retryableErrors"`                 // 可重试的错误类型
-	NonRetryableErrors  []string      `mapstructure:"non-retryable-errors" yaml:"non-retryable-errors" json:"nonRetryableErrors"`      // 不可重试的错误类型
+	Enabled                    bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                              // 是否启用
+	Network                    string        `mapstructure:"network" yaml:"network" json:"network"`                                                              // 网络类型: tcp, tcp4, tcp6
+	NodeIP                     string        `mapstructure:"node-ip" yaml:"node-ip" json:"nodeIp"`                                                               // 节点IP
+	NodePort                   int           `mapstructure:"node-port" yaml:"node-port" json:"nodePort"`                                                         // 节点端口
+	Path                       string        `mapstructure:"path" yaml:"path" json:"path"`                                                                       // WebSocket服务路径
+	AllowMultiLogin            bool          `mapstructure:"allow-multi-login" yaml:"allow-multi-login" json:"allowMultiLogin"`                                  // 是否允许多端登录（异地多活）
+	MaxConnectionsPerUser      int           `mapstructure:"max-connections-per-user" yaml:"max-connections-per-user" json:"maxConnectionsPerUser"`              // 每个用户最大连接数（0表示不限制）
+	ConnectionPolicy           string        `mapstructure:"connection-policy" yaml:"connection-policy" json:"connectionPolicy"`                                 // 连接冲突策略: kick_old(踢掉旧连接), kick_new(拒绝新连接), allow_all(允许所有)
+	SendKickNotification       bool          `mapstructure:"send-kick-notification" yaml:"send-kick-notification" json:"sendKickNotification"`                   // 踢出时是否发送通知
+	KickNotificationMsg        string        `mapstructure:"kick-notification-msg" yaml:"kick-notification-msg" json:"kickNotificationMsg"`                      // 踢出通知自定义消息
+	HeartbeatInterval          time.Duration `mapstructure:"heartbeat-interval" yaml:"heartbeat-interval" json:"heartbeatInterval"`                              // 心跳间隔
+	PerformanceMetricsInterval time.Duration `mapstructure:"performance-metrics-interval" yaml:"performance-metrics-interval" json:"performanceMetricsInterval"` // 性能监控间隔
+	AckCleanupInterval         time.Duration `mapstructure:"ack-cleanup-interval" yaml:"ack-cleanup-interval" json:"ackCleanupInterval"`                         // ACK清理间隔
+	ClientTimeout              time.Duration `mapstructure:"client-timeout" yaml:"client-timeout" json:"clientTimeout"`                                          // 客户端超时
+	ShutdownBaseTimeout        time.Duration `mapstructure:"shutdown-base-timeout" yaml:"shutdown-base-timeout" json:"shutdownBaseTimeout"`                      // Hub关闭基础超时（5秒）
+	ShutdownMaxTimeout         time.Duration `mapstructure:"shutdown-max-timeout" yaml:"shutdown-max-timeout" json:"shutdownMaxTimeout"`                         // Hub关闭最大超时（60秒）
+	MessageBufferSize          int           `mapstructure:"message-buffer-size" yaml:"message-buffer-size" json:"messageBufferSize"`                            // 消息缓冲区大小
+	MaxPendingQueueSize        int           `mapstructure:"max-pending-queue-size" yaml:"max-pending-queue-size" json:"maxPendingQueueSize"`                    // 最大待发送消息队列大小
+	WebSocketOrigins           []string      `mapstructure:"websocket-origins" yaml:"websocket-origins" json:"websocketOrigins"`                                 // 允许的WebSocket Origin
+	ReadTimeout                time.Duration `mapstructure:"read-timeout" yaml:"read-timeout" json:"readTimeout"`                                                // 读取超时
+	WriteTimeout               time.Duration `mapstructure:"write-timeout" yaml:"write-timeout" json:"writeTimeout"`                                             // 写入超时
+	IdleTimeout                time.Duration `mapstructure:"idle-timeout" yaml:"idle-timeout" json:"idleTimeout"`                                                // 空闲超时
+	MaxMessageSize             int64         `mapstructure:"max-message-size" yaml:"max-message-size" json:"maxMessageSize"`                                     // 最大消息长度
+	MinRecTime                 time.Duration `mapstructure:"min-rec-time" yaml:"min-rec-time" json:"minRecTime"`                                                 // 最小重连时间
+	MaxRecTime                 time.Duration `mapstructure:"max-rec-time" yaml:"max-rec-time" json:"maxRecTime"`                                                 // 最大重连时间
+	RecFactor                  float64       `mapstructure:"rec-factor" yaml:"rec-factor" json:"recFactor"`                                                      // 重连因子
+	AutoReconnect              bool          `mapstructure:"auto-reconnect" yaml:"auto-reconnect" json:"autoReconnect"`                                          // 是否自动重连
+	MaxRetries                 int           `mapstructure:"max-retries" yaml:"max-retries" json:"maxRetries"`                                                   // 最大重试次数
+	BaseDelay                  time.Duration `mapstructure:"base-delay" yaml:"base-delay" json:"baseDelay"`                                                      // 基本重试延迟
+	MaxDelay                   time.Duration `mapstructure:"max-delay" yaml:"max-delay" json:"maxDelay"`                                                         // 最大重试延迟
+	AckTimeout                 time.Duration `mapstructure:"ack-timeout" yaml:"ack-timeout" json:"ackTimeout"`                                                   // 消息确认超时
+	AckMaxRetries              int           `mapstructure:"ack-max-retries" yaml:"ack-max-retries" json:"ackMaxRetries"`                                        // 消息确认最大重试次数
+	EnableAck                  bool          `mapstructure:"enable-ack" yaml:"enable-ack" json:"enableAck"`                                                      // 是否启用消息确认
+	BackoffFactor              float64       `mapstructure:"backoff-factor" yaml:"backoff-factor" json:"backoffFactor"`                                          // 重试延迟倍数
+	Jitter                     bool          `mapstructure:"jitter" yaml:"jitter" json:"jitter"`                                                                 // 是否添加随机抖动
+	RetryableErrors            []string      `mapstructure:"retryable-errors" yaml:"retryable-errors" json:"retryableErrors"`                                    // 可重试的错误类型
+	NonRetryableErrors         []string      `mapstructure:"non-retryable-errors" yaml:"non-retryable-errors" json:"nonRetryableErrors"`                         // 不可重试的错误类型
 
 	// === SSE 配置 ===
-	SSEHeartbeat     int `mapstructure:"sse-heartbeat" yaml:"sse-heartbeat" json:"sseHeartbeat"`               // SSE心跳间隔(秒)
-	SSETimeout       int `mapstructure:"sse-timeout" yaml:"sse-timeout" json:"sseTimeout"`                     // SSE超时(秒)
-	SSEMessageBuffer int `mapstructure:"sse-message-buffer" yaml:"sse-message-buffer" json:"sseMessageBuffer"` // SSE消息缓冲区大小
+	SSEHeartbeat     time.Duration `mapstructure:"sse-heartbeat" yaml:"sse-heartbeat" json:"sseHeartbeat"`               // SSE心跳间隔
+	SSETimeout       time.Duration `mapstructure:"sse-timeout" yaml:"sse-timeout" json:"sseTimeout"`                     // SSE超时
+	SSEMessageBuffer int           `mapstructure:"sse-message-buffer" yaml:"sse-message-buffer" json:"sseMessageBuffer"` // SSE消息缓冲区大小
 
 	// === Redis 仓库配置 ===
 	RedisRepository *RedisRepository `mapstructure:"redis-repository" yaml:"redis-repository" json:"redisRepository"` // Redis仓库配置
@@ -248,46 +257,56 @@ type Database struct {
 	SlowThreshold time.Duration `mapstructure:"slow-threshold" yaml:"slow-threshold" json:"slowThreshold"` // 慢查询阈值
 }
 
-var heartbeatInterval = 30 // 默认心跳间隔
+var heartbeatInterval = 30 * time.Second // 默认心跳间隔
 
 // Default 创建默认 WSC 配置
 func Default() *WSC {
 	return &WSC{
-		Enabled:             false,
-		Network:             "tcp4",
-		NodeIP:              "0.0.0.0",
-		NodePort:            8080,
-		Path:                "/ws",
-		HeartbeatInterval:   heartbeatInterval,
-		ClientTimeout:       90,
-		MessageBufferSize:   256,
-		MaxPendingQueueSize: 20000,
-		WebSocketOrigins:    []string{"*"},
-		WriteTimeout:        10 * time.Second,
-		ReadTimeout:         10 * time.Second,
-		IdleTimeout:         120 * time.Second,
-		MaxMessageSize:      512,
-		MinRecTime:          2 * time.Second,
-		MaxRecTime:          60 * time.Second,
-		RecFactor:           1.5,
-		AutoReconnect:       true,
-		MaxRetries:          3,
-		BaseDelay:           100 * time.Millisecond,
-		MaxDelay:            5 * time.Second,
-		AckTimeout:          500 * time.Millisecond,
-		EnableAck:           false,
-		AckMaxRetries:       3,
-		BackoffFactor:       2.0,
-		Jitter:              true,
-		RetryableErrors:     []string{"queue_full", "timeout", "conn_error", "channel_closed"},
-		NonRetryableErrors:  []string{"user_offline", "permission", "validation"},
-		SSETimeout:          120,
-		SSEMessageBuffer:    100,
-		RedisRepository:     DefaultRedisRepository(),
-		Database:            DefaultDatabase(),
-		Performance:         DefaultPerformance(),
-		Security:            DefaultSecurity(),
-		Logging:             DefaultLogging(),
+		Enabled:                    false,
+		Network:                    "tcp4",
+		NodeIP:                     "0.0.0.0",
+		NodePort:                   8080,
+		Path:                       "/ws",
+		AllowMultiLogin:            true,          // 默认允许多端登录
+		MaxConnectionsPerUser:      3,             // 默认每个用户最多3个连接
+		ConnectionPolicy:           "kick_old",    // 默认踢掉旧连接
+		SendKickNotification:       true,          // 默认发送踢出通知
+		KickNotificationMsg:        "您的账号在其他设备登录", // 默认踢出消息
+		HeartbeatInterval:          heartbeatInterval,
+		PerformanceMetricsInterval: 5 * time.Minute,
+		AckCleanupInterval:         1 * time.Minute,
+		ClientTimeout:              90 * time.Second, // 心跳间隔的3倍
+		ShutdownBaseTimeout:        5 * time.Second,  // Hub关闭基础超时
+		ShutdownMaxTimeout:         60 * time.Second, // Hub关闭最大超时
+		MessageBufferSize:          256,
+		MaxPendingQueueSize:        20000,
+		WebSocketOrigins:           []string{"*"},
+		WriteTimeout:               10 * time.Second,
+		ReadTimeout:                10 * time.Second,
+		IdleTimeout:                120 * time.Second,
+		MaxMessageSize:             512,
+		MinRecTime:                 2 * time.Second,
+		MaxRecTime:                 60 * time.Second,
+		RecFactor:                  1.5,
+		AutoReconnect:              true,
+		MaxRetries:                 3,
+		BaseDelay:                  100 * time.Millisecond,
+		MaxDelay:                   5 * time.Second,
+		AckTimeout:                 500 * time.Millisecond,
+		EnableAck:                  false,
+		AckMaxRetries:              3,
+		BackoffFactor:              2.0,
+		Jitter:                     true,
+		RetryableErrors:            []string{"queue_full", "timeout", "conn_error", "channel_closed"},
+		NonRetryableErrors:         []string{"user_offline", "permission", "validation"},
+		SSEHeartbeat:               30 * time.Second,
+		SSETimeout:                 120 * time.Second,
+		SSEMessageBuffer:           100,
+		RedisRepository:            DefaultRedisRepository(),
+		Database:                   DefaultDatabase(),
+		Performance:                DefaultPerformance(),
+		Security:                   DefaultSecurity(),
+		Logging:                    DefaultLogging(),
 	}
 }
 
@@ -296,7 +315,7 @@ func DefaultRedisRepository() *RedisRepository {
 	return &RedisRepository{
 		OnlineStatus: &OnlineStatus{
 			KeyPrefix: "wsc:online_status:",
-			TTL:       time.Duration(heartbeatInterval) * 3 * time.Second, // 心跳间隔的3倍
+			TTL:       90 * time.Second, // 心跳间隔的3倍 (30s * 3)
 		},
 		Stats: &Stats{
 			KeyPrefix: "wsc:stats:",
@@ -586,21 +605,89 @@ func (c *WSC) WithNodePort(port int) *WSC {
 	return c
 }
 
+// WithNodeInfo 设置节点IP和端口
+func (c *WSC) WithNodeInfo(ip string, port int) *WSC {
+	c.NodeIP = ip
+	c.NodePort = port
+	return c
+}
+
 // WithHeartbeatInterval 设置心跳间隔
-func (c *WSC) WithHeartbeatInterval(interval int) *WSC {
+func (c *WSC) WithHeartbeatInterval(interval time.Duration) *WSC {
 	c.HeartbeatInterval = interval
 	return c
 }
 
+// WithPerformanceMetricsInterval 设置性能监控间隔
+func (c *WSC) WithPerformanceMetricsInterval(interval time.Duration) *WSC {
+	c.PerformanceMetricsInterval = interval
+	return c
+}
+
+// WithAckCleanupInterval 设置ACK清理间隔
+func (c *WSC) WithAckCleanupInterval(interval time.Duration) *WSC {
+	c.AckCleanupInterval = interval
+	return c
+}
+
 // WithClientTimeout 设置客户端超时
-func (c *WSC) WithClientTimeout(timeout int) *WSC {
+func (c *WSC) WithClientTimeout(timeout time.Duration) *WSC {
 	c.ClientTimeout = timeout
+	return c
+}
+
+// WithShutdownBaseTimeout 设置Hub关闭基础超时
+func (c *WSC) WithShutdownBaseTimeout(timeout time.Duration) *WSC {
+	c.ShutdownBaseTimeout = timeout
+	return c
+}
+
+// WithShutdownMaxTimeout 设置Hub关闭最大超时
+func (c *WSC) WithShutdownMaxTimeout(timeout time.Duration) *WSC {
+	c.ShutdownMaxTimeout = timeout
 	return c
 }
 
 // WithMessageBufferSize 设置消息缓冲区大小
 func (c *WSC) WithMessageBufferSize(size int) *WSC {
 	c.MessageBufferSize = size
+	return c
+}
+
+// WithMaxPendingQueueSize 设置最大待处理队列大小
+func (c *WSC) WithMaxPendingQueueSize(size int) *WSC {
+	c.MaxPendingQueueSize = size
+	return c
+}
+
+// WithAllowMultiLogin 设置是否允许多端登录
+func (c *WSC) WithAllowMultiLogin(allow bool) *WSC {
+	c.AllowMultiLogin = allow
+	return c
+}
+
+// WithMaxConnectionsPerUser 设置每个用户最大连接数
+func (c *WSC) WithMaxConnectionsPerUser(max int) *WSC {
+	c.MaxConnectionsPerUser = max
+	return c
+}
+
+// WithConnectionPolicy 设置连接策略
+func (c *WSC) WithConnectionPolicy(policy string) *WSC {
+	c.ConnectionPolicy = policy
+	return c
+}
+
+// WithKickNotification 设置踢出通知配置
+func (c *WSC) WithKickNotification(send bool, msg string) *WSC {
+	c.SendKickNotification = send
+	c.KickNotificationMsg = msg
+	return c
+}
+
+// WithPath 设置WebSocket路径
+func (c *WSC) WithPath(path string) *WSC {
+	c.Path = path
 	return c
 }
 
@@ -653,8 +740,20 @@ func (c *WSC) WithAck(d time.Duration) *WSC {
 	return c
 }
 
+// WithAckTimeout 设置消息确认超时时间
+func (c *WSC) WithAckTimeout(timeout time.Duration) *WSC {
+	c.AckTimeout = timeout
+	return c
+}
+
 // WithAckRetries 设置ACK最大重试次数
 func (c *WSC) WithAckRetries(maxRetries int) *WSC {
+	c.AckMaxRetries = maxRetries
+	return c
+}
+
+// WithAckMaxRetries 设置ACK最大重试次数（别名方法）
+func (c *WSC) WithAckMaxRetries(maxRetries int) *WSC {
 	c.AckMaxRetries = maxRetries
 	return c
 }
@@ -714,13 +813,13 @@ func (c *WSC) WithNonRetryableErrors(errors []string) *WSC {
 }
 
 // WithSSEHeartbeat 设置 SSE 心跳间隔
-func (c *WSC) WithSSEHeartbeat(interval int) *WSC {
+func (c *WSC) WithSSEHeartbeat(interval time.Duration) *WSC {
 	c.SSEHeartbeat = interval
 	return c
 }
 
 // WithSSETimeout 设置 SSE 超时
-func (c *WSC) WithSSETimeout(timeout int) *WSC {
+func (c *WSC) WithSSETimeout(timeout time.Duration) *WSC {
 	c.SSETimeout = timeout
 	return c
 }

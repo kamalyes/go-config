@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2025-12-27 11:23:33
+// 生成时间: 2025-12-28 20:29:35
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2025-12-27T11:23:33+08:00",
+  "buildTime": "2025-12-28T20:29:35+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "c3b4bd9ae3b2130902a09f6b758c451c",
+  "gitCommit": "0e7a58d49430799e21b17812afceca9b",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -451,7 +451,6 @@
   },
   "security": {
     "moduleName": "security",
-    "enabled": false,
     "jwt": {
       "enabled": false,
       "secret": "jwt_secret_key_please_change_in_production",
@@ -762,6 +761,7 @@
     }
   },
   "cors": {
+    "enabled": true,
     "allowedOrigins": [
       "*"
     ],
@@ -770,6 +770,8 @@
       "POST",
       "PUT",
       "DELETE",
+      "PATCH",
+      "HEAD",
       "OPTIONS"
     ],
     "allowedHeaders": [
@@ -834,7 +836,8 @@
       "url": "https://opensource.org/licenses/MIT"
     },
     "auth": {
-      "type": "none",
+      "enabled": false,
+      "type": "NONE",
       "username": "",
       "password": "",
       "token": "",
@@ -921,8 +924,17 @@
     "nodeIp": "0.0.0.0",
     "nodePort": 8080,
     "path": "/ws",
-    "heartbeatInterval": 30,
-    "clientTimeout": 90,
+    "allowMultiLogin": true,
+    "maxConnectionsPerUser": 3,
+    "connectionPolicy": "kick_old",
+    "sendKickNotification": true,
+    "kickNotificationMsg": "您的账号在其他设备登录",
+    "heartbeatInterval": 30000000000,
+    "performanceMetricsInterval": 300000000000,
+    "ackCleanupInterval": 60000000000,
+    "clientTimeout": 90000000000,
+    "shutdownBaseTimeout": 5000000000,
+    "shutdownMaxTimeout": 60000000000,
     "messageBufferSize": 256,
     "maxPendingQueueSize": 20000,
     "websocketOrigins": [
@@ -955,8 +967,8 @@
       "permission",
       "validation"
     ],
-    "sseHeartbeat": 0,
-    "sseTimeout": 120,
+    "sseHeartbeat": 30000000000,
+    "sseTimeout": 120000000000,
     "sseMessageBuffer": 100,
     "redisRepository": {
       "onlineStatus": {
