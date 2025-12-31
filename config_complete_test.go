@@ -292,7 +292,7 @@ func TestConfigCompleteValidation(t *testing.T) {
 			assert.Equal(t, defaultCfg.WSC.ClientTimeout, config.WSC.ClientTimeout, "WSC.ClientTimeout should match")
 			assert.Equal(t, defaultCfg.WSC.MessageBufferSize, config.WSC.MessageBufferSize, "WSC.MessageBufferSize should match")
 			assert.Equal(t, defaultCfg.WSC.AutoReconnect, config.WSC.AutoReconnect, "WSC.AutoReconnect should match")
-			assert.Equal(t, defaultCfg.WSC.MaxRetries, config.WSC.MaxRetries, "WSC.MaxRetries should match")
+			assert.Equal(t, defaultCfg.WSC.RetryPolicy.MaxRetries, config.WSC.RetryPolicy.MaxRetries, "WSC.RetryPolicy.MaxRetries should match")
 
 			// 验证 WSC.Performance 子结构
 			assert.Equal(t, defaultCfg.WSC.Performance.MaxConnectionsPerNode, config.WSC.Performance.MaxConnectionsPerNode, "WSC.Performance.MaxConnectionsPerNode should match")

@@ -72,6 +72,10 @@ ack-timeout: 500ms
 ack-max-retries: 3
 # 是否启用消息确认
 enable-ack: false
+# 消息发送记录过期时间
+message-record-ttl: 24h
+# 消息记录清理间隔
+record-cleanup-interval: 30m
 # 重试延迟倍数
 backoff-factor: 2
 # 是否添加随机抖动

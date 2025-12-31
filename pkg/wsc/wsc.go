@@ -49,16 +49,11 @@ type WSC struct {
 	MaxRecTime                 time.Duration `mapstructure:"max-rec-time" yaml:"max-rec-time" json:"maxRecTime"`                                                 // 最大重连时间
 	RecFactor                  float64       `mapstructure:"rec-factor" yaml:"rec-factor" json:"recFactor"`                                                      // 重连因子
 	AutoReconnect              bool          `mapstructure:"auto-reconnect" yaml:"auto-reconnect" json:"autoReconnect"`                                          // 是否自动重连
-	MaxRetries                 int           `mapstructure:"max-retries" yaml:"max-retries" json:"maxRetries"`                                                   // 最大重试次数
-	BaseDelay                  time.Duration `mapstructure:"base-delay" yaml:"base-delay" json:"baseDelay"`                                                      // 基本重试延迟
-	MaxDelay                   time.Duration `mapstructure:"max-delay" yaml:"max-delay" json:"maxDelay"`                                                         // 最大重试延迟
 	AckTimeout                 time.Duration `mapstructure:"ack-timeout" yaml:"ack-timeout" json:"ackTimeout"`                                                   // 消息确认超时
 	AckMaxRetries              int           `mapstructure:"ack-max-retries" yaml:"ack-max-retries" json:"ackMaxRetries"`                                        // 消息确认最大重试次数
 	EnableAck                  bool          `mapstructure:"enable-ack" yaml:"enable-ack" json:"enableAck"`                                                      // 是否启用消息确认
-	BackoffFactor              float64       `mapstructure:"backoff-factor" yaml:"backoff-factor" json:"backoffFactor"`                                          // 重试延迟倍数
-	Jitter                     bool          `mapstructure:"jitter" yaml:"jitter" json:"jitter"`                                                                 // 是否添加随机抖动
-	RetryableErrors            []string      `mapstructure:"retryable-errors" yaml:"retryable-errors" json:"retryableErrors"`                                    // 可重试的错误类型
-	NonRetryableErrors         []string      `mapstructure:"non-retryable-errors" yaml:"non-retryable-errors" json:"nonRetryableErrors"`                         // 不可重试的错误类型
+	MessageRecordTTL           time.Duration `mapstructure:"message-record-ttl" yaml:"message-record-ttl" json:"messageRecordTtl"`                               // 消息发送记录过期时间
+	RecordCleanupInterval      time.Duration `mapstructure:"record-cleanup-interval" yaml:"record-cleanup-interval" json:"recordCleanupInterval"`                // 消息记录清理间隔
 
 	// === SSE 配置 ===
 	SSEHeartbeat     time.Duration `mapstructure:"sse-heartbeat" yaml:"sse-heartbeat" json:"sseHeartbeat"`               // SSE心跳间隔
@@ -79,6 +74,15 @@ type WSC struct {
 
 	// === 日志配置 ===
 	Logging *logging.Logging `mapstructure:"logging" yaml:"logging" json:"logging"` // 日志配置
+
+	// === 批处理配置 ===
+	BatchProcessing *BatchProcessing `mapstructure:"batch-processing" yaml:"batch-processing" json:"batchProcessing"` // 批处理配置
+
+	// === 通道缓冲配置 ===
+	ChannelBuffers *ChannelBuffers `mapstructure:"channel-buffers" yaml:"channel-buffers" json:"channelBuffers"` // 通道缓冲配置
+
+	// === 重试策略配置 ===
+	RetryPolicy *RetryPolicy `mapstructure:"retry-policy" yaml:"retry-policy" json:"retryPolicy"` // 重试策略配置
 }
 
 // RedisRepository Redis仓库配置
@@ -257,7 +261,47 @@ type Database struct {
 	SlowThreshold time.Duration `mapstructure:"slow-threshold" yaml:"slow-threshold" json:"slowThreshold"` // 慢查询阈值
 }
 
+// BatchProcessing 批处理配置
+type BatchProcessing struct {
+	OfflineMessageBatchSize int `mapstructure:"offline-message-batch-size" yaml:"offline-message-batch-size" json:"offlineMessageBatchSize"` // 离线消息批次大小
+	MessagePoolBufferSize   int `mapstructure:"message-pool-buffer-size" yaml:"message-pool-buffer-size" json:"messagePoolBufferSize"`       // 消息池缓冲区大小
+	ConnectionBatchSize     int `mapstructure:"connection-batch-size" yaml:"connection-batch-size" json:"connectionBatchSize"`               // 连接记录批量操作大小
+}
+
+// ChannelBuffers 通道缓冲区配置
+type ChannelBuffers struct {
+	BroadcastBufferMultiplier   int `mapstructure:"broadcast-buffer-multiplier" yaml:"broadcast-buffer-multiplier" json:"broadcastBufferMultiplier"`         // broadcast通道倍数
+	NodeMessageBufferMultiplier int `mapstructure:"node-message-buffer-multiplier" yaml:"node-message-buffer-multiplier" json:"nodeMessageBufferMultiplier"` // nodeMessage通道倍数
+}
+
+// RetryPolicy 重试策略配置
+type RetryPolicy struct {
+	MaxRetries         int           `mapstructure:"max-retries" yaml:"max-retries" json:"maxRetries"`                           // 最大重试次数
+	BaseDelay          time.Duration `mapstructure:"base-delay" yaml:"base-delay" json:"baseDelay"`                              // 基本重试延迟
+	MaxDelay           time.Duration `mapstructure:"max-delay" yaml:"max-delay" json:"maxDelay"`                                 // 最大重试延迟
+	BackoffFactor      float64       `mapstructure:"backoff-factor" yaml:"backoff-factor" json:"backoffFactor"`                  // 重试退避倍数
+	Jitter             bool          `mapstructure:"jitter" yaml:"jitter" json:"jitter"`                                         // 是否添加随机抖动
+	JitterPercent      float64       `mapstructure:"jitter-percent" yaml:"jitter-percent" json:"jitterPercent"`                  // 抖动百分比(0-1)
+	RetryableErrors    []string      `mapstructure:"retryable-errors" yaml:"retryable-errors" json:"retryableErrors"`            // 可重试的错误类型
+	NonRetryableErrors []string      `mapstructure:"non-retryable-errors" yaml:"non-retryable-errors" json:"nonRetryableErrors"` // 不可重试的错误类型
+}
+
 var heartbeatInterval = 30 * time.Second // 默认心跳间隔
+
+// 默认可重试错误类型
+var DefaultRetryableErrors = []string{
+	"queue_full",     // 队列已满
+	"timeout",        // 超时
+	"conn_error",     // 连接错误
+	"channel_closed", // 通道已关闭
+}
+
+// 默认不可重试错误类型
+var DefaultNonRetryableErrors = []string{
+	"user_offline", // 用户离线
+	"permission",   // 权限错误
+	"validation",   // 验证错误
+}
 
 // Default 创建默认 WSC 配置
 func Default() *WSC {
@@ -289,16 +333,11 @@ func Default() *WSC {
 		MaxRecTime:                 60 * time.Second,
 		RecFactor:                  1.5,
 		AutoReconnect:              true,
-		MaxRetries:                 3,
-		BaseDelay:                  100 * time.Millisecond,
-		MaxDelay:                   5 * time.Second,
 		AckTimeout:                 500 * time.Millisecond,
 		EnableAck:                  false,
 		AckMaxRetries:              3,
-		BackoffFactor:              2.0,
-		Jitter:                     true,
-		RetryableErrors:            []string{"queue_full", "timeout", "conn_error", "channel_closed"},
-		NonRetryableErrors:         []string{"user_offline", "permission", "validation"},
+		MessageRecordTTL:           24 * time.Hour,   // 默认消息记录保留24小时
+		RecordCleanupInterval:      30 * time.Minute, // 默认每30分钟清理一次
 		SSEHeartbeat:               30 * time.Second,
 		SSETimeout:                 120 * time.Second,
 		SSEMessageBuffer:           100,
@@ -307,6 +346,9 @@ func Default() *WSC {
 		Performance:                DefaultPerformance(),
 		Security:                   DefaultSecurity(),
 		Logging:                    DefaultLogging(),
+		BatchProcessing:            DefaultBatchProcessing(),
+		ChannelBuffers:             DefaultChannelBuffers(),
+		RetryPolicy:                DefaultRetryPolicy(),
 	}
 }
 
@@ -537,6 +579,37 @@ func DefaultLogging() *logging.Logging {
 		WithOutput("stdout").
 		WithFilePath("/var/log/wsc.log").
 		WithEnabled(true)
+}
+
+// DefaultBatchProcessing 默认批处理配置
+func DefaultBatchProcessing() *BatchProcessing {
+	return &BatchProcessing{
+		OfflineMessageBatchSize: 100,
+		MessagePoolBufferSize:   1024,
+		ConnectionBatchSize:     1000,
+	}
+}
+
+// DefaultChannelBuffers 默认通道缓冲配置
+func DefaultChannelBuffers() *ChannelBuffers {
+	return &ChannelBuffers{
+		BroadcastBufferMultiplier:   4,
+		NodeMessageBufferMultiplier: 4,
+	}
+}
+
+// DefaultRetryPolicy 默认重试策略配置
+func DefaultRetryPolicy() *RetryPolicy {
+	return &RetryPolicy{
+		MaxRetries:         3,
+		BaseDelay:          100 * time.Millisecond,
+		MaxDelay:           5 * time.Second,
+		BackoffFactor:      2.0,
+		Jitter:             true,
+		JitterPercent:      0.1, // 默认10%抖动
+		RetryableErrors:    DefaultRetryableErrors,
+		NonRetryableErrors: DefaultNonRetryableErrors,
+	}
 }
 
 // ========== 配置接口方法 ==========
@@ -770,45 +843,9 @@ func (c *WSC) WithAutoReconnect(enabled bool) *WSC {
 	return c
 }
 
-// WithMaxRetries 设置最大重试次数
-func (c *WSC) WithMaxRetries(retries int) *WSC {
-	c.MaxRetries = retries
-	return c
-}
-
-// WithBaseDelay 设置基础重连延迟
-func (c *WSC) WithBaseDelay(d time.Duration) *WSC {
-	c.BaseDelay = d
-	return c
-}
-
-// WithMaxDelay 设置最大重连延迟
-func (c *WSC) WithMaxDelay(d time.Duration) *WSC {
-	c.MaxDelay = d
-	return c
-}
-
-// WithBackoffFactor 设置重连回退因子
-func (c *WSC) WithBackoffFactor(factor float64) *WSC {
-	c.BackoffFactor = factor
-	return c
-}
-
-// WithJitter 设置是否启用抖动
-func (c *WSC) WithJitter(enabled bool) *WSC {
-	c.Jitter = enabled
-	return c
-}
-
-// WithRetryableErrors 设置可重试错误列表
-func (c *WSC) WithRetryableErrors(errors []string) *WSC {
-	c.RetryableErrors = errors
-	return c
-}
-
-// WithNonRetryableErrors 设置不可重试错误列表
-func (c *WSC) WithNonRetryableErrors(errors []string) *WSC {
-	c.NonRetryableErrors = errors
+// WithRetryPolicy 设置重试策略配置
+func (c *WSC) WithRetryPolicy(policy *RetryPolicy) *WSC {
+	c.RetryPolicy = policy
 	return c
 }
 
@@ -962,4 +999,73 @@ func (d *Database) WithLogging(logLevel string, slowThreshold time.Duration) *Da
 	d.LogLevel = logLevel
 	d.SlowThreshold = slowThreshold
 	return d
+}
+
+// ========== BatchProcessing 链式调用方法 ==========
+
+// WithOfflineMessageBatchSize 设置离线消息批次大小
+func (b *BatchProcessing) WithOfflineMessageBatchSize(size int) *BatchProcessing {
+	b.OfflineMessageBatchSize = size
+	return b
+}
+
+// WithMessagePoolBufferSize 设置消息池缓冲区大小
+func (b *BatchProcessing) WithMessagePoolBufferSize(size int) *BatchProcessing {
+	b.MessagePoolBufferSize = size
+	return b
+}
+
+// WithConnectionBatchSize 设置连接记录批量操作大小
+func (b *BatchProcessing) WithConnectionBatchSize(size int) *BatchProcessing {
+	b.ConnectionBatchSize = size
+	return b
+}
+
+// ========== ChannelBuffers 链式调用方法 ==========
+
+// WithBroadcastBufferMultiplier 设置broadcast通道缓冲倍数
+func (c *ChannelBuffers) WithBroadcastBufferMultiplier(multiplier int) *ChannelBuffers {
+	c.BroadcastBufferMultiplier = multiplier
+	return c
+}
+
+// WithNodeMessageBufferMultiplier 设置nodeMessage通道缓冲倍数
+func (c *ChannelBuffers) WithNodeMessageBufferMultiplier(multiplier int) *ChannelBuffers {
+	c.NodeMessageBufferMultiplier = multiplier
+	return c
+}
+
+// ========== RetryPolicy 链式调用方法 ==========
+
+// WithMaxRetries 设置最大重试次数
+func (r *RetryPolicy) WithMaxRetries(maxRetries int) *RetryPolicy {
+	r.MaxRetries = maxRetries
+	return r
+}
+
+// WithDelay 设置重试延迟
+func (r *RetryPolicy) WithDelay(baseDelay, maxDelay time.Duration) *RetryPolicy {
+	r.BaseDelay = baseDelay
+	r.MaxDelay = maxDelay
+	return r
+}
+
+// WithBackoff 设置退避配置
+func (r *RetryPolicy) WithBackoff(factor float64, jitter bool, jitterPercent float64) *RetryPolicy {
+	r.BackoffFactor = factor
+	r.Jitter = jitter
+	r.JitterPercent = jitterPercent
+	return r
+}
+
+// WithRetryableErrors 设置可重试错误列表
+func (r *RetryPolicy) WithRetryableErrors(errors []string) *RetryPolicy {
+	r.RetryableErrors = errors
+	return r
+}
+
+// WithNonRetryableErrors 设置不可重试错误列表
+func (r *RetryPolicy) WithNonRetryableErrors(errors []string) *RetryPolicy {
+	r.NonRetryableErrors = errors
+	return r
 }

@@ -41,6 +41,8 @@
   "ackTimeout": 500000000,
   "ackMaxRetries": 3,
   "enableAck": false,
+  "messageRecordTtl": 86400000000000,
+  "recordCleanupInterval": 1800000000000,
   "backoffFactor": 2,
   "jitter": true,
   "retryableErrors": [
