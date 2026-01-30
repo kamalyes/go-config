@@ -28,7 +28,7 @@ func TestSignature_Default(t *testing.T) {
 	assert.Equal(t, "X-Signature", config.SignatureHeader)
 	assert.Equal(t, "X-Timestamp", config.TimestampHeader)
 	assert.Equal(t, "X-Nonce", config.NonceHeader)
-	assert.Equal(t, "sha256", config.Algorithm)
+	assert.Equal(t, sign.AlgorithmSHA256, config.Algorithm)
 	assert.Equal(t, time.Minute*5, config.TimeoutWindow)
 	assert.NotNil(t, config.IgnorePaths)
 	assert.False(t, config.SkipQuery)
@@ -155,7 +155,7 @@ func TestSignature_Set(t *testing.T) {
 		ModuleName:    "custom-signature",
 		Enabled:       true,
 		SecretKey:     "new-key",
-		Algorithm:     "md5",
+		Algorithm:     "MD5",
 		TimeoutWindow: time.Minute * 15,
 	}
 
@@ -176,7 +176,7 @@ func TestSignature_Validate(t *testing.T) {
 func TestSignature_ChainedCalls(t *testing.T) {
 	config := Default().
 		WithSecretKey("production-secret").
-		WithAlgorithm("sha512").
+		WithAlgorithm("SHA256").
 		WithTimeoutWindow(time.Minute * 3).
 		WithSignatureHeader("X-API-Signature").
 		WithTimestampHeader("X-API-Timestamp").

@@ -11,16 +11,17 @@
 package ratelimit
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRateLimit_Default(t *testing.T) {
 	config := Default()
 	assert.NotNil(t, config)
 	assert.Equal(t, "ratelimit", config.ModuleName)
-	assert.True(t, config.Enabled)
+	assert.False(t, config.Enabled)
 	assert.Equal(t, StrategyTokenBucket, config.Strategy)
 	assert.Equal(t, ScopeGlobal, config.DefaultScope)
 	assert.NotNil(t, config.GlobalLimit)
@@ -142,7 +143,7 @@ func TestRateLimit_Disable(t *testing.T) {
 
 func TestRateLimit_IsEnabled(t *testing.T) {
 	config := Default()
-	assert.True(t, config.IsEnabled())
+	assert.False(t, config.IsEnabled())
 	config.Disable()
 	assert.False(t, config.IsEnabled())
 }

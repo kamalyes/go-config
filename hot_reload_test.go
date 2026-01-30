@@ -14,16 +14,17 @@ package goconfig
 import (
 	"context"
 	"fmt"
-	"github.com/go-viper/mapstructure/v2"
-	"github.com/kamalyes/go-config/pkg/gateway"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/go-viper/mapstructure/v2"
+	"github.com/kamalyes/go-config/pkg/gateway"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestConfig 测试配置结构
@@ -38,6 +39,10 @@ type TestConfig struct {
 		Host string `mapstructure:"host" yaml:"host" json:"host"`
 		Port int    `mapstructure:"port" yaml:"port" json:"port"`
 	} `mapstructure:"server" yaml:"server" json:"server"`
+
+	Name    string `mapstructure:"name" yaml:"name" json:"name"`
+	Port    int    `mapstructure:"port" yaml:"port" json:"port"`
+	Enabled bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`
 }
 
 // DBConfig 数据库配置结构（用于热重载测试）

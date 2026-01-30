@@ -16,6 +16,7 @@ import (
 
 	"github.com/kamalyes/go-config/internal"
 	"github.com/kamalyes/go-config/pkg/logging"
+	"github.com/kamalyes/go-toolbox/pkg/mathx"
 	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
@@ -87,6 +88,11 @@ type WSC struct {
 
 // RedisRepository Redis仓库配置
 type RedisRepository struct {
+	// 全局清理配置（所有子模块的默认值）
+	CleanupDaysAgo    int  `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 全局：启动时清理N天前的数据（0表示不清理）
+	EnableAutoCleanup bool `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 全局：是否启用自动清理
+
+	// 子模块配置
 	OnlineStatus   *OnlineStatus   `mapstructure:"online-status" yaml:"online-status" json:"onlineStatus"`       // 在线状态配置
 	Stats          *Stats          `mapstructure:"stats" yaml:"stats" json:"stats"`                              // 统计数据配置
 	Workload       *Workload       `mapstructure:"workload" yaml:"workload" json:"workload"`                     // 负载管理配置
@@ -95,29 +101,37 @@ type RedisRepository struct {
 
 // OnlineStatus 在线状态配置
 type OnlineStatus struct {
-	KeyPrefix string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"` // Redis键前缀
-	TTL       time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                     // 过期时间
+	KeyPrefix         string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`                           // Redis键前缀
+	TTL               time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                                               // 过期时间
+	CleanupDaysAgo    int           `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 启动时清理N天前的数据（0表示不清理）
+	EnableAutoCleanup bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
 }
 
 // Stats 统计数据配置
 type Stats struct {
-	KeyPrefix string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"` // Redis键前缀
-	TTL       time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                     // 过期时间
+	KeyPrefix         string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`                           // Redis键前缀
+	TTL               time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                                               // 过期时间
+	CleanupDaysAgo    int           `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 启动时清理N天前的数据（0表示不清理）
+	EnableAutoCleanup bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
 }
 
 // Workload 负载管理配置
 type Workload struct {
-	KeyPrefix string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"` // Redis键前缀
-	TTL       time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                     // 过期时间
+	KeyPrefix         string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`                           // Redis键前缀
+	TTL               time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                                               // 过期时间
+	CleanupDaysAgo    int           `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 启动时清理N天前的数据（0表示不清理）
+	EnableAutoCleanup bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
 }
 
 // OfflineMessage 离线消息配置
 type OfflineMessage struct {
-	KeyPrefix string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"` // Redis键前缀
-	QueueTTL  time.Duration `mapstructure:"queue-ttl" yaml:"queue-ttl" json:"queueTTL"`    // 队列过期时间
-	AutoStore bool          `mapstructure:"auto-store" yaml:"auto-store" json:"autoStore"` // 是否自动存储离线消息
-	AutoPush  bool          `mapstructure:"auto-push" yaml:"auto-push" json:"autoPush"`    // 是否自动推送离线消息
-	MaxCount  int           `mapstructure:"max-count" yaml:"max-count" json:"maxCount"`    // 单次推送最大离线消息数
+	KeyPrefix         string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`                           // Redis键前缀
+	QueueTTL          time.Duration `mapstructure:"queue-ttl" yaml:"queue-ttl" json:"queueTTL"`                              // 队列过期时间
+	AutoStore         bool          `mapstructure:"auto-store" yaml:"auto-store" json:"autoStore"`                           // 是否自动存储离线消息
+	AutoPush          bool          `mapstructure:"auto-push" yaml:"auto-push" json:"autoPush"`                              // 是否自动推送离线消息
+	MaxCount          int           `mapstructure:"max-count" yaml:"max-count" json:"maxCount"`                              // 单次推送最大离线消息数
+	CleanupDaysAgo    int           `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 启动时清理N天前的数据（0表示不清理）
+	EnableAutoCleanup bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
 }
 
 // ========== Redis仓库配置 Getter 方法 ==========
@@ -132,6 +146,16 @@ func (o *OnlineStatus) GetTTL() time.Duration {
 	return o.TTL
 }
 
+// GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
+func (o *OnlineStatus) GetCleanupDaysAgo(globalDaysAgo int) int {
+	return mathx.IfNotZero(o.CleanupDaysAgo, globalDaysAgo)
+}
+
+// GetEnableAutoCleanup 获取是否启用自动清理（优先使用自己的配置，否则使用全局配置）
+func (o *OnlineStatus) GetEnableAutoCleanup(globalEnable bool) bool {
+	return mathx.IfGt(o.CleanupDaysAgo, 0, o.EnableAutoCleanup, globalEnable)
+}
+
 // GetKeyPrefix 获取统计数据Redis键前缀
 func (s *Stats) GetKeyPrefix() string {
 	return s.KeyPrefix
@@ -142,6 +166,16 @@ func (s *Stats) GetTTL() time.Duration {
 	return s.TTL
 }
 
+// GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
+func (s *Stats) GetCleanupDaysAgo(globalDaysAgo int) int {
+	return mathx.IfNotZero(s.CleanupDaysAgo, globalDaysAgo)
+}
+
+// GetEnableAutoCleanup 获取是否启用自动清理（优先使用自己的配置，否则使用全局配置）
+func (s *Stats) GetEnableAutoCleanup(globalEnable bool) bool {
+	return mathx.IF(s.CleanupDaysAgo > 0, s.EnableAutoCleanup, globalEnable)
+}
+
 // GetKeyPrefix 获取负载管理Redis键前缀
 func (w *Workload) GetKeyPrefix() string {
 	return w.KeyPrefix
@@ -150,6 +184,16 @@ func (w *Workload) GetKeyPrefix() string {
 // GetTTL 获取负载管理TTL
 func (w *Workload) GetTTL() time.Duration {
 	return w.TTL
+}
+
+// GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
+func (w *Workload) GetCleanupDaysAgo(globalDaysAgo int) int {
+	return mathx.IfNotZero(w.CleanupDaysAgo, globalDaysAgo)
+}
+
+// GetEnableAutoCleanup 获取是否启用自动清理（优先使用自己的配置，否则使用全局配置）
+func (w *Workload) GetEnableAutoCleanup(globalEnable bool) bool {
+	return mathx.IfGt(w.CleanupDaysAgo, 0, w.EnableAutoCleanup, globalEnable)
 }
 
 // GetKeyPrefix 获取离线消息Redis键前缀
@@ -175,6 +219,16 @@ func (o *OfflineMessage) GetAutoPush() bool {
 // GetMaxCount 获取单次推送最大离线消息数
 func (o *OfflineMessage) GetMaxCount() int {
 	return o.MaxCount
+}
+
+// GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
+func (o *OfflineMessage) GetCleanupDaysAgo(globalDaysAgo int) int {
+	return mathx.IfNotZero(o.CleanupDaysAgo, globalDaysAgo)
+}
+
+// GetEnableAutoCleanup 获取是否启用自动清理（优先使用自己的配置，否则使用全局配置）
+func (o *OfflineMessage) GetEnableAutoCleanup(globalEnable bool) bool {
+	return mathx.IfGt(o.CleanupDaysAgo, 0, o.EnableAutoCleanup, globalEnable)
 }
 
 // Performance 性能配置

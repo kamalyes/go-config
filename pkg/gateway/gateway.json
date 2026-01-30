@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2026-01-30 11:11:00
+// 生成时间: 2026-01-30 12:05:20
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2026-01-30T11:11:00+08:00",
+  "buildTime": "2026-01-30T12:05:20+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "378f5981a086f24bc9a1ba9b929bbf86",
+  "gitCommit": "9010963c89f4352d09b11e241a8d87a6",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -962,24 +962,34 @@
     "sseTimeout": 120000000000,
     "sseMessageBuffer": 100,
     "redisRepository": {
+      "cleanupDaysAgo": 0,
+      "enableAutoCleanup": false,
       "onlineStatus": {
         "keyPrefix": "wsc:online_status:",
-        "ttl": 90000000000
+        "ttl": 90000000000,
+        "cleanupDaysAgo": 0,
+        "enableAutoCleanup": false
       },
       "stats": {
         "keyPrefix": "wsc:stats:",
-        "ttl": 600000000000
+        "ttl": 600000000000,
+        "cleanupDaysAgo": 0,
+        "enableAutoCleanup": false
       },
       "workload": {
         "keyPrefix": "wsc:workload:",
-        "ttl": 60000000000
+        "ttl": 60000000000,
+        "cleanupDaysAgo": 0,
+        "enableAutoCleanup": false
       },
       "offlineMessage": {
         "keyPrefix": "wsc:offline_messages:",
         "queueTTL": 604800000000000,
         "autoStore": true,
         "autoPush": true,
-        "maxCount": 50
+        "maxCount": 50,
+        "cleanupDaysAgo": 0,
+        "enableAutoCleanup": false
       }
     },
     "performance": {

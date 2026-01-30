@@ -25,6 +25,7 @@ type EnvironmentType string
 
 // 定义有效的环境常量
 const (
+	// 标准环境
 	EnvDevelopment EnvironmentType = "development" // 开发环境
 	EnvTest        EnvironmentType = "test"        // 测试环境
 	EnvStaging     EnvironmentType = "staging"     // 预发布环境
@@ -34,6 +35,74 @@ const (
 	EnvDebug       EnvironmentType = "debug"       // 调试环境
 	EnvDemo        EnvironmentType = "demo"        // 演示环境
 	EnvIntegration EnvironmentType = "integration" // 集成环境
+
+	// 亚洲国家/地区
+	EnvChina       EnvironmentType = "china"       // 中国
+	EnvJapan       EnvironmentType = "japan"       // 日本
+	EnvKorea       EnvironmentType = "korea"       // 韩国
+	EnvIndia       EnvironmentType = "india"       // 印度
+	EnvSingapore   EnvironmentType = "singapore"   // 新加坡
+	EnvThailand    EnvironmentType = "thailand"    // 泰国
+	EnvVietnam     EnvironmentType = "vietnam"     // 越南
+	EnvMalaysia    EnvironmentType = "malaysia"    // 马来西亚
+	EnvIndonesia   EnvironmentType = "indonesia"   // 印度尼西亚
+	EnvPhilippines EnvironmentType = "philippines" // 菲律宾
+	EnvMyanmar     EnvironmentType = "myanmar"     // 缅甸
+	EnvLaos        EnvironmentType = "laos"        // 老挝
+	EnvCambodia    EnvironmentType = "cambodia"    // 柬埔寨
+	EnvPakistan    EnvironmentType = "pakistan"    // 巴基斯坦
+	EnvBangladesh  EnvironmentType = "bangladesh"  // 孟加拉国
+	EnvSriLanka    EnvironmentType = "srilanka"    // 斯里兰卡
+	EnvNepal       EnvironmentType = "nepal"       // 尼泊尔
+	EnvHongKong    EnvironmentType = "hongkong"    // 香港
+	EnvTaiwan      EnvironmentType = "taiwan"      // 台湾
+	EnvMacao       EnvironmentType = "macao"       // 澳门
+
+	// 欧洲国家
+	EnvUK          EnvironmentType = "uk"          // 英国
+	EnvGermany     EnvironmentType = "germany"     // 德国
+	EnvFrance      EnvironmentType = "france"      // 法国
+	EnvItaly       EnvironmentType = "italy"       // 意大利
+	EnvSpain       EnvironmentType = "spain"       // 西班牙
+	EnvNetherlands EnvironmentType = "netherlands" // 荷兰
+	EnvBelgium     EnvironmentType = "belgium"     // 比利时
+	EnvSwitzerland EnvironmentType = "switzerland" // 瑞士
+	EnvAustria     EnvironmentType = "austria"     // 奥地利
+	EnvSweden      EnvironmentType = "sweden"      // 瑞典
+	EnvNorway      EnvironmentType = "norway"      // 挪威
+	EnvDenmark     EnvironmentType = "denmark"     // 丹麦
+	EnvFinland     EnvironmentType = "finland"     // 芬兰
+	EnvPoland      EnvironmentType = "poland"      // 波兰
+	EnvRussia      EnvironmentType = "russia"      // 俄罗斯
+	EnvTurkey      EnvironmentType = "turkey"      // 土耳其
+
+	// 北美洲国家
+	EnvUSA    EnvironmentType = "usa"    // 美国
+	EnvCanada EnvironmentType = "canada" // 加拿大
+	EnvMexico EnvironmentType = "mexico" // 墨西哥
+
+	// 南美洲国家
+	EnvBrazil    EnvironmentType = "brazil"    // 巴西
+	EnvArgentina EnvironmentType = "argentina" // 阿根廷
+	EnvChile     EnvironmentType = "chile"     // 智利
+	EnvColombia  EnvironmentType = "colombia"  // 哥伦比亚
+	EnvPeru      EnvironmentType = "peru"      // 秘鲁
+
+	// 大洋洲国家
+	EnvAustralia  EnvironmentType = "australia"  // 澳大利亚
+	EnvNewZealand EnvironmentType = "newzealand" // 新西兰
+
+	// 非洲国家
+	EnvSouthAfrica EnvironmentType = "southafrica" // 南非
+	EnvEgypt       EnvironmentType = "egypt"       // 埃及
+	EnvNigeria     EnvironmentType = "nigeria"     // 尼日利亚
+	EnvKenya       EnvironmentType = "kenya"       // 肯尼亚
+
+	// 中东国家
+	EnvUAE         EnvironmentType = "uae"         // 阿联酋
+	EnvSaudiArabia EnvironmentType = "saudiarabia" // 沙特阿拉伯
+	EnvIsrael      EnvironmentType = "israel"      // 以色列
+	EnvQatar       EnvironmentType = "qatar"       // 卡塔尔
 
 	// 向后兼容的别名
 	Dev  = EnvDevelopment
@@ -48,6 +117,7 @@ const (
 // DefaultEnvPrefixes 全局环境前缀映射（统一定义，避免重复）
 // 覆盖常见的环境命名约定，支持多种风格：短名、全名、连字符等
 var DefaultEnvPrefixes = map[EnvironmentType][]string{
+	// 标准环境
 	EnvDevelopment: {"dev", "develop", "development"},
 	EnvLocal:       {"local", "localhost"},
 	EnvTest:        {"test", "testing", "qa", "sit"},
@@ -57,6 +127,74 @@ var DefaultEnvPrefixes = map[EnvironmentType][]string{
 	EnvDemo:        {"demo", "demonstration", "showcase", "preview", "sandbox"},
 	EnvUAT:         {"uat", "acceptance", "user-acceptance", "beta"},
 	EnvIntegration: {"integration", "int", "ci", "integration-test", "integ"},
+
+	// 亚洲国家/地区
+	EnvChina:       {"china", "cn", "chn"},
+	EnvJapan:       {"japan", "jp", "jpn"},
+	EnvKorea:       {"korea", "kr", "kor", "south-korea", "southkorea"},
+	EnvIndia:       {"india", "in", "ind"},
+	EnvSingapore:   {"singapore", "sg", "sgp"},
+	EnvThailand:    {"thailand", "th", "tha", "thai"},
+	EnvVietnam:     {"vietnam", "vn", "vnm", "viet"},
+	EnvMalaysia:    {"malaysia", "my", "mys"},
+	EnvIndonesia:   {"indonesia", "id", "idn"},
+	EnvPhilippines: {"philippines", "ph", "phl"},
+	EnvMyanmar:     {"myanmar", "mm", "mmr", "burma"},
+	EnvLaos:        {"laos", "la", "lao"},
+	EnvCambodia:    {"cambodia", "kh", "khm"},
+	EnvPakistan:    {"pakistan", "pk", "pak"},
+	EnvBangladesh:  {"bangladesh", "bd", "bgd"},
+	EnvSriLanka:    {"srilanka", "lk", "lka", "sri-lanka"},
+	EnvNepal:       {"nepal", "np", "npl"},
+	EnvHongKong:    {"hongkong", "hk", "hkg", "hong-kong"},
+	EnvTaiwan:      {"taiwan", "tw", "twn"},
+	EnvMacao:       {"macao", "mo", "mac", "macau"},
+
+	// 欧洲国家
+	EnvUK:          {"uk", "gb", "gbr", "united-kingdom", "britain", "england"},
+	EnvGermany:     {"germany", "de", "deu", "deutschland"},
+	EnvFrance:      {"france", "fr", "fra"},
+	EnvItaly:       {"italy", "it", "ita", "italia"},
+	EnvSpain:       {"spain", "es", "esp", "espana"},
+	EnvNetherlands: {"netherlands", "nl", "nld", "holland"},
+	EnvBelgium:     {"belgium", "be", "bel"},
+	EnvSwitzerland: {"switzerland", "ch", "che"},
+	EnvAustria:     {"austria", "at", "aut"},
+	EnvSweden:      {"sweden", "se", "swe"},
+	EnvNorway:      {"norway", "no", "nor"},
+	EnvDenmark:     {"denmark", "dk", "dnk"},
+	EnvFinland:     {"finland", "fi", "fin"},
+	EnvPoland:      {"poland", "pl", "pol"},
+	EnvRussia:      {"russia", "ru", "rus"},
+	EnvTurkey:      {"turkey", "tr", "tur"},
+
+	// 北美洲国家
+	EnvUSA:    {"usa", "us", "united-states", "america"},
+	EnvCanada: {"canada", "ca", "can"},
+	EnvMexico: {"mexico", "mx", "mex"},
+
+	// 南美洲国家
+	EnvBrazil:    {"brazil", "br", "bra", "brasil"},
+	EnvArgentina: {"argentina", "ar", "arg"},
+	EnvChile:     {"chile", "cl", "chl"},
+	EnvColombia:  {"colombia", "co", "col"},
+	EnvPeru:      {"peru", "pe", "per"},
+
+	// 大洋洲国家
+	EnvAustralia:  {"australia", "au", "aus"},
+	EnvNewZealand: {"newzealand", "nz", "nzl", "new-zealand"},
+
+	// 非洲国家
+	EnvSouthAfrica: {"southafrica", "za", "zaf", "south-africa"},
+	EnvEgypt:       {"egypt", "eg", "egy"},
+	EnvNigeria:     {"nigeria", "ng", "nga"},
+	EnvKenya:       {"kenya", "ke", "ken"},
+
+	// 中东国家
+	EnvUAE:         {"uae", "ae", "are", "emirates", "dubai"},
+	EnvSaudiArabia: {"saudiarabia", "sa", "sau", "saudi-arabia", "saudi"},
+	EnvIsrael:      {"israel", "il", "isr"},
+	EnvQatar:       {"qatar", "qa", "qat"},
 }
 
 // DefaultSupportedExtensions 默认支持的配置文件扩展名
@@ -458,12 +596,23 @@ func GetContextKey() ContextKey {
 
 // SetEnvironment 设置环境变量
 func (e *Environment) SetEnvironment(value EnvironmentType) *Environment {
-	e.mu.Lock()         // 获取写锁
-	defer e.mu.Unlock() // 确保在函数结束时释放锁
+	e.mu.Lock() // 获取写锁
+
+	oldValue := e.Value
+	e.Value = value // 更新环境值
 
 	if err := setEnv(envContextKey, value); err != nil {
 		log.Printf("设置环境 %s 失败: %v", value, err)
 	}
+
+	shouldTrigger := oldValue != value
+	e.mu.Unlock() // 释放锁
+
+	// 如果环境值发生变化，在锁外触发回调
+	if shouldTrigger {
+		e.triggerCallbacks(oldValue, value)
+	}
+
 	return e // 返回当前环境实例以支持链式调用
 }
 

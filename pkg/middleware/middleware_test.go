@@ -11,15 +11,16 @@
 package middleware
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMiddleware_Default(t *testing.T) {
 	config := Default()
 	assert.NotNil(t, config)
 	assert.Equal(t, "middleware", config.ModuleName)
-	assert.True(t, config.Enabled)
+	assert.False(t, config.Enabled)
 	assert.NotNil(t, config.Logging)
 	assert.NotNil(t, config.Recovery)
 	assert.NotNil(t, config.Tracing)
@@ -51,7 +52,7 @@ func TestMiddleware_Disable(t *testing.T) {
 
 func TestMiddleware_IsEnabled(t *testing.T) {
 	config := Default()
-	assert.True(t, config.IsEnabled())
+	assert.False(t, config.IsEnabled())
 	config.Disable()
 	assert.False(t, config.IsEnabled())
 }

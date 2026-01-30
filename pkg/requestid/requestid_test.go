@@ -12,15 +12,16 @@
 package requestid
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRequestID_Default(t *testing.T) {
 	config := Default()
 	assert.NotNil(t, config)
 	assert.Equal(t, "requestid", config.ModuleName)
-	assert.True(t, config.Enabled)
+	assert.False(t, config.Enabled)
 	assert.Equal(t, "X-Request-ID", config.HeaderName)
 	assert.Equal(t, "uuid", config.Generator)
 }
@@ -56,7 +57,7 @@ func TestRequestID_Disable(t *testing.T) {
 
 func TestRequestID_IsEnabled(t *testing.T) {
 	config := Default()
-	assert.True(t, config.IsEnabled())
+	assert.False(t, config.IsEnabled())
 
 	config.Enabled = false
 	assert.False(t, config.IsEnabled())

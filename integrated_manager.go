@@ -13,13 +13,14 @@ package goconfig
 import (
 	"context"
 	"fmt"
-	"github.com/kamalyes/go-logger"
-	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 	"reflect"
 	"sync"
 	"time"
+
+	"github.com/kamalyes/go-logger"
+	"github.com/spf13/viper"
 )
 
 // IntegratedConfigManager 集成配置管理器
@@ -324,6 +325,13 @@ func GetConfigAs[T any](icm *IntegratedConfigManager) (*T, error) {
 // GetEnvironment 获取当前环境
 func (icm *IntegratedConfigManager) GetEnvironment() EnvironmentType {
 	return icm.environment.Value
+}
+
+// GetConfigPath 获取配置文件路径
+func (icm *IntegratedConfigManager) GetConfigPath() string {
+	icm.mu.RLock()
+	defer icm.mu.RUnlock()
+	return icm.configPath
 }
 
 // GetViper 获取Viper实例

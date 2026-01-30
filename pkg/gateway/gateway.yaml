@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2026-01-30 11:11:00
+# 生成时间: 2026-01-30 12:05:20
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -18,13 +18,13 @@ version: v1.0.0
 # 环境 (dev, test, prod)
 environment: dev
 # 构建时间
-build-time: "2026-01-30T11:11:00+08:00"
+build-time: "2026-01-30T12:05:20+08:00"
 # 构建用户
 build-user: kamalyes
 # Go版本
 go-version: 1.25.1
 # Git提交哈希
-git-commit: 378f5981a086f24bc9a1ba9b929bbf86
+git-commit: 9010963c89f4352d09b11e241a8d87a6
 # Git分支
 git-branch: master
 # Git标签
@@ -976,21 +976,31 @@ wsc:
     sse-timeout: 2m0s
     sse-message-buffer: 100
     redis-repository:
+        cleanup-days-ago: 0
+        enable-auto-cleanup: false
         online-status:
             key-prefix: 'wsc:online_status:'
             ttl: 1m30s
+            cleanup-days-ago: 0
+            enable-auto-cleanup: false
         stats:
             key-prefix: 'wsc:stats:'
             ttl: 10m0s
+            cleanup-days-ago: 0
+            enable-auto-cleanup: false
         workload:
             key-prefix: 'wsc:workload:'
             ttl: 1m0s
+            cleanup-days-ago: 0
+            enable-auto-cleanup: false
         offline-message:
             key-prefix: 'wsc:offline_messages:'
             queue-ttl: 168h0m0s
             auto-store: true
             auto-push: true
             max-count: 50
+            cleanup-days-ago: 0
+            enable-auto-cleanup: false
     performance:
         max-connections-per-node: 10000
         read-buffer-size: 4

@@ -13,7 +13,7 @@
 - 🔥 **配置热更新** - 实时监听配置文件变化并自动重载
 - 🛡️ **安全访问** - 防止空指针异常的链式配置访问
 - 🎯 **智能发现** - 自动发现和加载配置文件（支持多环境）
-- 🌍 **多环境支持** - 内置9种环境类型，支持自定义环境注册
+- 🌍 **全球化环境支持** - 内置 56 种环境类型（9 种标准环境 + 47 个国家/地区），支持自定义环境注册
 - 📦 **丰富模块** - 内置40+配置模块，覆盖常见应用场景
 - 🚀 **零配置启动** - 开箱即用的默认配置
 - 🎨 **链式API** - 优雅的构建器模式API设计
@@ -21,6 +21,8 @@
 ## 🌍 环境与配置文件发现
 
 ### 内置环境类型
+
+#### 📋 标准环境（9 个）
 
 | 环境类型 | 常量 | 支持的配置文件后缀 |
 |---------|------|-------------------|
@@ -34,19 +36,129 @@
 | UAT环境 | `EnvUAT` | `uat`, `acceptance`, `user-acceptance`, `beta` |
 | 集成环境 | `EnvIntegration` | `integration`, `int`, `ci`, `integration-test`, `integ` |
 
+#### 🌏 全球化环境支持（47 个国家/地区）
+
+**🏯 亚洲（20 个）**
+
+| 国家/地区 | 常量 | 别名 |
+|----------|------|------|
+| 中国 | `EnvChina` | `china`, `cn`, `chn` |
+| 日本 | `EnvJapan` | `japan`, `jp`, `jpn` |
+| 韩国 | `EnvKorea` | `korea`, `kr`, `kor`, `south-korea` |
+| 印度 | `EnvIndia` | `india`, `in`, `ind` |
+| 新加坡 | `EnvSingapore` | `singapore`, `sg`, `sgp` |
+| 泰国 | `EnvThailand` | `thailand`, `th`, `tha`, `thai` |
+| 越南 | `EnvVietnam` | `vietnam`, `vn`, `vnm`, `viet` |
+| 马来西亚 | `EnvMalaysia` | `malaysia`, `my`, `mys` |
+| 印度尼西亚 | `EnvIndonesia` | `indonesia`, `id`, `idn` |
+| 菲律宾 | `EnvPhilippines` | `philippines`, `ph`, `phl` |
+| 缅甸 | `EnvMyanmar` | `myanmar`, `mm`, `mmr`, `burma` |
+| 老挝 | `EnvLaos` | `laos`, `la`, `lao` |
+| 柬埔寨 | `EnvCambodia` | `cambodia`, `kh`, `khm` |
+| 巴基斯坦 | `EnvPakistan` | `pakistan`, `pk`, `pak` |
+| 孟加拉国 | `EnvBangladesh` | `bangladesh`, `bd`, `bgd` |
+| 斯里兰卡 | `EnvSriLanka` | `srilanka`, `lk`, `lka`, `sri-lanka` |
+| 尼泊尔 | `EnvNepal` | `nepal`, `np`, `npl` |
+| 香港 | `EnvHongKong` | `hongkong`, `hk`, `hkg`, `hong-kong` |
+| 台湾 | `EnvTaiwan` | `taiwan`, `tw`, `twn` |
+| 澳门 | `EnvMacao` | `macao`, `mo`, `mac`, `macau` |
+
+**🏰 欧洲（16 个）**
+
+| 国家 | 常量 | 别名 |
+|------|------|------|
+| 英国 | `EnvUK` | `uk`, `gb`, `gbr`, `united-kingdom`, `britain`, `england` |
+| 德国 | `EnvGermany` | `germany`, `de`, `deu`, `deutschland` |
+| 法国 | `EnvFrance` | `france`, `fr`, `fra` |
+| 意大利 | `EnvItaly` | `italy`, `it`, `ita`, `italia` |
+| 西班牙 | `EnvSpain` | `spain`, `es`, `esp`, `espana` |
+| 荷兰 | `EnvNetherlands` | `netherlands`, `nl`, `nld`, `holland` |
+| 比利时 | `EnvBelgium` | `belgium`, `be`, `bel` |
+| 瑞士 | `EnvSwitzerland` | `switzerland`, `ch`, `che` |
+| 奥地利 | `EnvAustria` | `austria`, `at`, `aut` |
+| 瑞典 | `EnvSweden` | `sweden`, `se`, `swe` |
+| 挪威 | `EnvNorway` | `norway`, `no`, `nor` |
+| 丹麦 | `EnvDenmark` | `denmark`, `dk`, `dnk` |
+| 芬兰 | `EnvFinland` | `finland`, `fi`, `fin` |
+| 波兰 | `EnvPoland` | `poland`, `pl`, `pol` |
+| 俄罗斯 | `EnvRussia` | `russia`, `ru`, `rus` |
+| 土耳其 | `EnvTurkey` | `turkey`, `tr`, `tur` |
+
+**🗽 美洲（8 个）**
+
+| 国家 | 常量 | 别名 |
+|------|------|------|
+| 美国 | `EnvUSA` | `usa`, `us`, `united-states`, `america` |
+| 加拿大 | `EnvCanada` | `canada`, `ca`, `can` |
+| 墨西哥 | `EnvMexico` | `mexico`, `mx`, `mex` |
+| 巴西 | `EnvBrazil` | `brazil`, `br`, `bra`, `brasil` |
+| 阿根廷 | `EnvArgentina` | `argentina`, `ar`, `arg` |
+| 智利 | `EnvChile` | `chile`, `cl`, `chl` |
+| 哥伦比亚 | `EnvColombia` | `colombia`, `co`, `col` |
+| 秘鲁 | `EnvPeru` | `peru`, `pe`, `per` |
+
+**🦘 其他地区（7 个）**
+
+| 国家/地区 | 常量 | 别名 |
+|----------|------|------|
+| 澳大利亚 | `EnvAustralia` | `australia`, `au`, `aus` |
+| 新西兰 | `EnvNewZealand` | `newzealand`, `nz`, `nzl`, `new-zealand` |
+| 南非 | `EnvSouthAfrica` | `southafrica`, `za`, `zaf`, `south-africa` |
+| 埃及 | `EnvEgypt` | `egypt`, `eg`, `egy` |
+| 尼日利亚 | `EnvNigeria` | `nigeria`, `ng`, `nga` |
+| 肯尼亚 | `EnvKenya` | `kenya`, `ke`, `ken` |
+| 阿联酋 | `EnvUAE` | `uae`, `ae`, `are`, `emirates`, `dubai` |
+| 沙特阿拉伯 | `EnvSaudiArabia` | `saudiarabia`, `sa`, `sau`, `saudi-arabia`, `saudi` |
+| 以色列 | `EnvIsrael` | `israel`, `il`, `isr` |
+| 卡塔尔 | `EnvQatar` | `qatar`, `qa`, `qat` |
+
+**💡 使用示例：**
+
+```go
+// 设置中国环境
+goconfig.SetCurrentEnvironment(goconfig.EnvChina)
+
+// 判断是否为中国环境
+if goconfig.IsEnvironment(goconfig.EnvChina) {
+    // 使用中国特定配置
+}
+
+// 配置文件命名示例：
+// gateway-xl-china.yaml
+// gateway-xl-cn.yaml
+// gateway-xl-chn.yaml
+```
+
 ### 配置文件命名规则
 
 配置文件命名格式：`{prefix}-{env-suffix}.{ext}`
 
-例如，当 `APP_ENV=local` 且前缀为 `gateway-xl` 时，会按优先级查找：
-- `gateway-xl-local.yaml`
-- `gateway-xl-local.yml`
-- `gateway-xl-localhost.yaml`
+**示例：**
+
+```bash
+# 标准环境
+gateway-xl-dev.yaml          # 开发环境
+gateway-xl-prod.yaml         # 生产环境
+gateway-xl-staging.yaml      # 预发布环境
+
+# 国家/地区环境
+gateway-xl-china.yaml        # 中国环境
+gateway-xl-cn.yaml           # 中国环境（别名）
+gateway-xl-japan.yaml        # 日本环境
+gateway-xl-usa.yaml          # 美国环境
+gateway-xl-uk.yaml           # 英国环境
+```
+
+当 `APP_ENV=china` 时，会按优先级查找：
+- `gateway-xl-china.yaml`
+- `gateway-xl-china.yml`
+- `gateway-xl-cn.yaml`
+- `gateway-xl-chn.yaml`
 - ...
 
 ### 注册自定义环境
 
-如果内置环境不满足需求，可以注册自定义环境：
+如果内置的 56 种环境不满足需求，可以注册自定义环境：
 
 ```go
 package main
@@ -58,6 +170,60 @@ func init() {
     // 配置文件可命名为: gateway-xl-custom.yaml, gateway-xl-my-env.yaml 等
     goconfig.RegisterEnvPrefixes("custom", "custom", "my-env", "myenv")
 }
+```
+
+### 全球化部署示例
+
+```go
+package main
+
+import (
+    goconfig "github.com/kamalyes/go-config"
+)
+
+func main() {
+    // 方式1：直接使用环境变量（推荐）
+    // 设置环境变量：export APP_ENV=china
+    // 或：export APP_ENV=cn
+    // 或：export APP_ENV=usa
+    // 配置管理器会自动识别并加载对应的配置文件
+    
+    manager := goconfig.NewConfigBuilder(config).
+        WithConfigPrefix("gateway-xl").
+        WithConfigPath("resources").
+        MustBuildAndStart()
+    
+    defer manager.Stop()
+    
+    // 方式2：代码中动态设置（适用于特殊场景）
+    // goconfig.SetCurrentEnvironment(goconfig.EnvChina)
+    
+    // 方式3：使用环境判断
+    if goconfig.IsEnvironment(goconfig.EnvChina) {
+        // 中国特定逻辑
+        log.Info("使用中国区域配置")
+    }
+}
+```
+
+**部署配置示例：**
+
+```bash
+# 中国区域部署
+export APP_ENV=china  # 或 cn, chn
+./app
+
+# 美国区域部署
+export APP_ENV=usa    # 或 us
+./app
+
+# 日本区域部署
+export APP_ENV=japan  # 或 jp, jpn
+./app
+
+# 欧洲区域部署
+export APP_ENV=germany  # 或 de, deu
+./app
 ```
 
 ### 配置文件未找到时的错误提示
