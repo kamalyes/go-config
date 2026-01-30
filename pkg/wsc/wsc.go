@@ -117,10 +117,7 @@ type Stats struct {
 
 // Workload 负载管理配置
 type Workload struct {
-	KeyPrefix         string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`                           // Redis键前缀
-	TTL               time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                                               // 过期时间
-	CleanupDaysAgo    int           `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 启动时清理N天前的数据（0表示不清理）
-	EnableAutoCleanup bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
+	KeyPrefix string `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"` // Redis键前缀
 }
 
 // OfflineMessage 离线消息配置
@@ -191,21 +188,6 @@ func (s *Stats) GetEnableAutoCleanup(globalEnable bool) bool {
 // GetKeyPrefix 获取负载管理Redis键前缀
 func (w *Workload) GetKeyPrefix() string {
 	return w.KeyPrefix
-}
-
-// GetTTL 获取负载管理TTL
-func (w *Workload) GetTTL() time.Duration {
-	return w.TTL
-}
-
-// GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
-func (w *Workload) GetCleanupDaysAgo(globalDaysAgo int) int {
-	return mathx.IfNotZero(w.CleanupDaysAgo, globalDaysAgo)
-}
-
-// GetEnableAutoCleanup 获取是否启用自动清理（优先使用自己的配置，否则使用全局配置）
-func (w *Workload) GetEnableAutoCleanup(globalEnable bool) bool {
-	return mathx.IfGt(w.CleanupDaysAgo, 0, w.EnableAutoCleanup, globalEnable)
 }
 
 // GetKeyPrefix 获取离线消息Redis键前缀
@@ -453,7 +435,6 @@ func DefaultRedisRepository() *RedisRepository {
 		},
 		Workload: &Workload{
 			KeyPrefix: "wsc:workload:",
-			TTL:       1 * time.Minute,
 		},
 		OfflineMessage: &OfflineMessage{
 			KeyPrefix: "wsc:offline_messages:",

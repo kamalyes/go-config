@@ -2,7 +2,7 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2026-01-30 15:08:20
+// 生成时间: 2026-01-30 17:57:10
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -59,10 +59,7 @@
       "enableAutoCleanup": false
     },
     "workload": {
-      "keyPrefix": "wsc:workload:",
-      "ttl": 60000000000,
-      "cleanupDaysAgo": 0,
-      "enableAutoCleanup": false
+      "keyPrefix": "wsc:workload:"
     },
     "offlineMessage": {
       "keyPrefix": "wsc:offline_messages:",
