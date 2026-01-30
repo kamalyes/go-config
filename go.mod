@@ -6,7 +6,7 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-viper/mapstructure/v2 v2.4.0
 	github.com/kamalyes/go-logger v0.4.6-0.20260113073109-516d3a52d3ee
-	github.com/kamalyes/go-toolbox v0.11.87-0.20260113080618-85c570d0200e
+	github.com/kamalyes/go-toolbox v0.11.87-0.20260130052916-b1a1dedd2346
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 )
@@ -21,6 +21,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/kamalyes/go-jsonpath v0.0.0-20260129163507-0b67ed48bb28 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

@@ -34,8 +34,10 @@ import (
 	"github.com/kamalyes/go-config/pkg/smtp"
 	"github.com/kamalyes/go-config/pkg/swagger"
 	"github.com/kamalyes/go-config/pkg/wsc"
+	"github.com/kamalyes/go-toolbox/pkg/convert"
 	"github.com/kamalyes/go-toolbox/pkg/osx"
 	"github.com/kamalyes/go-toolbox/pkg/syncx"
+	"github.com/kamalyes/go-toolbox/pkg/types"
 )
 
 // Gateway网关统一配置
@@ -74,6 +76,7 @@ type Gateway struct {
 	RateLimit     *ratelimit.RateLimit         `mapstructure:"rate-limit" yaml:"rate-limit" json:"rateLimit"`           // 限流配置
 	WSC           *wsc.WSC                     `mapstructure:"wsc" yaml:"wsc" json:"wsc"`                               // WebSocket通信配置
 	Jobs          *jobs.Jobs                   `mapstructure:"jobs" yaml:"jobs" json:"jobs"`                            // Job调度配置
+	Extensions    map[string]any               `mapstructure:"extensions" yaml:"extensions" json:"extensions"`          // 扩展配置字段，供第三方自定义使用
 }
 
 // Default 创建默认Gateway配置
@@ -113,6 +116,7 @@ func Default() *Gateway {
 		Banner:        banner.Default(),
 		WSC:           wsc.Default(),
 		Jobs:          jobs.Default(),
+		Extensions:    make(map[string]any),
 	}
 }
 
@@ -128,25 +132,25 @@ func (c *Gateway) ToJSON() (string, error) {
 
 // GenerateDefaultYAML 生成默认Gateway配置的YAML
 func GenerateDefaultYAML() (string, error) {
-	return internal.GenerateYAMLFromDefault(func() interface{} {
+	return internal.GenerateYAMLFromDefault(func() any {
 		return Default()
 	})
 }
 
 // GenerateDefaultJSON 生成默认Gateway配置的JSON
 func GenerateDefaultJSON() (string, error) {
-	return internal.GenerateJSONFromDefault(func() interface{} {
+	return internal.GenerateJSONFromDefault(func() any {
 		return Default()
 	})
 }
 
 // Get 返回配置接口
-func (c *Gateway) Get() interface{} {
+func (c *Gateway) Get() any {
 	return c
 }
 
 // Set 设置配置数据
-func (c *Gateway) Set(data interface{}) {
+func (c *Gateway) Set(data any) {
 	if cfg, ok := data.(*Gateway); ok {
 		*c = *cfg
 	}
@@ -505,4 +509,82 @@ func (c *Gateway) Disable() *Gateway {
 // IsEnabled 检查是否启用
 func (c *Gateway) IsEnabled() bool {
 	return c.Enabled
+}
+
+// SetExtension 设置扩展配置
+func (c *Gateway) SetExtension(key string, value any) *Gateway {
+	if c.Extensions == nil {
+		c.Extensions = make(map[string]any)
+	}
+	c.Extensions[key] = value
+	return c
+}
+
+// GetExtension 获取扩展配置
+func (c *Gateway) GetExtension(key string) (any, bool) {
+	if c.Extensions == nil {
+		return nil, false
+	}
+	value, exists := c.Extensions[key]
+	return value, exists
+}
+
+// GetExtensionAs 获取指定类型的扩展配置（泛型版本）
+// 使用 go-toolbox 的 convert.MustConvertTo 自动进行类型转换
+//
+// 支持的类型：
+//   - string, bool
+//   - int, int8, int16, int32, int64
+//   - uint, uint8, uint16, uint32, uint64
+//   - float32, float64
+//   - []byte, map[string]any, []any
+//
+// 示例:
+//
+//	str, ok := GetExtensionAs[string](gw, "api-key")
+//	num, ok := GetExtensionAs[int](gw, "max-retry")
+//	flag, ok := GetExtensionAs[bool](gw, "enabled")
+func GetExtensionAs[T types.Convertible](c *Gateway, key string) (T, bool) {
+	var zero T
+
+	value, exists := c.GetExtension(key)
+	if !exists {
+		return zero, false
+	}
+
+	// 直接使用 convert.MustConvertTo 进行类型转换
+	return convert.MustConvertTo[T](value)
+}
+
+// GetExtensionMap 获取 map 类型的扩展配置
+func (c *Gateway) GetExtensionMap(key string) (map[string]any, bool) {
+	return GetExtensionAs[map[string]any](c, key)
+}
+
+// HasExtension 检查是否存在指定的扩展配置
+func (c *Gateway) HasExtension(key string) bool {
+	_, exists := c.GetExtension(key)
+	return exists
+}
+
+// DeleteExtension 删除扩展配置
+func (c *Gateway) DeleteExtension(key string) *Gateway {
+	if c.Extensions != nil {
+		delete(c.Extensions, key)
+	}
+	return c
+}
+
+// GetAllExtensions 获取所有扩展配置（深拷贝副本）
+func (c *Gateway) GetAllExtensions() map[string]any {
+	if c.Extensions == nil {
+		return make(map[string]any)
+	}
+	// 使用深拷贝返回副本，避免外部修改影响内部数据
+	var result map[string]any
+	if err := syncx.DeepCopy(&result, &c.Extensions); err != nil {
+		// 如果深拷贝失败，返回空 map
+		return make(map[string]any)
+	}
+	return result
 }
