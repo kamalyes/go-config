@@ -2,7 +2,7 @@
  * @Author: kamalyes 501893067@qq.com
  * @Date: 2025-11-13 00:00:00
  * @LastEditors: kamalyes 501893067@qq.com
- * @LastEditTime: 2025-12-05 16:11:55
+ * @LastEditTime: 2026-01-30 15:07:53
  * @FilePath: \go-config\pkg\wsc\wsc.go
  * @Description: WebSocket 通信核心配置模块
  *
@@ -134,6 +134,18 @@ type OfflineMessage struct {
 	EnableAutoCleanup bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
 }
 
+// ConnectionRecord 连接记录配置
+type ConnectionRecord struct {
+	CleanupDaysAgo    int  `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 启动时清理N天前的数据（0表示不清理）
+	EnableAutoCleanup bool `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
+}
+
+// MessageRecord 消息发送记录配置
+type MessageRecord struct {
+	CleanupDaysAgo    int  `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 启动时清理N天前的数据（0表示不清理）
+	EnableAutoCleanup bool `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
+}
+
 // ========== Redis仓库配置 Getter 方法 ==========
 
 // GetKeyPrefix 获取在线状态Redis键前缀
@@ -231,6 +243,26 @@ func (o *OfflineMessage) GetEnableAutoCleanup(globalEnable bool) bool {
 	return mathx.IfGt(o.CleanupDaysAgo, 0, o.EnableAutoCleanup, globalEnable)
 }
 
+// GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
+func (c *ConnectionRecord) GetCleanupDaysAgo(globalDaysAgo int) int {
+	return mathx.IfNotZero(c.CleanupDaysAgo, globalDaysAgo)
+}
+
+// GetEnableAutoCleanup 获取是否启用自动清理（优先使用自己的配置，否则使用全局配置）
+func (c *ConnectionRecord) GetEnableAutoCleanup(globalEnable bool) bool {
+	return mathx.IfGt(c.CleanupDaysAgo, 0, c.EnableAutoCleanup, globalEnable)
+}
+
+// GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
+func (m *MessageRecord) GetCleanupDaysAgo(globalDaysAgo int) int {
+	return mathx.IfNotZero(m.CleanupDaysAgo, globalDaysAgo)
+}
+
+// GetEnableAutoCleanup 获取是否启用自动清理（优先使用自己的配置，否则使用全局配置）
+func (m *MessageRecord) GetEnableAutoCleanup(globalEnable bool) bool {
+	return mathx.IfGt(m.CleanupDaysAgo, 0, m.EnableAutoCleanup, globalEnable)
+}
+
 // Performance 性能配置
 type Performance struct {
 	MaxConnectionsPerNode int  `mapstructure:"max-connections-per-node" yaml:"max-connections-per-node" json:"maxConnectionsPerNode"` // 每个节点最大连接数
@@ -308,11 +340,13 @@ type EmailAlert struct {
 
 // Database 数据库持久化配置
 type Database struct {
-	Enabled       bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                     // 是否启用数据库持久化
-	AutoMigrate   bool          `mapstructure:"auto-migrate" yaml:"auto-migrate" json:"autoMigrate"`       // 是否自动迁移表结构
-	TablePrefix   string        `mapstructure:"table-prefix" yaml:"table-prefix" json:"tablePrefix"`       // 表前缀
-	LogLevel      string        `mapstructure:"log-level" yaml:"log-level" json:"logLevel"`                // 日志级别
-	SlowThreshold time.Duration `mapstructure:"slow-threshold" yaml:"slow-threshold" json:"slowThreshold"` // 慢查询阈值
+	Enabled          bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                              // 是否启用数据库持久化
+	AutoMigrate      bool              `mapstructure:"auto-migrate" yaml:"auto-migrate" json:"autoMigrate"`                // 是否自动迁移表结构
+	TablePrefix      string            `mapstructure:"table-prefix" yaml:"table-prefix" json:"tablePrefix"`                // 表前缀
+	LogLevel         string            `mapstructure:"log-level" yaml:"log-level" json:"logLevel"`                         // 日志级别
+	SlowThreshold    time.Duration     `mapstructure:"slow-threshold" yaml:"slow-threshold" json:"slowThreshold"`          // 慢查询阈值
+	ConnectionRecord *ConnectionRecord `mapstructure:"connection-record" yaml:"connection-record" json:"connectionRecord"` // 连接记录配置
+	MessageRecord    *MessageRecord    `mapstructure:"message-record" yaml:"message-record" json:"messageRecord"`          // 消息发送记录配置
 }
 
 // BatchProcessing 批处理配置
@@ -439,6 +473,14 @@ func DefaultDatabase() *Database {
 		TablePrefix:   "wsc_",
 		LogLevel:      "warn",
 		SlowThreshold: 200 * time.Millisecond,
+		ConnectionRecord: &ConnectionRecord{
+			CleanupDaysAgo:    30,   // 默认清理30天前的数据
+			EnableAutoCleanup: true, // 默认启用自动清理
+		},
+		MessageRecord: &MessageRecord{
+			CleanupDaysAgo:    7,    // 默认清理7天前的数据
+			EnableAutoCleanup: true, // 默认启用自动清理
+		},
 	}
 }
 

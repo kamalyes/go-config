@@ -2,7 +2,7 @@
 # 模块名称: wsc
 # 包名: wsc  
 # 描述: WebSocket通信模块
-# 生成时间: 2026-01-30 11:56:26
+# 生成时间: 2026-01-30 15:08:20
 # 注意: 此文件由配置生成器自动生成
 
 # 是否启用
@@ -78,6 +78,8 @@ sse-timeout: 2m0s
 sse-message-buffer: 100
 # Redis仓库配置
 redis-repository:
+    cleanup-days-ago: 0
+    enable-auto-cleanup: false
     online-status:
         key-prefix: 'wsc:online_status:'
         ttl: 1m30s
@@ -216,6 +218,12 @@ database:
     table-prefix: wsc_
     log-level: warn
     slow-threshold: 200ms
+    connection-record:
+        cleanup-days-ago: 30
+        enable-auto-cleanup: true
+    message-record:
+        cleanup-days-ago: 7
+        enable-auto-cleanup: true
 # 日志配置
 logging:
     module-name: wsc
