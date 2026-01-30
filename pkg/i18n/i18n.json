@@ -2,7 +2,7 @@
 // 模块名称: i18n
 // 包名: i18n  
 // 描述: 国际化模块
-// 生成时间: 2025-11-28 00:26:08
+// 生成时间: 2026-01-30 11:11:00
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -17,6 +17,11 @@
     "en-us": "en",
     "zh-cn": "zh"
   },
+  "legacyLanguageMapping": {},
+  "resolutionOrder": [
+    "legacy",
+    "standard"
+  ],
   "detectionOrder": [
     "header",
     "query",

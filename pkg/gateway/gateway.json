@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2025-12-28 20:29:35
+// 生成时间: 2026-01-30 11:11:00
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2025-12-28T20:29:35+08:00",
+  "buildTime": "2026-01-30T11:11:00+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "0e7a58d49430799e21b17812afceca9b",
+  "gitCommit": "378f5981a086f24bc9a1ba9b929bbf86",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -662,6 +662,11 @@
         "en-us": "en",
         "zh-cn": "zh"
       },
+      "legacyLanguageMapping": {},
+      "resolutionOrder": [
+        "legacy",
+        "standard"
+      ],
       "detectionOrder": [
         "header",
         "query",
@@ -948,25 +953,11 @@
     "maxRecTime": 60000000000,
     "recFactor": 1.5,
     "autoReconnect": true,
-    "maxRetries": 3,
-    "baseDelay": 100000000,
-    "maxDelay": 5000000000,
     "ackTimeout": 500000000,
     "ackMaxRetries": 3,
     "enableAck": false,
-    "backoffFactor": 2,
-    "jitter": true,
-    "retryableErrors": [
-      "queue_full",
-      "timeout",
-      "conn_error",
-      "channel_closed"
-    ],
-    "nonRetryableErrors": [
-      "user_offline",
-      "permission",
-      "validation"
-    ],
+    "messageRecordTtl": 86400000000000,
+    "recordCleanupInterval": 1800000000000,
     "sseHeartbeat": 30000000000,
     "sseTimeout": 120000000000,
     "sseMessageBuffer": 100,
@@ -1106,6 +1097,34 @@
         "application/xml",
         "application/x-www-form-urlencoded",
         "text/"
+      ]
+    },
+    "batchProcessing": {
+      "offlineMessageBatchSize": 100,
+      "messagePoolBufferSize": 1024,
+      "connectionBatchSize": 1000
+    },
+    "channelBuffers": {
+      "broadcastBufferMultiplier": 4,
+      "nodeMessageBufferMultiplier": 4
+    },
+    "retryPolicy": {
+      "maxRetries": 3,
+      "baseDelay": 100000000,
+      "maxDelay": 5000000000,
+      "backoffFactor": 2,
+      "jitter": true,
+      "jitterPercent": 0.1,
+      "retryableErrors": [
+        "queue_full",
+        "timeout",
+        "conn_error",
+        "channel_closed"
+      ],
+      "nonRetryableErrors": [
+        "user_offline",
+        "permission",
+        "validation"
       ]
     }
   },

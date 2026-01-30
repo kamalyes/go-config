@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2025-12-28 20:29:35
+# 生成时间: 2026-01-30 11:11:00
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -18,13 +18,13 @@ version: v1.0.0
 # 环境 (dev, test, prod)
 environment: dev
 # 构建时间
-build-time: "2025-12-28T20:29:35+08:00"
+build-time: "2026-01-30T11:11:00+08:00"
 # 构建用户
 build-user: kamalyes
 # Go版本
 go-version: 1.25.1
 # Git提交哈希
-git-commit: 0e7a58d49430799e21b17812afceca9b
+git-commit: 378f5981a086f24bc9a1ba9b929bbf86
 # Git分支
 git-branch: master
 # Git标签
@@ -677,6 +677,10 @@ middleware:
         language-mapping:
             en-us: en
             zh-cn: zh
+        legacy-language-mapping: {}
+        resolution-order:
+            - legacy
+            - standard
         detection-order:
             - header
             - query
@@ -963,23 +967,11 @@ wsc:
     max-rec-time: 1m0s
     rec-factor: 1.5
     auto-reconnect: true
-    max-retries: 3
-    base-delay: 100ms
-    max-delay: 5s
     ack-timeout: 500ms
     ack-max-retries: 3
     enable-ack: false
-    backoff-factor: 2
-    jitter: true
-    retryable-errors:
-        - queue_full
-        - timeout
-        - conn_error
-        - channel_closed
-    non-retryable-errors:
-        - user_offline
-        - permission
-        - validation
+    message-record-ttl: 24h0m0s
+    record-cleanup-interval: 30m0s
     sse-heartbeat: 30s
     sse-timeout: 2m0s
     sse-message-buffer: 100
@@ -1158,6 +1150,29 @@ wsc:
             - application/xml
             - application/x-www-form-urlencoded
             - text/
+    batch-processing:
+        offline-message-batch-size: 100
+        message-pool-buffer-size: 1024
+        connection-batch-size: 1000
+    channel-buffers:
+        broadcast-buffer-multiplier: 4
+        node-message-buffer-multiplier: 4
+    retry-policy:
+        max-retries: 3
+        base-delay: 100ms
+        max-delay: 5s
+        backoff-factor: 2
+        jitter: true
+        jitter-percent: 0.1
+        retryable-errors:
+            - queue_full
+            - timeout
+            - conn_error
+            - channel_closed
+        non-retryable-errors:
+            - user_offline
+            - permission
+            - validation
 # Job调度配置
 jobs:
     # 是否启用网关

@@ -2,7 +2,7 @@
 # 模块名称: middleware
 # 包名: middleware  
 # 描述: 中间件模块
-# 生成时间: 2025-12-27 11:23:33
+# 生成时间: 2026-01-30 11:11:00
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -137,6 +137,10 @@ i18n:
     language-mapping:
         en-us: en
         zh-cn: zh
+    legacy-language-mapping: {}
+    resolution-order:
+        - legacy
+        - standard
     detection-order:
         - header
         - query

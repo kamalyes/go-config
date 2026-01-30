@@ -2,7 +2,7 @@
 # 模块名称: i18n
 # 包名: i18n  
 # 描述: 国际化模块
-# 生成时间: 2025-11-28 00:26:08
+# 生成时间: 2026-01-30 11:11:00
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -15,10 +15,16 @@ default-language: en
 supported-languages:
     - en
     - zh
-# 语言映射关系
+# 语言映射关系（标准映射，如 zh-cn -> zh）
 language-mapping:
     en-us: en
     zh-cn: zh
+# 遗留语言映射（将之前使用的错误代码映射到正确代码）
+legacy-language-mapping: {}
+# 语言解析顺序（legacy, standard），可自定义顺序和组合
+resolution-order:
+    - legacy
+    - standard
 # 语言检测顺序
 detection-order:
     - header
