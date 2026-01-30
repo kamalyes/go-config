@@ -40,6 +40,25 @@ func (m MappingType) String() string {
 	return string(m)
 }
 
+// DetectionType 语言检测类型
+type DetectionType string
+
+const (
+	// DetectionHeader 从 HTTP 头检测
+	DetectionHeader DetectionType = "header"
+	// DetectionQuery 从查询参数检测
+	DetectionQuery DetectionType = "query"
+	// DetectionCookie 从 Cookie 检测
+	DetectionCookie DetectionType = "cookie"
+	// DetectionDefault 使用默认语言
+	DetectionDefault DetectionType = "default"
+)
+
+// String 返回检测类型的字符串表示
+func (d DetectionType) String() string {
+	return string(d)
+}
+
 // I18N 国际化中间件配置
 type I18N struct {
 	ModuleName            string            `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                    // 模块名称
@@ -49,7 +68,7 @@ type I18N struct {
 	LanguageMapping       map[string]string `mapstructure:"language-mapping" yaml:"language-mapping" json:"languageMapping"`                     // 语言映射关系（标准映射，如 zh-cn -> zh）
 	LegacyLanguageMapping map[string]string `mapstructure:"legacy-language-mapping" yaml:"legacy-language-mapping" json:"legacyLanguageMapping"` // 遗留语言映射（将之前使用的错误代码映射到正确代码）
 	ResolutionOrder       []MappingType     `mapstructure:"resolution-order" yaml:"resolution-order" json:"resolutionOrder"`                     // 语言解析顺序（legacy, standard），可自定义顺序和组合
-	DetectionOrder        []string          `mapstructure:"detection-order" yaml:"detection-order" json:"detectionOrder"`                        // 语言检测顺序
+	DetectionOrder        []DetectionType   `mapstructure:"detection-order" yaml:"detection-order" json:"detectionOrder"`                        // 语言检测顺序
 	LanguageParam         string            `mapstructure:"language-param" yaml:"language-param" json:"languageParam"`                           // 语言参数名称（用于query和cookie）
 	LanguageHeader        string            `mapstructure:"language-header" yaml:"language-header" json:"languageHeader"`                        // 语言头名称
 	MessagesPath          string            `mapstructure:"messages-path" yaml:"messages-path" json:"messagesPath"`                              // 消息文件路径
@@ -71,8 +90,8 @@ func Default() *I18N {
 			"en-us": "en",
 		},
 		LegacyLanguageMapping: make(map[string]string),
-		ResolutionOrder:       []MappingType{LegacyMapping, StandardMapping}, // 默认顺序：优先遗留映射（向后兼容）
-		DetectionOrder:        []string{"header", "query", "cookie", "default"},
+		ResolutionOrder:       []MappingType{LegacyMapping, StandardMapping},                                       // 默认顺序：优先遗留映射（向后兼容）
+		DetectionOrder:        []DetectionType{DetectionHeader, DetectionQuery, DetectionCookie, DetectionDefault}, // 默认检测顺序
 		LanguageParam:         "lang",
 		LanguageHeader:        "Accept-Language",
 		MessagesPath:          "./locales",
@@ -203,7 +222,17 @@ func (i *I18N) AddLegacyLanguageMappings(mappings map[string]string) *I18N {
 }
 
 // ResolveLanguage 解析语言代码（根据配置的解析顺序进行映射，最后验证是否支持）
-// 返回最终的标准语言代码，如果不支持则返回默认语言
+//
+// 处理流程：
+// 1. 按照 ResolutionOrder 配置的顺序依次应用映射（legacy -> standard）
+// 2. 验证映射后的语言是否在支持列表中
+// 3. 如果不支持则返回默认语言
+//
+// 参数：
+//   - lang: 原始语言代码（如 "cn", "zh-cn", "en-us"）
+//
+// 返回：
+//   - 最终的标准语言代码（如 "zh", "en"）
 func (i *I18N) ResolveLanguage(lang string) string {
 	// 按照配置的顺序依次应用映射
 	for _, resolverType := range i.ResolutionOrder {
@@ -219,7 +248,8 @@ func (i *I18N) ResolveLanguage(lang string) string {
 	return i.DefaultLanguage
 }
 
-// applyMapping 根据类型应用对应的映射
+// applyMapping 根据映射类型应用对应的语言映射规则
+// 支持 LegacyMapping（遗留映射）和 StandardMapping（标准映射）两种类型
 func (i *I18N) applyMapping(lang string, mappingType MappingType) string {
 	switch mappingType {
 	case LegacyMapping:
@@ -235,7 +265,15 @@ func (i *I18N) applyMapping(lang string, mappingType MappingType) string {
 }
 
 // ParseAcceptLanguage 解析 Accept-Language 头（支持多语言和权重）
-// 例如：zh-CN,zh;q=0.9,en;q=0.8 -> 返回第一个支持的语言
+//
+// 处理流程：
+// 1. 解析语言列表，提取语言代码（忽略权重参数）
+// 2. 按优先级顺序依次尝试解析每个语言
+// 3. 返回第一个支持的语言，如果都不支持则返回默认语言
+//
+// 示例：
+//   - "zh-CN,zh;q=0.9,en;q=0.8" -> 返回 "zh"（如果支持）
+//   - "fr,de;q=0.8" -> 返回默认语言（如果都不支持）
 func (i *I18N) ParseAcceptLanguage(acceptLang string) string {
 	if acceptLang == "" {
 		return i.DefaultLanguage
@@ -256,8 +294,8 @@ func (i *I18N) ParseAcceptLanguage(acceptLang string) string {
 	return i.DefaultLanguage
 }
 
-// parseLanguageList 解析语言列表，提取语言代码（忽略权重）
-// 例如：zh-CN,zh;q=0.9,en;q=0.8 -> [zh-CN, zh, en]
+// parseLanguageList 解析语言列表，提取语言代码并忽略权重参数
+// 将 "zh-CN,zh;q=0.9,en;q=0.8" 解析为 ["zh-cn", "zh", "en"]（转为小写）
 func (i *I18N) parseLanguageList(acceptLang string) []string {
 	// 按逗号分割并去除空格
 	parts := stringx.SplitTrim(acceptLang, ",")
@@ -280,7 +318,7 @@ func (i *I18N) parseLanguageList(acceptLang string) []string {
 	return languages
 }
 
-// IsSupportedLanguage 公开方法，检查语言是否被支持
+// IsSupportedLanguage 检查指定语言是否在支持的语言列表中
 func (i *I18N) IsSupportedLanguage(lang string) bool {
 	return slices.Contains(i.SupportedLanguages, lang)
 }
