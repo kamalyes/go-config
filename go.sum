@@ -35,10 +35,10 @@ github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnr
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/kamalyes/go-jsonpath v0.0.0-20260129163507-0b67ed48bb28 h1:mftqfK+BB1eE+aXca1zAMyKUAGPlcKFwQS7og7bq3Qk=
 github.com/kamalyes/go-jsonpath v0.0.0-20260129163507-0b67ed48bb28/go.mod h1:Yu4Vw7F4dOKlhHK5RzBHYDvoSRdeHJgVwAjqXHXu4p4=
-github.com/kamalyes/go-logger v0.4.6-0.20260113073109-516d3a52d3ee h1:48HWtpxyklG9kaUUOA9FnSY5iIN0QWK9xgFpBO6SEro=
-github.com/kamalyes/go-logger v0.4.6-0.20260113073109-516d3a52d3ee/go.mod h1:suA/wX7+e8ef4KiZ1+TgRzbu1XR8t+neIVxyOyoMMuo=
-github.com/kamalyes/go-toolbox v0.11.87-0.20260130052916-b1a1dedd2346 h1:QbOgR5mpQMU+WcCEL/pgSM4UzXkpp2r7S5qJcA8OqN8=
-github.com/kamalyes/go-toolbox v0.11.87-0.20260130052916-b1a1dedd2346/go.mod h1:T0toLZCP952jKKJFo8Rn+sZ9OktxxU7GYWFPpk/c98k=
+github.com/kamalyes/go-logger v0.4.6-0.20260203085022-0f0923bdc1b1 h1:9rhw1SeqV20NgjEtO8pghRtSDHcujfl1UvLytRvx+bk=
+github.com/kamalyes/go-logger v0.4.6-0.20260203085022-0f0923bdc1b1/go.mod h1:w/I9w1B5Eo9JSX0KKktFWV+IkBgCsQvFVECK9/JZP9s=
+github.com/kamalyes/go-toolbox v0.11.87-0.20260203051032-5f35aa1388aa h1:0wLj4QkZhC9UpMlkAmW/xi4e0+zcl8HouLs7x828ecc=
+github.com/kamalyes/go-toolbox v0.11.87-0.20260203051032-5f35aa1388aa/go.mod h1:T0toLZCP952jKKJFo8Rn+sZ9OktxxU7GYWFPpk/c98k=
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
 github.com/klauspost/cpuid/v2 v2.2.7 h1:ZWSB3igEs+d0qvnxR/ZBzXVmxkgt8DdzP6m9pfuVLDM=
 github.com/klauspost/cpuid/v2 v2.2.7/go.mod h1:Lcz8mBdAVJIBVzewtcLocK12l3Y+JytZYpaMropDUws=

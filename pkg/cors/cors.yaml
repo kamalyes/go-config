@@ -35,6 +35,7 @@ allowed-headers:
     - X-Nonce
     - User-Agent
     - Referer
+    - X-Timezone
 # 最大缓存时间
 max-age: "86400"
 # 是否允许所有来源

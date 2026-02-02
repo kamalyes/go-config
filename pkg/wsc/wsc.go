@@ -97,6 +97,7 @@ type RedisRepository struct {
 	Stats          *Stats          `mapstructure:"stats" yaml:"stats" json:"stats"`                              // 统计数据配置
 	Workload       *Workload       `mapstructure:"workload" yaml:"workload" json:"workload"`                     // 负载管理配置
 	OfflineMessage *OfflineMessage `mapstructure:"offline-message" yaml:"offline-message" json:"offlineMessage"` // 离线消息配置
+	PubSub         *PubSub         `mapstructure:"pubsub" yaml:"pubsub" json:"pubsub"`                           // 分布式消息订阅配置
 }
 
 // OnlineStatus 在线状态配置
@@ -129,6 +130,18 @@ type OfflineMessage struct {
 	MaxCount          int           `mapstructure:"max-count" yaml:"max-count" json:"maxCount"`                              // 单次推送最大离线消息数
 	CleanupDaysAgo    int           `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 启动时清理N天前的数据（0表示不清理）
 	EnableAutoCleanup bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
+}
+
+// PubSub 分布式消息订阅配置
+type PubSub struct {
+	Enabled            bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                      // 是否启用分布式消息订阅
+	Namespace          string        `mapstructure:"namespace" yaml:"namespace" json:"namespace"`                                // 命名空间
+	MaxRetries         int           `mapstructure:"max-retries" yaml:"max-retries" json:"maxRetries"`                           // 最大重试次数
+	RetryDelay         time.Duration `mapstructure:"retry-delay" yaml:"retry-delay" json:"retryDelay"`                           // 重试延迟
+	BufferSize         int           `mapstructure:"buffer-size" yaml:"buffer-size" json:"bufferSize"`                           // 消息缓冲区大小
+	PingInterval       time.Duration `mapstructure:"ping-interval" yaml:"ping-interval" json:"pingInterval"`                     // 心跳间隔
+	EnableCompression  bool          `mapstructure:"enable-compression" yaml:"enable-compression" json:"enableCompression"`      // 是否启用消息压缩
+	CompressionMinSize int           `mapstructure:"compression-min-size" yaml:"compression-min-size" json:"compressionMinSize"` // 压缩阈值（字节）
 }
 
 // ConnectionRecord 连接记录配置
@@ -223,6 +236,46 @@ func (o *OfflineMessage) GetCleanupDaysAgo(globalDaysAgo int) int {
 // GetEnableAutoCleanup 获取是否启用自动清理（优先使用自己的配置，否则使用全局配置）
 func (o *OfflineMessage) GetEnableAutoCleanup(globalEnable bool) bool {
 	return mathx.IfGt(o.CleanupDaysAgo, 0, o.EnableAutoCleanup, globalEnable)
+}
+
+// GetEnabled 获取是否启用分布式消息订阅
+func (p *PubSub) GetEnabled() bool {
+	return p.Enabled
+}
+
+// GetNamespace 获取命名空间
+func (p *PubSub) GetNamespace() string {
+	return p.Namespace
+}
+
+// GetMaxRetries 获取最大重试次数
+func (p *PubSub) GetMaxRetries() int {
+	return p.MaxRetries
+}
+
+// GetRetryDelay 获取重试延迟
+func (p *PubSub) GetRetryDelay() time.Duration {
+	return p.RetryDelay
+}
+
+// GetBufferSize 获取消息缓冲区大小
+func (p *PubSub) GetBufferSize() int {
+	return p.BufferSize
+}
+
+// GetPingInterval 获取心跳间隔
+func (p *PubSub) GetPingInterval() time.Duration {
+	return p.PingInterval
+}
+
+// GetEnableCompression 获取是否启用消息压缩
+func (p *PubSub) GetEnableCompression() bool {
+	return p.EnableCompression
+}
+
+// GetCompressionMinSize 获取压缩阈值
+func (p *PubSub) GetCompressionMinSize() int {
+	return p.CompressionMinSize
 }
 
 // GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
@@ -443,6 +496,16 @@ func DefaultRedisRepository() *RedisRepository {
 			AutoPush:  true,
 			MaxCount:  50,
 		},
+		PubSub: &PubSub{
+			Enabled:            true,                   // 默认启用分布式
+			Namespace:          "wsc:pubsub:",          // 命名空间
+			MaxRetries:         2,                      // 最大重试次数
+			RetryDelay:         100 * time.Millisecond, // 重试延迟
+			BufferSize:         100,                    // 消息缓冲区大小
+			PingInterval:       10 * time.Second,       // 心跳间隔
+			EnableCompression:  false,                  // 默认关闭压缩
+			CompressionMinSize: 1024,                   // 1KB以上才压缩
+		},
 	}
 }
 
@@ -651,7 +714,7 @@ func defaultBlockEmailTemplate() string {
 func DefaultLogging() *logging.Logging {
 	return logging.Default().
 		WithModuleName("wsc").
-		WithLevel("info").
+		WithLevel("debug").
 		WithFormat("json").
 		WithOutput("stdout").
 		WithFilePath("/var/log/wsc.log").

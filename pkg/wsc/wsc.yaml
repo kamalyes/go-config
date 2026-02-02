@@ -2,7 +2,7 @@
 # 模块名称: wsc
 # 包名: wsc  
 # 描述: WebSocket通信模块
-# 生成时间: 2026-01-30 17:57:10
+# 生成时间: 2026-02-02 19:58:06
 # 注意: 此文件由配置生成器自动生成
 
 # 是否启用
@@ -100,6 +100,16 @@ redis-repository:
         max-count: 50
         cleanup-days-ago: 0
         enable-auto-cleanup: false
+    pubsub:
+        # 是否启用
+        enabled: true
+        namespace: 'wsc:pubsub:'
+        max-retries: 2
+        retry-delay: 100ms
+        buffer-size: 100
+        ping-interval: 10s
+        enable-compression: false
+        compression-min-size: 1024
 # 性能配置
 performance:
     max-connections-per-node: 10000
@@ -226,8 +236,9 @@ logging:
     module-name: wsc
     # 是否启用
     enabled: true
-    level: info
+    level: debug
     format: json
+    time-format: 2006-01-02T15:04:05.999999999Z07:00
     output: stdout
     file-path: /var/log/wsc.log
     max-size: 100

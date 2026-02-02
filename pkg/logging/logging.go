@@ -12,32 +12,51 @@
 package logging
 
 import (
+	"time"
+
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-logger"
 	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Logging 日志中间件配置
 type Logging struct {
-	ModuleName           string   `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                 // 模块名称
-	Enabled              bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                            // 是否启用日志
-	Level                string   `mapstructure:"level" yaml:"level" json:"level"`                                                  // 日志级别
-	Format               string   `mapstructure:"format" yaml:"format" json:"format"`                                               // 日志格式 (json, text)
-	Output               string   `mapstructure:"output" yaml:"output" json:"output"`                                               // 输出目标 (stdout, file)
-	FilePath             string   `mapstructure:"file-path" yaml:"file-path" json:"filePath"`                                       // 日志文件路径
-	MaxSize              int      `mapstructure:"max-size" yaml:"max-size" json:"maxSize"`                                          // 最大文件大小(MB)
-	MaxBackups           int      `mapstructure:"max-backups" yaml:"max-backups" json:"maxBackups"`                                 // 最大备份文件数
-	MaxAge               int      `mapstructure:"max-age" yaml:"max-age" json:"maxAge"`                                             // 最大保存天数
-	Compress             bool     `mapstructure:"compress" yaml:"compress" json:"compress"`                                         // 是否压缩
-	SkipPaths            []string `mapstructure:"skip-paths" yaml:"skip-paths" json:"skipPaths"`                                    // 跳过的路径
-	EnableRequest        bool     `mapstructure:"enable-request" yaml:"enable-request" json:"enableRequest"`                        // 是否记录请求
-	EnableResponse       bool     `mapstructure:"enable-response" yaml:"enable-response" json:"enableResponse"`                     // 是否记录响应
-	MaxBodySize          int      `mapstructure:"max-body-size" yaml:"max-body-size" json:"maxBodySize"`                            // 最大日志体大小(字节)
-	SensitiveMask        string   `mapstructure:"sensitive-mask" yaml:"sensitive-mask" json:"sensitiveMask"`                        // 敏感数据掩码
-	SensitiveKeys        []string `mapstructure:"sensitive-keys" yaml:"sensitive-keys" json:"sensitiveKeys"`                        // 敏感字段关键词
-	SlowHTTPThreshold    int64    `mapstructure:"slow-http-threshold" yaml:"slow-http-threshold" json:"slowHttpThreshold"`          // HTTP慢请求阈值(毫秒)
-	SlowGRPCThreshold    int64    `mapstructure:"slow-grpc-threshold" yaml:"slow-grpc-threshold" json:"slowGrpcThreshold"`          // GRPC慢请求阈值(毫秒)
-	SlowStreamThreshold  int64    `mapstructure:"slow-stream-threshold" yaml:"slow-stream-threshold" json:"slowStreamThreshold"`    // 流式请求慢请求阈值(毫秒)
-	LoggableContentTypes []string `mapstructure:"loggable-content-types" yaml:"loggable-content-types" json:"loggableContentTypes"` // 可记录的 Content-Type
+	ModuleName           string               `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                 // 模块名称
+	Enabled              bool                 `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                            // 是否启用日志
+	Level                string               `mapstructure:"level" yaml:"level" json:"level"`                                                  // 日志级别 (debug, info, warn, error)
+	Format               logger.FormatterType `mapstructure:"format" yaml:"format" json:"format"`                                               // 日志格式 (json, text, xml, csv)
+	TimeFormat           string               `mapstructure:"time-format" yaml:"time-format" json:"timeFormat"`                                 // 时间格式（如：2006-01-02 15:04:05.000）
+	Output               logger.OutputType    `mapstructure:"output" yaml:"output" json:"output"`                                               // 输出目标 (console, file, rotate, stdout, stderr)
+	FilePath             string               `mapstructure:"file-path" yaml:"file-path" json:"filePath"`                                       // 日志文件路径
+	MaxSize              int                  `mapstructure:"max-size" yaml:"max-size" json:"maxSize"`                                          // 最大文件大小(MB)
+	MaxBackups           int                  `mapstructure:"max-backups" yaml:"max-backups" json:"maxBackups"`                                 // 最大备份文件数
+	MaxAge               int                  `mapstructure:"max-age" yaml:"max-age" json:"maxAge"`                                             // 最大保存天数
+	Compress             bool                 `mapstructure:"compress" yaml:"compress" json:"compress"`                                         // 是否压缩
+	SkipPaths            []string             `mapstructure:"skip-paths" yaml:"skip-paths" json:"skipPaths"`                                    // 跳过的路径
+	EnableRequest        bool                 `mapstructure:"enable-request" yaml:"enable-request" json:"enableRequest"`                        // 是否记录请求
+	EnableResponse       bool                 `mapstructure:"enable-response" yaml:"enable-response" json:"enableResponse"`                     // 是否记录响应
+	MaxBodySize          int                  `mapstructure:"max-body-size" yaml:"max-body-size" json:"maxBodySize"`                            // 最大日志体大小(字节)
+	SensitiveMask        string               `mapstructure:"sensitive-mask" yaml:"sensitive-mask" json:"sensitiveMask"`                        // 敏感数据掩码
+	SensitiveKeys        []string             `mapstructure:"sensitive-keys" yaml:"sensitive-keys" json:"sensitiveKeys"`                        // 敏感字段关键词
+	SlowHTTPThreshold    int64                `mapstructure:"slow-http-threshold" yaml:"slow-http-threshold" json:"slowHttpThreshold"`          // HTTP慢请求阈值(毫秒)
+	SlowGRPCThreshold    int64                `mapstructure:"slow-grpc-threshold" yaml:"slow-grpc-threshold" json:"slowGrpcThreshold"`          // GRPC慢请求阈值(毫秒)
+	SlowStreamThreshold  int64                `mapstructure:"slow-stream-threshold" yaml:"slow-stream-threshold" json:"slowStreamThreshold"`    // 流式请求慢请求阈值(毫秒)
+	LoggableContentTypes []string             `mapstructure:"loggable-content-types" yaml:"loggable-content-types" json:"loggableContentTypes"` // 可记录的 Content-Type
+}
+
+// GetLogLevel 获取 go-logger 的日志级别
+func (l *Logging) GetLogLevel() string {
+	return l.Level
+}
+
+// GetFormatterType 获取 go-logger 的格式化类型
+func (l *Logging) GetFormatterType() logger.FormatterType {
+	return l.Format
+}
+
+// GetOutputType 获取 go-logger 的输出类型
+func (l *Logging) GetOutputType() logger.OutputType {
+	return l.Output
 }
 
 // Default 创建默认日志配置
@@ -45,9 +64,10 @@ func Default() *Logging {
 	return &Logging{
 		ModuleName:     "logging",
 		Enabled:        true,
-		Level:          "info",
-		Format:         "json",
-		Output:         "stdout",
+		Level:          "debug",
+		Format:         logger.JSONFormatter,
+		TimeFormat:     time.RFC3339Nano,
+		Output:         logger.OutputStdout,
 		FilePath:       "/var/log/app.log",
 		MaxSize:        100,
 		MaxBackups:     3,
@@ -71,12 +91,12 @@ func Default() *Logging {
 }
 
 // Get 返回配置接口
-func (l *Logging) Get() interface{} {
+func (l *Logging) Get() any {
 	return l
 }
 
 // Set 设置配置数据
-func (l *Logging) Set(data interface{}) {
+func (l *Logging) Set(data any) {
 	if cfg, ok := data.(*Logging); ok {
 		*l = *cfg
 	}
@@ -119,13 +139,19 @@ func (l *Logging) WithLevel(level string) *Logging {
 }
 
 // WithFormat 设置日志格式
-func (l *Logging) WithFormat(format string) *Logging {
+func (l *Logging) WithFormat(format logger.FormatterType) *Logging {
 	l.Format = format
 	return l
 }
 
+// WithTimeFormat 设置时间格式
+func (l *Logging) WithTimeFormat(timeFormat string) *Logging {
+	l.TimeFormat = timeFormat
+	return l
+}
+
 // WithOutput 设置输出目标
-func (l *Logging) WithOutput(output string) *Logging {
+func (l *Logging) WithOutput(output logger.OutputType) *Logging {
 	l.Output = output
 	return l
 }

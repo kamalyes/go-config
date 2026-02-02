@@ -14,6 +14,7 @@ package logging
 import (
 	"testing"
 
+	"github.com/kamalyes/go-logger"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,7 +23,7 @@ func TestLogging_Clone(t *testing.T) {
 		ModuleName:           "test-logging",
 		Enabled:              true,
 		Level:                "debug",
-		Format:               "json",
+		Format:               logger.JSONFormatter,
 		Output:               "file",
 		FilePath:             "/tmp/app.log",
 		MaxSize:              100,

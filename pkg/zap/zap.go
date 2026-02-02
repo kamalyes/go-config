@@ -12,6 +12,8 @@
 package zap
 
 import (
+	"time"
+
 	"github.com/kamalyes/go-config/internal"
 	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
@@ -32,6 +34,7 @@ type Zap struct {
 	StacktraceKey string `mapstructure:"stacktrace-key" yaml:"stacktrace-key" json:"stacktraceKey"`                                             // 堆栈捕捉标识
 	LogInConsole  bool   `mapstructure:"log-in-console" yaml:"log-in-console" json:"logInConsole"`                                              // 是否在控制台打印日志
 	Development   bool   `mapstructure:"development" yaml:"development" json:"development"`                                                     // 是否为开发者模式
+	TimeFormat    string `mapstructure:"time-format" yaml:"time-format" json:"timeFormat"`                                                      // 时间格式（如：2006-01-02 15:04:05.000）
 	ModuleName    string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                                      // 模块名称
 }
 
@@ -56,12 +59,12 @@ func (z *Zap) Clone() internal.Configurable {
 }
 
 // Get 返回 Zap 配置的所有字段
-func (z *Zap) Get() interface{} {
+func (z *Zap) Get() any {
 	return z
 }
 
 // Set 更新 Zap 配置的字段
-func (z *Zap) Set(data interface{}) {
+func (z *Zap) Set(data any) {
 	if configData, ok := data.(*Zap); ok {
 		z.ModuleName = configData.ModuleName
 		z.Level = configData.Level
@@ -78,6 +81,7 @@ func (z *Zap) Set(data interface{}) {
 		z.StacktraceKey = configData.StacktraceKey
 		z.Development = configData.Development
 		z.LogInConsole = configData.LogInConsole
+		z.TimeFormat = configData.TimeFormat
 	}
 }
 
@@ -104,6 +108,7 @@ func DefaultZap() Zap {
 		StacktraceKey: "stacktrace",
 		LogInConsole:  true,
 		Development:   false,
+		TimeFormat:    time.RFC3339Nano,
 	}
 }
 
@@ -200,5 +205,11 @@ func (z *Zap) WithLogInConsole(logInConsole bool) *Zap {
 // WithDevelopment 设置是否为开发者模式
 func (z *Zap) WithDevelopment(development bool) *Zap {
 	z.Development = development
+	return z
+}
+
+// WithTimeFormat 设置时间格式
+func (z *Zap) WithTimeFormat(timeFormat string) *Zap {
+	z.TimeFormat = timeFormat
 	return z
 }

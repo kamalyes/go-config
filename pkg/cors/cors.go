@@ -104,6 +104,7 @@ func DefaultCors() Cors {
 			"X-Nonce",
 			"User-Agent",
 			"Referer",
+			"X-Timezone",
 		},
 		MaxAge:              "86400",
 		AllowedAllOrigins:   false,

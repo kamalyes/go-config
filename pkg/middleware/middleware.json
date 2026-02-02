@@ -2,7 +2,7 @@
 // 模块名称: middleware
 // 包名: middleware  
 // 描述: 中间件模块
-// 生成时间: 2026-01-30 11:11:00
+// 生成时间: 2026-02-02 10:10:58
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -13,6 +13,7 @@
     "enabled": true,
     "level": "info",
     "format": "json",
+    "timeFormat": "2006-01-02T15:04:05.999999999Z07:00",
     "output": "stdout",
     "filePath": "/var/log/app.log",
     "maxSize": 100,
