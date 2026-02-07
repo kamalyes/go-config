@@ -2,7 +2,7 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2026-02-02 19:58:06
+// 生成时间: 2026-02-07 22:32:31
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -154,6 +154,18 @@
       "enableAutoCleanup": true
     },
     "messageRecord": {
+      "cleanupDaysAgo": 7,
+      "enableAutoCleanup": true
+    },
+    "compensation": {
+      "enableAutoCompensate": true,
+      "scanInterval": 30000000000,
+      "batchSize": 120,
+      "maxConcurrent": 50,
+      "defaultMaxRetry": 5,
+      "defaultRetryInterval": 60,
+      "defaultPriority": 5,
+      "lockTimeout": 300000000000,
       "cleanupDaysAgo": 7,
       "enableAutoCleanup": true
     }

@@ -156,6 +156,20 @@ type MessageRecord struct {
 	EnableAutoCleanup bool `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
 }
 
+// Compensation 补偿队列配置
+type Compensation struct {
+	EnableAutoCompensate bool          `mapstructure:"enable-auto-compensate" yaml:"enable-auto-compensate" json:"enableAutoCompensate"` // 是否启用自动补偿
+	ScanInterval         time.Duration `mapstructure:"scan-interval" yaml:"scan-interval" json:"scanInterval"`                           // 扫描间隔
+	BatchSize            int           `mapstructure:"batch-size" yaml:"batch-size" json:"batchSize"`                                    // 每批处理数量
+	MaxConcurrent        int           `mapstructure:"max-concurrent" yaml:"max-concurrent" json:"maxConcurrent"`                        // 最大并发数
+	DefaultMaxRetry      int           `mapstructure:"default-max-retry" yaml:"default-max-retry" json:"defaultMaxRetry"`                // 默认最大重试次数
+	DefaultRetryInterval int           `mapstructure:"default-retry-interval" yaml:"default-retry-interval" json:"defaultRetryInterval"` // 默认重试间隔(秒)
+	DefaultPriority      int           `mapstructure:"default-priority" yaml:"default-priority" json:"defaultPriority"`                  // 默认优先级(1-10)
+	LockTimeout          time.Duration `mapstructure:"lock-timeout" yaml:"lock-timeout" json:"lockTimeout"`                              // 锁定超时时间
+	CleanupDaysAgo       int           `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`                   // 启动时清理N天前的数据（0表示不清理）
+	EnableAutoCleanup    bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"`          // 是否启用自动清理
+}
+
 // ========== Redis仓库配置 Getter 方法 ==========
 
 // GetKeyPrefix 获取在线状态Redis键前缀
@@ -298,6 +312,56 @@ func (m *MessageRecord) GetEnableAutoCleanup(globalEnable bool) bool {
 	return mathx.IfGt(m.CleanupDaysAgo, 0, m.EnableAutoCleanup, globalEnable)
 }
 
+// GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
+func (c *Compensation) GetCleanupDaysAgo(globalDaysAgo int) int {
+	return mathx.IfNotZero(c.CleanupDaysAgo, globalDaysAgo)
+}
+
+// GetEnableAutoCleanup 获取是否启用自动清理（优先使用自己的配置，否则使用全局配置）
+func (c *Compensation) GetEnableAutoCleanup(globalEnable bool) bool {
+	return mathx.IfGt(c.CleanupDaysAgo, 0, c.EnableAutoCleanup, globalEnable)
+}
+
+// GetEnableAutoCompensate 获取是否启用自动补偿
+func (c *Compensation) GetEnableAutoCompensate() bool {
+	return c.EnableAutoCompensate
+}
+
+// GetScanInterval 获取扫描间隔
+func (c *Compensation) GetScanInterval() time.Duration {
+	return c.ScanInterval
+}
+
+// GetBatchSize 获取每批处理数量
+func (c *Compensation) GetBatchSize() int {
+	return c.BatchSize
+}
+
+// GetMaxConcurrent 获取最大并发数
+func (c *Compensation) GetMaxConcurrent() int {
+	return c.MaxConcurrent
+}
+
+// GetDefaultMaxRetry 获取默认最大重试次数
+func (c *Compensation) GetDefaultMaxRetry() int {
+	return c.DefaultMaxRetry
+}
+
+// GetDefaultRetryInterval 获取默认重试间隔
+func (c *Compensation) GetDefaultRetryInterval() int {
+	return c.DefaultRetryInterval
+}
+
+// GetDefaultPriority 获取默认优先级
+func (c *Compensation) GetDefaultPriority() int {
+	return c.DefaultPriority
+}
+
+// GetLockTimeout 获取锁定超时时间
+func (c *Compensation) GetLockTimeout() time.Duration {
+	return c.LockTimeout
+}
+
 // Performance 性能配置
 type Performance struct {
 	MaxConnectionsPerNode int  `mapstructure:"max-connections-per-node" yaml:"max-connections-per-node" json:"maxConnectionsPerNode"` // 每个节点最大连接数
@@ -382,6 +446,7 @@ type Database struct {
 	SlowThreshold    time.Duration     `mapstructure:"slow-threshold" yaml:"slow-threshold" json:"slowThreshold"`          // 慢查询阈值
 	ConnectionRecord *ConnectionRecord `mapstructure:"connection-record" yaml:"connection-record" json:"connectionRecord"` // 连接记录配置
 	MessageRecord    *MessageRecord    `mapstructure:"message-record" yaml:"message-record" json:"messageRecord"`          // 消息发送记录配置
+	Compensation     *Compensation     `mapstructure:"compensation" yaml:"compensation" json:"compensation"`               // 补偿队列配置
 }
 
 // BatchProcessing 批处理配置
@@ -524,6 +589,18 @@ func DefaultDatabase() *Database {
 		MessageRecord: &MessageRecord{
 			CleanupDaysAgo:    7,    // 默认清理7天前的数据
 			EnableAutoCleanup: true, // 默认启用自动清理
+		},
+		Compensation: &Compensation{
+			EnableAutoCompensate: true,             // 默认启用自动补偿
+			ScanInterval:         30 * time.Second, // 默认30秒扫描一次
+			BatchSize:            120,              // 默认每批处理120条
+			MaxConcurrent:        50,               // 默认最大50个并发
+			DefaultMaxRetry:      5,                // 默认最大重试5次
+			DefaultRetryInterval: 60,               // 默认重试间隔60秒
+			DefaultPriority:      5,                // 默认优先级5（普通）
+			LockTimeout:          5 * time.Minute,  // 默认锁定超时5分钟
+			CleanupDaysAgo:       7,                // 默认清理7天前的数据
+			EnableAutoCleanup:    true,             // 默认启用自动清理
 		},
 	}
 }

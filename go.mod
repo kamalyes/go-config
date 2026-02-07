@@ -6,7 +6,7 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-viper/mapstructure/v2 v2.4.0
 	github.com/kamalyes/go-logger v0.4.6-0.20260203085022-0f0923bdc1b1
-	github.com/kamalyes/go-toolbox v0.11.87-0.20260203051032-5f35aa1388aa
+	github.com/kamalyes/go-toolbox v0.11.87-0.20260207142517-0da4eb3bb86b
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 )
