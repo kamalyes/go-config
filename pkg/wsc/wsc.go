@@ -88,6 +88,9 @@ type WSC struct {
 
 	// === 重试策略配置 ===
 	RetryPolicy *RetryPolicy `mapstructure:"retry-policy" yaml:"retry-policy" json:"retryPolicy"` // 重试策略配置
+
+	// === 客户端容量配置 ===
+	ClientCapacity *ClientCapacity `mapstructure:"client-capacity" yaml:"client-capacity" json:"clientCapacity"` // 客户端容量配置
 }
 
 // RedisRepository Redis仓库配置
@@ -626,6 +629,7 @@ func Default() *WSC {
 		BatchProcessing:            DefaultBatchProcessing(),
 		ChannelBuffers:             DefaultChannelBuffers(),
 		RetryPolicy:                DefaultRetryPolicy(),
+		ClientCapacity:             DefaultClientCapacity(),
 	}
 }
 
@@ -1398,4 +1402,10 @@ func (r *RetryPolicy) WithRetryableErrors(errors []string) *RetryPolicy {
 func (r *RetryPolicy) WithNonRetryableErrors(errors []string) *RetryPolicy {
 	r.NonRetryableErrors = errors
 	return r
+}
+
+// WithClientCapacity 设置客户端容量配置
+func (c *WSC) WithClientCapacity(capacity *ClientCapacity) *WSC {
+	c.ClientCapacity = capacity
+	return c
 }

@@ -278,5 +278,16 @@
       "permission",
       "validation"
     ]
+  },
+  "clientCapacity": {
+    "agent": 256,
+    "bot": 128,
+    "customer": 96,
+    "observer": 16,
+    "admin": 256,
+    "vip": 128,
+    "visitor": 64,
+    "system": 256,
+    "default": 64
   }
 }
