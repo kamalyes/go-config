@@ -12,6 +12,7 @@
 package wsc
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/kamalyes/go-config/internal"
@@ -69,6 +70,9 @@ type WSC struct {
 
 	// === 安全配置 ===
 	Security *Security `mapstructure:"security" yaml:"security" json:"security"` // 安全配置
+
+	// === 客户端属性提取配置 ===
+	ClientAttributes *ClientAttributes `mapstructure:"client-attributes" yaml:"client-attributes" json:"clientAttributes"` // 客户端属性提取配置
 
 	// === 数据库配置 ===
 	Database *Database `mapstructure:"database" yaml:"database" json:"database"`
@@ -437,6 +441,90 @@ type EmailAlert struct {
 	AppName       string   `mapstructure:"app-name" yaml:"app-name" json:"appName"`                   // 应用名称
 }
 
+// AttributeSourceType 属性提取来源类型
+type AttributeSourceType string
+
+const (
+	// AttributeSourceQuery 从 URL 查询参数提取
+	AttributeSourceQuery AttributeSourceType = "query"
+	// AttributeSourceHeader 从 HTTP Header 提取
+	AttributeSourceHeader AttributeSourceType = "header"
+	// AttributeSourceCookie 从 Cookie 提取
+	AttributeSourceCookie AttributeSourceType = "cookie"
+	// AttributeSourcePath 从 URL 路径提取
+	AttributeSourcePath AttributeSourceType = "path"
+)
+
+// IsValid 验证来源类型是否有效
+func (t AttributeSourceType) IsValid() bool {
+	switch t {
+	case AttributeSourceQuery, AttributeSourceHeader, AttributeSourceCookie, AttributeSourcePath:
+		return true
+	default:
+		return false
+	}
+}
+
+// String 返回字符串表示
+func (t AttributeSourceType) String() string {
+	return string(t)
+}
+
+// ClientAttributes 客户端属性提取配置
+type ClientAttributes struct {
+	// ClientID 提取配置
+	ClientIDSources []AttributeSource `mapstructure:"client-id-sources" yaml:"client-id-sources" json:"clientIdSources"` // ClientID 提取来源（按优先级排序）
+
+	// UserID 提取配置
+	UserIDSources []AttributeSource `mapstructure:"user-id-sources" yaml:"user-id-sources" json:"userIdSources"` // UserID 提取来源（按优先级排序）
+
+	// UserType 提取配置
+	UserTypeSources []AttributeSource `mapstructure:"user-type-sources" yaml:"user-type-sources" json:"userTypeSources"` // UserType 提取来源（按优先级排序）
+}
+
+// AttributeSource 属性提取来源配置
+type AttributeSource struct {
+	Type AttributeSourceType `mapstructure:"type" yaml:"type" json:"type"` // 来源类型: query, header, cookie, path
+	Key  string              `mapstructure:"key" yaml:"key" json:"key"`    // 提取的键名
+}
+
+// Validate 验证属性来源配置
+func (a *AttributeSource) Validate() error {
+	if !a.Type.IsValid() {
+		return fmt.Errorf("type must be one of: query, header, cookie, path")
+	}
+	if a.Key == "" {
+		return fmt.Errorf("key cannot be empty")
+	}
+	return nil
+}
+
+// Validate 验证客户端属性配置
+func (c *ClientAttributes) Validate() error {
+	// 验证 ClientID 来源
+	for i, source := range c.ClientIDSources {
+		if err := source.Validate(); err != nil {
+			return fmt.Errorf("client-id-sources: invalid source at index %d: %w", i, err)
+		}
+	}
+
+	// 验证 UserID 来源
+	for i, source := range c.UserIDSources {
+		if err := source.Validate(); err != nil {
+			return fmt.Errorf("user-id-sources: invalid source at index %d: %w", i, err)
+		}
+	}
+
+	// 验证 UserType 来源
+	for i, source := range c.UserTypeSources {
+		if err := source.Validate(); err != nil {
+			return fmt.Errorf("user-type-sources: invalid source at index %d: %w", i, err)
+		}
+	}
+
+	return nil
+}
+
 // Database 数据库持久化配置
 type Database struct {
 	Enabled          bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                              // 是否启用数据库持久化
@@ -533,6 +621,7 @@ func Default() *WSC {
 		Database:                   DefaultDatabase(),
 		Performance:                DefaultPerformance(),
 		Security:                   DefaultSecurity(),
+		ClientAttributes:           DefaultClientAttributes(),
 		Logging:                    DefaultLogging(),
 		BatchProcessing:            DefaultBatchProcessing(),
 		ChannelBuffers:             DefaultChannelBuffers(),
@@ -636,6 +725,24 @@ func DefaultSecurity() *Security {
 		LoginLockDuration: 300,
 		MessageEncryption: DefaultMessageEncryption(),
 		MessageRateLimit:  DefaultMessageRateLimit(),
+	}
+}
+
+// DefaultClientAttributes 默认客户端属性提取配置
+func DefaultClientAttributes() *ClientAttributes {
+	return &ClientAttributes{
+		ClientIDSources: []AttributeSource{
+			{Type: AttributeSourceQuery, Key: "client_id"},
+			{Type: AttributeSourceHeader, Key: "X-Client-ID"},
+		},
+		UserIDSources: []AttributeSource{
+			{Type: AttributeSourceQuery, Key: "user_id"},
+			{Type: AttributeSourceHeader, Key: "X-User-ID"},
+		},
+		UserTypeSources: []AttributeSource{
+			{Type: AttributeSourceQuery, Key: "user_type"},
+			{Type: AttributeSourceHeader, Key: "X-User-Type"},
+		},
 	}
 }
 
@@ -1093,6 +1200,12 @@ func (c *WSC) WithPerformance(performance *Performance) *WSC {
 // WithSecurity 设置安全配置
 func (c *WSC) WithSecurity(security *Security) *WSC {
 	c.Security = security
+	return c
+}
+
+// WithClientAttributes 设置客户端属性提取配置
+func (c *WSC) WithClientAttributes(clientAttributes *ClientAttributes) *WSC {
+	c.ClientAttributes = clientAttributes
 	return c
 }
 

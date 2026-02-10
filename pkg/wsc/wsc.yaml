@@ -2,7 +2,7 @@
 # 模块名称: wsc
 # 包名: wsc  
 # 描述: WebSocket通信模块
-# 生成时间: 2026-02-07 22:32:31
+# 生成时间: 2026-02-10 15:16:53
 # 注意: 此文件由配置生成器自动生成
 
 # 是否启用
@@ -217,6 +217,23 @@ security:
                 </html>
             template-block: "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <style>\n        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n        .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n        .header { background: #f44336; color: white; padding: 20px; border-radius: 5px 5px 0 0; }\n        .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }\n        .info-table { width: 100%; border-collapse: collapse; margin: 15px 0; }\n        .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }\n        .info-table td:first-child { font-weight: bold; width: 150px; }\n        .footer { background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #666; }\n        .warning { background: #ffebee; border-left: 4px solid #f44336; padding: 12px; margin: 15px 0; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h2>\U0001F6AB 用户已被封禁 - {{.AppName}}</h2>\n        </div>\n        <div class=\"content\">\n            <div class=\"warning\">\n                <strong>用户消息发送频率超过限制，已被临时封禁</strong>\n            </div>\n            <table class=\"info-table\">\n                <tr><td>用户ID</td><td>{{.UserID}}</td></tr>\n                <tr><td>用户类型</td><td>{{.UserType}}</td></tr>\n                <tr><td>当前分钟消息数</td><td><strong style=\"color: #f44336; font-size: 18px;\">{{.MinuteCount}} 条</strong></td></tr>\n                <tr><td>当前小时消息数</td><td><strong style=\"color: #f44336; font-size: 18px;\">{{.HourCount}} 条</strong></td></tr>\n                <tr><td>封禁时间</td><td>{{.TriggerTime}}</td></tr>\n            </table>\n            <p><strong>紧急处理：</strong></p>\n            <ul>\n                <li>立即审查该用户的所有消息内容</li>\n                <li>评估是否需要永久封禁</li>\n                <li>通知相关运维人员</li>\n                <li>记录异常行为日志</li>\n            </ul>\n        </div>\n        <div class=\"footer\">\n            <p>此邮件由 {{.AppName}} 自动发送，请勿直接回复</p>\n            <p>Generated at {{.GenerateTime}}</p>\n        </div>\n    </div>\n</body>\n</html>"
             app-name: WebSocket消息系统
+# 客户端属性提取配置
+client-attributes:
+    client-id-sources:
+        - type: query
+          key: client_id
+        - type: header
+          key: X-Client-ID
+    user-id-sources:
+        - type: query
+          key: user_id
+        - type: header
+          key: X-User-ID
+    user-type-sources:
+        - type: query
+          key: user_type
+        - type: header
+          key: X-User-Type
 # 数据库名称 (嵌套配置对象)
 database:
     # 是否启用
