@@ -74,6 +74,9 @@ type WSC struct {
 	// === 客户端属性提取配置 ===
 	ClientAttributes *ClientAttributes `mapstructure:"client-attributes" yaml:"client-attributes" json:"clientAttributes"` // 客户端属性提取配置
 
+	// === WebSocket 升级响应头配置 ===
+	ResponseHeaders *ResponseHeaders `mapstructure:"response-headers" yaml:"response-headers" json:"responseHeaders"` // WebSocket 升级响应头配置
+
 	// === 数据库配置 ===
 	Database *Database `mapstructure:"database" yaml:"database" json:"database"`
 
@@ -528,6 +531,41 @@ func (c *ClientAttributes) Validate() error {
 	return nil
 }
 
+// ResponseHeaders WebSocket 升级响应头配置
+type ResponseHeaders struct {
+	// 是否启用响应头
+	Enabled bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"` // 是否在 WebSocket 升级响应中返回客户端信息
+
+	// 服务端分配的信息（有意义的响应头）
+	ClientIDKey string `mapstructure:"client-id-key" yaml:"client-id-key" json:"clientIdKey"` // 客户端ID响应头键名（服务端生成或确认，默认: X-WSC-Client-ID）
+	NodeIDKey   string `mapstructure:"node-id-key" yaml:"node-id-key" json:"nodeIdKey"`       // 节点ID响应头键名（服务端分配，默认: X-WSC-Node-ID）
+
+	// 自定义响应头前缀
+	CustomPrefix string `mapstructure:"custom-prefix" yaml:"custom-prefix" json:"customPrefix"` // 自定义响应头前缀（默认: X-WSC-）
+
+	// 额外的自定义响应头（静态值）
+	CustomHeaders map[string]string `mapstructure:"custom-headers" yaml:"custom-headers" json:"customHeaders"` // 额外的自定义响应头，如 {"X-Server-Version": "1.0.0", "X-Region": "us-west", "X-Protocol-Version": "1.0"}
+
+	// 客户端注册成功消息配置
+	SendRegisteredMessage    bool   `mapstructure:"send-registered-message" yaml:"send-registered-message" json:"sendRegisteredMessage"`          // 是否发送客户端注册成功消息（默认: true）
+	RegisteredMessageContent string `mapstructure:"registered-message-content" yaml:"registered-message-content" json:"registeredMessageContent"` // 注册成功消息内容（默认: "Client registered successfully"）
+}
+
+// GetClientIDKey 获取客户端ID响应头键名
+func (r *ResponseHeaders) GetClientIDKey() string {
+	return mathx.IfEmpty(r.ClientIDKey, r.getPrefix()+"Client-ID")
+}
+
+// GetNodeIDKey 获取节点ID响应头键名
+func (r *ResponseHeaders) GetNodeIDKey() string {
+	return mathx.IfEmpty(r.NodeIDKey, r.getPrefix()+"Node-ID")
+}
+
+// getPrefix 获取响应头前缀
+func (r *ResponseHeaders) getPrefix() string {
+	return mathx.IfEmpty(r.CustomPrefix, "X-WSC-")
+}
+
 // Database 数据库持久化配置
 type Database struct {
 	Enabled          bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                              // 是否启用数据库持久化
@@ -625,6 +663,7 @@ func Default() *WSC {
 		Performance:                DefaultPerformance(),
 		Security:                   DefaultSecurity(),
 		ClientAttributes:           DefaultClientAttributes(),
+		ResponseHeaders:            DefaultResponseHeaders(),
 		Logging:                    DefaultLogging(),
 		BatchProcessing:            DefaultBatchProcessing(),
 		ChannelBuffers:             DefaultChannelBuffers(),
@@ -747,6 +786,24 @@ func DefaultClientAttributes() *ClientAttributes {
 			{Type: AttributeSourceQuery, Key: "user_type"},
 			{Type: AttributeSourceHeader, Key: "X-User-Type"},
 		},
+	}
+}
+
+// DefaultResponseHeaders 默认响应头配置
+func DefaultResponseHeaders() *ResponseHeaders {
+	return &ResponseHeaders{
+		Enabled:       true,              // 默认启用
+		ClientIDKey:   "X-WSC-Client-ID", // 使用默认值 X-WSC-Client-ID
+		NodeIDKey:     "X-WSC-Node-ID",   // 使用默认值 X-WSC-Node-ID
+		CustomPrefix:  "X-WSC-",
+		CustomHeaders: map[string]string{
+			// 可以添加自定义响应头，如：
+			// "X-Server-Version": "1.0.0",
+			// "X-Region": "us-west",
+			// "X-Protocol-Version": "1.0",
+		},
+		SendRegisteredMessage:    false,                            // 默认不发送注册成功消息
+		RegisteredMessageContent: "Client registered successfully", // 默认消息内容
 	}
 }
 

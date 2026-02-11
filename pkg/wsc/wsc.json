@@ -2,7 +2,7 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2026-02-11 21:30:37
+// 生成时间: 2026-02-11 23:09:02
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -174,6 +174,15 @@
         "key": "X-User-Type"
       }
     ]
+  },
+  "responseHeaders": {
+    "enabled": true,
+    "clientIdKey": "X-WSC-Client-ID",
+    "nodeIdKey": "X-WSC-Node-ID",
+    "customPrefix": "X-WSC-",
+    "customHeaders": {},
+    "sendRegisteredMessage": false,
+    "registeredMessageContent": "Client registered successfully"
   },
   "database": {
     "enabled": true,

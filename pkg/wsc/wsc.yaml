@@ -2,7 +2,7 @@
 # 模块名称: wsc
 # 包名: wsc  
 # 描述: WebSocket通信模块
-# 生成时间: 2026-02-11 21:30:37
+# 生成时间: 2026-02-11 23:09:02
 # 注意: 此文件由配置生成器自动生成
 
 # 是否启用
@@ -234,6 +234,16 @@ client-attributes:
           key: user_type
         - type: header
           key: X-User-Type
+# WebSocket 升级响应头配置
+response-headers:
+    # 是否启用
+    enabled: true
+    client-id-key: X-WSC-Client-ID
+    node-id-key: X-WSC-Node-ID
+    custom-prefix: X-WSC-
+    custom-headers: {}
+    send-registered-message: false
+    registered-message-content: Client registered successfully
 # 数据库名称 (嵌套配置对象)
 database:
     # 是否启用
