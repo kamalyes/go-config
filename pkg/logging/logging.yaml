@@ -2,7 +2,7 @@
 # 模块名称: logging
 # 包名: logging  
 # 描述: 日志记录模块
-# 生成时间: 2026-02-02 18:58:16
+# 生成时间: 2026-02-11 21:30:37
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -13,6 +13,12 @@ enabled: true
 level: debug
 # 日志格式 (json, text, xml, csv)
 format: json
+# 日志前缀（如：[WSC]）
+prefix: ""
+# 是否显示调用者信息
+show-caller: false
+# 是否使用彩色输出
+colorful: true
 # 时间格式（如：2006-01-02 15:04:05.000）
 time-format: 2006-01-02T15:04:05.999999999Z07:00
 # 输出目标 (console, file, rotate, stdout, stderr)

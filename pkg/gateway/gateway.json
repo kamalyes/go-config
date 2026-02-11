@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2026-02-02 19:58:06
+// 生成时间: 2026-02-11 21:30:37
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2026-02-02T19:58:06+08:00",
+  "buildTime": "2026-02-11T21:30:37+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "e927b2c6b8f5f8b2011ed4bf2cd0b985",
+  "gitCommit": "e5ef039999e0524737bed310c6fee2fd",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -544,6 +544,9 @@
       "enabled": true,
       "level": "debug",
       "format": "json",
+      "prefix": "",
+      "showCaller": false,
+      "colorful": true,
       "timeFormat": "2006-01-02T15:04:05.999999999Z07:00",
       "output": "stdout",
       "filePath": "/var/log/app.log",
@@ -1063,6 +1066,38 @@
         }
       }
     },
+    "clientAttributes": {
+      "clientIdSources": [
+        {
+          "type": "query",
+          "key": "client_id"
+        },
+        {
+          "type": "header",
+          "key": "X-Client-ID"
+        }
+      ],
+      "userIdSources": [
+        {
+          "type": "query",
+          "key": "user_id"
+        },
+        {
+          "type": "header",
+          "key": "X-User-ID"
+        }
+      ],
+      "userTypeSources": [
+        {
+          "type": "query",
+          "key": "user_type"
+        },
+        {
+          "type": "header",
+          "key": "X-User-Type"
+        }
+      ]
+    },
     "database": {
       "enabled": true,
       "autoMigrate": true,
@@ -1076,6 +1111,18 @@
       "messageRecord": {
         "cleanupDaysAgo": 7,
         "enableAutoCleanup": true
+      },
+      "compensation": {
+        "enableAutoCompensate": true,
+        "scanInterval": 30000000000,
+        "batchSize": 120,
+        "maxConcurrent": 50,
+        "defaultMaxRetry": 5,
+        "defaultRetryInterval": 60,
+        "defaultPriority": 5,
+        "lockTimeout": 300000000000,
+        "cleanupDaysAgo": 7,
+        "enableAutoCleanup": true
       }
     },
     "logging": {
@@ -1083,6 +1130,9 @@
       "enabled": true,
       "level": "debug",
       "format": "json",
+      "prefix": "",
+      "showCaller": false,
+      "colorful": true,
       "timeFormat": "2006-01-02T15:04:05.999999999Z07:00",
       "output": "stdout",
       "filePath": "/var/log/wsc.log",
@@ -1154,6 +1204,17 @@
         "permission",
         "validation"
       ]
+    },
+    "clientCapacity": {
+      "agent": 256,
+      "bot": 128,
+      "customer": 96,
+      "observer": 16,
+      "admin": 256,
+      "vip": 128,
+      "visitor": 64,
+      "system": 256,
+      "default": 64
     }
   },
   "jobs": {

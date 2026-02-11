@@ -12,6 +12,7 @@
 package logging
 
 import (
+	"os"
 	"time"
 
 	"github.com/kamalyes/go-config/internal"
@@ -25,6 +26,9 @@ type Logging struct {
 	Enabled              bool                 `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                            // 是否启用日志
 	Level                string               `mapstructure:"level" yaml:"level" json:"level"`                                                  // 日志级别 (debug, info, warn, error)
 	Format               logger.FormatterType `mapstructure:"format" yaml:"format" json:"format"`                                               // 日志格式 (json, text, xml, csv)
+	Prefix               string               `mapstructure:"prefix" yaml:"prefix" json:"prefix"`                                               // 日志前缀（如：[WSC]）
+	ShowCaller           bool                 `mapstructure:"show-caller" yaml:"show-caller" json:"showCaller"`                                 // 是否显示调用者信息
+	Colorful             bool                 `mapstructure:"colorful" yaml:"colorful" json:"colorful"`                                         // 是否使用彩色输出
 	TimeFormat           string               `mapstructure:"time-format" yaml:"time-format" json:"timeFormat"`                                 // 时间格式（如：2006-01-02 15:04:05.000）
 	Output               logger.OutputType    `mapstructure:"output" yaml:"output" json:"output"`                                               // 输出目标 (console, file, rotate, stdout, stderr)
 	FilePath             string               `mapstructure:"file-path" yaml:"file-path" json:"filePath"`                                       // 日志文件路径
@@ -66,6 +70,9 @@ func Default() *Logging {
 		Enabled:        true,
 		Level:          "debug",
 		Format:         logger.JSONFormatter,
+		Prefix:         "",
+		ShowCaller:     false,
+		Colorful:       true,
 		TimeFormat:     time.RFC3339Nano,
 		Output:         logger.OutputStdout,
 		FilePath:       "/var/log/app.log",
@@ -236,4 +243,58 @@ func (l *Logging) Disable() *Logging {
 // IsEnabled 检查是否启用
 func (l *Logging) IsEnabled() bool {
 	return l.Enabled
+}
+
+// ToLoggerConfig 将 Logging 配置转换为 go-logger 的 LogConfig
+func (l *Logging) ToLoggerConfig() *logger.LogConfig {
+	level, _ := logger.ParseLevel(l.Level)
+
+	// 构建基础配置
+	loggerConfig := logger.DefaultConfig().
+		WithLevel(level).
+		WithPrefix(l.Prefix).
+		WithShowCaller(l.ShowCaller).
+		WithColorful(l.Colorful).
+		WithTimeFormat(l.TimeFormat)
+
+	// 配置输出
+	l.configureOutput(loggerConfig)
+
+	return loggerConfig
+}
+
+// configureOutput 配置日志输出
+func (l *Logging) configureOutput(loggerConfig *logger.LogConfig) {
+	switch l.Output {
+	case logger.OutputFile:
+		if l.FilePath == "" {
+			loggerConfig.WithOutput(logger.NewConsoleWriter(os.Stdout))
+			return
+		}
+
+		// 使用轮转文件写入器
+		if l.MaxSize > 0 && l.MaxBackups > 0 {
+			rotateWriter := logger.NewRotateWriter(
+				l.FilePath,
+				int64(l.MaxSize)*1024*1024, // 转换为字节
+				l.MaxBackups,
+			)
+			loggerConfig.WithOutput(rotateWriter)
+			return
+		}
+
+		// 使用简单文件写入器
+		fileWriter := logger.NewFileWriter(l.FilePath)
+		loggerConfig.WithOutput(fileWriter)
+
+	case logger.OutputStderr:
+		loggerConfig.WithOutput(logger.NewConsoleWriter(os.Stderr))
+
+	case logger.OutputStdout:
+		loggerConfig.WithOutput(logger.NewConsoleWriter(os.Stdout))
+
+	default:
+		// 默认使用控制台输出（stdout）
+		loggerConfig.WithOutput(logger.NewConsoleWriter(os.Stdout))
+	}
 }

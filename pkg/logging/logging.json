@@ -2,7 +2,7 @@
 // 模块名称: logging
 // 包名: logging  
 // 描述: 日志记录模块
-// 生成时间: 2026-02-02 18:58:16
+// 生成时间: 2026-02-11 21:30:37
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -10,6 +10,9 @@
   "enabled": true,
   "level": "debug",
   "format": "json",
+  "prefix": "",
+  "showCaller": false,
+  "colorful": true,
   "timeFormat": "2006-01-02T15:04:05.999999999Z07:00",
   "output": "stdout",
   "filePath": "/var/log/app.log",
