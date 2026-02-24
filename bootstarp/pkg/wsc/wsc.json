@@ -2,7 +2,7 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2026-02-25 10:00:23
+// 生成时间: 2026-02-24 11:15:01
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -27,8 +27,8 @@
   "websocketOrigins": [
     "*"
   ],
-  "readTimeout": 60000000000,
-  "writeTimeout": 30000000000,
+  "readTimeout": 10000000000,
+  "writeTimeout": 10000000000,
   "idleTimeout": 120000000000,
   "maxMessageSize": 512,
   "minRecTime": 2000000000,
@@ -50,10 +50,7 @@
       "keyPrefix": "wsc:online_status:",
       "ttl": 90000000000,
       "cleanupDaysAgo": 0,
-      "enableAutoCleanup": false,
-      "statusRefreshInterval": 45000000000,
-      "enableCompression": false,
-      "compressionMinSize": 512
+      "enableAutoCleanup": false
     },
     "stats": {
       "keyPrefix": "wsc:stats:",
@@ -94,7 +91,7 @@
       "bufferSize": 100,
       "pingInterval": 10000000000,
       "enableCompression": false,
-      "compressionMinSize": 512
+      "compressionMinSize": 1024
     }
   },
   "performance": {

@@ -112,10 +112,13 @@ type RedisRepository struct {
 
 // OnlineStatus 在线状态配置
 type OnlineStatus struct {
-	KeyPrefix         string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`                           // Redis键前缀
-	TTL               time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                                               // 过期时间
-	CleanupDaysAgo    int           `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 启动时清理N天前的数据（0表示不清理）
-	EnableAutoCleanup bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
+	KeyPrefix             string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`                                       // Redis键前缀
+	TTL                   time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                                                           // 过期时间
+	CleanupDaysAgo        int           `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`                      // 启动时清理N天前的数据（0表示不清理）
+	EnableAutoCleanup     bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"`             // 是否启用自动清理
+	StatusRefreshInterval time.Duration `mapstructure:"status-refresh-interval" yaml:"status-refresh-interval" json:"statusRefreshInterval"` // 状态刷新间隔
+	EnableCompression     bool          `mapstructure:"enable-compression" yaml:"enable-compression" json:"enableCompression"`               // 是否启用压缩
+	CompressionMinSize    int           `mapstructure:"compression-min-size" yaml:"compression-min-size" json:"compressionMinSize"`          // 压缩阈值（字节）
 }
 
 // Stats 统计数据配置
@@ -128,7 +131,49 @@ type Stats struct {
 
 // Workload 负载管理配置
 type Workload struct {
-	KeyPrefix string `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"` // Redis键前缀
+	KeyPrefix     string      `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`             // Redis键前缀
+	MaxCandidates int         `mapstructure:"max-candidates" yaml:"max-candidates" json:"maxCandidates"` // 获取负载最小客服时的最大候选数量
+	WorkStatus    *WorkStatus `mapstructure:"work-status" yaml:"work-status" json:"workStatus"`          // 工作状态统计配置
+}
+
+// WorkStatusGranularity 工作状态统计粒度
+type WorkStatusGranularity string
+
+const (
+	// GranularityHour 按小时统计
+	GranularityHour WorkStatusGranularity = "hour"
+	// GranularityDay 按天统计
+	GranularityDay WorkStatusGranularity = "day"
+	// GranularityMonth 按月统计
+	GranularityMonth WorkStatusGranularity = "month"
+	// GranularityYear 按年统计
+	GranularityYear WorkStatusGranularity = "year"
+)
+
+// IsValid 验证统计粒度是否有效
+func (g WorkStatusGranularity) IsValid() bool {
+	switch g {
+	case GranularityHour, GranularityDay, GranularityMonth, GranularityYear:
+		return true
+	default:
+		return false
+	}
+}
+
+// String 返回字符串表示
+func (g WorkStatusGranularity) String() string {
+	return string(g)
+}
+
+// WorkStatus 工作状态统计配置
+type WorkStatus struct {
+	Enabled       bool                    `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                     // 是否启用工作状态统计（Bitmap）
+	Granularities []WorkStatusGranularity `mapstructure:"granularities" yaml:"granularities" json:"granularities"`   // 统计粒度: hour, day, month, year
+	RetentionDays int                     `mapstructure:"retention-days" yaml:"retention-days" json:"retentionDays"` // 数据保留天数（0表示永久保留）
+	AsyncRecord   bool                    `mapstructure:"async-record" yaml:"async-record" json:"asyncRecord"`       // 是否异步记录（默认true）
+	RecordTimeout int                     `mapstructure:"record-timeout" yaml:"record-timeout" json:"recordTimeout"` // 记录超时时间（秒，默认2秒）
+	SyncToDB      bool                    `mapstructure:"sync-to-db" yaml:"sync-to-db" json:"syncToDb"`              // 是否同步到数据库（默认true）
+	SyncInterval  int                     `mapstructure:"sync-interval" yaml:"sync-interval" json:"syncInterval"`    // 同步到数据库的间隔（秒，默认300秒=5分钟）
 }
 
 // OfflineMessage 离线消息配置
@@ -187,11 +232,6 @@ func (o *OnlineStatus) GetKeyPrefix() string {
 	return o.KeyPrefix
 }
 
-// GetTTL 获取在线状态TTL
-func (o *OnlineStatus) GetTTL() time.Duration {
-	return o.TTL
-}
-
 // GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
 func (o *OnlineStatus) GetCleanupDaysAgo(globalDaysAgo int) int {
 	return mathx.IfNotZero(o.CleanupDaysAgo, globalDaysAgo)
@@ -225,6 +265,44 @@ func (s *Stats) GetEnableAutoCleanup(globalEnable bool) bool {
 // GetKeyPrefix 获取负载管理Redis键前缀
 func (w *Workload) GetKeyPrefix() string {
 	return w.KeyPrefix
+}
+
+// GetMaxCandidates 获取最大候选数量
+func (w *Workload) GetMaxCandidates() int {
+	return mathx.IfNotZero(w.MaxCandidates, 50)
+}
+
+// GetWorkStatus 获取工作状态统计配置
+func (w *Workload) GetWorkStatus() *WorkStatus {
+	return w.WorkStatus
+}
+
+// GetEnabled 获取是否启用工作状态统计
+func (ws *WorkStatus) GetEnabled() bool {
+	return ws.Enabled
+}
+
+// GetGranularities 获取统计粒度列表
+func (ws *WorkStatus) GetGranularities() []WorkStatusGranularity {
+	if len(ws.Granularities) == 0 {
+		return []WorkStatusGranularity{GranularityHour, GranularityDay} // 默认按小时和天统计
+	}
+	return ws.Granularities
+}
+
+// GetRetentionDays 获取数据保留天数
+func (ws *WorkStatus) GetRetentionDays() int {
+	return mathx.IfNotZero(ws.RetentionDays, 90) // 默认保留90天
+}
+
+// GetAsyncRecord 获取是否异步记录
+func (ws *WorkStatus) GetAsyncRecord() bool {
+	return mathx.IF(ws.RecordTimeout > 0, ws.AsyncRecord, true) // 默认异步
+}
+
+// GetRecordTimeout 获取记录超时时间
+func (ws *WorkStatus) GetRecordTimeout() int {
+	return mathx.IfNotZero(ws.RecordTimeout, 2) // 默认2秒
 }
 
 // GetKeyPrefix 获取离线消息Redis键前缀
@@ -642,8 +720,8 @@ func Default() *WSC {
 		MessageBufferSize:          256,
 		MaxPendingQueueSize:        20000,
 		WebSocketOrigins:           []string{"*"},
-		WriteTimeout:               10 * time.Second,
-		ReadTimeout:                10 * time.Second,
+		WriteTimeout:               30 * time.Second, // 增加写入超时到 30 秒
+		ReadTimeout:                60 * time.Second, // 增加读取超时到 60 秒
 		IdleTimeout:                120 * time.Second,
 		MaxMessageSize:             512,
 		MinRecTime:                 2 * time.Second,
@@ -676,15 +754,28 @@ func Default() *WSC {
 func DefaultRedisRepository() *RedisRepository {
 	return &RedisRepository{
 		OnlineStatus: &OnlineStatus{
-			KeyPrefix: "wsc:online_status:",
-			TTL:       90 * time.Second, // 心跳间隔的3倍 (30s * 3)
+			KeyPrefix:             "wsc:online_status:",
+			TTL:                   90 * time.Second, // 心跳间隔的3倍 (30s * 3)
+			StatusRefreshInterval: 45 * time.Second, // 默认 45 秒刷新一次（ClientTimeout 的一半，确保超时前至少刷新 2 次）
+			EnableCompression:     false,            // 默认关闭压缩
+			CompressionMinSize:    512,              // 512字节以上才压缩
 		},
 		Stats: &Stats{
 			KeyPrefix: "wsc:stats:",
 			TTL:       10 * time.Minute,
 		},
 		Workload: &Workload{
-			KeyPrefix: "wsc:workload:",
+			KeyPrefix:     "wsc:workload:",
+			MaxCandidates: 50,
+			WorkStatus: &WorkStatus{
+				Enabled:       false, // 默认不启用（需要手动开启）
+				Granularities: []WorkStatusGranularity{GranularityHour, GranularityDay},
+				RetentionDays: 90,
+				AsyncRecord:   true,
+				RecordTimeout: 2,
+				SyncToDB:      true,
+				SyncInterval:  300, // 5分钟
+			},
 		},
 		OfflineMessage: &OfflineMessage{
 			KeyPrefix: "wsc:offline_messages:",
@@ -701,7 +792,7 @@ func DefaultRedisRepository() *RedisRepository {
 			BufferSize:         100,                    // 消息缓冲区大小
 			PingInterval:       10 * time.Second,       // 心跳间隔
 			EnableCompression:  false,                  // 默认关闭压缩
-			CompressionMinSize: 1024,                   // 1KB以上才压缩
+			CompressionMinSize: 512,                    // 512字节以上才压缩
 		},
 	}
 }

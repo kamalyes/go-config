@@ -2,81 +2,81 @@
 # 模块名称: wsc
 # 包名: wsc  
 # 描述: WebSocket通信模块
-# 生成时间: 2026-02-25 10:00:23
+# 生成时间: 2026-02-24 11:15:01
 # 注意: 此文件由配置生成器自动生成
 
-# 是否启用
+# 是否启用该功能 (true/false)
 enabled: false
-# 网络类型: tcp, tcp4, tcp6
+# network (字符串)
 network: tcp4
-# 节点IP
+# node ip (字符串)
 node-ip: 0.0.0.0
-# 节点端口
+# node port (整数)
 node-port: 8080
-# WebSocket服务路径
+# path (字符串)
 path: /ws
-# 是否允许多端登录（异地多活）
+# allow multi login (true/false)
 allow-multi-login: true
-# 每个用户最大连接数（0表示不限制）
+# max connections per user (整数)
 max-connections-per-user: 3
-# 连接冲突策略: kick_old(踢掉旧连接), kick_new(拒绝新连接), allow_all(允许所有)
+# connection policy (字符串)
 connection-policy: kick_old
-# 踢出时是否发送通知
+# send kick notification (true/false)
 send-kick-notification: true
-# 踢出通知自定义消息
+# kick notification msg (字符串)
 kick-notification-msg: 您的账号在其他设备登录
-# 心跳间隔
+# heartbeat interval (时间间隔: 如 30s, 5m, 1h)
 heartbeat-interval: 30s
-# 性能监控间隔
+# performance metrics interval (时间间隔: 如 30s, 5m, 1h)
 performance-metrics-interval: 5m0s
-# ACK清理间隔
+# ack cleanup interval (时间间隔: 如 30s, 5m, 1h)
 ack-cleanup-interval: 1m0s
-# 客户端超时
+# client timeout (时间间隔: 如 30s, 5m, 1h)
 client-timeout: 1m30s
-# Hub关闭基础超时（5秒）
+# shutdown base timeout (时间间隔: 如 30s, 5m, 1h)
 shutdown-base-timeout: 5s
-# Hub关闭最大超时（60秒）
+# shutdown max timeout (时间间隔: 如 30s, 5m, 1h)
 shutdown-max-timeout: 1m0s
-# 消息缓冲区大小
+# message buffer size (整数)
 message-buffer-size: 256
-# 最大待发送消息队列大小
+# max pending queue size (整数)
 max-pending-queue-size: 20000
-# 允许的WebSocket Origin
+# 数组[string]
 websocket-origins:
     - '*'
-# 读取超时
-read-timeout: 1m0s
-# 写入超时
-write-timeout: 30s
-# 空闲超时
+# 读取超时时间 (时间间隔: 如 30s, 5m, 1h)
+read-timeout: 10s
+# 写入超时时间 (时间间隔: 如 30s, 5m, 1h)
+write-timeout: 10s
+# 空闲超时时间 (时间间隔: 如 30s, 5m, 1h)
 idle-timeout: 2m0s
-# 最大消息长度
+# max message size (整数)
 max-message-size: 512
-# 最小重连时间
+# min rec time (时间间隔: 如 30s, 5m, 1h)
 min-rec-time: 2s
-# 最大重连时间
+# max rec time (时间间隔: 如 30s, 5m, 1h)
 max-rec-time: 1m0s
-# 重连因子
+# rec factor (浮点数)
 rec-factor: 1.5
-# 是否自动重连
+# auto reconnect (true/false)
 auto-reconnect: true
-# 消息确认超时
+# ack timeout (时间间隔: 如 30s, 5m, 1h)
 ack-timeout: 500ms
-# 消息确认最大重试次数
+# ack max retries (整数)
 ack-max-retries: 3
-# 是否启用消息确认
+# enable ack (true/false)
 enable-ack: false
-# 消息发送记录过期时间
+# message record ttl (时间间隔: 如 30s, 5m, 1h)
 message-record-ttl: 24h0m0s
-# 消息记录清理间隔
+# record cleanup interval (时间间隔: 如 30s, 5m, 1h)
 record-cleanup-interval: 30m0s
-# SSE心跳间隔
+# sseheartbeat (时间间隔: 如 30s, 5m, 1h)
 sse-heartbeat: 30s
-# SSE超时
+# ssetimeout (时间间隔: 如 30s, 5m, 1h)
 sse-timeout: 2m0s
-# SSE消息缓冲区大小
+# ssemessage buffer (整数)
 sse-message-buffer: 100
-# Redis仓库配置
+# redis repository (嵌套配置对象)
 redis-repository:
     cleanup-days-ago: 0
     enable-auto-cleanup: false
@@ -85,9 +85,6 @@ redis-repository:
         ttl: 1m30s
         cleanup-days-ago: 0
         enable-auto-cleanup: false
-        status-refresh-interval: 45s
-        enable-compression: false
-        compression-min-size: 512
     stats:
         key-prefix: 'wsc:stats:'
         ttl: 10m0s
@@ -97,7 +94,7 @@ redis-repository:
         key-prefix: 'wsc:workload:'
         max-candidates: 50
         work-status:
-            # 是否启用
+            # 是否启用该功能 (true/false)
             enabled: false
             granularities:
                 - hour
@@ -116,7 +113,7 @@ redis-repository:
         cleanup-days-ago: 0
         enable-auto-cleanup: false
     pubsub:
-        # 是否启用
+        # 是否启用该功能 (true/false)
         enabled: true
         namespace: 'wsc:pubsub:'
         max-retries: 2
@@ -124,8 +121,8 @@ redis-repository:
         buffer-size: 100
         ping-interval: 10s
         enable-compression: false
-        compression-min-size: 512
-# 性能配置
+        compression-min-size: 1024
+# performance (嵌套配置对象)
 performance:
     max-connections-per-node: 10000
     read-buffer-size: 4
@@ -136,12 +133,12 @@ performance:
     metrics-interval: 60
     enable-slow-log: true
     slow-log-threshold: 1000
-# 安全配置
+# security (嵌套配置对象)
 security:
     enable-auth: true
     enable-encryption: false
     enable-rate-limit: true
-    # 最大消息长度
+    # max message size (整数)
     max-message-size: 1024
     allowed-user-types:
         - customer
@@ -154,7 +151,7 @@ security:
     max-login-attempts: 5
     login-lock-duration: 300
     message-encryption:
-        # 是否启用
+        # 是否启用该功能 (true/false)
         enabled: false
         algorithm: AES-256-GCM
         key: your-32-byte-secret-key-for-aes256
@@ -164,7 +161,7 @@ security:
         encrypt-prefix: 'ENC:'
         backup-keys: 3
     message-rate-limit:
-        # 是否启用
+        # 是否启用该功能 (true/false)
         enabled: true
         window: 1m0s
         max-messages: 100
@@ -232,7 +229,7 @@ security:
                 </html>
             template-block: "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <style>\n        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n        .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n        .header { background: #f44336; color: white; padding: 20px; border-radius: 5px 5px 0 0; }\n        .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }\n        .info-table { width: 100%; border-collapse: collapse; margin: 15px 0; }\n        .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }\n        .info-table td:first-child { font-weight: bold; width: 150px; }\n        .footer { background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #666; }\n        .warning { background: #ffebee; border-left: 4px solid #f44336; padding: 12px; margin: 15px 0; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h2>\U0001F6AB 用户已被封禁 - {{.AppName}}</h2>\n        </div>\n        <div class=\"content\">\n            <div class=\"warning\">\n                <strong>用户消息发送频率超过限制，已被临时封禁</strong>\n            </div>\n            <table class=\"info-table\">\n                <tr><td>用户ID</td><td>{{.UserID}}</td></tr>\n                <tr><td>用户类型</td><td>{{.UserType}}</td></tr>\n                <tr><td>当前分钟消息数</td><td><strong style=\"color: #f44336; font-size: 18px;\">{{.MinuteCount}} 条</strong></td></tr>\n                <tr><td>当前小时消息数</td><td><strong style=\"color: #f44336; font-size: 18px;\">{{.HourCount}} 条</strong></td></tr>\n                <tr><td>封禁时间</td><td>{{.TriggerTime}}</td></tr>\n            </table>\n            <p><strong>紧急处理：</strong></p>\n            <ul>\n                <li>立即审查该用户的所有消息内容</li>\n                <li>评估是否需要永久封禁</li>\n                <li>通知相关运维人员</li>\n                <li>记录异常行为日志</li>\n            </ul>\n        </div>\n        <div class=\"footer\">\n            <p>此邮件由 {{.AppName}} 自动发送，请勿直接回复</p>\n            <p>Generated at {{.GenerateTime}}</p>\n        </div>\n    </div>\n</body>\n</html>"
             app-name: WebSocket消息系统
-# 客户端属性提取配置
+# client attributes (嵌套配置对象)
 client-attributes:
     client-id-sources:
         - type: query
@@ -249,9 +246,9 @@ client-attributes:
           key: user_type
         - type: header
           key: X-User-Type
-# WebSocket 升级响应头配置
+# response headers (嵌套配置对象)
 response-headers:
-    # 是否启用
+    # 是否启用该功能 (true/false)
     enabled: true
     client-id-key: X-WSC-Client-ID
     node-id-key: X-WSC-Node-ID
@@ -261,7 +258,7 @@ response-headers:
     registered-message-content: Client registered successfully
 # 数据库名称 (嵌套配置对象)
 database:
-    # 是否启用
+    # 是否启用该功能 (true/false)
     enabled: true
     auto-migrate: true
     table-prefix: wsc_
@@ -284,10 +281,10 @@ database:
         lock-timeout: 5m0s
         cleanup-days-ago: 7
         enable-auto-cleanup: true
-# 日志配置
+# logging (嵌套配置对象)
 logging:
     module-name: wsc
-    # 是否启用
+    # 是否启用该功能 (true/false)
     enabled: true
     level: debug
     format: json
@@ -334,16 +331,16 @@ logging:
         - application/xml
         - application/x-www-form-urlencoded
         - text/
-# 批处理配置
+# batch processing (嵌套配置对象)
 batch-processing:
     offline-message-batch-size: 100
     message-pool-buffer-size: 1024
     connection-batch-size: 1000
-# 通道缓冲配置
+# channel buffers (嵌套配置对象)
 channel-buffers:
     broadcast-buffer-multiplier: 4
     node-message-buffer-multiplier: 4
-# 重试策略配置
+# retry policy (嵌套配置对象)
 retry-policy:
     max-retries: 3
     base-delay: 100ms
@@ -360,7 +357,7 @@ retry-policy:
         - user_offline
         - permission
         - validation
-# 客户端容量配置
+# client capacity (嵌套配置对象)
 client-capacity:
     agent: 256
     bot: 128
