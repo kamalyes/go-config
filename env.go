@@ -642,19 +642,30 @@ func (e *Environment) CheckAndUpdateEnv() {
 	}
 }
 
-// watchEnv 监控环境变量的变化
+// watchEnv 监控环境变量变化，支持动态调整检查频率
 func (e *Environment) watchEnv() {
+	e.mu.RLock()                         // 获取读锁
+	currentFrequency := e.CheckFrequency // 读取当前频率
+	e.mu.RUnlock()                       // 释放读锁
+
+	// 在循环外创建一次 ticker
+	ticker := time.NewTicker(currentFrequency) // 使用当前的检查频率
+	defer ticker.Stop()
+
 	for {
-		e.mu.RLock()                         // 获取读锁
-		currentFrequency := e.CheckFrequency // 读取当前频率
-		e.mu.RUnlock()                       // 释放读锁
-
-		ticker := time.NewTicker(currentFrequency) // 使用当前的检查频率
-		defer ticker.Stop()
-
 		select {
 		case <-ticker.C:
 			e.CheckAndUpdateEnv() // 检查并更新环境变量
+
+			// 检查频率是否变化，变化时动态调整
+			e.mu.RLock()
+			newFreq := e.CheckFrequency
+			e.mu.RUnlock()
+
+			if newFreq != currentFrequency {
+				currentFrequency = newFreq
+				ticker.Reset(currentFrequency) // 动态调整，不产生新对象
+			}
 		case <-e.quit:
 			log.Println("手动终止取消监控环境变量")
 			return // 退出监控
