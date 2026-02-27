@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2026-02-27 11:08:56
+// 生成时间: 2026-02-27 19:31:29
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2026-02-27T11:08:56+08:00",
+  "buildTime": "2026-02-27T19:31:29+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "619f602ae1dfff3853c9d247ac0b83b4",
+  "gitCommit": "26805445a9acfe4454d79f94d65ba13b",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -29,6 +29,7 @@
     "port": 8080,
     "network": "tcp4",
     "readTimeout": 30,
+    "readHeaderTimeout": 5,
     "writeTimeout": 30,
     "idleTimeout": 60,
     "maxHeaderBytes": 1048576,
@@ -36,13 +37,69 @@
     "tls": {
       "certFile": "",
       "keyFile": "",
-      "caFile": ""
+      "caFile": "",
+      "minVersion": "TLS12",
+      "preferServerCiphers": true,
+      "nextProtos": [
+        "h2",
+        "http/1.1"
+      ],
+      "insecureSkipVerify": false,
+      "clientAuth": "NoClientCert"
     },
     "headers": {
       "x-server": "go-config"
     },
     "Endpoint": "http://0.0.0.0:8080",
-    "enableGzipCompress": true
+    "enableGzipCompress": true,
+    "gzipCompressionLevel": 5,
+    "gzipMinSize": 1024,
+    "gzipSkipPaths": [
+      "/ws",
+      "/metrics",
+      "/health",
+      "/healthz",
+      "/debug"
+    ],
+    "gzipSkipExtensions": [
+      ".gz",
+      ".zip",
+      ".rar",
+      ".7z",
+      ".tar",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".bmp",
+      ".webp",
+      ".ico",
+      ".mp4",
+      ".avi",
+      ".mov",
+      ".wmv",
+      ".flv",
+      ".mkv",
+      ".mp3",
+      ".wav",
+      ".flac",
+      ".aac",
+      ".ogg",
+      ".pdf",
+      ".doc",
+      ".docx",
+      ".xls",
+      ".xlsx",
+      ".ppt",
+      ".pptx"
+    ],
+    "enableHttp2": true,
+    "http2": {
+      "maxConcurrentStreams": 250,
+      "maxReadFrameSize": 1048576,
+      "initialWindowSize": 1048576,
+      "initialConnWindowSize": 2097152
+    }
   },
   "grpc": {
     "server": {
@@ -1267,6 +1324,13 @@
       "visitor": 64,
       "system": 256,
       "default": 64
+    },
+    "capacityEstimation": {
+      "nodes": 10,
+      "clients": 1000,
+      "agentRatio": 0.1,
+      "observerRatio": 0.05,
+      "sseRatio": 0.1
     }
   },
   "jobs": {

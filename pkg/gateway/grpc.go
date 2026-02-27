@@ -41,21 +41,24 @@ type GRPCServer struct {
 
 // GRPCClient GRPC客户端配置
 type GRPCClient struct {
-	ServiceName       string   `mapstructure:"service-name" yaml:"service-name" json:"serviceName"`                     // 服务名称
-	Endpoints         []string `mapstructure:"endpoints" yaml:"endpoints" json:"endpoints"`                             // 服务端点列表
-	Network           string   `mapstructure:"network" yaml:"network" json:"network"`                                   // 网络类型 (tcp, tcp4, tcp6, unix)
-	MaxRecvMsgSize    int      `mapstructure:"max-recv-msg-size" yaml:"max-recv-msg-size" json:"maxRecvMsgSize"`        // 最大接收消息大小(字节)
-	MaxSendMsgSize    int      `mapstructure:"max-send-msg-size" yaml:"max-send-msg-size" json:"maxSendMsgSize"`        // 最大发送消息大小(字节)
-	KeepaliveTime     int      `mapstructure:"keepalive-time" yaml:"keepalive-time" json:"keepaliveTime"`               // Keepalive时间(秒)
-	KeepaliveTimeout  int      `mapstructure:"keepalive-timeout" yaml:"keepalive-timeout" json:"keepaliveTimeout"`      // Keepalive超时(秒)
-	ConnectionTimeout int      `mapstructure:"connection-timeout" yaml:"connection-timeout" json:"connectionTimeout"`   // 连接超时(秒)
-	RetryTimes        int      `mapstructure:"retry-times" yaml:"retry-times" json:"retryTimes"`                        // 重试次数
-	EnableLoadBalance bool     `mapstructure:"enable-load-balance" yaml:"enable-load-balance" json:"enableLoadBalance"` // 是否启用负载均衡
-	LoadBalancePolicy string   `mapstructure:"load-balance-policy" yaml:"load-balance-policy" json:"loadBalancePolicy"` // 负载均衡策略
-	EnableTLS         bool     `mapstructure:"enable-tls" yaml:"enable-tls" json:"enableTls"`                           // 是否启用TLS
-	TLSCertFile       string   `mapstructure:"tls-cert-file" yaml:"tls-cert-file" json:"tlsCertFile"`                   // TLS证书文件
-	TLSKeyFile        string   `mapstructure:"tls-key-file" yaml:"tls-key-file" json:"tlsKeyFile"`                      // TLS密钥文件
-	TLSCAFile         string   `mapstructure:"tls-ca-file" yaml:"tls-ca-file" json:"tlsCaFile"`                         // TLS CA文件
+	ServiceName           string   `mapstructure:"service-name" yaml:"service-name" json:"serviceName"`                                   // 服务名称
+	Endpoints             []string `mapstructure:"endpoints" yaml:"endpoints" json:"endpoints"`                                           // 服务端点列表
+	Network               string   `mapstructure:"network" yaml:"network" json:"network"`                                                 // 网络类型 (tcp, tcp4, tcp6, unix)
+	MaxRecvMsgSize        int      `mapstructure:"max-recv-msg-size" yaml:"max-recv-msg-size" json:"maxRecvMsgSize"`                      // 最大接收消息大小(字节)
+	MaxSendMsgSize        int      `mapstructure:"max-send-msg-size" yaml:"max-send-msg-size" json:"maxSendMsgSize"`                      // 最大发送消息大小(字节)
+	KeepaliveTime         int      `mapstructure:"keepalive-time" yaml:"keepalive-time" json:"keepaliveTime"`                             // Keepalive时间(秒)
+	KeepaliveTimeout      int      `mapstructure:"keepalive-timeout" yaml:"keepalive-timeout" json:"keepaliveTimeout"`                    // Keepalive超时(秒)
+	ConnectionTimeout     int      `mapstructure:"connection-timeout" yaml:"connection-timeout" json:"connectionTimeout"`                 // 连接超时(秒)
+	RetryTimes            int      `mapstructure:"retry-times" yaml:"retry-times" json:"retryTimes"`                                      // 重试次数
+	EnableLoadBalance     bool     `mapstructure:"enable-load-balance" yaml:"enable-load-balance" json:"enableLoadBalance"`               // 是否启用负载均衡
+	LoadBalancePolicy     string   `mapstructure:"load-balance-policy" yaml:"load-balance-policy" json:"loadBalancePolicy"`               // 负载均衡策略
+	EnableTLS             bool     `mapstructure:"enable-tls" yaml:"enable-tls" json:"enableTls"`                                         // 是否启用TLS
+	TLSCertFile           string   `mapstructure:"tls-cert-file" yaml:"tls-cert-file" json:"tlsCertFile"`                                 // TLS证书文件
+	TLSKeyFile            string   `mapstructure:"tls-key-file" yaml:"tls-key-file" json:"tlsKeyFile"`                                    // TLS密钥文件
+	TLSCAFile             string   `mapstructure:"tls-ca-file" yaml:"tls-ca-file" json:"tlsCaFile"`                                       // TLS CA文件
+	InitialWindowSize     int32    `mapstructure:"initial-window-size" yaml:"initial-window-size" json:"initialWindowSize"`               // HTTP/2 初始窗口大小（字节）
+	InitialConnWindowSize int32    `mapstructure:"initial-conn-window-size" yaml:"initial-conn-window-size" json:"initialConnWindowSize"` // HTTP/2 初始连接窗口大小（字节）
+	WaitForReady          bool     `mapstructure:"wait-for-ready" yaml:"wait-for-ready" json:"waitForReady"`                              // 是否等待连接就绪
 }
 
 // DefaultGRPC 创建默认GRPC配置
@@ -106,18 +109,21 @@ func (g *GRPCServer) GetEndpoint() string {
 // DefaultGRPCClient 创建默认GRPC客户端配置
 func DefaultGRPCClient(serviceName string, endpoints []string) *GRPCClient {
 	return &GRPCClient{
-		ServiceName:       serviceName,
-		Endpoints:         endpoints,
-		Network:           "tcp4",          // 默认使用 tcp4 强制 IPv4
-		MaxRecvMsgSize:    4 * 1024 * 1024, // 4MB
-		MaxSendMsgSize:    4 * 1024 * 1024, // 4MB
-		KeepaliveTime:     30,
-		KeepaliveTimeout:  10,
-		ConnectionTimeout: 30,
-		RetryTimes:        3,
-		EnableLoadBalance: true,
-		LoadBalancePolicy: "round_robin",
-		EnableTLS:         false,
+		ServiceName:           serviceName,
+		Endpoints:             endpoints,
+		Network:               "tcp4",           // 默认使用 tcp4 强制 IPv4
+		MaxRecvMsgSize:        16 * 1024 * 1024, // 16MB（优化后）
+		MaxSendMsgSize:        16 * 1024 * 1024, // 16MB（优化后）
+		KeepaliveTime:         10,               // 10秒（优化连接保活）
+		KeepaliveTimeout:      3,                // 3秒
+		ConnectionTimeout:     30,
+		RetryTimes:            3,
+		EnableLoadBalance:     true,
+		LoadBalancePolicy:     "round_robin",
+		EnableTLS:             false,
+		InitialWindowSize:     1 << 20, // 1MB 初始窗口（HTTP/2 多路复用优化）
+		InitialConnWindowSize: 1 << 21, // 2MB 连接窗口（HTTP/2 多路复用优化）
+		WaitForReady:          false,   // 快速失败，不等待连接就绪
 	}
 }
 
@@ -296,5 +302,18 @@ func (g *GRPCClient) AddEndpoint(endpoint string) *GRPCClient {
 // WithNetwork 设置网络类型
 func (g *GRPCClient) WithNetwork(network string) *GRPCClient {
 	g.Network = network
+	return g
+}
+
+// WithHTTP2WindowSize 设置 HTTP/2 窗口大小（优化多路复用性能）
+func (g *GRPCClient) WithHTTP2WindowSize(initialWindow, connWindow int32) *GRPCClient {
+	g.InitialWindowSize = initialWindow
+	g.InitialConnWindowSize = connWindow
+	return g
+}
+
+// WithWaitForReady 设置是否等待连接就绪
+func (g *GRPCClient) WithWaitForReady(wait bool) *GRPCClient {
+	g.WaitForReady = wait
 	return g
 }

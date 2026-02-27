@@ -94,6 +94,9 @@ type WSC struct {
 
 	// === 客户端容量配置 ===
 	ClientCapacity *ClientCapacity `mapstructure:"client-capacity" yaml:"client-capacity" json:"clientCapacity"` // 客户端容量配置
+
+	// === Hub 容量估算配置 ===
+	CapacityEstimation *CapacityEstimation `mapstructure:"capacity-estimation" yaml:"capacity-estimation" json:"capacityEstimation"` // Hub 容量估算配置
 }
 
 // RedisRepository Redis仓库配置
@@ -747,6 +750,7 @@ func Default() *WSC {
 		ChannelBuffers:             DefaultChannelBuffers(),
 		RetryPolicy:                DefaultRetryPolicy(),
 		ClientCapacity:             DefaultClientCapacity(),
+		CapacityEstimation:         DefaultCapacityEstimation(),
 	}
 }
 
