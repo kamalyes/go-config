@@ -77,6 +77,12 @@ type WSC struct {
 	// === WebSocket 升级响应头配置 ===
 	ResponseHeaders *ResponseHeaders `mapstructure:"response-headers" yaml:"response-headers" json:"responseHeaders"` // WebSocket 升级响应头配置
 
+	// === 健康检查配置 ===
+	HealthCheck *HealthCheck `mapstructure:"health-check" yaml:"health-check" json:"healthCheck"` // 健康检查配置
+
+	// === 连接验证配置 ===
+	ConnectionValidation *ConnectionValidation `mapstructure:"connection-validation" yaml:"connection-validation" json:"connectionValidation"` // 连接验证配置
+
 	// === 数据库配置 ===
 	Database *Database `mapstructure:"database" yaml:"database" json:"database"`
 
@@ -94,6 +100,9 @@ type WSC struct {
 
 	// === 客户端容量配置 ===
 	ClientCapacity *ClientCapacity `mapstructure:"client-capacity" yaml:"client-capacity" json:"clientCapacity"` // 客户端容量配置
+
+	// === Hub 容量估算配置 ===
+	CapacityEstimation *CapacityEstimation `mapstructure:"capacity-estimation" yaml:"capacity-estimation" json:"capacityEstimation"` // Hub 容量估算配置
 }
 
 // RedisRepository Redis仓库配置
@@ -644,6 +653,96 @@ func (r *ResponseHeaders) getPrefix() string {
 	return mathx.IfEmpty(r.CustomPrefix, "X-WSC-")
 }
 
+// HealthCheck 健康检查配置
+type HealthCheck struct {
+	// 是否启用健康检查端点
+	Enabled bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"` // 是否启用健康检查（默认: true）
+
+	// 健康检查参数名
+	QueryParamName string `mapstructure:"query-param-name" yaml:"query-param-name" json:"queryParamName"` // 健康检查查询参数名（默认: health）
+
+	// 健康检查参数值
+	QueryParamValue string `mapstructure:"query-param-value" yaml:"query-param-value" json:"queryParamValue"` // 健康检查参数值（默认: true）
+
+	// 响应消息配置
+	SendResponseMessage bool `mapstructure:"send-response-message" yaml:"send-response-message" json:"sendResponseMessage"` // 是否发送响应消息（默认: true）
+
+	// 是否立即关闭连接
+	CloseImmediately bool `mapstructure:"close-immediately" yaml:"close-immediately" json:"closeImmediately"` // 是否立即关闭连接（默认: true）
+}
+
+// GetQueryParamName 获取健康检查参数名
+func (h *HealthCheck) GetQueryParamName() string {
+	return mathx.IfEmpty(h.QueryParamName, "health")
+}
+
+// GetQueryParamValue 获取健康检查参数值
+func (h *HealthCheck) GetQueryParamValue() string {
+	return mathx.IfEmpty(h.QueryParamValue, "true")
+}
+
+// IsHealthCheckRequest 判断是否为健康检查请求
+func (h *HealthCheck) IsHealthCheckRequest(queryValue string) bool {
+	if !h.Enabled {
+		return false
+	}
+	return queryValue == h.GetQueryParamValue()
+}
+
+// ConnectionValidation 连接验证配置
+type ConnectionValidation struct {
+	// 是否启用连接验证
+	Enabled bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"` // 是否启用连接验证（默认: true）
+
+	// 必需参数配置
+	RequireUserID   bool `mapstructure:"require-user-id" yaml:"require-user-id" json:"requireUserId"`       // 是否要求 UserID（默认: true）
+	RequireUserType bool `mapstructure:"require-user-type" yaml:"require-user-type" json:"requireUserType"` // 是否要求 UserType（默认: true）
+
+	// 错误消息模板
+	MissingUserIDMessage   string `mapstructure:"missing-user-id-message" yaml:"missing-user-id-message" json:"missingUserIdMessage"`       // 缺少 UserID 的错误消息
+	MissingUserTypeMessage string `mapstructure:"missing-user-type-message" yaml:"missing-user-type-message" json:"missingUserTypeMessage"` // 缺少 UserType 的错误消息
+	MissingBothMessage     string `mapstructure:"missing-both-message" yaml:"missing-both-message" json:"missingBothMessage"`               // 同时缺少的错误消息
+}
+
+// GetMissingUserIDMessage 获取缺少 UserID 的错误消息
+func (c *ConnectionValidation) GetMissingUserIDMessage() string {
+	return mathx.IfEmpty(c.MissingUserIDMessage, "Missing required parameter: userid")
+}
+
+// GetMissingUserTypeMessage 获取缺少 UserType 的错误消息
+func (c *ConnectionValidation) GetMissingUserTypeMessage() string {
+	return mathx.IfEmpty(c.MissingUserTypeMessage, "Missing required parameter: usertype")
+}
+
+// GetMissingBothMessage 获取同时缺少的错误消息
+func (c *ConnectionValidation) GetMissingBothMessage() string {
+	return mathx.IfEmpty(c.MissingBothMessage, "Missing required parameters: userid and usertype")
+}
+
+// ValidateConnection 验证连接参数
+func (c *ConnectionValidation) ValidateConnection(userID, userType string) (bool, string) {
+	if !c.Enabled {
+		return true, ""
+	}
+
+	missingUserID := c.RequireUserID && userID == ""
+	missingUserType := c.RequireUserType && userType == ""
+
+	if missingUserID && missingUserType {
+		return false, c.GetMissingBothMessage()
+	}
+
+	if missingUserID {
+		return false, c.GetMissingUserIDMessage()
+	}
+
+	if missingUserType {
+		return false, c.GetMissingUserTypeMessage()
+	}
+
+	return true, ""
+}
+
 // Database 数据库持久化配置
 type Database struct {
 	Enabled          bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                              // 是否启用数据库持久化
@@ -742,11 +841,14 @@ func Default() *WSC {
 		Security:                   DefaultSecurity(),
 		ClientAttributes:           DefaultClientAttributes(),
 		ResponseHeaders:            DefaultResponseHeaders(),
+		HealthCheck:                DefaultHealthCheck(),
+		ConnectionValidation:       DefaultConnectionValidation(),
 		Logging:                    DefaultLogging(),
 		BatchProcessing:            DefaultBatchProcessing(),
 		ChannelBuffers:             DefaultChannelBuffers(),
 		RetryPolicy:                DefaultRetryPolicy(),
 		ClientCapacity:             DefaultClientCapacity(),
+		CapacityEstimation:         DefaultCapacityEstimation(),
 	}
 }
 
@@ -895,6 +997,29 @@ func DefaultResponseHeaders() *ResponseHeaders {
 		},
 		SendRegisteredMessage:    false,                            // 默认不发送注册成功消息
 		RegisteredMessageContent: "Client registered successfully", // 默认消息内容
+	}
+}
+
+// DefaultHealthCheck 默认健康检查配置
+func DefaultHealthCheck() *HealthCheck {
+	return &HealthCheck{
+		Enabled:             true,     // 默认启用健康检查
+		QueryParamName:      "health", // 默认参数名
+		QueryParamValue:     "true",   // 默认参数值
+		SendResponseMessage: false,    // 默认发送响应消息
+		CloseImmediately:    true,     // 默认立即关闭连接
+	}
+}
+
+// DefaultConnectionValidation 默认连接验证配置
+func DefaultConnectionValidation() *ConnectionValidation {
+	return &ConnectionValidation{
+		Enabled:                true,                                               // 默认启用连接验证
+		RequireUserID:          true,                                               // 默认要求 UserID
+		RequireUserType:        true,                                               // 默认要求 UserType
+		MissingUserIDMessage:   "Missing required parameter: userid",               // 缺少 UserID 的错误消息
+		MissingUserTypeMessage: "Missing required parameter: usertype",             // 缺少 UserType 的错误消息
+		MissingBothMessage:     "Missing required parameters: userid and usertype", // 同时缺少的错误消息
 	}
 }
 

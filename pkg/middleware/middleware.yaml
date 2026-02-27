@@ -2,7 +2,7 @@
 # 模块名称: middleware
 # 包名: middleware  
 # 描述: 中间件模块
-# 生成时间: 2026-02-11 21:30:37
+# 生成时间: 2026-03-03 10:58:56
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -24,9 +24,11 @@ logging:
     output: stdout
     file-path: /var/log/app.log
     max-size: 100
-    max-backups: 3
+    max-backups: 5
     max-age: 28
     compress: true
+    file-permission: 420
+    buffer-size: 4096
     skip-paths:
         - /health
         - /metrics

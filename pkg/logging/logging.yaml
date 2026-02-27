@@ -2,7 +2,7 @@
 # 模块名称: logging
 # 包名: logging  
 # 描述: 日志记录模块
-# 生成时间: 2026-02-11 21:30:37
+# 生成时间: 2026-03-03 10:58:56
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -28,11 +28,15 @@ file-path: /var/log/app.log
 # 最大文件大小(MB)
 max-size: 100
 # 最大备份文件数
-max-backups: 3
+max-backups: 5
 # 最大保存天数
 max-age: 28
 # 是否压缩
 compress: true
+# 文件权限（十进制值，如：420 表示 0644）
+file-permission: 420
+# 缓冲区大小(字节)
+buffer-size: 4096
 # 跳过的路径
 skip-paths:
     - /health

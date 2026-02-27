@@ -105,8 +105,7 @@ type SmartConfigGenerator struct {
 
 // NewSmartConfigGenerator 创建新的智能配置生成器
 func NewSmartConfigGenerator(baseOutputDir string) *SmartConfigGenerator {
-	config := gologger.DefaultConfig()
-	logger := gologger.NewLogger(config)
+	logger := gologger.NewLogger()
 
 	generator := &SmartConfigGenerator{
 		BaseOutputDir:     baseOutputDir,

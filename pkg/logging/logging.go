@@ -17,35 +17,38 @@ import (
 
 	"github.com/kamalyes/go-config/internal"
 	"github.com/kamalyes/go-logger"
+	"github.com/kamalyes/go-toolbox/pkg/mathx"
 	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // Logging 日志中间件配置
 type Logging struct {
-	ModuleName           string               `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                 // 模块名称
-	Enabled              bool                 `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                            // 是否启用日志
-	Level                string               `mapstructure:"level" yaml:"level" json:"level"`                                                  // 日志级别 (debug, info, warn, error)
-	Format               logger.FormatterType `mapstructure:"format" yaml:"format" json:"format"`                                               // 日志格式 (json, text, xml, csv)
-	Prefix               string               `mapstructure:"prefix" yaml:"prefix" json:"prefix"`                                               // 日志前缀（如：[WSC]）
-	ShowCaller           bool                 `mapstructure:"show-caller" yaml:"show-caller" json:"showCaller"`                                 // 是否显示调用者信息
-	Colorful             bool                 `mapstructure:"colorful" yaml:"colorful" json:"colorful"`                                         // 是否使用彩色输出
-	TimeFormat           string               `mapstructure:"time-format" yaml:"time-format" json:"timeFormat"`                                 // 时间格式（如：2006-01-02 15:04:05.000）
-	Output               logger.OutputType    `mapstructure:"output" yaml:"output" json:"output"`                                               // 输出目标 (console, file, rotate, stdout, stderr)
-	FilePath             string               `mapstructure:"file-path" yaml:"file-path" json:"filePath"`                                       // 日志文件路径
-	MaxSize              int                  `mapstructure:"max-size" yaml:"max-size" json:"maxSize"`                                          // 最大文件大小(MB)
-	MaxBackups           int                  `mapstructure:"max-backups" yaml:"max-backups" json:"maxBackups"`                                 // 最大备份文件数
-	MaxAge               int                  `mapstructure:"max-age" yaml:"max-age" json:"maxAge"`                                             // 最大保存天数
-	Compress             bool                 `mapstructure:"compress" yaml:"compress" json:"compress"`                                         // 是否压缩
-	SkipPaths            []string             `mapstructure:"skip-paths" yaml:"skip-paths" json:"skipPaths"`                                    // 跳过的路径
-	EnableRequest        bool                 `mapstructure:"enable-request" yaml:"enable-request" json:"enableRequest"`                        // 是否记录请求
-	EnableResponse       bool                 `mapstructure:"enable-response" yaml:"enable-response" json:"enableResponse"`                     // 是否记录响应
-	MaxBodySize          int                  `mapstructure:"max-body-size" yaml:"max-body-size" json:"maxBodySize"`                            // 最大日志体大小(字节)
-	SensitiveMask        string               `mapstructure:"sensitive-mask" yaml:"sensitive-mask" json:"sensitiveMask"`                        // 敏感数据掩码
-	SensitiveKeys        []string             `mapstructure:"sensitive-keys" yaml:"sensitive-keys" json:"sensitiveKeys"`                        // 敏感字段关键词
-	SlowHTTPThreshold    int64                `mapstructure:"slow-http-threshold" yaml:"slow-http-threshold" json:"slowHttpThreshold"`          // HTTP慢请求阈值(毫秒)
-	SlowGRPCThreshold    int64                `mapstructure:"slow-grpc-threshold" yaml:"slow-grpc-threshold" json:"slowGrpcThreshold"`          // GRPC慢请求阈值(毫秒)
-	SlowStreamThreshold  int64                `mapstructure:"slow-stream-threshold" yaml:"slow-stream-threshold" json:"slowStreamThreshold"`    // 流式请求慢请求阈值(毫秒)
-	LoggableContentTypes []string             `mapstructure:"loggable-content-types" yaml:"loggable-content-types" json:"loggableContentTypes"` // 可记录的 Content-Type
+	ModuleName           string            `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                 // 模块名称
+	Enabled              bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                            // 是否启用日志
+	Level                string            `mapstructure:"level" yaml:"level" json:"level"`                                                  // 日志级别 (debug, info, warn, error)
+	Format               logger.FormatType `mapstructure:"format" yaml:"format" json:"format"`                                               // 日志格式 (json, text, xml, csv)
+	Prefix               string            `mapstructure:"prefix" yaml:"prefix" json:"prefix"`                                               // 日志前缀（如：[WSC]）
+	ShowCaller           bool              `mapstructure:"show-caller" yaml:"show-caller" json:"showCaller"`                                 // 是否显示调用者信息
+	Colorful             bool              `mapstructure:"colorful" yaml:"colorful" json:"colorful"`                                         // 是否使用彩色输出
+	TimeFormat           string            `mapstructure:"time-format" yaml:"time-format" json:"timeFormat"`                                 // 时间格式（如：2006-01-02 15:04:05.000）
+	Output               logger.OutputType `mapstructure:"output" yaml:"output" json:"output"`                                               // 输出目标 (console, file, rotate, stdout, stderr)
+	FilePath             string            `mapstructure:"file-path" yaml:"file-path" json:"filePath"`                                       // 日志文件路径
+	MaxSize              int               `mapstructure:"max-size" yaml:"max-size" json:"maxSize"`                                          // 最大文件大小(MB)
+	MaxBackups           int               `mapstructure:"max-backups" yaml:"max-backups" json:"maxBackups"`                                 // 最大备份文件数
+	MaxAge               int               `mapstructure:"max-age" yaml:"max-age" json:"maxAge"`                                             // 最大保存天数
+	Compress             bool              `mapstructure:"compress" yaml:"compress" json:"compress"`                                         // 是否压缩
+	FilePermission       uint32            `mapstructure:"file-permission" yaml:"file-permission" json:"filePermission"`                     // 文件权限（十进制值，如：420 表示 0644）
+	BufferSize           int               `mapstructure:"buffer-size" yaml:"buffer-size" json:"bufferSize"`                                 // 缓冲区大小(字节)
+	SkipPaths            []string          `mapstructure:"skip-paths" yaml:"skip-paths" json:"skipPaths"`                                    // 跳过的路径
+	EnableRequest        bool              `mapstructure:"enable-request" yaml:"enable-request" json:"enableRequest"`                        // 是否记录请求
+	EnableResponse       bool              `mapstructure:"enable-response" yaml:"enable-response" json:"enableResponse"`                     // 是否记录响应
+	MaxBodySize          int               `mapstructure:"max-body-size" yaml:"max-body-size" json:"maxBodySize"`                            // 最大日志体大小(字节)
+	SensitiveMask        string            `mapstructure:"sensitive-mask" yaml:"sensitive-mask" json:"sensitiveMask"`                        // 敏感数据掩码
+	SensitiveKeys        []string          `mapstructure:"sensitive-keys" yaml:"sensitive-keys" json:"sensitiveKeys"`                        // 敏感字段关键词
+	SlowHTTPThreshold    int64             `mapstructure:"slow-http-threshold" yaml:"slow-http-threshold" json:"slowHttpThreshold"`          // HTTP慢请求阈值(毫秒)
+	SlowGRPCThreshold    int64             `mapstructure:"slow-grpc-threshold" yaml:"slow-grpc-threshold" json:"slowGrpcThreshold"`          // GRPC慢请求阈值(毫秒)
+	SlowStreamThreshold  int64             `mapstructure:"slow-stream-threshold" yaml:"slow-stream-threshold" json:"slowStreamThreshold"`    // 流式请求慢请求阈值(毫秒)
+	LoggableContentTypes []string          `mapstructure:"loggable-content-types" yaml:"loggable-content-types" json:"loggableContentTypes"` // 可记录的 Content-Type
 }
 
 // GetLogLevel 获取 go-logger 的日志级别
@@ -54,7 +57,7 @@ func (l *Logging) GetLogLevel() string {
 }
 
 // GetFormatterType 获取 go-logger 的格式化类型
-func (l *Logging) GetFormatterType() logger.FormatterType {
+func (l *Logging) GetFormatterType() logger.FormatType {
 	return l.Format
 }
 
@@ -69,17 +72,19 @@ func Default() *Logging {
 		ModuleName:     "logging",
 		Enabled:        true,
 		Level:          "debug",
-		Format:         logger.JSONFormatter,
+		Format:         logger.FormatJSON,
 		Prefix:         "",
 		ShowCaller:     false,
 		Colorful:       true,
 		TimeFormat:     time.RFC3339Nano,
 		Output:         logger.OutputStdout,
 		FilePath:       "/var/log/app.log",
-		MaxSize:        100,
-		MaxBackups:     3,
+		MaxSize:        100, // 100MB（会转换为字节）
+		MaxBackups:     logger.DefaultMaxFiles,
 		MaxAge:         28,
 		Compress:       true,
+		FilePermission: logger.DefaultFilePermission,
+		BufferSize:     logger.DefaultBufferSize,
 		SkipPaths:      []string{"/health", "/metrics", "/favicon.ico", "/ping", "/readiness", "/liveness"},
 		EnableRequest:  true,
 		EnableResponse: false,
@@ -146,7 +151,7 @@ func (l *Logging) WithLevel(level string) *Logging {
 }
 
 // WithFormat 设置日志格式
-func (l *Logging) WithFormat(format logger.FormatterType) *Logging {
+func (l *Logging) WithFormat(format logger.FormatType) *Logging {
 	l.Format = format
 	return l
 }
@@ -190,6 +195,18 @@ func (l *Logging) WithMaxAge(maxAge int) *Logging {
 // WithCompress 设置是否压缩
 func (l *Logging) WithCompress(compress bool) *Logging {
 	l.Compress = compress
+	return l
+}
+
+// WithFilePermission 设置文件权限
+func (l *Logging) WithFilePermission(permission uint32) *Logging {
+	l.FilePermission = permission
+	return l
+}
+
+// WithBufferSize 设置缓冲区大小
+func (l *Logging) WithBufferSize(bufferSize int) *Logging {
+	l.BufferSize = bufferSize
 	return l
 }
 
@@ -245,56 +262,42 @@ func (l *Logging) IsEnabled() bool {
 	return l.Enabled
 }
 
-// ToLoggerConfig 将 Logging 配置转换为 go-logger 的 LogConfig
-func (l *Logging) ToLoggerConfig() *logger.LogConfig {
+// ToLoggerInstance 将 Logging 配置转换为 go-logger 的 Logger 实例
+func (l *Logging) ToLoggerInstance() *logger.Logger {
 	level, _ := logger.ParseLevel(l.Level)
 
-	// 构建基础配置
-	loggerConfig := logger.DefaultConfig().
+	// 创建基础 logger 实例
+	loggerInstance := logger.NewLogger().
 		WithLevel(level).
 		WithPrefix(l.Prefix).
 		WithShowCaller(l.ShowCaller).
 		WithColorful(l.Colorful).
-		WithTimeFormat(l.TimeFormat)
+		WithTimeFormat(l.TimeFormat).
+		WithFormat(l.Format)
 
-	// 配置输出
-	l.configureOutput(loggerConfig)
+	// 使用 go-logger 提供的 CreateWriter 创建输出器
+	writerConfig := l.toWriterConfig()
+	writer, err := logger.CreateWriter(writerConfig)
+	if err != nil {
+		// 如果创建失败，使用默认的控制台输出
+		writer = logger.NewConsoleWriter(logger.WithConsoleOutput(os.Stdout))
+	}
 
-	return loggerConfig
+	loggerInstance.WithOutput(writer)
+
+	return loggerInstance
 }
 
-// configureOutput 配置日志输出
-func (l *Logging) configureOutput(loggerConfig *logger.LogConfig) {
-	switch l.Output {
-	case logger.OutputFile:
-		if l.FilePath == "" {
-			loggerConfig.WithOutput(logger.NewConsoleWriter(os.Stdout))
-			return
-		}
-
-		// 使用轮转文件写入器
-		if l.MaxSize > 0 && l.MaxBackups > 0 {
-			rotateWriter := logger.NewRotateWriter(
-				l.FilePath,
-				int64(l.MaxSize)*1024*1024, // 转换为字节
-				l.MaxBackups,
-			)
-			loggerConfig.WithOutput(rotateWriter)
-			return
-		}
-
-		// 使用简单文件写入器
-		fileWriter := logger.NewFileWriter(l.FilePath)
-		loggerConfig.WithOutput(fileWriter)
-
-	case logger.OutputStderr:
-		loggerConfig.WithOutput(logger.NewConsoleWriter(os.Stderr))
-
-	case logger.OutputStdout:
-		loggerConfig.WithOutput(logger.NewConsoleWriter(os.Stdout))
-
-	default:
-		// 默认使用控制台输出（stdout）
-		loggerConfig.WithOutput(logger.NewConsoleWriter(os.Stdout))
+// toWriterConfig 将 Logging 配置转换为 go-logger 的 WriterConfig
+func (l *Logging) toWriterConfig() *logger.WriterConfig {
+	return &logger.WriterConfig{
+		Type:       l.Output,
+		FilePath:   l.FilePath,
+		MaxSize:    mathx.IfNotZero(int64(l.MaxSize)*1024*1024, logger.DefaultMaxSize), // MB -> 字节
+		MaxFiles:   mathx.IfNotZero(l.MaxBackups, 0),
+		MaxAge:     mathx.IfNotZero(l.MaxAge, 0),
+		Compress:   l.Compress,
+		Permission: mathx.IfNotZero(os.FileMode(l.FilePermission), logger.DefaultFilePermission),
+		BufferSize: mathx.IfNotZero(l.BufferSize, logger.DefaultBufferSize),
 	}
 }
