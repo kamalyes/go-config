@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2026-02-11 21:30:37
+# 生成时间: 2026-02-27 11:08:56
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -18,13 +18,13 @@ version: v1.0.0
 # 环境 (dev, test, prod)
 environment: dev
 # 构建时间
-build-time: "2026-02-11T21:30:37+08:00"
+build-time: "2026-02-27T11:08:56+08:00"
 # 构建用户
 build-user: kamalyes
 # Go版本
 go-version: 1.25.1
 # Git提交哈希
-git-commit: e5ef039999e0524737bed310c6fee2fd
+git-commit: 619f602ae1dfff3853c9d247ac0b83b4
 # Git分支
 git-branch: master
 # Git标签
@@ -441,6 +441,32 @@ monitoring:
             - 120
         enable-open-metrics: false
         custom-metrics: []
+        static-paths:
+            - /
+            - /health
+            - /healthz
+            - /health/live
+            - /health/ready
+            - /livez
+            - /readyz
+            - /ping
+            - /status
+            - /metrics
+            - /prometheus
+            - /actuator/prometheus
+            - /ready
+            - /alive
+            - /startup
+            - /debug/pprof
+            - /debug/vars
+            - /swagger
+            - /swagger-ui
+            - /api-docs
+            - /docs
+            - /openapi.json
+            - /swagger.json
+            - /favicon.ico
+            - /robots.txt
     alerting:
         # 是否启用网关
         enabled: false
@@ -964,8 +990,8 @@ wsc:
     max-pending-queue-size: 20000
     websocket-origins:
         - '*'
-    read-timeout: 10s
-    write-timeout: 10s
+    read-timeout: 1m0s
+    write-timeout: 30s
     idle-timeout: 2m0s
     max-message-size: 512
     min-rec-time: 2s
@@ -988,6 +1014,9 @@ wsc:
             ttl: 1m30s
             cleanup-days-ago: 0
             enable-auto-cleanup: false
+            status-refresh-interval: 45s
+            enable-compression: false
+            compression-min-size: 512
         stats:
             key-prefix: 'wsc:stats:'
             ttl: 10m0s
@@ -995,6 +1024,18 @@ wsc:
             enable-auto-cleanup: false
         workload:
             key-prefix: 'wsc:workload:'
+            max-candidates: 50
+            work-status:
+                # 是否启用网关
+                enabled: false
+                granularities:
+                    - hour
+                    - day
+                retention-days: 90
+                async-record: true
+                record-timeout: 2
+                sync-to-db: true
+                sync-interval: 300
         offline-message:
             key-prefix: 'wsc:offline_messages:'
             queue-ttl: 168h0m0s
@@ -1012,7 +1053,7 @@ wsc:
             buffer-size: 100
             ping-interval: 10s
             enable-compression: false
-            compression-min-size: 1024
+            compression-min-size: 512
     performance:
         max-connections-per-node: 10000
         read-buffer-size: 4
@@ -1134,6 +1175,15 @@ wsc:
               key: user_type
             - type: header
               key: X-User-Type
+    response-headers:
+        # 是否启用网关
+        enabled: true
+        client-id-key: X-WSC-Client-ID
+        node-id-key: X-WSC-Node-ID
+        custom-prefix: X-WSC-
+        custom-headers: {}
+        send-registered-message: false
+        registered-message-content: Client registered successfully
     # 数据库统一配置
     database:
         # 是否启用网关

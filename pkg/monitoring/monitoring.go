@@ -40,6 +40,7 @@ type Metrics struct {
 	Buckets           []float64      `mapstructure:"buckets" yaml:"buckets" json:"buckets"`                                   // 直方图桶配置
 	EnableOpenMetrics bool           `mapstructure:"enable-open-metrics" yaml:"enable-open-metrics" json:"enableOpenMetrics"` // 是否启用 OpenMetrics 格式
 	CustomMetrics     []CustomMetric `mapstructure:"custom-metrics" yaml:"custom-metrics" json:"customMetrics"`               // 自定义指标
+	StaticPaths       []string       `mapstructure:"static-paths" yaml:"static-paths" json:"staticPaths"`                     // 静态路径列表（不进行路径规范化）
 	Endpoint          string         `mapstructure:"_" yaml:"-" json:"_"`                                                     // 指标端点（自动计算）
 }
 
@@ -103,6 +104,28 @@ type SlackConfig struct {
 	IconEmoji string `mapstructure:"icon-emoji" yaml:"icon-emoji" json:"iconEmoji"` // 图标表情
 }
 
+// DefaultStaticPaths 返回默认的静态路径列表
+func DefaultStaticPaths() []string {
+	return []string{
+		// 根路径
+		"/",
+		// 健康检查
+		"/health", "/healthz", "/health/live", "/health/ready",
+		"/livez", "/readyz", "/ping", "/status",
+		// 监控指标
+		"/metrics", "/prometheus", "/actuator/prometheus",
+		// 管理端点
+		"/ready", "/alive", "/startup",
+		// 调试端点
+		"/debug/pprof", "/debug/vars",
+		// API 文档
+		"/swagger", "/swagger-ui", "/api-docs", "/docs",
+		"/openapi.json", "/swagger.json",
+		// 其他常见静态端点
+		"/favicon.ico", "/robots.txt",
+	}
+}
+
 // Default 创建默认监控配置
 func Default() *Monitoring {
 	m := &Monitoring{
@@ -120,6 +143,7 @@ func Default() *Monitoring {
 			Buckets:           []float64{0.001, 0.01, 0.1, 0.3, 0.6, 1, 3, 6, 9, 20, 30, 60, 90, 120},
 			EnableOpenMetrics: false,
 			CustomMetrics:     []CustomMetric{},
+			StaticPaths:       DefaultStaticPaths(),
 		},
 		Alerting: &Alerting{
 			Enabled:  false,

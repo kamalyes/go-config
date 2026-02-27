@@ -2,7 +2,7 @@
 // 模块名称: monitoring
 // 包名: monitoring  
 // 描述: 监控模块
-// 生成时间: 2025-11-28 00:26:08
+// 生成时间: 2026-02-27 11:08:56
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -75,7 +75,7 @@
     "tags": {}
   },
   "metrics": {
-    "enabled": true,
+    "enabled": false,
     "requestCount": true,
     "duration": true,
     "responseSize": true,
@@ -98,6 +98,33 @@
     ],
     "enableOpenMetrics": false,
     "customMetrics": [],
+    "staticPaths": [
+      "/",
+      "/health",
+      "/healthz",
+      "/health/live",
+      "/health/ready",
+      "/livez",
+      "/readyz",
+      "/ping",
+      "/status",
+      "/metrics",
+      "/prometheus",
+      "/actuator/prometheus",
+      "/ready",
+      "/alive",
+      "/startup",
+      "/debug/pprof",
+      "/debug/vars",
+      "/swagger",
+      "/swagger-ui",
+      "/api-docs",
+      "/docs",
+      "/openapi.json",
+      "/swagger.json",
+      "/favicon.ico",
+      "/robots.txt"
+    ],
     "_": "/metrics"
   },
   "alerting": {
