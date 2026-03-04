@@ -13,8 +13,9 @@ package goconfig
 import (
 	"context"
 	"fmt"
+	"sync"
+
 	"github.com/kamalyes/go-logger"
-	"time"
 )
 
 // ConfigBuilder 配置构建器接口
@@ -40,9 +41,6 @@ type ConfigBuilder[T any] interface {
 	// WithContext 设置上下文配置选项
 	WithContext(options *ContextKeyOptions) ConfigBuilder[T]
 
-	// WithErrorHandler 设置错误处理器
-	WithErrorHandler(handler ErrorHandler) ConfigBuilder[T]
-
 	// Build 构建配置管理器
 	Build() (*IntegratedConfigManager, error)
 
@@ -63,7 +61,6 @@ type ManagerBuilder[T any] struct {
 	pattern         string             // 文件匹配模式
 	hotReloadConfig *HotReloadConfig   // 热重载配置
 	contextOptions  *ContextKeyOptions // 上下文选项
-	errorHandler    ErrorHandler       // 错误处理器
 	autoDiscovery   bool               // 是否启用自动发现
 	usePattern      bool               // 是否使用模式匹配
 	useCustomPrefix bool               // 是否使用自定义前缀
@@ -72,9 +69,8 @@ type ManagerBuilder[T any] struct {
 // NewConfigBuilder 创建新的配置构建器
 func NewConfigBuilder[T any](config *T) ConfigBuilder[T] {
 	return &ManagerBuilder[T]{
-		config:       config,
-		environment:  GetEnvironment(),
-		errorHandler: GetGlobalErrorHandler(),
+		config:      config,
+		environment: GetEnvironment(),
 	}
 }
 
@@ -133,24 +129,12 @@ func (b *ManagerBuilder[T]) WithContext(options *ContextKeyOptions) ConfigBuilde
 	return b
 }
 
-// WithErrorHandler 设置错误处理器
-func (b *ManagerBuilder[T]) WithErrorHandler(handler ErrorHandler) ConfigBuilder[T] {
-	if handler != nil {
-		b.errorHandler = handler
-		logger.GetGlobalLogger().Debug("⚠️ 设置自定义错误处理器")
-	}
-	return b
-}
-
 // Build 构建配置管理器
 func (b *ManagerBuilder[T]) Build() (*IntegratedConfigManager, error) {
-	ctx := context.Background()
-
 	// 解析配置路径
 	configPath, err := b.resolveConfigPath()
 	if err != nil {
-		configErr := b.errorHandler.HandleError(ctx, fmt.Errorf("解析配置路径失败: %w", err))
-		return nil, configErr
+		return nil, ErrResolveConfigPath(err)
 	}
 
 	// 创建集成配置管理器
@@ -159,13 +143,11 @@ func (b *ManagerBuilder[T]) Build() (*IntegratedConfigManager, error) {
 		Environment:     b.environment,
 		HotReloadConfig: b.hotReloadConfig,
 		ContextOptions:  b.contextOptions,
-		ErrorHandler:    b.errorHandler,
 	}
 
 	manager, err := NewIntegratedConfigManager(b.config, options)
 	if err != nil {
-		configErr := b.errorHandler.HandleError(ctx, fmt.Errorf("创建集成配置管理器失败: %w", err))
-		return nil, configErr
+		return nil, ErrCreateManager(err)
 	}
 
 	logger.GetGlobalLogger().Info("🎯 配置管理器构建完成")
@@ -184,14 +166,13 @@ func (b *ManagerBuilder[T]) BuildAndStart(ctx ...context.Context) (*IntegratedCo
 	if len(ctx) > 0 && ctx[0] != nil {
 		startCtx = ctx[0]
 	} else {
-		var cancel context.CancelFunc
-		startCtx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
+		// 使用 Background context，不设置 timeout
+		// 因为热更新需要长期运行
+		startCtx = context.Background()
 	}
 
 	if err := manager.Start(startCtx); err != nil {
-		configErr := b.errorHandler.HandleError(startCtx, fmt.Errorf("启动管理器失败: %w", err))
-		return nil, configErr
+		return nil, ErrStartManager(err)
 	}
 
 	logger.GetGlobalLogger().Info("🚀 配置管理器构建并启动成功")
@@ -215,13 +196,13 @@ func (b *ManagerBuilder[T]) resolveConfigPath() (string, error) {
 	case b.usePattern:
 		return b.resolveByPattern(discovery)
 	case b.useCustomPrefix:
-		return b.resolveByPrefix(discovery)
+		return b.resolveByPrefix()
 	case b.autoDiscovery:
 		return b.resolveByAutoDiscovery(discovery)
 	case b.configPath != "":
 		return b.resolveByDirectPath()
 	default:
-		return "", fmt.Errorf("未指定配置路径或搜索选项")
+		return "", ErrNoConfigPath
 	}
 }
 
@@ -229,10 +210,10 @@ func (b *ManagerBuilder[T]) resolveConfigPath() (string, error) {
 func (b *ManagerBuilder[T]) resolveByPattern(discovery *ConfigDiscovery) (string, error) {
 	configFiles, err := discovery.FindConfigFileByPattern(b.searchPath, b.pattern, b.environment)
 	if err != nil {
-		return "", fmt.Errorf("按模式查找配置文件失败: %w", err)
+		return "", ErrFindConfigByPattern(err)
 	}
 	if len(configFiles) == 0 {
-		return "", fmt.Errorf("未找到匹配模式 '%s' 的配置文件", b.pattern)
+		return "", ErrNoMatchingConfig(b.pattern)
 	}
 
 	selectedFile := configFiles[0]
@@ -241,7 +222,7 @@ func (b *ManagerBuilder[T]) resolveByPattern(discovery *ConfigDiscovery) (string
 }
 
 // resolveByPrefix 使用自定义前缀解析
-func (b *ManagerBuilder[T]) resolveByPrefix(discovery *ConfigDiscovery) (string, error) {
+func (b *ManagerBuilder[T]) resolveByPrefix() (string, error) {
 	// 创建专用的配置发现器（使用全局定义的环境前缀）
 	prefixDiscovery := &ConfigDiscovery{
 		SupportedExtensions: DefaultSupportedExtensions,
@@ -251,7 +232,7 @@ func (b *ManagerBuilder[T]) resolveByPrefix(discovery *ConfigDiscovery) (string,
 
 	configFiles, err := prefixDiscovery.DiscoverConfigFiles(b.searchPath, b.environment)
 	if err != nil {
-		return "", fmt.Errorf("发现配置文件失败: %w", err)
+		return "", ErrDiscoverConfigFiles(err)
 	}
 
 	for _, file := range configFiles {
@@ -270,7 +251,7 @@ func (b *ManagerBuilder[T]) resolveByPrefix(discovery *ConfigDiscovery) (string,
 func (b *ManagerBuilder[T]) resolveByAutoDiscovery(discovery *ConfigDiscovery) (string, error) {
 	configFiles, err := discovery.DiscoverConfigFiles(b.searchPath, b.environment)
 	if err != nil {
-		return "", fmt.Errorf("自动发现配置文件失败: %w", err)
+		return "", ErrAutoDiscoverConfigFiles(err)
 	}
 
 	for _, file := range configFiles {
@@ -347,7 +328,6 @@ type ConfigBuilderOptions struct {
 	Pattern         string             `json:"pattern"`           // 匹配模式
 	HotReloadConfig *HotReloadConfig   `json:"hot_reload_config"` // 热重载配置
 	ContextOptions  *ContextKeyOptions `json:"context_options"`   // 上下文选项
-	ErrorHandler    ErrorHandler       `json:"-"`                 // 错误处理器（不序列化）
 }
 
 // BuilderFactory 构建器工厂
@@ -361,7 +341,6 @@ func NewBuilderFactory() *BuilderFactory {
 		defaultOptions: ConfigBuilderOptions{
 			Environment:     GetEnvironment(),
 			HotReloadConfig: DefaultHotReloadConfig(),
-			ErrorHandler:    GetGlobalErrorHandler(),
 		},
 	}
 }
@@ -373,22 +352,15 @@ func (f *BuilderFactory) SetDefaults(options ConfigBuilderOptions) *BuilderFacto
 	return f
 }
 
-// CreateBuilder 创建配置构建器
-// 注意：由于Go泛型限制，推荐直接使用 NewConfigBuilder
-func (f *BuilderFactory) CreateBuilder(config interface{}) interface{} {
-	// TODO: 需要使用反射或其他方式处理泛型
-	logger.GetGlobalLogger().Debug("🏭 构建器工厂创建配置构建器")
-	return nil // 暂时返回nil，需要进一步处理
-}
-
 // 全局构建器工厂
 var globalBuilderFactory *BuilderFactory
+var globalBuilderFactoryOnce sync.Once
 
 // GetGlobalBuilderFactory 获取全局构建器工厂
 func GetGlobalBuilderFactory() *BuilderFactory {
-	if globalBuilderFactory == nil {
+	globalBuilderFactoryOnce.Do(func() {
 		globalBuilderFactory = NewBuilderFactory()
-	}
+	})
 	return globalBuilderFactory
 }
 

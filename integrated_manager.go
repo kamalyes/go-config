@@ -30,7 +30,6 @@ type IntegratedConfigManager struct {
 	environment     *Environment     // 环境管理器
 	hotReloader     HotReloader      // 热重载管理器
 	contextManager  *ContextManager  // 上下文管理器
-	errorHandler    ErrorHandler     // 错误处理器
 	viper           *viper.Viper     // Viper配置解析器
 	config          interface{}      // 当前配置对象
 	configPath      string           // 配置文件路径
@@ -44,7 +43,6 @@ type IntegratedConfigOptions struct {
 	Environment     EnvironmentType    // 初始环境
 	HotReloadConfig *HotReloadConfig   // 热更新配置
 	ContextOptions  *ContextKeyOptions // 上下文选项
-	ErrorHandler    ErrorHandler       // 错误处理器
 }
 
 // DefaultIntegratedConfigOptions 默认集成配置管理器选项
@@ -54,7 +52,6 @@ func DefaultIntegratedConfigOptions() *IntegratedConfigOptions {
 		Environment:     DefaultEnv,
 		HotReloadConfig: DefaultHotReloadConfig(),
 		ContextOptions:  &ContextKeyOptions{Value: DefaultEnv},
-		ErrorHandler:    GetGlobalErrorHandler(),
 	}
 }
 
@@ -63,8 +60,6 @@ func NewIntegratedConfigManager(config interface{}, options *IntegratedConfigOpt
 	if options == nil {
 		options = DefaultIntegratedConfigOptions()
 	}
-
-	ctx := context.Background()
 
 	// 创建环境管理器
 	env := NewEnvironment()
@@ -98,14 +93,12 @@ func NewIntegratedConfigManager(config interface{}, options *IntegratedConfigOpt
 
 	// 读取配置文件
 	if err := v.ReadInConfig(); err != nil {
-		configErr := options.ErrorHandler.HandleError(ctx, fmt.Errorf("读取配置文件失败: %w", err))
-		return nil, configErr
+		return nil, ErrReadConfigFile(err)
 	}
 
 	// 解析配置到结构体
 	if err := v.Unmarshal(config); err != nil {
-		configErr := options.ErrorHandler.HandleError(ctx, fmt.Errorf("解析配置失败: %w", err))
-		return nil, configErr
+		return nil, ErrUnmarshalConfig(err)
 	}
 
 	// 处理配置指针：如果传入的是指向指针的指针，需要解引用
@@ -119,8 +112,7 @@ func NewIntegratedConfigManager(config interface{}, options *IntegratedConfigOpt
 	// 创建热更新器
 	hotReloader, err := NewHotReloader(config, v, options.ConfigPath, options.HotReloadConfig)
 	if err != nil {
-		configErr := options.ErrorHandler.HandleError(ctx, fmt.Errorf("创建热更新器失败: %w", err))
-		return nil, configErr
+		return nil, ErrCreateHotReloader(err)
 	}
 
 	// 创建上下文管理器
@@ -133,7 +125,6 @@ func NewIntegratedConfigManager(config interface{}, options *IntegratedConfigOpt
 		environment:     env,
 		hotReloader:     hotReloader,
 		contextManager:  contextManager,
-		errorHandler:    options.ErrorHandler,
 		viper:           v,
 		config:          actualConfig,
 		configPath:      options.ConfigPath,
@@ -170,15 +161,6 @@ func (icm *IntegratedConfigManager) registerInternalCallbacks() {
 		Async:    true,
 		Timeout:  10 * time.Second,
 	})
-
-	// 注册错误处理器回调
-	if icm.errorHandler != nil {
-		icm.errorHandler.RegisterErrorCallback(icm.onManagerError, ErrorFilter{
-			ID:         "integrated_manager_errors",
-			Types:      []ErrorType{ErrorTypeConfig, ErrorTypeFileSystem, ErrorTypeCallback},
-			Severities: []ErrorSeverity{SeverityError, SeverityCritical, SeverityFatal},
-		})
-	}
 }
 
 // onConfigReloaded 处理配置重新加载事件
@@ -186,12 +168,7 @@ func (icm *IntegratedConfigManager) onConfigReloaded(ctx context.Context, event 
 	icm.mu.Lock()
 	defer icm.mu.Unlock()
 
-	logger.GetGlobalLogger().Info("🔄 集成管理器: 配置已重新加载，来源: %s", event.Source)
-
-	// 自动记录美化的配置变更日志
-	if isAutoLogEnabled() {
-		LogConfigChange(event, event.NewValue)
-	}
+	logger.GetGlobalLogger().Info("🔄 集成管理器: 配置已重新加载: %s", event.Source)
 
 	// 更新本地配置引用
 	icm.config = event.NewValue
@@ -205,51 +182,12 @@ func (icm *IntegratedConfigManager) onConfigReloaded(ctx context.Context, event 
 // onEnvironmentChanged 处理环境变更事件
 func (icm *IntegratedConfigManager) onEnvironmentChanged(oldEnv, newEnv EnvironmentType) error {
 	logger.GetGlobalLogger().Info("🌍 集成管理器: 环境已变更: %s -> %s", oldEnv, newEnv)
-
-	// 自动记录美化的环境变更日志
-	if isAutoLogEnabled() {
-		LogEnvChange(oldEnv, newEnv)
-	}
-
 	return nil
 }
 
 // onError 处理错误事件
 func (icm *IntegratedConfigManager) onError(ctx context.Context, event CallbackEvent) error {
 	logger.GetGlobalLogger().Error("❌ 集成管理器: 发生错误: %s, 来源: %s", event.Error, event.Source)
-
-	// 使用错误处理器处理错误
-	if icm.errorHandler != nil && event.Error != nil {
-		icm.errorHandler.HandleError(ctx, event.Error)
-	}
-
-	// 自动记录美化的错误日志
-	if isAutoLogEnabled() {
-		LogConfigError(event)
-	}
-
-	return nil
-}
-
-// onManagerError 处理管理器错误
-func (icm *IntegratedConfigManager) onManagerError(ctx context.Context, configErr *ConfigError) error {
-	logger.GetGlobalLogger().Error("🚨 集成管理器错误: [%s] %s", configErr.Code, configErr.Message)
-
-	// 根据错误严重程度决定是否需要特殊处理
-	switch configErr.Severity {
-	case SeverityFatal:
-		logger.GetGlobalLogger().Fatal("💀 致命错误，系统将停止运行")
-	case SeverityCritical:
-		// 尝试重启热重载器
-		if icm.hotReloader.IsRunning() {
-			logger.GetGlobalLogger().Warn("⚠️ 检测到严重错误，尝试重启热重载器")
-			if err := icm.hotReloader.Stop(); err == nil {
-				time.Sleep(1 * time.Second)
-				icm.hotReloader.Start(ctx)
-			}
-		}
-	}
-
 	return nil
 }
 
@@ -259,12 +197,12 @@ func (icm *IntegratedConfigManager) Start(ctx context.Context) error {
 	defer icm.mu.Unlock()
 
 	if icm.running {
-		return icm.errorHandler.HandleError(ctx, fmt.Errorf("集成配置管理器已在运行"))
+		return ErrManagerRunning
 	}
 
 	// 启动热更新器
 	if err := icm.hotReloader.Start(ctx); err != nil {
-		return icm.errorHandler.HandleError(ctx, fmt.Errorf("启动热更新器失败: %w", err))
+		return ErrStartHotReloader(err)
 	}
 
 	// 更新上下文管理器配置
@@ -281,14 +219,12 @@ func (icm *IntegratedConfigManager) Stop() error {
 	defer icm.mu.Unlock()
 
 	if !icm.running {
-		return fmt.Errorf("集成配置管理器未运行")
+		return ErrManagerNotRunning
 	}
-
-	ctx := context.Background()
 
 	// 停止热更新器
 	if err := icm.hotReloader.Stop(); err != nil {
-		return icm.errorHandler.HandleError(ctx, fmt.Errorf("停止热更新器失败: %w", err))
+		return ErrStopHotReloader(err)
 	}
 
 	// 停止环境监控
@@ -319,7 +255,7 @@ func GetConfigAs[T any](icm *IntegratedConfigManager) (*T, error) {
 	if typedConfig, ok := config.(*T); ok {
 		return typedConfig, nil
 	}
-	return nil, fmt.Errorf("配置类型不匹配: 期望 %T, 实际 %T", new(T), config)
+	return nil, ErrConfigTypeMismatch(new(T), config)
 }
 
 // GetEnvironment 获取当前环境
@@ -354,11 +290,6 @@ func (icm *IntegratedConfigManager) GetEnvironmentManager() *Environment {
 	return icm.environment
 }
 
-// GetErrorHandler 获取错误处理器
-func (icm *IntegratedConfigManager) GetErrorHandler() ErrorHandler {
-	return icm.errorHandler
-}
-
 // WithContext 将配置信息注入到上下文中
 func (icm *IntegratedConfigManager) WithContext(ctx context.Context) context.Context {
 	return icm.contextManager.WithConfig(ctx)
@@ -374,14 +305,6 @@ func (icm *IntegratedConfigManager) RegisterEnvironmentCallback(id string, callb
 	return icm.environment.RegisterCallback(id, callback, priority, async)
 }
 
-// RegisterErrorCallback 注册错误回调
-func (icm *IntegratedConfigManager) RegisterErrorCallback(callback ErrorCallback, filter ErrorFilter) error {
-	if icm.errorHandler == nil {
-		return fmt.Errorf("错误处理器未初始化")
-	}
-	return icm.errorHandler.RegisterErrorCallback(callback, filter)
-}
-
 // UnregisterConfigCallback 取消配置变更回调
 func (icm *IntegratedConfigManager) UnregisterConfigCallback(id string) error {
 	return icm.hotReloader.UnregisterCallback(id)
@@ -390,14 +313,6 @@ func (icm *IntegratedConfigManager) UnregisterConfigCallback(id string) error {
 // UnregisterEnvironmentCallback 取消环境变更回调
 func (icm *IntegratedConfigManager) UnregisterEnvironmentCallback(id string) error {
 	return icm.environment.UnregisterCallback(id)
-}
-
-// UnregisterErrorCallback 取消错误回调
-func (icm *IntegratedConfigManager) UnregisterErrorCallback(id string) error {
-	if icm.errorHandler == nil {
-		return fmt.Errorf("错误处理器未初始化")
-	}
-	return icm.errorHandler.UnregisterErrorCallback(id)
 }
 
 // SetEnvironment 设置应用环境
@@ -409,7 +324,7 @@ func (icm *IntegratedConfigManager) SetEnvironment(env EnvironmentType) error {
 // ValidateConfig 验证配置有效性
 func (icm *IntegratedConfigManager) ValidateConfig() error {
 	if icm.config == nil {
-		return icm.errorHandler.HandleError(context.Background(), fmt.Errorf("配置为空"))
+		return ErrConfigEmpty
 	}
 
 	logger.GetGlobalLogger().Info("✅ 配置验证通过")
@@ -427,28 +342,7 @@ func (icm *IntegratedConfigManager) GetConfigMetadata() map[string]interface{} {
 	metadata["created_at"] = icm.contextManager.GetConfigContext().CreatedAt
 	metadata["updated_at"] = icm.contextManager.GetConfigContext().UpdatedAt
 
-	// 添加错误统计信息
-	if icm.errorHandler != nil {
-		errorStats := icm.errorHandler.GetErrorStats()
-		metadata["error_stats"] = errorStats
-	}
-
 	return metadata
-}
-
-// GetErrorStats 获取错误统计信息
-func (icm *IntegratedConfigManager) GetErrorStats() *ErrorStats {
-	if icm.errorHandler == nil {
-		return nil
-	}
-	return icm.errorHandler.GetErrorStats()
-}
-
-// ClearErrorStats 清除错误统计信息
-func (icm *IntegratedConfigManager) ClearErrorStats() {
-	if icm.errorHandler != nil {
-		icm.errorHandler.ClearErrorStats()
-	}
 }
 
 // MustStart 必须成功启动配置管理器
@@ -476,7 +370,6 @@ func CreateIntegratedManager(config interface{}, configPath string, env Environm
 		ContextOptions: &ContextKeyOptions{
 			Value: env,
 		},
-		ErrorHandler: GetGlobalErrorHandler(),
 	}
 
 	return NewIntegratedConfigManager(config, options)

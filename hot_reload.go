@@ -12,13 +12,15 @@ package goconfig
 
 import (
 	"context"
-	"fmt"
-	"github.com/fsnotify/fsnotify"
-	"github.com/kamalyes/go-logger"
-	"github.com/spf13/viper"
+	"path/filepath"
 	"reflect"
 	"sync"
 	"time"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/kamalyes/go-logger"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
+	"github.com/spf13/viper"
 )
 
 // HotReloadConfig 热更新配置
@@ -55,9 +57,9 @@ type HotReloader interface {
 	// IsRunning 检查是否正在运行
 	IsRunning() bool
 	// GetConfig 获取当前配置
-	GetConfig() interface{}
+	GetConfig() any
 	// SetConfig 设置配置
-	SetConfig(config interface{}) error
+	SetConfig(config any) error
 }
 
 // hotReloadManager 热更新管理器实现
@@ -84,7 +86,7 @@ func NewHotReloader(config interface{}, viper *viper.Viper, configPath string, o
 	// 创建文件监控器
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		return nil, fmt.Errorf("创建文件监控器失败: %w", err)
+		return nil, ErrCreateWatcher(err)
 	}
 
 	manager := &hotReloadManager{
@@ -139,7 +141,7 @@ func (h *hotReloadManager) Start(ctx context.Context) error {
 	defer h.mu.Unlock()
 
 	if h.running {
-		return fmt.Errorf("热更新器已经在运行")
+		return ErrReloaderRunning
 	}
 
 	if !h.hotConfig.Enabled {
@@ -153,22 +155,30 @@ func (h *hotReloadManager) Start(ctx context.Context) error {
 
 	// 添加配置文件监控
 	if h.configPath != "" {
-		err := h.watcher.Add(h.configPath)
+		// 转换为绝对路径（Windows 上 fsnotify 需要绝对路径）
+		absPath, err := filepath.Abs(h.configPath)
 		if err != nil {
-			return fmt.Errorf("添加配置文件监控失败: %w", err)
+			return ErrGetAbsPath(err)
 		}
-		logger.GetGlobalLogger().Info("开始监控配置文件: %s", h.configPath)
+		h.configPath = absPath
+
+		// 监控配置文件所在的目录（而不是文件本身）
+		// 原因：
+		// 1. 许多编辑器（如 VS Code）保存文件时使用"写入临时文件 + 重命名"的方式
+		// 2. 直接监控文件可能无法捕获这种重命名操作
+		// 3. 监控目录可以捕获所有文件事件（Write、Create、Rename）
+		configDir := filepath.Dir(absPath)
+		err = h.watcher.Add(configDir)
+		if err != nil {
+			return ErrAddWatcher(err)
+		}
+		logger.GetGlobalLogger().Info("监控的配置文件: %s", absPath)
 	}
 
 	h.running = true
 
-	// 启动监控协程
-	go h.watchLoop(runCtx)
-
-	// 启动环境变量监控
-	if h.hotConfig.EnableEnvWatch {
-		go h.watchEnvironment(runCtx)
-	}
+	// 使用 EventLoop 统一管理所有事件
+	go h.runEventLoop(runCtx)
 
 	logger.GetGlobalLogger().Info("🚀 热更新器启动成功")
 
@@ -185,16 +195,20 @@ func (h *hotReloadManager) Stop() error {
 	defer h.mu.Unlock()
 
 	if !h.running {
-		return fmt.Errorf("热更新器未运行")
+		return ErrReloaderNotRunning
 	}
 
 	// 触发停止事件
 	stopEvent := CreateEvent(CallbackTypeStopped, "hot_reloader", h.config, nil)
 	ctx, cancel := context.WithTimeout(context.Background(), h.hotConfig.CallbackTimeout)
-	go func() {
-		defer cancel()
-		h.TriggerCallbacks(ctx, stopEvent)
-	}()
+	syncx.Go(ctx).
+		OnPanic(func(r any) {
+			logger.GetGlobalLogger().Error("触发停止事件回调时发生panic: %v", r)
+		}).
+		Exec(func() {
+			defer cancel()
+			h.TriggerCallbacks(ctx, stopEvent)
+		})
 
 	if h.cancel != nil {
 		h.cancel()
@@ -239,11 +253,15 @@ func (h *hotReloadManager) SetConfig(config interface{}) error {
 	event := CreateEvent(CallbackTypeReloaded, "manual", oldConfig, config)
 	event.WithMetadata("manual", true)
 
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), h.hotConfig.CallbackTimeout)
-		defer cancel()
-		h.TriggerCallbacks(ctx, event)
-	}()
+	syncx.Go().
+		OnPanic(func(r any) {
+			logger.GetGlobalLogger().Error("触发手动配置变更回调时发生panic: %v", r)
+		}).
+		Exec(func() {
+			ctx, cancel := context.WithTimeout(context.Background(), h.hotConfig.CallbackTimeout)
+			defer cancel()
+			h.TriggerCallbacks(ctx, event)
+		})
 
 	logger.GetGlobalLogger().Info("📝 配置已手动更新")
 	return nil
@@ -255,37 +273,72 @@ func (h *hotReloadManager) Reload(ctx context.Context) error {
 	return h.reloadConfig(ctx, "manual_reload")
 }
 
-// watchLoop 监控文件变化
-func (h *hotReloadManager) watchLoop(ctx context.Context) {
-	defer func() {
-		if r := recover(); r != nil {
-			logger.GetGlobalLogger().Error("文件监控协程发生panic: %v", r)
-		}
-	}()
+// runEventLoop 统一的事件循环，使用 go-toolbox EventLoop 管理所有事件
+func (h *hotReloadManager) runEventLoop(ctx context.Context) {
+	lastEnv := GetEnvironment()
 
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case event, ok := <-h.watcher.Events:
-			if !ok {
-				return
-			}
+	syncx.NewEventLoop(ctx).
+		// 文件变更事件
+		OnChannel(h.watcher.Events, func(event fsnotify.Event) {
 			h.handleFileEvent(ctx, event)
-		case err, ok := <-h.watcher.Errors:
-			if !ok {
-				return
-			}
+		}).
+		// 文件监控错误
+		OnChannel(h.watcher.Errors, func(err error) {
 			logger.GetGlobalLogger().Error("文件监控错误: %v", err)
 			h.triggerErrorCallback(ctx, err, "file_watcher")
-		}
-	}
+		}).
+		// 环境变量监控（条件注册）
+		IfTicker(h.hotConfig.EnableEnvWatch, h.hotConfig.WatchInterval, func() {
+			currentEnv := GetEnvironment()
+			if currentEnv != lastEnv {
+				logger.GetGlobalLogger().Info("🌍 环境变量发生变化: %s -> %s", lastEnv, currentEnv)
+
+				event := CreateEvent(CallbackTypeEnvVarChanged, string(GetContextKey()), lastEnv, currentEnv)
+				event.WithMetadata("context_key", GetContextKey())
+
+				syncx.Go(ctx).
+					OnPanic(func(r any) {
+						logger.GetGlobalLogger().Error("触发环境变更回调时发生panic: %v", r)
+					}).
+					OnError(func(err error) {
+						logger.GetGlobalLogger().Error("触发环境变更回调失败: %v", err)
+					}).
+					ExecWithContext(func(ctx context.Context) error {
+						return h.TriggerCallbacks(ctx, event)
+					})
+
+				lastEnv = currentEnv
+			}
+		}).
+		// Panic 处理
+		OnPanic(func(r any) {
+			logger.GetGlobalLogger().Error("热重载事件循环发生panic: %v", r)
+		}).
+		// 优雅关闭
+		OnShutdown(func() {
+			logger.GetGlobalLogger().Info("⏹️ 热重载事件循环已停止")
+		}).
+		Run()
 }
 
 // handleFileEvent 处理文件事件
 func (h *hotReloadManager) handleFileEvent(ctx context.Context, event fsnotify.Event) {
-	if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Create == fsnotify.Create {
-		logger.GetGlobalLogger().Info("📁 配置文件发生变化: %s", event.Name)
+	// 获取事件文件的绝对路径
+	eventPath, err := filepath.Abs(event.Name)
+	if err != nil {
+		logger.GetGlobalLogger().Error("获取事件文件绝对路径失败: %v", err)
+		return
+	}
+
+	// 只处理我们监控的配置文件的事件
+	if eventPath != h.configPath {
+		return
+	}
+
+	// 处理写入、创建和重命名事件（编辑器通常使用重命名来保存文件）
+	if event.Op&fsnotify.Write == fsnotify.Write ||
+		event.Op&fsnotify.Create == fsnotify.Create ||
+		event.Op&fsnotify.Rename == fsnotify.Rename {
 
 		// 使用锁保护防抖处理
 		h.mu.Lock()
@@ -294,6 +347,7 @@ func (h *hotReloadManager) handleFileEvent(ctx context.Context, event fsnotify.E
 		}
 
 		h.debounceTimer = time.AfterFunc(h.hotConfig.DebounceDelay, func() {
+			logger.GetGlobalLogger().Info("📁 配置文件发生变化，开始重新加载: %s", event.Name)
 			if err := h.reloadConfig(ctx, event.Name); err != nil {
 				logger.GetGlobalLogger().Error("重新加载配置失败: %v", err)
 			}
@@ -336,51 +390,19 @@ func (h *hotReloadManager) reloadConfig(ctx context.Context, source string) erro
 	event.WithMetadata("config_path", h.configPath)
 	event.WithMetadata("duration", duration)
 
-	go func() {
-		if err := h.TriggerCallbacks(ctx, event); err != nil {
+	syncx.Go(ctx).
+		OnPanic(func(r any) {
+			logger.GetGlobalLogger().Error("触发配置变更回调时发生panic: %v", r)
+		}).
+		OnError(func(err error) {
 			logger.GetGlobalLogger().Error("触发配置变更回调失败: %v", err)
-		}
-	}()
+		}).
+		ExecWithContext(func(ctx context.Context) error {
+			return h.TriggerCallbacks(ctx, event)
+		})
 
 	logger.GetGlobalLogger().Info("✅ 配置重新加载完成 (耗时: %v)", duration)
 	return nil
-}
-
-// watchEnvironment 监控环境变量变化
-func (h *hotReloadManager) watchEnvironment(ctx context.Context) {
-	defer func() {
-		if r := recover(); r != nil {
-			logger.GetGlobalLogger().Error("环境监控协程发生panic: %v", r)
-		}
-	}()
-
-	ticker := time.NewTicker(h.hotConfig.WatchInterval)
-	defer ticker.Stop()
-
-	lastEnv := GetEnvironment()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-ticker.C:
-			currentEnv := GetEnvironment()
-			if currentEnv != lastEnv {
-				logger.GetGlobalLogger().Info("🌍 环境变量发生变化: %s -> %s", lastEnv, currentEnv)
-
-				event := CreateEvent(CallbackTypeEnvVarChanged, string(GetContextKey()), lastEnv, currentEnv)
-				event.WithMetadata("context_key", GetContextKey())
-
-				go func() {
-					if err := h.TriggerCallbacks(ctx, event); err != nil {
-						logger.GetGlobalLogger().Error("触发环境变更回调失败: %v", err)
-					}
-				}()
-
-				lastEnv = currentEnv
-			}
-		}
-	}
 }
 
 // triggerErrorCallback 触发错误回调
@@ -388,9 +410,14 @@ func (h *hotReloadManager) triggerErrorCallback(ctx context.Context, err error, 
 	event := CreateErrorEvent(source, err)
 	event.WithMetadata("error_source", source)
 
-	go func() {
-		if triggerErr := h.TriggerCallbacks(ctx, event); triggerErr != nil {
+	syncx.Go(ctx).
+		OnPanic(func(r any) {
+			logger.GetGlobalLogger().Error("触发错误回调时发生panic: %v", r)
+		}).
+		OnError(func(triggerErr error) {
 			logger.GetGlobalLogger().Error("触发错误回调失败: %v", triggerErr)
-		}
-	}()
+		}).
+		ExecWithContext(func(ctx context.Context) error {
+			return h.TriggerCallbacks(ctx, event)
+		})
 }

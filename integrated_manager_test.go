@@ -279,7 +279,6 @@ func TestIntegratedConfigManager_DefaultOptions(t *testing.T) {
 	assert.Equal(t, DefaultEnv, options.Environment)
 	assert.NotNil(t, options.HotReloadConfig)
 	assert.NotNil(t, options.ContextOptions)
-	assert.NotNil(t, options.ErrorHandler)
 }
 
 // TestIntegratedConfigManager_InvalidConfigPath 测试无效配置路径

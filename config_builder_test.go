@@ -118,18 +118,6 @@ func TestConfigBuilder_WithContext(t *testing.T) {
 	assert.Equal(t, builder, result)
 }
 
-// TestConfigBuilder_WithErrorHandler 测试设置错误处理器
-func TestConfigBuilder_WithErrorHandler(t *testing.T) {
-	config := &TestConfig{}
-	builder := NewConfigBuilder(config)
-
-	handler := NewErrorHandler()
-	result := builder.WithErrorHandler(handler)
-
-	assert.NotNil(t, result)
-	assert.Equal(t, builder, result)
-}
-
 // TestConfigBuilder_Build 测试构建配置管理器
 func TestConfigBuilder_Build(t *testing.T) {
 	// 创建临时配置文件
@@ -212,7 +200,6 @@ enabled: true
 		WithContext(&ContextKeyOptions{
 			Value: EnvDevelopment,
 		}).
-		WithErrorHandler(NewErrorHandler()).
 		Build()
 
 	require.NoError(t, err)

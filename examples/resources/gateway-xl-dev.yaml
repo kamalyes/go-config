@@ -1,0 +1,46 @@
+# Gateway 开发环境配置示例
+module-name: Hot Reload Test v20
+name: Hot Reload Test v20
+enabled: true
+debug: false
+version: v3.20.0
+environment: dev
+
+# HTTP服务器配置
+http:
+  host: 0.0.0.0
+  port: 10000
+  read-timeout: 30
+  write-timeout: 30
+  enable-gzip-compress: true
+
+# 数据库配置
+database:
+  type: mysql
+  enabled: true
+  mysql:
+    host: localhost
+    port: 3306
+    db-name: Hot Reload Test v20
+    username: Hot Reload Test v20
+    password: password
+    max-idle-conns: 10
+    max-open-conns: 100
+
+# 缓存配置
+cache:
+  type: redis
+  enabled: true
+  redis:
+    addr: 127.0.0.1:6379
+    password: ""
+    db: 0
+    pool-size: 10
+
+# 日志配置
+middleware:
+  logging:
+    enabled: true
+    level: debug
+    format: json
+    output: stdout

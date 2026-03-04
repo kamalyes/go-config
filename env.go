@@ -12,12 +12,13 @@
 package goconfig
 
 import (
-	"fmt"
-	"log"
 	"os"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/kamalyes/go-logger"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // EnvironmentType 定义环境类型
@@ -314,7 +315,7 @@ func (em *EnvironmentManager) registerEnvironmentInternal(envType EnvironmentTyp
 	}
 
 	em.environments[envType] = allAliases
-	log.Printf("注册环境类型: %s, 别名: %v", envType, allAliases)
+	logger.GetGlobalLogger().InfoKV("注册环境类型", "type", envType, "aliases", allAliases)
 }
 
 // RegisterEnvironment 注册环境类型及其别名
@@ -381,7 +382,7 @@ var defaultEnvManager = NewEnvironmentManager()
 func init() {
 	// 自动初始化全局环境实例
 	initGlobalEnvironment()
-	log.Printf("go-config包已自动初始化，当前环境: %s", GetCurrentEnvironment())
+	logger.GetGlobalLogger().InfoKV("go-config包已自动初始化", "environment", GetCurrentEnvironment())
 }
 
 // GetGlobalEnvManager 获取全局环境管理器
@@ -421,7 +422,7 @@ func NewEnvironment() *Environment {
 		callbacks:      make(map[string]*EnvironmentCallbackInfo),   // 初始化回调映射
 	}
 	if err := setEnv(envContextKey, envInstance.Value); err != nil {
-		log.Fatalf("初始化环境失败: %v", err)
+		logger.GetGlobalLogger().FatalKV("初始化环境失败", "error", err)
 	}
 
 	go envInstance.watchEnv() // 启动监控环境变量的 goroutine
@@ -435,11 +436,11 @@ func (e *Environment) RegisterCallback(id string, callback EnvironmentCallback, 
 	defer e.mu.Unlock()
 
 	if id == "" {
-		return fmt.Errorf("回调ID不能为空")
+		return ErrCallbackIDEmpty
 	}
 
 	if _, exists := e.callbacks[id]; exists {
-		return fmt.Errorf("回调ID %s 已存在", id)
+		return ErrCallbackIDExists(id)
 	}
 
 	e.callbacks[id] = &EnvironmentCallbackInfo{
@@ -449,7 +450,7 @@ func (e *Environment) RegisterCallback(id string, callback EnvironmentCallback, 
 		Async:    async,
 	}
 
-	log.Printf("注册环境变更回调: %s, 优先级: %d, 异步: %v", id, priority, async)
+	logger.GetGlobalLogger().InfoKV("注册环境变更回调", "id", id, "priority", priority, "async", async)
 	return nil
 }
 
@@ -459,11 +460,11 @@ func (e *Environment) UnregisterCallback(id string) error {
 	defer e.mu.Unlock()
 
 	if _, exists := e.callbacks[id]; !exists {
-		return fmt.Errorf("回调ID %s 不存在", id)
+		return ErrCallbackIDNotFound(id)
 	}
 
 	delete(e.callbacks, id)
-	log.Printf("注销环境变更回调: %s", id)
+	logger.GetGlobalLogger().InfoKV("注销环境变更回调", "id", id)
 	return nil
 }
 
@@ -490,7 +491,7 @@ func (e *Environment) triggerCallbacks(oldEnv, newEnv EnvironmentType) {
 		}
 	}
 
-	log.Printf("触发 %d 个环境变更回调: %s -> %s", len(callbacks), oldEnv, newEnv)
+	logger.GetGlobalLogger().InfoKV("触发环境变更回调", "count", len(callbacks), "oldEnv", oldEnv, "newEnv", newEnv)
 
 	// 执行回调
 	for _, cb := range callbacks {
@@ -506,14 +507,14 @@ func (e *Environment) triggerCallbacks(oldEnv, newEnv EnvironmentType) {
 func (e *Environment) executeCallback(cb *EnvironmentCallbackInfo, oldEnv, newEnv EnvironmentType) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Printf("环境变更回调 %s 执行时发生panic: %v", cb.ID, r)
+			logger.GetGlobalLogger().ErrorKV("环境变更回调执行时发生panic", "id", cb.ID, "panic", r)
 		}
 	}()
 
 	if err := cb.Callback(oldEnv, newEnv); err != nil {
-		log.Printf("环境变更回调 %s 执行失败: %v", cb.ID, err)
+		logger.GetGlobalLogger().ErrorKV("环境变更回调执行失败", "id", cb.ID, "error", err)
 	} else {
-		log.Printf("环境变更回调 %s 执行成功", cb.ID)
+		logger.GetGlobalLogger().InfoKV("环境变更回调执行成功", "id", cb.ID)
 	}
 }
 
@@ -536,7 +537,7 @@ func (e *Environment) ClearCallbacks() {
 
 	count := len(e.callbacks)
 	e.callbacks = make(map[string]*EnvironmentCallbackInfo)
-	log.Printf("已清除 %d 个环境变更回调", count)
+	logger.GetGlobalLogger().InfoKV("已清除环境变更回调", "count", count)
 }
 
 // RegisterEnvironment 注册新的环境类型
@@ -547,13 +548,13 @@ func (e *Environment) RegisterEnvironment(env EnvironmentType) error {
 	// 检查是否已经存在该环境类型
 	for _, registeredEnv := range e.registeredEnvs {
 		if registeredEnv == env {
-			return fmt.Errorf("环境类型 %s 已注册", env)
+			return ErrEnvTypeRegistered(env)
 		}
 	}
 
 	// 注册新的环境类型
 	e.registeredEnvs = append(e.registeredEnvs, env)
-	log.Printf("环境类型 %s 注册成功", env)
+	logger.GetGlobalLogger().InfoKV("环境类型注册成功", "type", env)
 	return nil
 }
 
@@ -582,7 +583,7 @@ func SetContextKey(options *ContextKeyOptions) {
 
 	// 设置环境变量
 	if err := setEnv(envContextKey, options.Value); err != nil {
-		log.Printf("设置环境变量失败: %v", err)
+		logger.GetGlobalLogger().ErrorKV("设置环境变量失败", "error", err)
 	}
 }
 
@@ -602,7 +603,7 @@ func (e *Environment) SetEnvironment(value EnvironmentType) *Environment {
 	e.Value = value // 更新环境值
 
 	if err := setEnv(envContextKey, value); err != nil {
-		log.Printf("设置环境 %s 失败: %v", value, err)
+		logger.GetGlobalLogger().ErrorKV("设置环境失败", "value", value, "error", err)
 	}
 
 	shouldTrigger := oldValue != value
@@ -624,7 +625,7 @@ func (e *Environment) CheckAndUpdateEnv() {
 	e.mu.RUnlock() // 释放读锁
 
 	if currentOsEnv == "" {
-		log.Printf("环境变量 %s 当前为空", envContextKey)
+		logger.GetGlobalLogger().WarnKV("环境变量当前为空", "key", envContextKey)
 		return
 	}
 
@@ -635,7 +636,7 @@ func (e *Environment) CheckAndUpdateEnv() {
 		e.mu.Unlock()
 
 		e.SetEnvironment(newEnv) // 更新环境
-		log.Printf("环境变量 %s 已更新为 %s", envContextKey, newEnv)
+		logger.GetGlobalLogger().InfoKV("环境变量已更新", "key", envContextKey, "value", newEnv)
 
 		// 触发环境变更回调
 		e.triggerCallbacks(oldValue, newEnv)
@@ -644,12 +645,13 @@ func (e *Environment) CheckAndUpdateEnv() {
 
 // watchEnv 监控环境变量变化，支持动态调整检查频率
 func (e *Environment) watchEnv() {
-	e.mu.RLock()                         // 获取读锁
-	currentFrequency := e.CheckFrequency // 读取当前频率
-	e.mu.RUnlock()                       // 释放读锁
+	e.mu.RLock()
+	currentFrequency := e.CheckFrequency
+	e.mu.RUnlock()
 
-	// 在循环外创建一次 ticker
-	ticker := time.NewTicker(currentFrequency) // 使用当前的检查频率
+	// 使用 DynamicTicker 替代 time.Ticker，支持运行时动态调整频率
+	ticker := syncx.NewDynamicTicker(currentFrequency)
+	ticker.Start()
 	defer ticker.Stop()
 
 	for {
@@ -662,12 +664,10 @@ func (e *Environment) watchEnv() {
 			newFreq := e.CheckFrequency
 			e.mu.RUnlock()
 
-			if newFreq != currentFrequency {
-				currentFrequency = newFreq
-				ticker.Reset(currentFrequency) // 动态调整，不产生新对象
-			}
+			// DynamicTicker 内部会检查频率是否相同，相同则不做操作
+			ticker.UpdateInterval(newFreq)
 		case <-e.quit:
-			log.Println("手动终止取消监控环境变量")
+			logger.GetGlobalLogger().Info("手动终止取消监控环境变量")
 			return // 退出监控
 		}
 	}
@@ -692,7 +692,7 @@ func GetEnvironment() EnvironmentType {
 	// 尝试获取环境变量
 	currentOsEnv, err := getEnv(envContextKey)
 	if err != nil {
-		log.Printf("获取环境变量 %s 失败: %v", envContextKey, err)
+		logger.GetGlobalLogger().ErrorKV("获取环境变量失败", "key", envContextKey, "error", err)
 		return DefaultEnv
 	}
 
@@ -702,7 +702,7 @@ func GetEnvironment() EnvironmentType {
 	}
 
 	// 如果检测失败，返回原始值
-	log.Printf("警告: 环境变量 %s='%s' 无法映射到已知环境类型，使用原始值", envContextKey, currentOsEnv)
+	logger.GetGlobalLogger().WarnKV("环境变量无法映射到已知环境类型，使用原始值", "key", envContextKey, "value", currentOsEnv)
 	return currentOsEnv
 }
 
@@ -711,18 +711,16 @@ func setEnv(key ContextKey, value EnvironmentType) error {
 	if err := os.Setenv(key.String(), value.String()); err != nil {
 		return err // 返回错误
 	}
-	log.Printf("环境变量 %s 设置为 %s", key, value)
+	logger.GetGlobalLogger().InfoKV("环境变量设置成功", "key", key, "value", value)
 	return nil
 }
 
-// getEnv 获取环境变量并记录日志
+// getEnv 获取环境变量
 func getEnv(key ContextKey) (EnvironmentType, error) {
 	value := os.Getenv(key.String())
 	if value == "" {
-		log.Printf("环境变量 %s 未设置", key)
-		return "", fmt.Errorf("环境变量 %s 未设置", key)
+		return "", ErrEnvVarNotSet(key.String())
 	}
-	log.Printf("环境变量 %s 的值为 %s", key, value)
 	return EnvironmentType(value), nil
 }
 
@@ -732,9 +730,9 @@ func (e *Environment) ClearEnv() {
 	defer e.mu.Unlock() // 确保在函数结束时释放锁
 
 	if err := os.Unsetenv(envContextKey.String()); err != nil {
-		log.Printf("清除环境变量 %s 失败: %v", envContextKey.String(), err)
+		logger.GetGlobalLogger().ErrorKV("清除环境变量失败", "key", envContextKey.String(), "error", err)
 	} else {
-		log.Printf("环境变量 %s 已清除", envContextKey.String())
+		logger.GetGlobalLogger().InfoKV("环境变量已清除", "key", envContextKey.String())
 	}
 }
 
@@ -778,7 +776,7 @@ var globalEnvOnce sync.Once
 func initGlobalEnvironment() {
 	globalEnvOnce.Do(func() {
 		globalEnvironment = NewEnvironment()
-		log.Printf("全局环境实例已自动初始化，当前环境: %s", globalEnvironment.Value)
+		logger.GetGlobalLogger().InfoKV("全局环境实例已自动初始化", "environment", globalEnvironment.Value)
 	})
 }
 

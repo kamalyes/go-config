@@ -13,9 +13,11 @@ package goconfig
 
 import (
 	"context"
-	"log"
 	"sync"
 	"time"
+
+	"github.com/kamalyes/go-logger"
+	"github.com/kamalyes/go-toolbox/pkg/contextx"
 )
 
 // 上下文键定义
@@ -28,11 +30,11 @@ const (
 
 // ConfigContext 配置上下文
 type ConfigContext struct {
-	Environment EnvironmentType        `json:"environment"` // 当前环境
-	Config      interface{}            `json:"config"`      // 配置对象
-	Metadata    map[string]interface{} `json:"metadata"`    // 元数据
-	CreatedAt   time.Time              `json:"created_at"`  // 创建时间
-	UpdatedAt   time.Time              `json:"updated_at"`  // 更新时间
+	Environment EnvironmentType `json:"environment"` // 当前环境
+	Config      any             `json:"config"`      // 配置对象
+	Metadata    map[string]any  `json:"metadata"`    // 元数据
+	CreatedAt   time.Time       `json:"created_at"`  // 创建时间
+	UpdatedAt   time.Time       `json:"updated_at"`  // 更新时间
 }
 
 // ContextManager 上下文管理器
@@ -52,12 +54,12 @@ func NewContextManager(env *Environment, reloader HotReloader) *ContextManager {
 		configCtx: &ConfigContext{
 			Environment: env.Value,
 			Config:      nil,
-			Metadata:    make(map[string]interface{}),
+			Metadata:    make(map[string]any),
 			CreatedAt:   time.Now(),
 			UpdatedAt:   time.Now(),
 		},
 		contextPool: sync.Pool{
-			New: func() interface{} {
+			New: func() any {
 				return context.Background()
 			},
 		},
@@ -84,11 +86,11 @@ func (cm *ContextManager) onEnvironmentChanged(oldEnv, newEnv EnvironmentType) e
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
-	log.Printf("上下文管理器接收到环境变更: %s -> %s", oldEnv, newEnv)
+	logger.GetGlobalLogger().InfoKV("上下文管理器接收到环境变更", "oldEnv", oldEnv, "newEnv", newEnv)
 
 	cm.configCtx.Environment = newEnv
 	cm.configCtx.UpdatedAt = time.Now()
-	cm.configCtx.Metadata["last_env_change"] = map[string]interface{}{
+	cm.configCtx.Metadata["last_env_change"] = map[string]any{
 		"old":       oldEnv,
 		"new":       newEnv,
 		"timestamp": time.Now(),
@@ -102,11 +104,11 @@ func (cm *ContextManager) onConfigChanged(ctx context.Context, event CallbackEve
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
-	log.Printf("上下文管理器接收到配置变更: %s", event.Type)
+	logger.GetGlobalLogger().InfoKV("上下文管理器接收到配置变更", "type", event.Type)
 
 	cm.configCtx.Config = event.NewValue
 	cm.configCtx.UpdatedAt = time.Now()
-	cm.configCtx.Metadata["last_config_change"] = map[string]interface{}{
+	cm.configCtx.Metadata["last_config_change"] = map[string]any{
 		"type":      event.Type,
 		"source":    event.Source,
 		"timestamp": event.Timestamp,
@@ -140,9 +142,12 @@ func GetEnvironmentFromContext(ctx context.Context) (EnvironmentType, bool) {
 }
 
 // GetConfigFromContext 从上下文中获取配置信息
-func GetConfigFromContext(ctx context.Context) (interface{}, bool) {
-	config, ok := ctx.Value(ContextKeyConfig).(interface{})
-	return config, ok
+func GetConfigFromContext(ctx context.Context) (any, bool) {
+	config := ctx.Value(ContextKeyConfig)
+	if config == nil {
+		return nil, false
+	}
+	return config, true
 }
 
 // GetHotReloaderFromContext 从上下文中获取热更新器
@@ -152,13 +157,13 @@ func GetHotReloaderFromContext(ctx context.Context) (HotReloader, bool) {
 }
 
 // GetMetadataFromContext 从上下文中获取元数据
-func GetMetadataFromContext(ctx context.Context) (map[string]interface{}, bool) {
-	metadata, ok := ctx.Value(ContextKeyMetadata).(map[string]interface{})
+func GetMetadataFromContext(ctx context.Context) (map[string]any, bool) {
+	metadata, ok := ctx.Value(ContextKeyMetadata).(map[string]any)
 	return metadata, ok
 }
 
 // UpdateConfig 更新配置
-func (cm *ContextManager) UpdateConfig(config interface{}) {
+func (cm *ContextManager) UpdateConfig(config any) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
@@ -167,7 +172,7 @@ func (cm *ContextManager) UpdateConfig(config interface{}) {
 }
 
 // GetCurrentConfig 获取当前配置
-func (cm *ContextManager) GetCurrentConfig() interface{} {
+func (cm *ContextManager) GetCurrentConfig() any {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 
@@ -183,7 +188,7 @@ func (cm *ContextManager) GetCurrentEnvironment() EnvironmentType {
 }
 
 // SetMetadata 设置元数据
-func (cm *ContextManager) SetMetadata(key string, value interface{}) {
+func (cm *ContextManager) SetMetadata(key string, value any) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
@@ -192,7 +197,7 @@ func (cm *ContextManager) SetMetadata(key string, value interface{}) {
 }
 
 // GetMetadata 获取元数据
-func (cm *ContextManager) GetMetadata(key string) (interface{}, bool) {
+func (cm *ContextManager) GetMetadata(key string) (any, bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 
@@ -208,7 +213,7 @@ func (cm *ContextManager) GetConfigContext() *ConfigContext {
 	// 返回副本避免外部修改
 	configCtx := *cm.configCtx
 	// 深度复制元数据映射
-	configCtx.Metadata = make(map[string]interface{})
+	configCtx.Metadata = make(map[string]any, len(cm.configCtx.Metadata))
 	for k, v := range cm.configCtx.Metadata {
 		configCtx.Metadata[k] = v
 	}
@@ -218,43 +223,34 @@ func (cm *ContextManager) GetConfigContext() *ConfigContext {
 
 // 全局上下文管理器实例
 var globalContextManager *ContextManager
-var contextManagerMutex sync.Mutex
+var globalContextManagerOnce sync.Once
 
 // InitializeContextManager 初始化全局上下文管理器
 func InitializeContextManager(env *Environment, reloader HotReloader) *ContextManager {
-	contextManagerMutex.Lock()
-	defer contextManagerMutex.Unlock()
-
-	if globalContextManager == nil {
+	globalContextManagerOnce.Do(func() {
 		globalContextManager = NewContextManager(env, reloader)
-		log.Printf("全局上下文管理器初始化完成")
-	}
+		logger.GetGlobalLogger().Info("全局上下文管理器初始化完成")
+	})
 
 	return globalContextManager
 }
 
 // GetGlobalContextManager 获取全局上下文管理器
 func GetGlobalContextManager() *ContextManager {
-	contextManagerMutex.Lock()
-	defer contextManagerMutex.Unlock()
-
 	return globalContextManager
 }
 
 // ClearGlobalContextManager 清理全局上下文管理器（主要用于测试）
 func ClearGlobalContextManager() {
-	contextManagerMutex.Lock()
-	defer contextManagerMutex.Unlock()
-
 	globalContextManager = nil
-	log.Printf("全局上下文管理器已清理")
+	logger.GetGlobalLogger().Info("全局上下文管理器已清理")
 }
 
 // WithGlobalConfig 使用全局上下文管理器将配置添加到上下文中
 func WithGlobalConfig(ctx context.Context) context.Context {
 	manager := GetGlobalContextManager()
 	if manager == nil {
-		log.Printf("警告: 全局上下文管理器未初始化，返回原始上下文")
+		logger.GetGlobalLogger().Warn("全局上下文管理器未初始化，返回原始上下文")
 		return ctx
 	}
 
@@ -266,16 +262,12 @@ type ContextKeyHelper struct{}
 
 // NewContextWithTimeout 创建带超时的配置上下文
 func (ContextKeyHelper) NewContextWithTimeout(timeout time.Duration) (context.Context, context.CancelFunc) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	ctx = WithGlobalConfig(ctx)
-	return ctx, cancel
+	return contextx.WithTimeoutDecorators(timeout, WithGlobalConfig)
 }
 
 // NewContextWithDeadline 创建带截止时间的配置上下文
 func (ContextKeyHelper) NewContextWithDeadline(deadline time.Time) (context.Context, context.CancelFunc) {
-	ctx, cancel := context.WithDeadline(context.Background(), deadline)
-	ctx = WithGlobalConfig(ctx)
-	return ctx, cancel
+	return contextx.WithDeadlineDecorators(deadline, WithGlobalConfig)
 }
 
 // NewConfigContext 创建新的配置上下文
@@ -292,7 +284,7 @@ func (ContextKeyHelper) IsEnvironment(ctx context.Context, env EnvironmentType) 
 }
 
 // MustGetConfig 从上下文中获取配置，如果不存在则panic
-func (ContextKeyHelper) MustGetConfig(ctx context.Context) interface{} {
+func (ContextKeyHelper) MustGetConfig(ctx context.Context) any {
 	config, ok := GetConfigFromContext(ctx)
 	if !ok {
 		panic("配置信息不存在于上下文中")

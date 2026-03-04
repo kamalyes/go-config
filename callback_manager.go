@@ -13,10 +13,12 @@ package goconfig
 import (
 	"context"
 	"fmt"
-	"github.com/kamalyes/go-logger"
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/kamalyes/go-logger"
+	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
 
 // CallbackType 回调类型枚举
@@ -117,11 +119,11 @@ func NewCallbackManager() CallbackManager {
 // RegisterCallback 注册回调函数
 func (cm *CommonCallbackManager) RegisterCallback(callback CallbackFunc, options CallbackOptions) error {
 	if callback == nil {
-		return fmt.Errorf("回调函数不能为空")
+		return ErrCallbackFuncNil
 	}
 
 	if options.ID == "" {
-		return fmt.Errorf("回调ID不能为空")
+		return ErrCallbackIDEmpty
 	}
 
 	if len(options.Types) == 0 {
@@ -194,12 +196,17 @@ func (cm *CommonCallbackManager) TriggerCallbacks(ctx context.Context, event Cal
 	for _, info := range matchedCallbacks {
 		if info.options.Async {
 			wg.Add(1)
-			go func(info *callbackInfo) {
-				defer wg.Done()
-				if err := cm.executeCallback(ctx, info, event); err != nil {
-					errChan <- err
-				}
-			}(info)
+			currentInfo := info // 捕获循环变量
+			syncx.Go(ctx).
+				OnPanic(func(r any) {
+					logger.GetGlobalLogger().Error("回调执行时发生panic: %v", r)
+				}).
+				Exec(func() {
+					defer wg.Done()
+					if err := cm.executeCallback(ctx, currentInfo, event); err != nil {
+						errChan <- err
+					}
+				})
 		} else {
 			if err := cm.executeCallback(ctx, info, event); err != nil {
 				errChan <- err
@@ -209,10 +216,10 @@ func (cm *CommonCallbackManager) TriggerCallbacks(ctx context.Context, event Cal
 
 	// 等待异步回调完成
 	if len(matchedCallbacks) > 0 {
-		go func() {
+		syncx.Go().Exec(func() {
 			wg.Wait()
 			close(errChan)
-		}()
+		})
 	} else {
 		close(errChan)
 	}
@@ -265,14 +272,13 @@ func (cm *CommonCallbackManager) executeCallback(ctx context.Context, info *call
 
 		// 执行回调
 		done := make(chan error, 1)
-		go func() {
-			defer func() {
-				if r := recover(); r != nil {
-					done <- fmt.Errorf("回调函数panic: %v", r)
-				}
-			}()
-			done <- info.fn(callbackCtx, event)
-		}()
+		syncx.Go(callbackCtx).
+			OnPanic(func(r any) {
+				done <- fmt.Errorf("回调函数panic: %v", r)
+			}).
+			Exec(func() {
+				done <- info.fn(callbackCtx, event)
+			})
 
 		select {
 		case err := <-done:

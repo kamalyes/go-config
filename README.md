@@ -5,248 +5,89 @@
 [![Tests](https://github.com/kamalyes/go-config/actions/workflows/test.yml/badge.svg)](https://github.com/kamalyes/go-config/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-一个功能强大且易于使用的Go配置管理库，支持多种配置格式、智能发现、热更新和安全访问。为第三方开发者提供开箱即用的配置管理解决方案。
+一个功能强大且易于使用的 Go 配置管理库，支持多种配置格式、智能发现、热更新和安全访问为企业级应用提供开箱即用的配置管理解决方案
 
 ## ✨ 核心特性
 
-- 🔧 **多格式支持** - 支持YAML、JSON、TOML等多种配置格式
-- 🔥 **配置热更新** - 实时监听配置文件变化并自动重载
-- 🛡️ **安全访问** - 防止空指针异常的链式配置访问
-- 🎯 **智能发现** - 自动发现和加载配置文件（支持多环境）
-- 🌍 **全球化环境支持** - 内置 56 种环境类型（9 种标准环境 + 47 个国家/地区），支持自定义环境注册
-- 📦 **丰富模块** - 内置40+配置模块，覆盖常见应用场景
-- 🚀 **零配置启动** - 开箱即用的默认配置
-- 🎨 **链式API** - 优雅的构建器模式API设计
+### 🎯 配置管理
+- **多格式支持** - 支持 YAML、JSON、TOML、Properties 等多种配置格式
+- **智能发现** - 自动发现和加载配置文件，支持多环境配置
+- **配置验证** - 内置 validator 验证机制，确保配置正确性
+- **安全访问** - 防止空指针异常的链式配置访问
+- **配置导出** - 支持将配置导出为 YAML/JSON 格式
 
-## 🌍 环境与配置文件发现
+### 🔥 热更新机制
+- **📁 文件监控** - 基于 fsnotify 实时监听配置文件变化
+- **⏱️ 防抖处理** - 可配置的防抖延迟，避免频繁重载
+- **🔔 回调系统** - 灵活的回调管理器，支持优先级、异步执行、超时控制
+- **🔄 错误恢复** - 配置重载失败时自动重试，可配置重试次数
+- **🌐 环境监控** - 支持监控环境变量变化并自动重载
 
-### 内置环境类型
+### 🌍 环境管理
+- **56 种环境** - 内置 9 种标准环境 + 47 个国家/地区环境
+- **别名支持** - 每个环境支持多个别名（如 prod/production/prd）
+- **自动初始化** - 包导入时自动初始化，无需手动调用
+- **环境级别** - 按重要程度对环境分级（开发/测试/生产）
+- **动态切换** - 运行时动态切换环境并触发回调
+- **自定义注册** - 支持注册自定义环境类型
 
-#### 📋 标准环境（9 个）
+### 📦 丰富的配置模块（48+）
 
-| 环境类型 | 常量 | 支持的配置文件后缀 |
-|---------|------|-------------------|
-| 开发环境 | `EnvDevelopment` | `dev`, `develop`, `development` |
-| 本地环境 | `EnvLocal` | `local`, `localhost` |
-| 测试环境 | `EnvTest` | `test`, `testing`, `qa`, `sit` |
-| 预发布环境 | `EnvStaging` | `staging`, `stage`, `stg`, `pre`, `preprod`, `pre-prod`, `fat`, `gray`, `grey`, `canary` |
-| 生产环境 | `EnvProduction` | `prod`, `production`, `prd`, `release`, `live`, `online`, `master`, `main` |
-| 调试环境 | `EnvDebug` | `debug`, `debugging`, `dbg` |
-| 演示环境 | `EnvDemo` | `demo`, `demonstration`, `showcase`, `preview`, `sandbox` |
-| UAT环境 | `EnvUAT` | `uat`, `acceptance`, `user-acceptance`, `beta` |
-| 集成环境 | `EnvIntegration` | `integration`, `int`, `ci`, `integration-test`, `integ` |
+| 分类 | 配置模块 | 说明 |
+|------|---------|------|
+| **🌐 网关与服务** | Gateway | 网关统一配置（集成所有子模块） |
+| | HTTP/GRPC | HTTP 和 gRPC 服务器配置 |
+| | RPC Client/Server | RPC 客户端和服务端配置 |
+| | RESTful | RESTful API 配置 |
+| **💾 数据存储** | Database | 数据库统一配置（MySQL、PostgreSQL、SQLite） |
+| | Redis | Redis 缓存配置 |
+| | Cache | 多级缓存配置（Memory、Expiring、Ristretto、Sharded、TwoLevel） |
+| | Elasticsearch | Elasticsearch 配置 |
+| | Etcd | Etcd 配置 |
+| **🔌 中间件** | CORS | 跨域资源共享配置 |
+| | JWT | JWT 认证配置 |
+| | RateLimit | 限流配置 |
+| | Recovery | 恢复中间件配置 |
+| | RequestID | 请求 ID 配置 |
+| | Timeout | 超时配置 |
+| | Middleware | 中间件统一配置 |
+| **📊 监控运维** | Health | 健康检查配置 |
+| | Metrics | 指标收集配置 |
+| | Prometheus | Prometheus 监控配置 |
+| | Jaeger | Jaeger 链路追踪配置 |
+| | Tracing | 分布式追踪配置 |
+| | Monitoring | 监控统一配置 |
+| | Grafana | Grafana 配置 |
+| | Pprof | 性能分析配置 |
+| | Alerting | 告警配置 |
+| **📨 消息队列** | Kafka | Kafka 配置 |
+| | MQTT | MQTT 配置 |
+| | Queue | 消息队列统一配置 |
+| **🗄️ 对象存储** | OSS | 对象存储统一配置（阿里云、MinIO、S3、BoltDB） |
+| **🔗 第三方服务** | 支付 | 支付宝、微信支付配置 |
+| | 短信 | 阿里云短信配置 |
+| | 邮件 | SMTP、Email 配置 |
+| | 有赞 | 有赞平台配置 |
+| | STS | 阿里云 STS 配置 |
+| **⚙️ 其他功能** | Logging/Zap | 日志配置 |
+| | I18n | 国际化配置 |
+| | Security | 安全配置 |
+| | Signature | 签名配置 |
+| | Captcha | 验证码配置 |
+| | Banner | 启动横幅配置 |
+| | Swagger | API 文档配置 |
+| | Jobs | 定时任务配置 |
+| | WSC | WebSocket 通信配置 |
+| | Breaker | 熔断器配置 |
+| | Consul | Consul 配置 |
+| | FTP | FTP 配置 |
 
-#### 🌏 全球化环境支持（47 个国家/地区）
-
-**🏯 亚洲（20 个）**
-
-| 国家/地区 | 常量 | 别名 |
-|----------|------|------|
-| 中国 | `EnvChina` | `china`, `cn`, `chn` |
-| 日本 | `EnvJapan` | `japan`, `jp`, `jpn` |
-| 韩国 | `EnvKorea` | `korea`, `kr`, `kor`, `south-korea` |
-| 印度 | `EnvIndia` | `india`, `in`, `ind` |
-| 新加坡 | `EnvSingapore` | `singapore`, `sg`, `sgp` |
-| 泰国 | `EnvThailand` | `thailand`, `th`, `tha`, `thai` |
-| 越南 | `EnvVietnam` | `vietnam`, `vn`, `vnm`, `viet` |
-| 马来西亚 | `EnvMalaysia` | `malaysia`, `my`, `mys` |
-| 印度尼西亚 | `EnvIndonesia` | `indonesia`, `id`, `idn` |
-| 菲律宾 | `EnvPhilippines` | `philippines`, `ph`, `phl` |
-| 缅甸 | `EnvMyanmar` | `myanmar`, `mm`, `mmr`, `burma` |
-| 老挝 | `EnvLaos` | `laos`, `la`, `lao` |
-| 柬埔寨 | `EnvCambodia` | `cambodia`, `kh`, `khm` |
-| 巴基斯坦 | `EnvPakistan` | `pakistan`, `pk`, `pak` |
-| 孟加拉国 | `EnvBangladesh` | `bangladesh`, `bd`, `bgd` |
-| 斯里兰卡 | `EnvSriLanka` | `srilanka`, `lk`, `lka`, `sri-lanka` |
-| 尼泊尔 | `EnvNepal` | `nepal`, `np`, `npl` |
-| 香港 | `EnvHongKong` | `hongkong`, `hk`, `hkg`, `hong-kong` |
-| 台湾 | `EnvTaiwan` | `taiwan`, `tw`, `twn` |
-| 澳门 | `EnvMacao` | `macao`, `mo`, `mac`, `macau` |
-
-**🏰 欧洲（16 个）**
-
-| 国家 | 常量 | 别名 |
-|------|------|------|
-| 英国 | `EnvUK` | `uk`, `gb`, `gbr`, `united-kingdom`, `britain`, `england` |
-| 德国 | `EnvGermany` | `germany`, `de`, `deu`, `deutschland` |
-| 法国 | `EnvFrance` | `france`, `fr`, `fra` |
-| 意大利 | `EnvItaly` | `italy`, `it`, `ita`, `italia` |
-| 西班牙 | `EnvSpain` | `spain`, `es`, `esp`, `espana` |
-| 荷兰 | `EnvNetherlands` | `netherlands`, `nl`, `nld`, `holland` |
-| 比利时 | `EnvBelgium` | `belgium`, `be`, `bel` |
-| 瑞士 | `EnvSwitzerland` | `switzerland`, `ch`, `che` |
-| 奥地利 | `EnvAustria` | `austria`, `at`, `aut` |
-| 瑞典 | `EnvSweden` | `sweden`, `se`, `swe` |
-| 挪威 | `EnvNorway` | `norway`, `no`, `nor` |
-| 丹麦 | `EnvDenmark` | `denmark`, `dk`, `dnk` |
-| 芬兰 | `EnvFinland` | `finland`, `fi`, `fin` |
-| 波兰 | `EnvPoland` | `poland`, `pl`, `pol` |
-| 俄罗斯 | `EnvRussia` | `russia`, `ru`, `rus` |
-| 土耳其 | `EnvTurkey` | `turkey`, `tr`, `tur` |
-
-**🗽 美洲（8 个）**
-
-| 国家 | 常量 | 别名 |
-|------|------|------|
-| 美国 | `EnvUSA` | `usa`, `us`, `united-states`, `america` |
-| 加拿大 | `EnvCanada` | `canada`, `ca`, `can` |
-| 墨西哥 | `EnvMexico` | `mexico`, `mx`, `mex` |
-| 巴西 | `EnvBrazil` | `brazil`, `br`, `bra`, `brasil` |
-| 阿根廷 | `EnvArgentina` | `argentina`, `ar`, `arg` |
-| 智利 | `EnvChile` | `chile`, `cl`, `chl` |
-| 哥伦比亚 | `EnvColombia` | `colombia`, `co`, `col` |
-| 秘鲁 | `EnvPeru` | `peru`, `pe`, `per` |
-
-**🦘 其他地区（7 个）**
-
-| 国家/地区 | 常量 | 别名 |
-|----------|------|------|
-| 澳大利亚 | `EnvAustralia` | `australia`, `au`, `aus` |
-| 新西兰 | `EnvNewZealand` | `newzealand`, `nz`, `nzl`, `new-zealand` |
-| 南非 | `EnvSouthAfrica` | `southafrica`, `za`, `zaf`, `south-africa` |
-| 埃及 | `EnvEgypt` | `egypt`, `eg`, `egy` |
-| 尼日利亚 | `EnvNigeria` | `nigeria`, `ng`, `nga` |
-| 肯尼亚 | `EnvKenya` | `kenya`, `ke`, `ken` |
-| 阿联酋 | `EnvUAE` | `uae`, `ae`, `are`, `emirates`, `dubai` |
-| 沙特阿拉伯 | `EnvSaudiArabia` | `saudiarabia`, `sa`, `sau`, `saudi-arabia`, `saudi` |
-| 以色列 | `EnvIsrael` | `israel`, `il`, `isr` |
-| 卡塔尔 | `EnvQatar` | `qatar`, `qa`, `qat` |
-
-**💡 使用示例：**
-
-```go
-// 设置中国环境
-goconfig.SetCurrentEnvironment(goconfig.EnvChina)
-
-// 判断是否为中国环境
-if goconfig.IsEnvironment(goconfig.EnvChina) {
-    // 使用中国特定配置
-}
-
-// 配置文件命名示例：
-// gateway-xl-china.yaml
-// gateway-xl-cn.yaml
-// gateway-xl-chn.yaml
-```
-
-### 配置文件命名规则
-
-配置文件命名格式：`{prefix}-{env-suffix}.{ext}`
-
-**示例：**
-
-```bash
-# 标准环境
-gateway-xl-dev.yaml          # 开发环境
-gateway-xl-prod.yaml         # 生产环境
-gateway-xl-staging.yaml      # 预发布环境
-
-# 国家/地区环境
-gateway-xl-china.yaml        # 中国环境
-gateway-xl-cn.yaml           # 中国环境（别名）
-gateway-xl-japan.yaml        # 日本环境
-gateway-xl-usa.yaml          # 美国环境
-gateway-xl-uk.yaml           # 英国环境
-```
-
-当 `APP_ENV=china` 时，会按优先级查找：
-- `gateway-xl-china.yaml`
-- `gateway-xl-china.yml`
-- `gateway-xl-cn.yaml`
-- `gateway-xl-chn.yaml`
-- ...
-
-### 注册自定义环境
-
-如果内置的 56 种环境不满足需求，可以注册自定义环境：
-
-```go
-package main
-
-import goconfig "github.com/kamalyes/go-config"
-
-func init() {
-    // 注册自定义环境 "custom"，支持后缀 "custom", "my-env", "myenv"
-    // 配置文件可命名为: gateway-xl-custom.yaml, gateway-xl-my-env.yaml 等
-    goconfig.RegisterEnvPrefixes("custom", "custom", "my-env", "myenv")
-}
-```
-
-### 全球化部署示例
-
-```go
-package main
-
-import (
-    goconfig "github.com/kamalyes/go-config"
-)
-
-func main() {
-    // 方式1：直接使用环境变量（推荐）
-    // 设置环境变量：export APP_ENV=china
-    // 或：export APP_ENV=cn
-    // 或：export APP_ENV=usa
-    // 配置管理器会自动识别并加载对应的配置文件
-    
-    manager := goconfig.NewConfigBuilder(config).
-        WithConfigPrefix("gateway-xl").
-        WithConfigPath("resources").
-        MustBuildAndStart()
-    
-    defer manager.Stop()
-    
-    // 方式2：代码中动态设置（适用于特殊场景）
-    // goconfig.SetCurrentEnvironment(goconfig.EnvChina)
-    
-    // 方式3：使用环境判断
-    if goconfig.IsEnvironment(goconfig.EnvChina) {
-        // 中国特定逻辑
-        log.Info("使用中国区域配置")
-    }
-}
-```
-
-**部署配置示例：**
-
-```bash
-# 中国区域部署
-export APP_ENV=china  # 或 cn, chn
-./app
-
-# 美国区域部署
-export APP_ENV=usa    # 或 us
-./app
-
-# 日本区域部署
-export APP_ENV=japan  # 或 jp, jpn
-./app
-
-# 欧洲区域部署
-export APP_ENV=germany  # 或 de, deu
-./app
-```
-
-### 配置文件未找到时的错误提示
-
-当配置文件未找到时，会输出详细的诊断信息：
-
-```
-❌ 未找到前缀为 'gateway-xl' 的配置文件
-📍 搜索路径: resources
-🌍 当前环境: custom-env
-⚠️ 当前环境 'custom-env' 未在 DefaultEnvPrefixes 中注册
-📋 已注册的环境及其后缀:
-   - development: [dev develop development]
-   - local: [local localhost]
-   ...
-
-💡 如需注册自定义环境，请在程序启动前注册:
-
-   示例代码:
-   func init() {
-       goconfig.RegisterEnvPrefixes("custom-env", "custom-env", "custom-alias")
-   }
-```
+### 🎨 开发体验
+- **链式 API** - 优雅的构建器模式 API 设计
+- **零配置启动** - 开箱即用的默认配置
+- **类型安全** - 泛型支持，编译时类型检查
+- **上下文集成** - 配置信息自动注入到 context.Context
+- **错误处理** - 统一的错误处理机制，支持错误分类、严重程度、回调
 
 ## 🚀 快速开始
 
@@ -256,129 +97,142 @@ export APP_ENV=germany  # 或 de, deu
 go get github.com/kamalyes/go-config
 ```
 
-### 基础使用 - 配置热更新
+### 📖 示例代码
 
-```go
-package main
+所有功能的完整示例代码请查看 [examples](examples/) 目录
 
-import (
-    "fmt"
-    "time"
-    
-    goconfig "github.com/kamalyes/go-config"
-    "github.com/kamalyes/go-config/pkg/gateway"
-)
-
-func main() {
-    // 初始化HTTPServer配置
-    config := gateway.DefaultHTTPServer()
-    
-    // 配置热更新回调
-    hotReloadConfig := &goconfig.HotReloadConfig{
-        Enabled: true,
-        OnReloaded: func(oldConfig, newConfig interface{}) {
-            fmt.Printf("配置已更新: %+v -> %+v\n", oldConfig, newConfig)
-        },
-        OnError: func(err error) {
-            fmt.Printf("热更新错误: %v\n", err)
-        },
-    }
-    
-    // 创建并启动配置管理器
-    manager := goconfig.NewConfigBuilder(config).
-        WithConfigPath("config.yaml").
-        WithEnvironment(goconfig.EnvDevelopment).
-        WithHotReload(hotReloadConfig).
-        MustBuildAndStart()
-    
-    defer manager.Stop()
-    
-    // 使用安全配置访问
-    safeConfig := goconfig.SafeConfig(config)
-    
-    fmt.Printf("HTTP服务器启动在 %s:%d\n", 
-        safeConfig.Host("localhost"), 
-        safeConfig.Port(8080))
-    
-    fmt.Printf("启用HTTP: %v\n", 
-        safeConfig.Field("EnableHttp").Bool(true))
-    
-    // 保持程序运行以观察热更新
-    select {
-    case <-time.After(time.Minute * 5):
-        fmt.Println("程序退出")
-    }
-}
-```
-
-### 创建配置文件 `config.yaml`
-
-```yaml
-# HTTP服务器配置 - 注意字段名使用横线格式
-module-name: "my-app-server"
-host: "0.0.0.0" 
-port: 8080
-grpc-port: 9090
-read-timeout: 30
-write-timeout: 30
-idle-timeout: 60
-max-header-bytes: 1048576
-enable-http: true
-enable-grpc: false
-enable-tls: false
-enable-gzip-compress: true
-tls:
-  cert-file: ""
-  key-file: ""
-  ca-file: ""
-headers:
-  x-custom-header: "my-app"
-  x-version: "1.0.0"
-```
-
-现在修改配置文件，程序会自动检测变化并重载配置！
-
-## 🌟 环境管理功能
-
-- ✅ **自动环境初始化** - 包导入时自动初始化，无需手动调用
-- 🎯 **便捷判断函数** - 提供 `IsDev()`, `IsProduction()` 等直观的环境判断函数
-- 📊 **环境级别管理** - 按重要程度对环境进行分级管理
-- 🔄 **环境变更监听** - 支持环境变更回调机制
-- 🛠️ **自定义环境注册** - 灵活注册自定义环境类型
-
-### 快速使用环境判断
-
-```go
-import goconfig "github.com/kamalyes/go-config"
-
-func main() {
-    // 无需手动初始化，直接使用
-    if goconfig.IsDev() {
-        log.SetLevel(log.DebugLevel)
-    } else if goconfig.IsProduction() {
-        log.SetLevel(log.WarnLevel)
-    }
-    
-    // 环境级别判断
-    if goconfig.IsProductionLevel() {
-        // 启用生产级别的监控和安全功能
-        enableProductionFeatures()
-    }
-}
-```
-
-**📖 详细使用说明请参考：[环境管理器使用文档](ENV_USAGE.md)**
-
-## 🎯 支持的配置模块
-
-| 类别 | 模块 | 描述 |
+| 示例 | 说明 | 链接 |
 |------|------|------|
-| **网关服务** | Gateway, HTTP, GRPC | 网关和服务配置 |
-| **数据存储** | MySQL, PostgreSQL, SQLite, Redis | 数据库配置 |
-| **中间件** | CORS, 限流, JWT, 恢复 | 常用中间件配置 |
-| **监控运维** | Health, Metrics, Prometheus, Jaeger | 监控和链路追踪 |
-| **消息队列** | Kafka, MQTT | 消息系统配置 |
-| **第三方服务** | 支付宝, 微信支付, 阿里云短信 | 第三方集成 |
+| 🎯 基础使用 | 最基本的配置加载和使用方式 | [examples/basic](examples/basic/main.go) |
+| 🔥 配置热更新 | 启用配置热更新，注册配置变更回调 | [examples/hot_reload](examples/hot_reload/main.go) |
+| ⚠️ 错误处理 | 创建自定义错误处理器，根据错误严重程度采取不同措施 | [examples/error_handling](examples/error_handling/main.go) |
+| 🌍 环境管理 | 使用环境判断函数，在不同环境下加载不同配置 | [examples/environment](examples/environment/main.go) |
+| 📋 上下文集成 | 将配置信息注入到 context.Context，从上下文中获取配置 | [examples/context](examples/context/main.go) |
+| 🔍 配置发现 | 配置文件的自动发现、扫描和创建功能 | [examples/discovery](examples/discovery/main.go) |
+| 🏗️ 构建器模式 | 配置构建器的各种链式 API 用法 | [examples/builder](examples/builder/main.go) |
+
+### 快速运行示例
+
+```bash
+# 进入示例目录
+cd examples
+
+# 运行基础示例
+cd basic && go run main.go
+
+# 运行热更新示例
+cd hot_reload && go run main.go
+
+# 查看所有示例的详细说明
+cat README.md
+```
+
+### 🌍 环境管理
+
+完整示例请查看 [examples/environment](examples/environment/main.go)
+
+## 🔥 配置热更新
+
+完整示例请查看 [examples/hot_reload](examples/hot_reload/main.go)
+
+### 特性说明
+
+- **📁 文件监控** - 基于 fsnotify 实时监听配置文件变化
+- **⏱️ 防抖处理** - 可配置的防抖延迟，避免频繁重载
+- **🔔 回调系统** - 灵活的回调管理器，支持优先级、异步执行、超时控制
+- **🔄 错误恢复** - 配置重载失败时自动重试，可配置重试次数
+- **🌐 环境监控** - 支持监控环境变量变化并自动重载
+
+## 📋 配置构建器 API
+
+完整示例请查看 [examples/builder](examples/builder/main.go)
+
+### 配置发现
+
+完整示例请查看 [examples/discovery](examples/discovery/main.go)
+
+## 🎯 高级特性
+
+### 上下文集成
+
+完整示例请查看 [examples/context](examples/context/main.go)
+
+### 错误处理
+
+完整示例请查看 [examples/error_handling](examples/error_handling/main.go)
+
+## 📚 详细文档
+
+- [示例代码](examples/) - 各种使用场景的完整示例
+- [环境管理器使用文档](ENV_USAGE.md) - 环境管理的详细说明
+- [配置模块文档](pkg/) - 各配置模块的详细文档
+
+## 🎨 最佳实践
+
+### 1. 使用配置前缀进行环境隔离
+
+```go
+// 开发环境：gateway-xl-dev.yaml
+// 测试环境：gateway-xl-test.yaml
+// 生产环境：gateway-xl-prod.yaml
+manager := goconfig.NewConfigBuilder(config).
+    WithPrefix("gateway-xl").
+    WithSearchPath("resources").
+    MustBuildAndStart()
+```
+
+### 2. 利用热更新实现零停机配置变更
+
+```go
+manager.RegisterConfigCallback(
+    func(ctx context.Context, event goconfig.CallbackEvent) error {
+        // 重新初始化依赖配置的组件
+        return reinitializeComponents(event.NewValue)
+    },
+    goconfig.CallbackOptions{
+        ID:    "component-reinit",
+        Types: []goconfig.CallbackType{goconfig.CallbackTypeConfigChanged},
+    },
+)
+```
+
+### 3. 使用环境级别进行功能开关
+
+```go
+func setupFeatures() {
+    if goconfig.IsDevelopmentLevel() {
+        // 开发环境：启用调试功能
+        pprof.EnableProfiling()
+        gin.SetMode(gin.DebugMode)
+    }
+    
+    if goconfig.IsProductionLevel() {
+        // 生产环境：启用监控
+        prometheus.EnableMetrics()
+        sentry.InitErrorTracking()
+    }
+}
+```
+
+### 4. 全球化部署配置
+
+```bash
+# 中国区域
+export APP_ENV=china
+./app
+
+# 美国区域
+export APP_ENV=usa
+./app
+
+# 欧洲区域
+export APP_ENV=germany
+./app
+```
+
+## 🔧 配置示例
+
+查看 [pkg/](pkg/) 目录下各模块的 `.yaml` 和 `.json` 示例文件
 
 ## 📜 许可证
 

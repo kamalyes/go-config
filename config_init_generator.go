@@ -249,7 +249,7 @@ func (sg *SmartConfigGenerator) GenerateAllConfigs() error {
 		"failed", failCount)
 
 	if failCount > 0 {
-		return fmt.Errorf("部分模块配置生成失败: 成功 %d, 失败 %d", successCount, failCount)
+		return ErrPartialModuleFailed(successCount, failCount)
 	}
 
 	return nil
@@ -262,7 +262,7 @@ func (sg *SmartConfigGenerator) GenerateModuleConfig(module ModuleConfig) error 
 
 	// 确保输出目录存在
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
-		return fmt.Errorf("创建输出目录失败: %w", err)
+		return ErrCreateOutputDir(err)
 	}
 
 	sg.Logger.DebugKV("生成模块配置",
@@ -273,14 +273,14 @@ func (sg *SmartConfigGenerator) GenerateModuleConfig(module ModuleConfig) error 
 	// 获取默认配置
 	defaultConfig := module.DefaultFunc()
 	if defaultConfig == nil {
-		return fmt.Errorf("模块 %s 的默认配置为空", module.Name)
+		return ErrModuleConfigEmpty(module.Name)
 	}
 
 	// 生成YAML配置文件
 	if sg.GenerateYAML {
 		yamlPath := filepath.Join(outputDir, module.Name+".yaml")
 		if err := sg.generateYAMLConfig(defaultConfig, yamlPath, module); err != nil {
-			return fmt.Errorf("生成YAML配置失败: %w", err)
+			return ErrGenerateYAML(err)
 		}
 	}
 
@@ -288,7 +288,7 @@ func (sg *SmartConfigGenerator) GenerateModuleConfig(module ModuleConfig) error 
 	if sg.GenerateJSON {
 		jsonPath := filepath.Join(outputDir, module.Name+".json")
 		if err := sg.generateJSONConfig(defaultConfig, jsonPath, module); err != nil {
-			return fmt.Errorf("生成JSON配置失败: %w", err)
+			return ErrGenerateJSON(err)
 		}
 	}
 
@@ -340,7 +340,7 @@ func (sg *SmartConfigGenerator) GenerateModulesByNames(moduleNames ...string) er
 		"failed", failCount)
 
 	if failCount > 0 {
-		return fmt.Errorf("部分模块配置生成失败: 成功 %d, 失败 %d", successCount, failCount)
+		return ErrPartialModuleFailed(successCount, failCount)
 	}
 
 	return nil
@@ -365,7 +365,7 @@ func (sg *SmartConfigGenerator) generateYAMLConfig(config interface{}, filePath 
 	// 序列化为YAML（函数类型字段会被自动跳过，因为它们应该有 yaml:"-" 标签）
 	yamlData, err := yaml.Marshal(config)
 	if err != nil {
-		return fmt.Errorf("序列化YAML失败（可能包含未标记为 yaml:\"-\" 的函数字段）: %w", err)
+		return ErrMarshalYAML(err)
 	}
 
 	// 添加文件头注释
@@ -378,7 +378,7 @@ func (sg *SmartConfigGenerator) generateYAMLConfig(config interface{}, filePath 
 
 	// 写入文件
 	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
-		return fmt.Errorf("写入YAML文件失败: %w", err)
+		return ErrWriteYAML(err)
 	}
 
 	sg.Logger.DebugKV("YAML配置文件生成成功", "file", filePath)
@@ -404,7 +404,7 @@ func (sg *SmartConfigGenerator) generateJSONConfig(config interface{}, filePath 
 	// 序列化为JSON
 	jsonData, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {
-		return fmt.Errorf("序列化JSON失败: %w", err)
+		return ErrMarshalJSON(err)
 	}
 
 	// 添加文件头注释（JSON格式）
@@ -412,7 +412,7 @@ func (sg *SmartConfigGenerator) generateJSONConfig(config interface{}, filePath 
 
 	// 写入文件
 	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
-		return fmt.Errorf("写入JSON文件失败: %w", err)
+		return ErrWriteJSON(err)
 	}
 
 	sg.Logger.DebugKV("JSON配置文件生成成功", "file", filePath)
@@ -737,7 +737,7 @@ func (sg *SmartConfigGenerator) GetEnabledModules() []string {
 func (sg *SmartConfigGenerator) EnableModule(moduleName string) error {
 	module, exists := sg.ModuleRegistry[moduleName]
 	if !exists {
-		return fmt.Errorf("模块 %s 不存在", moduleName)
+		return ErrModuleNotFound(moduleName)
 	}
 
 	module.Enabled = true
@@ -750,7 +750,7 @@ func (sg *SmartConfigGenerator) EnableModule(moduleName string) error {
 func (sg *SmartConfigGenerator) DisableModule(moduleName string) error {
 	module, exists := sg.ModuleRegistry[moduleName]
 	if !exists {
-		return fmt.Errorf("模块 %s 不存在", moduleName)
+		return ErrModuleNotFound(moduleName)
 	}
 
 	module.Enabled = false
@@ -816,23 +816,23 @@ func (sg *SmartConfigGenerator) PrintModuleStatus() {
 func (sg *SmartConfigGenerator) ValidateModuleConfig(moduleName string) error {
 	module, exists := sg.ModuleRegistry[moduleName]
 	if !exists {
-		return fmt.Errorf("模块 %s 不存在", moduleName)
+		return ErrModuleNotFound(moduleName)
 	}
 
 	// 检查默认函数是否可用
 	if module.DefaultFunc == nil {
-		return fmt.Errorf("模块 %s 的默认函数为空", moduleName)
+		return ErrModuleDefaultFuncNil(moduleName)
 	}
 
 	// 尝试调用默认函数
 	config := module.DefaultFunc()
 	if config == nil {
-		return fmt.Errorf("模块 %s 的默认配置为空", moduleName)
+		return ErrModuleConfigEmpty(moduleName)
 	}
 
 	// 尝试序列化
 	if _, err := yaml.Marshal(config); err != nil {
-		return fmt.Errorf("模块 %s 的配置序列化失败: %w", moduleName, err)
+		return ErrModuleConfigSerializeFailed(moduleName, err)
 	}
 
 	sg.Logger.DebugKV("模块配置验证通过", "module", moduleName)
@@ -853,7 +853,7 @@ func (sg *SmartConfigGenerator) ValidateAllModules() error {
 	}
 
 	if len(failedModules) > 0 {
-		return fmt.Errorf("以下模块配置验证失败: %s", strings.Join(failedModules, ", "))
+		return ErrModulesValidationFailed(strings.Join(failedModules, ", "))
 	}
 
 	sg.Logger.InfoKV("所有模块配置验证通过", "count", len(sg.ModuleRegistry))
@@ -903,7 +903,7 @@ func (sg *SmartConfigGenerator) CleanupBackupFiles(maxAge time.Duration) error {
 func (sg *SmartConfigGenerator) GetModuleInfo(moduleName string) (*ModuleConfig, error) {
 	module, exists := sg.ModuleRegistry[moduleName]
 	if !exists {
-		return nil, fmt.Errorf("模块 %s 不存在", moduleName)
+		return nil, ErrModuleNotFound(moduleName)
 	}
 
 	return &module, nil
@@ -913,7 +913,7 @@ func (sg *SmartConfigGenerator) GetModuleInfo(moduleName string) (*ModuleConfig,
 func (sg *SmartConfigGenerator) UpdateModuleConfig(moduleName string, updates map[string]interface{}) error {
 	module, exists := sg.ModuleRegistry[moduleName]
 	if !exists {
-		return fmt.Errorf("模块 %s 不存在", moduleName)
+		return ErrModuleNotFound(moduleName)
 	}
 
 	// 根据updates更新模块配置
