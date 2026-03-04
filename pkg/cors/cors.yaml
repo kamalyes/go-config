@@ -2,9 +2,11 @@
 # 模块名称: cors
 # 包名: cors  
 # 描述: CORS跨域模块
-# 生成时间: 2025-12-27 11:23:33
+# 生成时间: 2026-03-09 19:56:21
 # 注意: 此文件由配置生成器自动生成
 
+# 是否启用CORS
+enabled: true
 # 允许的来源
 allowed-origins:
     - '*'
@@ -14,6 +16,8 @@ allowed-methods:
     - POST
     - PUT
     - DELETE
+    - PATCH
+    - HEAD
     - OPTIONS
 # 允许的头部
 allowed-headers:

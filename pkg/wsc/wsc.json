@@ -2,7 +2,7 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2026-03-03 17:01:57
+// 生成时间: 2026-03-09 19:56:22
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -95,6 +95,20 @@
       "pingInterval": 10000000000,
       "enableCompression": false,
       "compressionMinSize": 512
+    },
+    "deadLetterQueue": {
+      "enabled": false,
+      "keyPrefix": "wsc:dlq:",
+      "maxSize": 1000,
+      "ttl": 604800000000000,
+      "maxRetries": 3,
+      "retryDelay": 100000000,
+      "warningThreshold": 0.6,
+      "errorThreshold": 0.8,
+      "criticalThreshold": 0.95,
+      "batchSize": 10,
+      "lockTimeout": 300000000000,
+      "cleanupInterval": 600000000000
     }
   },
   "performance": {
@@ -189,7 +203,22 @@
         "type": "header",
         "key": "X-User-Type"
       }
+    ],
+    "deviceIdSources": [
+      {
+        "type": "query",
+        "key": "device_id"
+      },
+      {
+        "type": "header",
+        "key": "X-Device-ID"
+      }
     ]
+  },
+  "temporalHasher": {
+    "windowMinutes": 5,
+    "hashLength": 12,
+    "separator": ":"
   },
   "responseHeaders": {
     "enabled": true,
@@ -227,7 +256,9 @@
     },
     "messageRecord": {
       "cleanupDaysAgo": 7,
-      "enableAutoCleanup": true
+      "enableAutoCleanup": true,
+      "enableCompression": false,
+      "compressionMinSize": 1024
     },
     "compensation": {
       "enableAutoCompensate": true,

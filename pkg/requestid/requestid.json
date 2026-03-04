@@ -2,12 +2,12 @@
 // 模块名称: requestid
 // 包名: requestid  
 // 描述: 请求ID模块
-// 生成时间: 2025-11-28 00:26:09
+// 生成时间: 2026-03-09 19:56:22
 // 注意: 此文件由配置生成器自动生成
 
 {
   "moduleName": "requestid",
-  "enabled": true,
+  "enabled": false,
   "headerName": "X-Request-ID",
   "generator": "uuid"
 }

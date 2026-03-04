@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2026-03-03 10:58:56
+// 生成时间: 2026-03-09 19:56:21
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2026-03-03T10:58:56+08:00",
+  "buildTime": "2026-03-09T19:56:21+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "cbe6ef88215ebed08d70826f811970a7",
+  "gitCommit": "3122fb7cd6d8e0ec6c66f4910769b572",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -1104,6 +1104,20 @@
         "pingInterval": 10000000000,
         "enableCompression": false,
         "compressionMinSize": 512
+      },
+      "deadLetterQueue": {
+        "enabled": false,
+        "keyPrefix": "wsc:dlq:",
+        "maxSize": 1000,
+        "ttl": 604800000000000,
+        "maxRetries": 3,
+        "retryDelay": 100000000,
+        "warningThreshold": 0.6,
+        "errorThreshold": 0.8,
+        "criticalThreshold": 0.95,
+        "batchSize": 10,
+        "lockTimeout": 300000000000,
+        "cleanupInterval": 600000000000
       }
     },
     "performance": {
@@ -1198,7 +1212,22 @@
           "type": "header",
           "key": "X-User-Type"
         }
+      ],
+      "deviceIdSources": [
+        {
+          "type": "query",
+          "key": "device_id"
+        },
+        {
+          "type": "header",
+          "key": "X-Device-ID"
+        }
       ]
+    },
+    "temporalHasher": {
+      "windowMinutes": 5,
+      "hashLength": 12,
+      "separator": ":"
     },
     "responseHeaders": {
       "enabled": true,
@@ -1208,6 +1237,21 @@
       "customHeaders": {},
       "sendRegisteredMessage": false,
       "registeredMessageContent": "Client registered successfully"
+    },
+    "healthCheck": {
+      "enabled": true,
+      "queryParamName": "health",
+      "queryParamValue": "true",
+      "sendResponseMessage": false,
+      "closeImmediately": true
+    },
+    "connectionValidation": {
+      "enabled": true,
+      "requireUserId": true,
+      "requireUserType": true,
+      "missingUserIdMessage": "Missing required parameter: userid",
+      "missingUserTypeMessage": "Missing required parameter: usertype",
+      "missingBothMessage": "Missing required parameters: userid and usertype"
     },
     "database": {
       "enabled": true,
@@ -1221,7 +1265,9 @@
       },
       "messageRecord": {
         "cleanupDaysAgo": 7,
-        "enableAutoCleanup": true
+        "enableAutoCleanup": true,
+        "enableCompression": false,
+        "compressionMinSize": 1024
       },
       "compensation": {
         "enableAutoCompensate": true,

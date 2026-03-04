@@ -74,6 +74,9 @@ type WSC struct {
 	// === 客户端属性提取配置 ===
 	ClientAttributes *ClientAttributes `mapstructure:"client-attributes" yaml:"client-attributes" json:"clientAttributes"` // 客户端属性提取配置
 
+	// === 时间窗口哈希生成器配置 ===
+	TemporalHasher *TemporalHasherConfig `mapstructure:"temporal-hasher" yaml:"temporal-hasher" json:"temporalHasher"` // 时间窗口哈希生成器配置（用于生成基于时间窗口的 ClientID）
+
 	// === WebSocket 升级响应头配置 ===
 	ResponseHeaders *ResponseHeaders `mapstructure:"response-headers" yaml:"response-headers" json:"responseHeaders"` // WebSocket 升级响应头配置
 
@@ -112,11 +115,12 @@ type RedisRepository struct {
 	EnableAutoCleanup bool `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 全局：是否启用自动清理
 
 	// 子模块配置
-	OnlineStatus   *OnlineStatus   `mapstructure:"online-status" yaml:"online-status" json:"onlineStatus"`       // 在线状态配置
-	Stats          *Stats          `mapstructure:"stats" yaml:"stats" json:"stats"`                              // 统计数据配置
-	Workload       *Workload       `mapstructure:"workload" yaml:"workload" json:"workload"`                     // 负载管理配置
-	OfflineMessage *OfflineMessage `mapstructure:"offline-message" yaml:"offline-message" json:"offlineMessage"` // 离线消息配置
-	PubSub         *PubSub         `mapstructure:"pubsub" yaml:"pubsub" json:"pubsub"`                           // 分布式消息订阅配置
+	OnlineStatus    *OnlineStatus    `mapstructure:"online-status" yaml:"online-status" json:"onlineStatus"`            // 在线状态配置
+	Stats           *Stats           `mapstructure:"stats" yaml:"stats" json:"stats"`                                   // 统计数据配置
+	Workload        *Workload        `mapstructure:"workload" yaml:"workload" json:"workload"`                          // 负载管理配置
+	OfflineMessage  *OfflineMessage  `mapstructure:"offline-message" yaml:"offline-message" json:"offlineMessage"`      // 离线消息配置
+	PubSub          *PubSub          `mapstructure:"pubsub" yaml:"pubsub" json:"pubsub"`                                // 分布式消息订阅配置
+	DeadLetterQueue *DeadLetterQueue `mapstructure:"dead-letter-queue" yaml:"dead-letter-queue" json:"deadLetterQueue"` // 死信队列配置
 }
 
 // OnlineStatus 在线状态配置
@@ -208,6 +212,22 @@ type PubSub struct {
 	CompressionMinSize int           `mapstructure:"compression-min-size" yaml:"compression-min-size" json:"compressionMinSize"` // 压缩阈值（字节）
 }
 
+// DeadLetterQueue 死信队列配置
+type DeadLetterQueue struct {
+	Enabled           bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                 // 是否启用死信队列
+	KeyPrefix         string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`                         // Redis键前缀
+	MaxSize           int64         `mapstructure:"max-size" yaml:"max-size" json:"maxSize"`                               // 队列最大长度
+	TTL               time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                                             // 过期时间
+	MaxRetries        int           `mapstructure:"max-retries" yaml:"max-retries" json:"maxRetries"`                      // 最大重试次数（超过后移入死信队列）
+	RetryDelay        time.Duration `mapstructure:"retry-delay" yaml:"retry-delay" json:"retryDelay"`                      // 重试延迟
+	WarningThreshold  float64       `mapstructure:"warning-threshold" yaml:"warning-threshold" json:"warningThreshold"`    // 警告阈值（队列长度百分比，如 0.6 表示 60%）
+	ErrorThreshold    float64       `mapstructure:"error-threshold" yaml:"error-threshold" json:"errorThreshold"`          // 错误阈值（队列长度百分比，如 0.8 表示 80%）
+	CriticalThreshold float64       `mapstructure:"critical-threshold" yaml:"critical-threshold" json:"criticalThreshold"` // 严重阈值（队列长度百分比，如 0.95 表示 95%）
+	BatchSize         int           `mapstructure:"batch-size" yaml:"batch-size" json:"batchSize"`                         // 批处理大小
+	LockTimeout       time.Duration `mapstructure:"lock-timeout" yaml:"lock-timeout" json:"lockTimeout"`                   // 锁超时时间
+	CleanupInterval   time.Duration `mapstructure:"cleanup-interval" yaml:"cleanup-interval" json:"cleanupInterval"`       // 清理间隔
+}
+
 // ConnectionRecord 连接记录配置
 type ConnectionRecord struct {
 	CleanupDaysAgo    int  `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 启动时清理N天前的数据（0表示不清理）
@@ -216,8 +236,10 @@ type ConnectionRecord struct {
 
 // MessageRecord 消息发送记录配置
 type MessageRecord struct {
-	CleanupDaysAgo    int  `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 启动时清理N天前的数据（0表示不清理）
-	EnableAutoCleanup bool `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
+	CleanupDaysAgo     int  `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`             // 启动时清理N天前的数据（0表示不清理）
+	EnableAutoCleanup  bool `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"`    // 是否启用自动清理
+	EnableCompression  bool `mapstructure:"enable-compression" yaml:"enable-compression" json:"enableCompression"`      // 是否启用压缩
+	CompressionMinSize int  `mapstructure:"compression-min-size" yaml:"compression-min-size" json:"compressionMinSize"` // 最小压缩大小（字节，小于此值不压缩）
 }
 
 // Compensation 补偿队列配置
@@ -389,6 +411,66 @@ func (p *PubSub) GetCompressionMinSize() int {
 	return p.CompressionMinSize
 }
 
+// GetEnabled 获取是否启用死信队列
+func (d *DeadLetterQueue) GetEnabled() bool {
+	return d.Enabled
+}
+
+// GetKeyPrefix 获取死信队列Redis键前缀
+func (d *DeadLetterQueue) GetKeyPrefix() string {
+	return mathx.IF(d.KeyPrefix == "", "wsc:dlq:", d.KeyPrefix)
+}
+
+// GetMaxSize 获取死信队列最大长度
+func (d *DeadLetterQueue) GetMaxSize() int64 {
+	return mathx.IfLeZero(d.MaxSize, 1000)
+}
+
+// GetTTL 获取死信队列过期时间
+func (d *DeadLetterQueue) GetTTL() time.Duration {
+	return mathx.IfLeZero(d.TTL, 7*24*time.Hour)
+}
+
+// GetMaxRetries 获取最大重试次数
+func (d *DeadLetterQueue) GetMaxRetries() int {
+	return mathx.IF(d.MaxRetries <= 0, 3, d.MaxRetries)
+}
+
+// GetRetryDelay 获取重试延迟
+func (d *DeadLetterQueue) GetRetryDelay() time.Duration {
+	return mathx.IfNotZero(d.RetryDelay, 100*time.Millisecond)
+}
+
+// GetWarningThreshold 获取警告阈值
+func (d *DeadLetterQueue) GetWarningThreshold() float64 {
+	return mathx.IfLeZero(d.WarningThreshold, 0.6)
+}
+
+// GetErrorThreshold 获取错误阈值
+func (d *DeadLetterQueue) GetErrorThreshold() float64 {
+	return mathx.IfLeZero(d.ErrorThreshold, 0.8)
+}
+
+// GetCriticalThreshold 获取严重阈值
+func (d *DeadLetterQueue) GetCriticalThreshold() float64 {
+	return mathx.IfLeZero(d.CriticalThreshold, 0.95)
+}
+
+// GetBatchSize 获取批处理大小
+func (d *DeadLetterQueue) GetBatchSize() int {
+	return mathx.IfNotZero(d.BatchSize, 10)
+}
+
+// GetLockTimeout 获取锁超时时间
+func (d *DeadLetterQueue) GetLockTimeout() time.Duration {
+	return mathx.IfNotZero(d.LockTimeout, 5*time.Minute)
+}
+
+// GetCleanupInterval 获取清理间隔
+func (d *DeadLetterQueue) GetCleanupInterval() time.Duration {
+	return mathx.IfNotZero(d.CleanupInterval, 10*time.Minute)
+}
+
 // GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
 func (c *ConnectionRecord) GetCleanupDaysAgo(globalDaysAgo int) int {
 	return mathx.IfNotZero(c.CleanupDaysAgo, globalDaysAgo)
@@ -407,6 +489,16 @@ func (m *MessageRecord) GetCleanupDaysAgo(globalDaysAgo int) int {
 // GetEnableAutoCleanup 获取是否启用自动清理（优先使用自己的配置，否则使用全局配置）
 func (m *MessageRecord) GetEnableAutoCleanup(globalEnable bool) bool {
 	return mathx.IfGt(m.CleanupDaysAgo, 0, m.EnableAutoCleanup, globalEnable)
+}
+
+// GetEnableCompression 获取是否启用压缩
+func (m *MessageRecord) GetEnableCompression() bool {
+	return m.EnableCompression
+}
+
+// GetCompressionMinSize 获取最小压缩大小（默认1024字节=1KB）
+func (m *MessageRecord) GetCompressionMinSize() int {
+	return mathx.IfNotZero(m.CompressionMinSize, 1024)
 }
 
 // GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
@@ -544,14 +636,12 @@ const (
 	AttributeSourceHeader AttributeSourceType = "header"
 	// AttributeSourceCookie 从 Cookie 提取
 	AttributeSourceCookie AttributeSourceType = "cookie"
-	// AttributeSourcePath 从 URL 路径提取
-	AttributeSourcePath AttributeSourceType = "path"
 )
 
 // IsValid 验证来源类型是否有效
 func (t AttributeSourceType) IsValid() bool {
 	switch t {
-	case AttributeSourceQuery, AttributeSourceHeader, AttributeSourceCookie, AttributeSourcePath:
+	case AttributeSourceQuery, AttributeSourceHeader, AttributeSourceCookie:
 		return true
 	default:
 		return false
@@ -573,6 +663,31 @@ type ClientAttributes struct {
 
 	// UserType 提取配置
 	UserTypeSources []AttributeSource `mapstructure:"user-type-sources" yaml:"user-type-sources" json:"userTypeSources"` // UserType 提取来源（按优先级排序）
+
+	// DeviceID 提取配置
+	DeviceIdSources []AttributeSource `mapstructure:"device-id-sources" yaml:"device-id-sources" json:"deviceIdSources"` // DeviceID 提取来源（按优先级排序）
+}
+
+// TemporalHasherConfig 时间窗口哈希生成器配置
+type TemporalHasherConfig struct {
+	WindowMinutes int    `mapstructure:"window-minutes" yaml:"window-minutes" json:"windowMinutes"` // 时间窗口（分钟，默认: 5）
+	HashLength    int    `mapstructure:"hash-length" yaml:"hash-length" json:"hashLength"`          // 哈希长度（默认: 12）
+	Separator     string `mapstructure:"separator" yaml:"separator" json:"separator"`               // 分隔符（默认: ":"）
+}
+
+// GetWindowMinutes 获取时间窗口（分钟）
+func (t *TemporalHasherConfig) GetWindowMinutes() int {
+	return mathx.IfLeZero(t.WindowMinutes, 5) // 默认 5 分钟
+}
+
+// GetHashLength 获取哈希长度
+func (t *TemporalHasherConfig) GetHashLength() int {
+	return mathx.IfLeZero(t.HashLength, 12) // 默认 12 位
+}
+
+// GetSeparator 获取分隔符
+func (t *TemporalHasherConfig) GetSeparator() string {
+	return mathx.IfEmpty(t.Separator, ":") // 默认使用冒号
 }
 
 // AttributeSource 属性提取来源配置
@@ -612,6 +727,13 @@ func (c *ClientAttributes) Validate() error {
 	for i, source := range c.UserTypeSources {
 		if err := source.Validate(); err != nil {
 			return fmt.Errorf("user-type-sources: invalid source at index %d: %w", i, err)
+		}
+	}
+
+	// 验证 DeviceID 来源
+	for i, source := range c.DeviceIdSources {
+		if err := source.Validate(); err != nil {
+			return fmt.Errorf("device-id-sources: invalid source at index %d: %w", i, err)
 		}
 	}
 
@@ -840,6 +962,7 @@ func Default() *WSC {
 		Performance:                DefaultPerformance(),
 		Security:                   DefaultSecurity(),
 		ClientAttributes:           DefaultClientAttributes(),
+		TemporalHasher:             DefaultTemporalHasher(),
 		ResponseHeaders:            DefaultResponseHeaders(),
 		HealthCheck:                DefaultHealthCheck(),
 		ConnectionValidation:       DefaultConnectionValidation(),
@@ -852,81 +975,29 @@ func Default() *WSC {
 	}
 }
 
-// DefaultRedisRepository
+// DefaultRedisRepository 默认Redis仓库配置
 func DefaultRedisRepository() *RedisRepository {
 	return &RedisRepository{
-		OnlineStatus: &OnlineStatus{
-			KeyPrefix:             "wsc:online_status:",
-			TTL:                   90 * time.Second, // 心跳间隔的3倍 (30s * 3)
-			StatusRefreshInterval: 45 * time.Second, // 默认 45 秒刷新一次（ClientTimeout 的一半，确保超时前至少刷新 2 次）
-			EnableCompression:     false,            // 默认关闭压缩
-			CompressionMinSize:    512,              // 512字节以上才压缩
-		},
-		Stats: &Stats{
-			KeyPrefix: "wsc:stats:",
-			TTL:       10 * time.Minute,
-		},
-		Workload: &Workload{
-			KeyPrefix:     "wsc:workload:",
-			MaxCandidates: 50,
-			WorkStatus: &WorkStatus{
-				Enabled:       false, // 默认不启用（需要手动开启）
-				Granularities: []WorkStatusGranularity{GranularityHour, GranularityDay},
-				RetentionDays: 90,
-				AsyncRecord:   true,
-				RecordTimeout: 2,
-				SyncToDB:      true,
-				SyncInterval:  300, // 5分钟
-			},
-		},
-		OfflineMessage: &OfflineMessage{
-			KeyPrefix: "wsc:offline_messages:",
-			QueueTTL:  7 * 24 * time.Hour,
-			AutoStore: true,
-			AutoPush:  true,
-			MaxCount:  50,
-		},
-		PubSub: &PubSub{
-			Enabled:            true,                   // 默认启用分布式
-			Namespace:          "wsc:pubsub:",          // 命名空间
-			MaxRetries:         2,                      // 最大重试次数
-			RetryDelay:         100 * time.Millisecond, // 重试延迟
-			BufferSize:         100,                    // 消息缓冲区大小
-			PingInterval:       10 * time.Second,       // 心跳间隔
-			EnableCompression:  false,                  // 默认关闭压缩
-			CompressionMinSize: 512,                    // 512字节以上才压缩
-		},
+		OnlineStatus:    DefaultOnlineStatus(),
+		Stats:           DefaultStats(),
+		Workload:        DefaultWorkload(),
+		OfflineMessage:  DefaultOfflineMessage(),
+		PubSub:          DefaultPubSub(),
+		DeadLetterQueue: DefaultDeadLetterQueue(),
 	}
 }
 
 // DefaultDatabase 创建默认数据库配置
 func DefaultDatabase() *Database {
 	return &Database{
-		Enabled:       true,
-		AutoMigrate:   true,
-		TablePrefix:   "wsc_",
-		LogLevel:      "warn",
-		SlowThreshold: 200 * time.Millisecond,
-		ConnectionRecord: &ConnectionRecord{
-			CleanupDaysAgo:    30,   // 默认清理30天前的数据
-			EnableAutoCleanup: true, // 默认启用自动清理
-		},
-		MessageRecord: &MessageRecord{
-			CleanupDaysAgo:    7,    // 默认清理7天前的数据
-			EnableAutoCleanup: true, // 默认启用自动清理
-		},
-		Compensation: &Compensation{
-			EnableAutoCompensate: true,             // 默认启用自动补偿
-			ScanInterval:         30 * time.Second, // 默认30秒扫描一次
-			BatchSize:            120,              // 默认每批处理120条
-			MaxConcurrent:        50,               // 默认最大50个并发
-			DefaultMaxRetry:      5,                // 默认最大重试5次
-			DefaultRetryInterval: 60,               // 默认重试间隔60秒
-			DefaultPriority:      5,                // 默认优先级5（普通）
-			LockTimeout:          5 * time.Minute,  // 默认锁定超时5分钟
-			CleanupDaysAgo:       7,                // 默认清理7天前的数据
-			EnableAutoCleanup:    true,             // 默认启用自动清理
-		},
+		Enabled:          true,
+		AutoMigrate:      true,
+		TablePrefix:      "wsc_",
+		LogLevel:         "warn",
+		SlowThreshold:    200 * time.Millisecond,
+		ConnectionRecord: DefaultConnectionRecord(),
+		MessageRecord:    DefaultMessageRecord(),
+		Compensation:     DefaultCompensation(),
 	}
 }
 
@@ -979,6 +1050,19 @@ func DefaultClientAttributes() *ClientAttributes {
 			{Type: AttributeSourceQuery, Key: "user_type"},
 			{Type: AttributeSourceHeader, Key: "X-User-Type"},
 		},
+		DeviceIdSources: []AttributeSource{
+			{Type: AttributeSourceQuery, Key: "device_id"},
+			{Type: AttributeSourceHeader, Key: "X-Device-ID"},
+		},
+	}
+}
+
+// DefaultTemporalHasher 默认时间窗口哈希生成器配置
+func DefaultTemporalHasher() *TemporalHasherConfig {
+	return &TemporalHasherConfig{
+		WindowMinutes: 5,   // 默认 5 分钟窗口
+		HashLength:    12,  // 默认 12 位长度
+		Separator:     ":", // 默认使用冒号分隔符
 	}
 }
 
@@ -1210,6 +1294,124 @@ func DefaultRetryPolicy() *RetryPolicy {
 		JitterPercent:      0.1, // 默认10%抖动
 		RetryableErrors:    DefaultRetryableErrors,
 		NonRetryableErrors: DefaultNonRetryableErrors,
+	}
+}
+
+// DefaultDeadLetterQueue 默认死信队列配置
+func DefaultDeadLetterQueue() *DeadLetterQueue {
+	return &DeadLetterQueue{
+		Enabled:           false,
+		KeyPrefix:         "wsc:dlq:",
+		MaxSize:           1000,
+		TTL:               7 * 24 * time.Hour,
+		MaxRetries:        3,
+		RetryDelay:        100 * time.Millisecond,
+		WarningThreshold:  0.6,
+		ErrorThreshold:    0.8,
+		CriticalThreshold: 0.95,
+		BatchSize:         10,
+		LockTimeout:       5 * time.Minute,
+		CleanupInterval:   10 * time.Minute,
+	}
+}
+
+// DefaultOnlineStatus 默认在线状态配置
+func DefaultOnlineStatus() *OnlineStatus {
+	return &OnlineStatus{
+		KeyPrefix:             "wsc:online_status:",
+		TTL:                   90 * time.Second, // 心跳间隔的3倍 (30s * 3)
+		StatusRefreshInterval: 45 * time.Second, // 默认 45 秒刷新一次（ClientTimeout 的一半，确保超时前至少刷新 2 次）
+		EnableCompression:     false,            // 默认关闭压缩
+		CompressionMinSize:    512,              // 512字节以上才压缩
+	}
+}
+
+// DefaultStats 默认统计数据配置
+func DefaultStats() *Stats {
+	return &Stats{
+		KeyPrefix: "wsc:stats:",
+		TTL:       10 * time.Minute,
+	}
+}
+
+// DefaultWorkload 默认负载管理配置
+func DefaultWorkload() *Workload {
+	return &Workload{
+		KeyPrefix:     "wsc:workload:",
+		MaxCandidates: 50,
+		WorkStatus:    DefaultWorkStatus(),
+	}
+}
+
+// DefaultWorkStatus 默认工作状态统计配置
+func DefaultWorkStatus() *WorkStatus {
+	return &WorkStatus{
+		Enabled:       false, // 默认不启用（需要手动开启）
+		Granularities: []WorkStatusGranularity{GranularityHour, GranularityDay},
+		RetentionDays: 90,
+		AsyncRecord:   true,
+		RecordTimeout: 2,
+		SyncToDB:      true,
+		SyncInterval:  300, // 5分钟
+	}
+}
+
+// DefaultOfflineMessage 默认离线消息配置
+func DefaultOfflineMessage() *OfflineMessage {
+	return &OfflineMessage{
+		KeyPrefix: "wsc:offline_messages:",
+		QueueTTL:  7 * 24 * time.Hour,
+		AutoStore: true,
+		AutoPush:  true,
+		MaxCount:  50,
+	}
+}
+
+// DefaultPubSub 默认分布式消息订阅配置
+func DefaultPubSub() *PubSub {
+	return &PubSub{
+		Enabled:            true,                   // 默认启用分布式
+		Namespace:          "wsc:pubsub:",          // 命名空间
+		MaxRetries:         2,                      // 最大重试次数
+		RetryDelay:         100 * time.Millisecond, // 重试延迟
+		BufferSize:         100,                    // 消息缓冲区大小
+		PingInterval:       10 * time.Second,       // 心跳间隔
+		EnableCompression:  false,                  // 默认关闭压缩
+		CompressionMinSize: 512,                    // 512字节以上才压缩
+	}
+}
+
+// DefaultConnectionRecord 默认连接记录配置
+func DefaultConnectionRecord() *ConnectionRecord {
+	return &ConnectionRecord{
+		CleanupDaysAgo:    30,   // 默认清理30天前的数据
+		EnableAutoCleanup: true, // 默认启用自动清理
+	}
+}
+
+// DefaultMessageRecord 默认消息发送记录配置
+func DefaultMessageRecord() *MessageRecord {
+	return &MessageRecord{
+		CleanupDaysAgo:     7,     // 默认清理7天前的数据
+		EnableAutoCleanup:  true,  // 默认启用自动清理
+		CompressionMinSize: 1024,  // 默认1KB以上才压缩
+		EnableCompression:  false, // 默认关闭压缩
+	}
+}
+
+// DefaultCompensation 默认补偿队列配置
+func DefaultCompensation() *Compensation {
+	return &Compensation{
+		EnableAutoCompensate: true,             // 默认启用自动补偿
+		ScanInterval:         30 * time.Second, // 默认30秒扫描一次
+		BatchSize:            120,              // 默认每批处理120条
+		MaxConcurrent:        50,               // 默认最大50个并发
+		DefaultMaxRetry:      5,                // 默认最大重试5次
+		DefaultRetryInterval: 60,               // 默认重试间隔60秒
+		DefaultPriority:      5,                // 默认优先级5（普通）
+		LockTimeout:          5 * time.Minute,  // 默认锁定超时5分钟
+		CleanupDaysAgo:       7,                // 默认清理7天前的数据
+		EnableAutoCleanup:    true,             // 默认启用自动清理
 	}
 }
 

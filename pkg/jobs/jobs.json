@@ -2,7 +2,7 @@
 // 模块名称: jobs
 // 包名: jobs  
 // 描述: 任务调度模块
-// 生成时间: 2025-12-11 13:36:01
+// 生成时间: 2026-03-09 19:56:21
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -13,7 +13,7 @@
   "retryInterval": 5,
   "retryJitter": 0,
   "maxConcurrentJobs": 0,
-  "enableDistribute": false,
+  "distribute": false,
   "tasks": {
     "cleanup": {
       "enabled": true,

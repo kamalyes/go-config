@@ -2,7 +2,7 @@
 # 模块名称: jobs
 # 包名: jobs  
 # 描述: 任务调度模块
-# 生成时间: 2025-12-11 13:36:01
+# 生成时间: 2026-03-09 19:56:21
 # 注意: 此文件由配置生成器自动生成
 
 # 是否启用Job管理器
@@ -20,7 +20,7 @@ retry-jitter: 0
 # 最大并发任务数，0表示不限制
 max-concurrent-jobs: 0
 # 是否启用分布式调度
-enable-distribute: false
+distribute: false
 # 任务配置
 tasks:
     cleanup:

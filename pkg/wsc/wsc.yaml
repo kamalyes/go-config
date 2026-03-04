@@ -2,7 +2,7 @@
 # 模块名称: wsc
 # 包名: wsc  
 # 描述: WebSocket通信模块
-# 生成时间: 2026-03-03 17:01:57
+# 生成时间: 2026-03-09 19:56:22
 # 注意: 此文件由配置生成器自动生成
 
 # 是否启用
@@ -125,6 +125,20 @@ redis-repository:
         ping-interval: 10s
         enable-compression: false
         compression-min-size: 512
+    dead-letter-queue:
+        # 是否启用
+        enabled: false
+        key-prefix: 'wsc:dlq:'
+        max-size: 1000
+        ttl: 168h0m0s
+        max-retries: 3
+        retry-delay: 100ms
+        warning-threshold: 0.6
+        error-threshold: 0.8
+        critical-threshold: 0.95
+        batch-size: 10
+        lock-timeout: 5m0s
+        cleanup-interval: 10m0s
 # 性能配置
 performance:
     max-connections-per-node: 10000
@@ -249,6 +263,16 @@ client-attributes:
           key: user_type
         - type: header
           key: X-User-Type
+    device-id-sources:
+        - type: query
+          key: device_id
+        - type: header
+          key: X-Device-ID
+# 时间窗口哈希生成器配置（用于生成基于时间窗口的 ClientID）
+temporal-hasher:
+    window-minutes: 5
+    hash-length: 12
+    separator: ':'
 # WebSocket 升级响应头配置
 response-headers:
     # 是否启用
@@ -290,6 +314,8 @@ database:
     message-record:
         cleanup-days-ago: 7
         enable-auto-cleanup: true
+        enable-compression: false
+        compression-min-size: 1024
     compensation:
         enable-auto-compensate: true
         scan-interval: 30s
