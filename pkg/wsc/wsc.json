@@ -2,7 +2,7 @@
 // 模块名称: wsc
 // 包名: wsc  
 // 描述: WebSocket通信模块
-// 生成时间: 2026-03-03 17:01:57
+// 生成时间: 2026-03-04 15:05:53
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -227,7 +227,9 @@
     },
     "messageRecord": {
       "cleanupDaysAgo": 7,
-      "enableAutoCleanup": true
+      "enableAutoCleanup": true,
+      "enableCompression": false,
+      "compressionMinSize": 1024
     },
     "compensation": {
       "enableAutoCompensate": true,

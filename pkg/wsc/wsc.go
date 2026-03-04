@@ -216,8 +216,10 @@ type ConnectionRecord struct {
 
 // MessageRecord 消息发送记录配置
 type MessageRecord struct {
-	CleanupDaysAgo    int  `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`          // 启动时清理N天前的数据（0表示不清理）
-	EnableAutoCleanup bool `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"` // 是否启用自动清理
+	CleanupDaysAgo     int  `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`             // 启动时清理N天前的数据（0表示不清理）
+	EnableAutoCleanup  bool `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"`    // 是否启用自动清理
+	EnableCompression  bool `mapstructure:"enable-compression" yaml:"enable-compression" json:"enableCompression"`      // 是否启用压缩
+	CompressionMinSize int  `mapstructure:"compression-min-size" yaml:"compression-min-size" json:"compressionMinSize"` // 最小压缩大小（字节，小于此值不压缩）
 }
 
 // Compensation 补偿队列配置
@@ -407,6 +409,16 @@ func (m *MessageRecord) GetCleanupDaysAgo(globalDaysAgo int) int {
 // GetEnableAutoCleanup 获取是否启用自动清理（优先使用自己的配置，否则使用全局配置）
 func (m *MessageRecord) GetEnableAutoCleanup(globalEnable bool) bool {
 	return mathx.IfGt(m.CleanupDaysAgo, 0, m.EnableAutoCleanup, globalEnable)
+}
+
+// GetEnableCompression 获取是否启用压缩
+func (m *MessageRecord) GetEnableCompression() bool {
+	return m.EnableCompression
+}
+
+// GetCompressionMinSize 获取最小压缩大小（默认1024字节=1KB）
+func (m *MessageRecord) GetCompressionMinSize() int {
+	return mathx.IfNotZero(m.CompressionMinSize, 1024)
 }
 
 // GetCleanupDaysAgo 获取清理天数（优先使用自己的配置，否则使用全局配置）
@@ -912,8 +924,10 @@ func DefaultDatabase() *Database {
 			EnableAutoCleanup: true, // 默认启用自动清理
 		},
 		MessageRecord: &MessageRecord{
-			CleanupDaysAgo:    7,    // 默认清理7天前的数据
-			EnableAutoCleanup: true, // 默认启用自动清理
+			CleanupDaysAgo:     7,    // 默认清理7天前的数据
+			EnableAutoCleanup:  true, // 默认启用自动清理
+			CompressionMinSize: 1024,
+			EnableCompression:  false,
 		},
 		Compensation: &Compensation{
 			EnableAutoCompensate: true,             // 默认启用自动补偿
