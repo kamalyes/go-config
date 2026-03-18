@@ -2,7 +2,7 @@
 # 模块名称: swagger
 # 包名: swagger  
 # 描述: Swagger API文档
-# 生成时间: 2026-03-09 19:56:22
+# 生成时间: 2026-03-18 11:51:18
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -56,6 +56,8 @@ aggregate:
         - google
         - googleapis
         - protoc
+# 是否启用文件热重载
+hot-reload: false
 # Swagger UI CDN版本
 cdn-version: 5.30.2
 # CDN基础URL

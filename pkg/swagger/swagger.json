@@ -2,7 +2,7 @@
 // 模块名称: swagger
 // 包名: swagger  
 // 描述: Swagger API文档
-// 生成时间: 2026-03-09 19:56:22
+// 生成时间: 2026-03-18 11:51:18
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -47,6 +47,7 @@
       "protoc"
     ]
   },
+  "hotReload": false,
   "cdnVersion": "5.30.2",
   "cdnBaseURL": "https://unpkg.com/swagger-ui-dist@5.30.2",
   "cdnCSSURL": "https://unpkg.com/swagger-ui-dist@5.30.2/swagger-ui.css",

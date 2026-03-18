@@ -106,6 +106,7 @@ type Swagger struct {
 	License     *License         `mapstructure:"license" yaml:"license" json:"license"`             // 许可证信息
 	Auth        *AuthConfig      `mapstructure:"auth" yaml:"auth" json:"auth"`                      // 认证配置
 	Aggregate   *AggregateConfig `mapstructure:"aggregate" yaml:"aggregate" json:"aggregate"`       // 聚合配置
+	HotReload   bool             `mapstructure:"hot-reload" yaml:"hot-reload" json:"hotReload"`     // 是否启用文件热重载
 
 	// CDN 资源配置
 	CDNVersion     string `mapstructure:"cdn-version" yaml:"cdn-version" json:"cdnVersion"`               // Swagger UI CDN版本
