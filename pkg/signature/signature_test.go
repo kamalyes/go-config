@@ -25,9 +25,6 @@ func TestSignature_Default(t *testing.T) {
 	assert.Equal(t, "signature", config.ModuleName)
 	assert.False(t, config.Enabled)
 	assert.Equal(t, "default-secret-key-change-in-production", config.SecretKey)
-	assert.Equal(t, "X-Signature", config.SignatureHeader)
-	assert.Equal(t, "X-Timestamp", config.TimestampHeader)
-	assert.Equal(t, "X-Nonce", config.NonceHeader)
 	assert.Equal(t, sign.AlgorithmSHA256, config.Algorithm)
 	assert.Equal(t, time.Minute*5, config.TimeoutWindow)
 	assert.NotNil(t, config.IgnorePaths)
@@ -53,27 +50,6 @@ func TestSignature_WithTimeoutWindow(t *testing.T) {
 	config := Default()
 	result := config.WithTimeoutWindow(time.Minute * 10)
 	assert.Equal(t, time.Minute*10, result.TimeoutWindow)
-	assert.Equal(t, config, result)
-}
-
-func TestSignature_WithSignatureHeader(t *testing.T) {
-	config := Default()
-	result := config.WithSignatureHeader("X-Custom-Signature")
-	assert.Equal(t, "X-Custom-Signature", result.SignatureHeader)
-	assert.Equal(t, config, result)
-}
-
-func TestSignature_WithTimestampHeader(t *testing.T) {
-	config := Default()
-	result := config.WithTimestampHeader("X-Custom-Timestamp")
-	assert.Equal(t, "X-Custom-Timestamp", result.TimestampHeader)
-	assert.Equal(t, config, result)
-}
-
-func TestSignature_WithNonceHeader(t *testing.T) {
-	config := Default()
-	result := config.WithNonceHeader("X-Custom-Nonce")
-	assert.Equal(t, "X-Custom-Nonce", result.NonceHeader)
 	assert.Equal(t, config, result)
 }
 
@@ -178,9 +154,6 @@ func TestSignature_ChainedCalls(t *testing.T) {
 		WithSecretKey("production-secret").
 		WithAlgorithm("SHA256").
 		WithTimeoutWindow(time.Minute * 3).
-		WithSignatureHeader("X-API-Signature").
-		WithTimestampHeader("X-API-Timestamp").
-		WithNonceHeader("X-API-Nonce").
 		AddIgnorePath("/api/v1/public").
 		AddIgnorePath("/api/v1/status").
 		WithSkipQuery(true).
@@ -190,9 +163,6 @@ func TestSignature_ChainedCalls(t *testing.T) {
 	assert.Equal(t, "production-secret", config.SecretKey)
 	assert.Equal(t, sign.HashCryptoFunc(sign.AlgorithmSHA256), config.Algorithm)
 	assert.Equal(t, time.Minute*3, config.TimeoutWindow)
-	assert.Equal(t, "X-API-Signature", config.SignatureHeader)
-	assert.Equal(t, "X-API-Timestamp", config.TimestampHeader)
-	assert.Equal(t, "X-API-Nonce", config.NonceHeader)
 	assert.Contains(t, config.IgnorePaths, "/api/v1/public")
 	assert.Contains(t, config.IgnorePaths, "/api/v1/status")
 	assert.True(t, config.SkipQuery)

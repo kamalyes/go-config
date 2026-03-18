@@ -2,21 +2,45 @@
 # 模块名称: signature
 # 包名: signature  
 # 描述: 数字签名模块
-# 生成时间: 2026-03-09 19:56:22
+# 生成时间: 2026-03-19 00:02:36
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
 module-name: signature
 # 是否启用签名验证
 enabled: false
-# 签名密钥
+# 签名类型 (hmac/rsa)
+type: hmac
+# HMAC 签名密钥
 secret-key: default-secret-key-change-in-production
-# 签名请求头
-signature-header: X-Signature
-# 时间戳请求头
-timestamp-header: X-Timestamp
-# 随机数请求头
-nonce-header: X-Nonce
+# RSA 公钥 PEM（用于验证签名）
+public-key-pem: ""
+# 签名提取来源（按优先级排序）
+signature-sources:
+    - type: header
+      key: X-Signature
+    - type: query
+      key: signature
+# 时间戳提取来源（按优先级排序）
+timestamp-sources:
+    - type: header
+      key: X-Timestamp
+    - type: query
+      key: timestamp
+# 随机数提取来源（按优先级排序）
+nonce-sources:
+    - type: header
+      key: X-Nonce
+    - type: query
+      key: nonce
+# Nonce Redis key 前缀
+nonce-key-prefix: 'nonce:'
+# Nonce 过期时间
+nonce-ttl: 10m0s
+# 是否强制要求 Timestamp（向后兼容：false 允许旧客户端不传）
+require-timestamp: false
+# 是否强制要求 Nonce（向后兼容：false 允许旧客户端不传）
+require-nonce: false
 # 签名算法 (MD5, SHA1, SHA224, SHA256, SHA384, SHA512)
 algorithm: SHA256
 # 请求时间窗口

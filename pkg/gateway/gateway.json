@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2026-03-09 19:56:21
+// 生成时间: 2026-03-19 00:02:35
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2026-03-09T19:56:21+08:00",
+  "buildTime": "2026-03-19T00:02:35+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "3122fb7cd6d8e0ec6c66f4910769b572",
+  "gitCommit": "bd557d987ef6536134cf8cd92b4841eb",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -840,10 +840,43 @@
     "signature": {
       "moduleName": "signature",
       "enabled": false,
+      "type": "hmac",
       "secretKey": "default-secret-key-change-in-production",
-      "signatureHeader": "X-Signature",
-      "timestampHeader": "X-Timestamp",
-      "nonceHeader": "X-Nonce",
+      "publicKeyPem": "",
+      "signatureSources": [
+        {
+          "type": "header",
+          "key": "X-Signature"
+        },
+        {
+          "type": "query",
+          "key": "signature"
+        }
+      ],
+      "timestampSources": [
+        {
+          "type": "header",
+          "key": "X-Timestamp"
+        },
+        {
+          "type": "query",
+          "key": "timestamp"
+        }
+      ],
+      "nonceSources": [
+        {
+          "type": "header",
+          "key": "X-Nonce"
+        },
+        {
+          "type": "query",
+          "key": "nonce"
+        }
+      ],
+      "nonceKeyPrefix": "nonce:",
+      "nonceTtl": 600000000000,
+      "requireTimestamp": false,
+      "requireNonce": false,
       "algorithm": "SHA256",
       "timeoutWindow": 300000000000,
       "ignorePaths": [
@@ -954,6 +987,7 @@
         "protoc"
       ]
     },
+    "hotReload": false,
     "cdnVersion": "5.30.2",
     "cdnBaseURL": "https://unpkg.com/swagger-ui-dist@5.30.2",
     "cdnCSSURL": "https://unpkg.com/swagger-ui-dist@5.30.2/swagger-ui.css",
@@ -988,6 +1022,16 @@
     "routes": [],
     "ipRules": [],
     "userRules": [],
+    "userIdSources": [
+      {
+        "type": "header",
+        "key": "X-User-ID"
+      },
+      {
+        "type": "query",
+        "key": "user_id"
+      }
+    ],
     "storage": {
       "type": "memory",
       "keyPrefix": "rate_limit:",

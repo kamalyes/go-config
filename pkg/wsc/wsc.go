@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/kamalyes/go-config/internal"
+	"github.com/kamalyes/go-config/pkg/common"
 	"github.com/kamalyes/go-config/pkg/logging"
 	"github.com/kamalyes/go-toolbox/pkg/mathx"
 	"github.com/kamalyes/go-toolbox/pkg/syncx"
@@ -626,46 +627,19 @@ type EmailAlert struct {
 	AppName       string   `mapstructure:"app-name" yaml:"app-name" json:"appName"`                   // 应用名称
 }
 
-// AttributeSourceType 属性提取来源类型
-type AttributeSourceType string
-
-const (
-	// AttributeSourceQuery 从 URL 查询参数提取
-	AttributeSourceQuery AttributeSourceType = "query"
-	// AttributeSourceHeader 从 HTTP Header 提取
-	AttributeSourceHeader AttributeSourceType = "header"
-	// AttributeSourceCookie 从 Cookie 提取
-	AttributeSourceCookie AttributeSourceType = "cookie"
-)
-
-// IsValid 验证来源类型是否有效
-func (t AttributeSourceType) IsValid() bool {
-	switch t {
-	case AttributeSourceQuery, AttributeSourceHeader, AttributeSourceCookie:
-		return true
-	default:
-		return false
-	}
-}
-
-// String 返回字符串表示
-func (t AttributeSourceType) String() string {
-	return string(t)
-}
-
 // ClientAttributes 客户端属性提取配置
 type ClientAttributes struct {
 	// ClientID 提取配置
-	ClientIDSources []AttributeSource `mapstructure:"client-id-sources" yaml:"client-id-sources" json:"clientIdSources"` // ClientID 提取来源（按优先级排序）
+	ClientIDSources []common.AttributeSource `mapstructure:"client-id-sources" yaml:"client-id-sources" json:"clientIdSources"` // ClientID 提取来源（按优先级排序）
 
 	// UserID 提取配置
-	UserIDSources []AttributeSource `mapstructure:"user-id-sources" yaml:"user-id-sources" json:"userIdSources"` // UserID 提取来源（按优先级排序）
+	UserIDSources []common.AttributeSource `mapstructure:"user-id-sources" yaml:"user-id-sources" json:"userIdSources"` // UserID 提取来源（按优先级排序）
 
 	// UserType 提取配置
-	UserTypeSources []AttributeSource `mapstructure:"user-type-sources" yaml:"user-type-sources" json:"userTypeSources"` // UserType 提取来源（按优先级排序）
+	UserTypeSources []common.AttributeSource `mapstructure:"user-type-sources" yaml:"user-type-sources" json:"userTypeSources"` // UserType 提取来源（按优先级排序）
 
 	// DeviceID 提取配置
-	DeviceIdSources []AttributeSource `mapstructure:"device-id-sources" yaml:"device-id-sources" json:"deviceIdSources"` // DeviceID 提取来源（按优先级排序）
+	DeviceIdSources []common.AttributeSource `mapstructure:"device-id-sources" yaml:"device-id-sources" json:"deviceIdSources"` // DeviceID 提取来源（按优先级排序）
 }
 
 // TemporalHasherConfig 时间窗口哈希生成器配置
@@ -688,23 +662,6 @@ func (t *TemporalHasherConfig) GetHashLength() int {
 // GetSeparator 获取分隔符
 func (t *TemporalHasherConfig) GetSeparator() string {
 	return mathx.IfEmpty(t.Separator, ":") // 默认使用冒号
-}
-
-// AttributeSource 属性提取来源配置
-type AttributeSource struct {
-	Type AttributeSourceType `mapstructure:"type" yaml:"type" json:"type"` // 来源类型: query, header, cookie, path
-	Key  string              `mapstructure:"key" yaml:"key" json:"key"`    // 提取的键名
-}
-
-// Validate 验证属性来源配置
-func (a *AttributeSource) Validate() error {
-	if !a.Type.IsValid() {
-		return fmt.Errorf("type must be one of: query, header, cookie, path")
-	}
-	if a.Key == "" {
-		return fmt.Errorf("key cannot be empty")
-	}
-	return nil
 }
 
 // Validate 验证客户端属性配置
@@ -1038,21 +995,21 @@ func DefaultSecurity() *Security {
 // DefaultClientAttributes 默认客户端属性提取配置
 func DefaultClientAttributes() *ClientAttributes {
 	return &ClientAttributes{
-		ClientIDSources: []AttributeSource{
-			{Type: AttributeSourceQuery, Key: "client_id"},
-			{Type: AttributeSourceHeader, Key: "X-Client-ID"},
+		ClientIDSources: []common.AttributeSource{
+			{Type: common.SourceTypeQuery, Key: "client_id"},
+			{Type: common.SourceTypeHeader, Key: "X-Client-ID"},
 		},
-		UserIDSources: []AttributeSource{
-			{Type: AttributeSourceQuery, Key: "user_id"},
-			{Type: AttributeSourceHeader, Key: "X-User-ID"},
+		UserIDSources: []common.AttributeSource{
+			{Type: common.SourceTypeQuery, Key: "user_id"},
+			{Type: common.SourceTypeHeader, Key: "X-User-ID"},
 		},
-		UserTypeSources: []AttributeSource{
-			{Type: AttributeSourceQuery, Key: "user_type"},
-			{Type: AttributeSourceHeader, Key: "X-User-Type"},
+		UserTypeSources: []common.AttributeSource{
+			{Type: common.SourceTypeQuery, Key: "user_type"},
+			{Type: common.SourceTypeHeader, Key: "X-User-Type"},
 		},
-		DeviceIdSources: []AttributeSource{
-			{Type: AttributeSourceQuery, Key: "device_id"},
-			{Type: AttributeSourceHeader, Key: "X-Device-ID"},
+		DeviceIdSources: []common.AttributeSource{
+			{Type: common.SourceTypeQuery, Key: "device_id"},
+			{Type: common.SourceTypeHeader, Key: "X-Device-ID"},
 		},
 	}
 }
