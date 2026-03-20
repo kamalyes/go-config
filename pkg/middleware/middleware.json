@@ -2,7 +2,7 @@
 // 模块名称: middleware
 // 包名: middleware  
 // 描述: 中间件模块
-// 生成时间: 2026-03-19 00:02:35
+// 生成时间: 2026-03-21 00:25:56
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -119,12 +119,6 @@
     "requestSize": true,
     "responseSize": true
   },
-  "requestId": {
-    "moduleName": "requestid",
-    "enabled": false,
-    "headerName": "X-Request-ID",
-    "generator": "uuid"
-  },
   "i18n": {
     "moduleName": "i18n",
     "enabled": false,
@@ -228,36 +222,6 @@
     "type": "hmac",
     "secretKey": "default-secret-key-change-in-production",
     "publicKeyPem": "",
-    "signatureSources": [
-      {
-        "type": "header",
-        "key": "X-Signature"
-      },
-      {
-        "type": "query",
-        "key": "signature"
-      }
-    ],
-    "timestampSources": [
-      {
-        "type": "header",
-        "key": "X-Timestamp"
-      },
-      {
-        "type": "query",
-        "key": "timestamp"
-      }
-    ],
-    "nonceSources": [
-      {
-        "type": "header",
-        "key": "X-Nonce"
-      },
-      {
-        "type": "query",
-        "key": "nonce"
-      }
-    ],
     "nonceKeyPrefix": "nonce:",
     "nonceTtl": 600000000000,
     "requireTimestamp": false,

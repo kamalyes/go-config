@@ -5,8 +5,8 @@ go 1.25.0
 require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-viper/mapstructure/v2 v2.4.0
-	github.com/kamalyes/go-logger v0.4.6-0.20260309105634-86ce25421507
-	github.com/kamalyes/go-toolbox v0.11.87-0.20260318125308-349e10be8cad
+	github.com/kamalyes/go-logger v0.4.6-0.20260320160038-f1cdda12311b
+	github.com/kamalyes/go-toolbox v0.11.87-0.20260320152627-82a49572fde2
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 )
@@ -20,7 +20,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.46.0 // indirect
 	golang.org/x/net v0.48.0 // indirect
-	google.golang.org/grpc v1.79.2 // indirect
+	google.golang.org/grpc v1.79.3 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 )
 

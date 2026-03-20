@@ -20,7 +20,6 @@ import (
 	"github.com/kamalyes/go-config/pkg/metrics"
 	"github.com/kamalyes/go-config/pkg/pprof"
 	"github.com/kamalyes/go-config/pkg/recovery"
-	"github.com/kamalyes/go-config/pkg/requestid"
 	"github.com/kamalyes/go-config/pkg/signature"
 	"github.com/kamalyes/go-config/pkg/tracing"
 	"github.com/kamalyes/go-toolbox/pkg/syncx"
@@ -34,7 +33,6 @@ type Middleware struct {
 	Recovery       *recovery.Recovery      `mapstructure:"recovery" yaml:"recovery" json:"recovery"`                     // 恢复中间件
 	Tracing        *tracing.Tracing        `mapstructure:"tracing" yaml:"tracing" json:"tracing"`                        // 追踪中间件
 	Metrics        *metrics.Metrics        `mapstructure:"metrics" yaml:"metrics" json:"metrics"`                        // 指标中间件
-	RequestID      *requestid.RequestID    `mapstructure:"request-id" yaml:"request-id" json:"requestId"`                // 请求ID中间件
 	I18N           *i18n.I18N              `mapstructure:"i18n" yaml:"i18n" json:"i18n"`                                 // 国际化中间件
 	PProf          *pprof.PProf            `mapstructure:"pprof" yaml:"pprof" json:"pprof"`                              // PProf中间件
 	CircuitBreaker *breaker.CircuitBreaker `mapstructure:"circuit-breaker" yaml:"circuit-breaker" json:"circuitBreaker"` // 断路器配置
@@ -51,7 +49,6 @@ func Default() *Middleware {
 		Recovery:       recovery.Default(),
 		Tracing:        tracing.Default(),
 		Metrics:        metrics.Default(),
-		RequestID:      requestid.Default(),
 		I18N:           i18n.Default(),
 		PProf:          pprof.Default(),
 		CircuitBreaker: breaker.Default(),
@@ -123,12 +120,6 @@ func (m *Middleware) WithMetrics(metrics *metrics.Metrics) *Middleware {
 	return m
 }
 
-// WithRequestID 设置请求ID中间件配置
-func (m *Middleware) WithRequestID(requestID *requestid.RequestID) *Middleware {
-	m.RequestID = requestID
-	return m
-}
-
 // WithI18N 设置国际化中间件配置
 func (m *Middleware) WithI18N(i18n *i18n.I18N) *Middleware {
 	m.I18N = i18n
@@ -169,14 +160,6 @@ func (m *Middleware) EnableTracing() *Middleware {
 func (m *Middleware) EnableMetrics() *Middleware {
 	if m.Metrics != nil {
 		m.Metrics.Enable()
-	}
-	return m
-}
-
-// EnableRequestID 启用请求ID中间件
-func (m *Middleware) EnableRequestID() *Middleware {
-	if m.RequestID != nil {
-		m.RequestID.Enable()
 	}
 	return m
 }

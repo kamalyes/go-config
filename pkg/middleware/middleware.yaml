@@ -2,7 +2,7 @@
 # 模块名称: middleware
 # 包名: middleware  
 # 描述: 中间件模块
-# 生成时间: 2026-03-19 00:02:35
+# 生成时间: 2026-03-21 00:25:56
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -122,14 +122,6 @@ metrics:
     duration: true
     request-size: true
     response-size: true
-# 请求ID中间件
-request-id:
-    # 模块名称
-    module-name: requestid
-    # 是否启用中间件
-    enabled: false
-    header-name: X-Request-ID
-    generator: uuid
 # 国际化中间件
 i18n:
     # 模块名称
@@ -235,21 +227,6 @@ signature:
     type: hmac
     secret-key: default-secret-key-change-in-production
     public-key-pem: ""
-    signature-sources:
-        - type: header
-          key: X-Signature
-        - type: query
-          key: signature
-    timestamp-sources:
-        - type: header
-          key: X-Timestamp
-        - type: query
-          key: timestamp
-    nonce-sources:
-        - type: header
-          key: X-Nonce
-        - type: query
-          key: nonce
     nonce-key-prefix: 'nonce:'
     nonce-ttl: 10m0s
     require-timestamp: false

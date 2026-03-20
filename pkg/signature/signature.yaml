@@ -2,7 +2,7 @@
 # 模块名称: signature
 # 包名: signature  
 # 描述: 数字签名模块
-# 生成时间: 2026-03-19 00:02:36
+# 生成时间: 2026-03-21 00:25:57
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -15,24 +15,6 @@ type: hmac
 secret-key: default-secret-key-change-in-production
 # RSA 公钥 PEM（用于验证签名）
 public-key-pem: ""
-# 签名提取来源（按优先级排序）
-signature-sources:
-    - type: header
-      key: X-Signature
-    - type: query
-      key: signature
-# 时间戳提取来源（按优先级排序）
-timestamp-sources:
-    - type: header
-      key: X-Timestamp
-    - type: query
-      key: timestamp
-# 随机数提取来源（按优先级排序）
-nonce-sources:
-    - type: header
-      key: X-Nonce
-    - type: query
-      key: nonce
 # Nonce Redis key 前缀
 nonce-key-prefix: 'nonce:'
 # Nonce 过期时间

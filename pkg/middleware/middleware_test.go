@@ -25,7 +25,6 @@ func TestMiddleware_Default(t *testing.T) {
 	assert.NotNil(t, config.Recovery)
 	assert.NotNil(t, config.Tracing)
 	assert.NotNil(t, config.Metrics)
-	assert.NotNil(t, config.RequestID)
 	assert.NotNil(t, config.I18N)
 	assert.NotNil(t, config.PProf)
 }
@@ -83,13 +82,6 @@ func TestMiddleware_EnableMetrics(t *testing.T) {
 	config.Metrics.Disable()
 	config.EnableMetrics()
 	assert.True(t, config.Metrics.IsEnabled())
-}
-
-func TestMiddleware_EnableRequestID(t *testing.T) {
-	config := Default()
-	config.RequestID.Disable()
-	config.EnableRequestID()
-	assert.True(t, config.RequestID.IsEnabled())
 }
 
 func TestMiddleware_EnableI18N(t *testing.T) {
@@ -161,7 +153,6 @@ func TestMiddleware_ChainedCalls(t *testing.T) {
 		EnableRecovery().
 		EnableTracing().
 		EnableMetrics().
-		EnableRequestID().
 		EnableI18N().
 		EnablePProf()
 
@@ -171,7 +162,6 @@ func TestMiddleware_ChainedCalls(t *testing.T) {
 	assert.True(t, config.Recovery.IsEnabled())
 	assert.True(t, config.Tracing.IsEnabled())
 	assert.True(t, config.Metrics.IsEnabled())
-	assert.True(t, config.RequestID.IsEnabled())
 	assert.True(t, config.I18N.IsEnabled())
 	assert.True(t, config.PProf.IsEnabled())
 }
@@ -191,10 +181,6 @@ func TestMiddleware_WithSubConfigs(t *testing.T) {
 	config.WithMetrics(config.Metrics.WithNamespace("custom"))
 	assert.Equal(t, "custom", config.Metrics.Namespace)
 
-	// Test WithRequestID
-	config.WithRequestID(config.RequestID)
-	assert.NotNil(t, config.RequestID)
-
 	// Test WithI18N
 	config.WithI18N(config.I18N)
 	assert.NotNil(t, config.I18N)
@@ -212,7 +198,6 @@ func TestMiddleware_NilSubConfigs(t *testing.T) {
 	config.Recovery = nil
 	config.Tracing = nil
 	config.Metrics = nil
-	config.RequestID = nil
 	config.I18N = nil
 	config.PProf = nil
 
@@ -221,7 +206,6 @@ func TestMiddleware_NilSubConfigs(t *testing.T) {
 	config.EnableRecovery()
 	config.EnableTracing()
 	config.EnableMetrics()
-	config.EnableRequestID()
 	config.EnableI18N()
 	config.EnablePProf()
 

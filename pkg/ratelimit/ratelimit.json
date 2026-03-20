@@ -2,7 +2,7 @@
 // 模块名称: ratelimit
 // 包名: ratelimit  
 // 描述: 限流模块
-// 生成时间: 2026-03-18 22:36:57
+// 生成时间: 2026-03-21 00:25:56
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -19,16 +19,6 @@
   "routes": [],
   "ipRules": [],
   "userRules": [],
-  "userIdSources": [
-    {
-      "type": "header",
-      "key": "X-User-ID"
-    },
-    {
-      "type": "query",
-      "key": "user_id"
-    }
-  ],
   "storage": {
     "type": "memory",
     "keyPrefix": "rate_limit:",

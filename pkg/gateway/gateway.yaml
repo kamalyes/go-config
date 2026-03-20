@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2026-03-19 00:02:35
+# 生成时间: 2026-03-23 10:56:33
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -18,13 +18,13 @@ version: v1.0.0
 # 环境 (dev, test, prod)
 environment: dev
 # 构建时间
-build-time: "2026-03-19T00:02:35+08:00"
+build-time: "2026-03-23T10:56:33+08:00"
 # 构建用户
 build-user: kamalyes
 # Go版本
 go-version: 1.25.1
 # Git提交哈希
-git-commit: bd557d987ef6536134cf8cd92b4841eb
+git-commit: d7c7f1874fd72e7b80c6ce91a3203bbc
 # Git分支
 git-branch: master
 # Git标签
@@ -627,6 +627,178 @@ security:
         enabled: false
         mode: balanced
         custom: ""
+# 统一请求提取配置
+request-context:
+    authorization-sources:
+        - type: header
+          key: Authorization
+        - type: query
+          key: authorization
+        - type: cookie
+          key: authorization
+    user-agent-sources:
+        - type: header
+          key: User-Agent
+    accept-sources:
+        - type: header
+          key: Accept
+    cache-control-sources:
+        - type: header
+          key: Cache-Control
+    connection-sources:
+        - type: header
+          key: Connection
+    request-id-sources:
+        - type: header
+          key: X-Request-Id
+        - type: query
+          key: request_id
+        - type: query
+          key: requestId
+        - type: cookie
+          key: request_id
+    trace-id-sources:
+        - type: header
+          key: X-Trace-Id
+        - type: query
+          key: trace_id
+        - type: query
+          key: traceId
+        - type: cookie
+          key: trace_id
+    real-ip-sources:
+        - type: header
+          key: X-Real-IP
+    forwarded-for-sources:
+        - type: header
+          key: X-Forwarded-For
+    forwarded-proto-sources:
+        - type: header
+          key: X-Forwarded-Proto
+    client-id-sources:
+        - type: header
+          key: X-Client-ID
+        - type: query
+          key: client_id
+        - type: query
+          key: clientId
+        - type: cookie
+          key: client_id
+    user-id-sources:
+        - type: header
+          key: X-User-ID
+        - type: query
+          key: user_id
+        - type: query
+          key: userId
+        - type: cookie
+          key: user_id
+    user-type-sources:
+        - type: header
+          key: X-User-Type
+        - type: query
+          key: user_type
+        - type: query
+          key: userType
+        - type: cookie
+          key: user_type
+    tenant-id-sources:
+        - type: header
+          key: X-Tenant-ID
+        - type: query
+          key: tenant_id
+        - type: query
+          key: tenantId
+        - type: cookie
+          key: tenant_id
+    session-id-sources:
+        - type: header
+          key: X-Session-ID
+        - type: query
+          key: session_id
+        - type: query
+          key: sessionId
+        - type: cookie
+          key: session_id
+    timezone-sources:
+        - type: header
+          key: X-Timezone
+        - type: query
+          key: timezone
+        - type: cookie
+          key: timezone
+    device-id-sources:
+        - type: header
+          key: X-Device-Id
+        - type: header
+          key: X-Device-ID
+        - type: query
+          key: device_id
+        - type: query
+          key: deviceId
+        - type: cookie
+          key: device_id
+    app-id-sources:
+        - type: header
+          key: X-App-Id
+        - type: query
+          key: app_id
+        - type: query
+          key: appId
+        - type: cookie
+          key: app_id
+    app-version-sources:
+        - type: header
+          key: X-App-Version
+        - type: query
+          key: app_version
+        - type: query
+          key: appVersion
+        - type: cookie
+          key: app_version
+    platform-sources:
+        - type: header
+          key: X-Platform
+        - type: query
+          key: platform
+        - type: cookie
+          key: platform
+    timestamp-sources:
+        - type: header
+          key: X-Timestamp
+        - type: query
+          key: timestamp
+        - type: cookie
+          key: timestamp
+    signature-sources:
+        - type: header
+          key: X-Signature
+        - type: query
+          key: signature
+        - type: cookie
+          key: signature
+    nonce-sources:
+        - type: header
+          key: X-Nonce
+        - type: query
+          key: nonce
+        - type: cookie
+          key: nonce
+    access-key-sources:
+        - type: header
+          key: X-Access-Key
+        - type: query
+          key: access_key
+        - type: query
+          key: accessKey
+        - type: cookie
+          key: access_key
+    origin-sources:
+        - type: header
+          key: Origin
+    csrf-token-sources:
+        - type: header
+          key: X-CSRF-Token
 # 中间件配置
 middleware:
     # 模块名称
@@ -743,13 +915,6 @@ middleware:
         duration: true
         request-size: true
         response-size: true
-    request-id:
-        # 模块名称
-        module-name: requestid
-        # 是否启用网关
-        enabled: false
-        header-name: X-Request-ID
-        generator: uuid
     i18n:
         # 模块名称
         module-name: i18n
@@ -850,21 +1015,6 @@ middleware:
         type: hmac
         secret-key: default-secret-key-change-in-production
         public-key-pem: ""
-        signature-sources:
-            - type: header
-              key: X-Signature
-            - type: query
-              key: signature
-        timestamp-sources:
-            - type: header
-              key: X-Timestamp
-            - type: query
-              key: timestamp
-        nonce-sources:
-            - type: header
-              key: X-Nonce
-            - type: query
-              key: nonce
         nonce-key-prefix: 'nonce:'
         nonce-ttl: 10m0s
         require-timestamp: false
@@ -1017,11 +1167,6 @@ rate-limit:
     routes: []
     ip-rules: []
     user-rules: []
-    user-id-sources:
-        - type: header
-          key: X-User-ID
-        - type: query
-          key: user_id
     storage:
         type: memory
         key-prefix: 'rate_limit:'

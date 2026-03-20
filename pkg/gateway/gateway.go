@@ -42,81 +42,83 @@ import (
 
 // Gateway网关统一配置
 type Gateway struct {
-	ModuleName    string                       `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`        // 模块名称
-	Name          string                       `mapstructure:"name" yaml:"name" json:"name"`                            // 网关名称
-	Enabled       bool                         `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                   // 是否启用网关
-	Debug         bool                         `mapstructure:"debug" yaml:"debug" json:"debug"`                         // 是否启用调试模式
-	Version       string                       `mapstructure:"version" yaml:"version" json:"version"`                   // 版本号
-	Environment   string                       `mapstructure:"environment" yaml:"environment" json:"environment"`       // 环境 (dev, test, prod)
-	BuildTime     string                       `mapstructure:"build-time" yaml:"build-time" json:"buildTime"`           // 构建时间
-	BuildUser     string                       `mapstructure:"build-user" yaml:"build-user" json:"buildUser"`           // 构建用户
-	GoVersion     string                       `mapstructure:"go-version" yaml:"go-version" json:"goVersion"`           // Go版本
-	GitCommit     string                       `mapstructure:"git-commit" yaml:"git-commit" json:"gitCommit"`           // Git提交哈希
-	GitBranch     string                       `mapstructure:"git-branch" yaml:"git-branch" json:"gitBranch"`           // Git分支
-	GitTag        string                       `mapstructure:"git-tag" yaml:"git-tag" json:"gitTag"`                    // Git标签
-	JSON          *JSON                        `mapstructure:"json" yaml:"json" json:"json"`                            // JSON序列化配置
-	HTTPServer    *HTTPServer                  `mapstructure:"http" yaml:"http" json:"http"`                            // HTTP服务器配置
-	GRPC          *GRPC                        `mapstructure:"grpc" yaml:"grpc" json:"grpc"`                            // GRPC配置
-	Cache         *cache.Cache                 `mapstructure:"cache" yaml:"cache" json:"cache"`                         // 缓存配置(包含Redis)
-	Database      *database.Database           `mapstructure:"database" yaml:"database" json:"database"`                // 数据库统一配置
-	Etcd          *etcd.Etcd                   `mapstructure:"etcd" yaml:"etcd" json:"etcd"`                            // Etcd配置
-	Kafka         *kafka.Kafka                 `mapstructure:"kafka" yaml:"kafka" json:"kafka"`                         // Kafka配置
-	OSS           *oss.OSSConfig               `mapstructure:"oss" yaml:"oss" json:"oss"`                               // 对象存储统一配置
-	Mqtt          *queue.Mqtt                  `mapstructure:"mqtt" yaml:"mqtt" json:"mqtt"`                            // MQTT配置
-	Elasticsearch *elasticsearch.Elasticsearch `mapstructure:"elasticsearch" yaml:"elasticsearch" json:"elasticsearch"` // Elasticsearch配置
-	Smtp          *smtp.Smtp                   `mapstructure:"smtp" yaml:"smtp" json:"smtp"`                            // SMTP邮件服务配置
-	Health        *health.Health               `mapstructure:"health" yaml:"health" json:"health"`                      // 健康检查配置
-	Monitoring    *monitoring.Monitoring       `mapstructure:"monitoring" yaml:"monitoring" json:"monitoring"`          // 监控配置
-	Security      *security.Security           `mapstructure:"security" yaml:"security" json:"security"`                // 安全配置
-	Middleware    *middleware.Middleware       `mapstructure:"middleware" yaml:"middleware" json:"middleware"`          // 中间件配置
-	CORS          *cors.Cors                   `mapstructure:"cors" yaml:"cors" json:"cors"`                            // CORS配置
-	JWT           *jwt.JWT                     `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                               // JWT配置
-	Swagger       *swagger.Swagger             `mapstructure:"swagger" yaml:"swagger" json:"swagger"`                   // Swagger配置
-	Banner        *banner.Banner               `mapstructure:"banner" yaml:"banner" json:"banner"`                      // Banner配置
-	RateLimit     *ratelimit.RateLimit         `mapstructure:"rate-limit" yaml:"rate-limit" json:"rateLimit"`           // 限流配置
-	WSC           *wsc.WSC                     `mapstructure:"wsc" yaml:"wsc" json:"wsc"`                               // WebSocket通信配置
-	Jobs          *jobs.Jobs                   `mapstructure:"jobs" yaml:"jobs" json:"jobs"`                            // Job调度配置
-	Extensions    map[string]any               `mapstructure:"extensions" yaml:"extensions" json:"extensions"`          // 扩展配置字段，供第三方自定义使用
+	ModuleName     string                       `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`             // 模块名称
+	Name           string                       `mapstructure:"name" yaml:"name" json:"name"`                                 // 网关名称
+	Enabled        bool                         `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                        // 是否启用网关
+	Debug          bool                         `mapstructure:"debug" yaml:"debug" json:"debug"`                              // 是否启用调试模式
+	Version        string                       `mapstructure:"version" yaml:"version" json:"version"`                        // 版本号
+	Environment    string                       `mapstructure:"environment" yaml:"environment" json:"environment"`            // 环境 (dev, test, prod)
+	BuildTime      string                       `mapstructure:"build-time" yaml:"build-time" json:"buildTime"`                // 构建时间
+	BuildUser      string                       `mapstructure:"build-user" yaml:"build-user" json:"buildUser"`                // 构建用户
+	GoVersion      string                       `mapstructure:"go-version" yaml:"go-version" json:"goVersion"`                // Go版本
+	GitCommit      string                       `mapstructure:"git-commit" yaml:"git-commit" json:"gitCommit"`                // Git提交哈希
+	GitBranch      string                       `mapstructure:"git-branch" yaml:"git-branch" json:"gitBranch"`                // Git分支
+	GitTag         string                       `mapstructure:"git-tag" yaml:"git-tag" json:"gitTag"`                         // Git标签
+	JSON           *JSON                        `mapstructure:"json" yaml:"json" json:"json"`                                 // JSON序列化配置
+	HTTPServer     *HTTPServer                  `mapstructure:"http" yaml:"http" json:"http"`                                 // HTTP服务器配置
+	GRPC           *GRPC                        `mapstructure:"grpc" yaml:"grpc" json:"grpc"`                                 // GRPC配置
+	Cache          *cache.Cache                 `mapstructure:"cache" yaml:"cache" json:"cache"`                              // 缓存配置(包含Redis)
+	Database       *database.Database           `mapstructure:"database" yaml:"database" json:"database"`                     // 数据库统一配置
+	Etcd           *etcd.Etcd                   `mapstructure:"etcd" yaml:"etcd" json:"etcd"`                                 // Etcd配置
+	Kafka          *kafka.Kafka                 `mapstructure:"kafka" yaml:"kafka" json:"kafka"`                              // Kafka配置
+	OSS            *oss.OSSConfig               `mapstructure:"oss" yaml:"oss" json:"oss"`                                    // 对象存储统一配置
+	Mqtt           *queue.Mqtt                  `mapstructure:"mqtt" yaml:"mqtt" json:"mqtt"`                                 // MQTT配置
+	Elasticsearch  *elasticsearch.Elasticsearch `mapstructure:"elasticsearch" yaml:"elasticsearch" json:"elasticsearch"`      // Elasticsearch配置
+	Smtp           *smtp.Smtp                   `mapstructure:"smtp" yaml:"smtp" json:"smtp"`                                 // SMTP邮件服务配置
+	Health         *health.Health               `mapstructure:"health" yaml:"health" json:"health"`                           // 健康检查配置
+	Monitoring     *monitoring.Monitoring       `mapstructure:"monitoring" yaml:"monitoring" json:"monitoring"`               // 监控配置
+	Security       *security.Security           `mapstructure:"security" yaml:"security" json:"security"`                     // 安全配置
+	RequestContext *RequestContext              `mapstructure:"request-context" yaml:"request-context" json:"requestContext"` // 统一请求提取配置
+	Middleware     *middleware.Middleware       `mapstructure:"middleware" yaml:"middleware" json:"middleware"`               // 中间件配置
+	CORS           *cors.Cors                   `mapstructure:"cors" yaml:"cors" json:"cors"`                                 // CORS配置
+	JWT            *jwt.JWT                     `mapstructure:"jwt" yaml:"jwt" json:"jwt"`                                    // JWT配置
+	Swagger        *swagger.Swagger             `mapstructure:"swagger" yaml:"swagger" json:"swagger"`                        // Swagger配置
+	Banner         *banner.Banner               `mapstructure:"banner" yaml:"banner" json:"banner"`                           // Banner配置
+	RateLimit      *ratelimit.RateLimit         `mapstructure:"rate-limit" yaml:"rate-limit" json:"rateLimit"`                // 限流配置
+	WSC            *wsc.WSC                     `mapstructure:"wsc" yaml:"wsc" json:"wsc"`                                    // WebSocket通信配置
+	Jobs           *jobs.Jobs                   `mapstructure:"jobs" yaml:"jobs" json:"jobs"`                                 // Job调度配置
+	Extensions     map[string]any               `mapstructure:"extensions" yaml:"extensions" json:"extensions"`               // 扩展配置字段，供第三方自定义使用
 }
 
 // Default 创建默认Gateway配置
 func Default() *Gateway {
 	return &Gateway{
-		ModuleName:    "gateway",
-		Name:          "Go RPC Gateway",
-		Enabled:       true,
-		Debug:         true,
-		Version:       "v1.0.0",
-		Environment:   "dev",
-		BuildTime:     time.Now().Format(time.RFC3339),
-		BuildUser:     "kamalyes",
-		GoVersion:     "1.25.1",
-		GitCommit:     osx.HashUnixMicroCipherText(),
-		GitBranch:     "master",
-		GitTag:        "v1.0.0",
-		JSON:          DefaultJSON(),
-		HTTPServer:    DefaultHTTPServer(),
-		GRPC:          DefaultGRPC(),
-		Cache:         cache.Default(),
-		Database:      database.DefaultDatabaseConfig(),
-		Etcd:          etcd.Default(),
-		Kafka:         kafka.Default(),
-		OSS:           oss.DefaultOSSConfig(),
-		Mqtt:          queue.Default(),
-		Elasticsearch: elasticsearch.Default(),
-		Smtp:          smtp.Default(),
-		Health:        health.Default(),
-		Monitoring:    monitoring.Default(),
-		Security:      security.Default(),
-		Middleware:    middleware.Default(),
-		CORS:          cors.Default(),
-		JWT:           jwt.Default(),
-		RateLimit:     ratelimit.Default(),
-		Swagger:       swagger.Default(),
-		Banner:        banner.Default(),
-		WSC:           wsc.Default(),
-		Jobs:          jobs.Default(),
-		Extensions:    make(map[string]any),
+		ModuleName:     "gateway",
+		Name:           "Go RPC Gateway",
+		Enabled:        true,
+		Debug:          true,
+		Version:        "v1.0.0",
+		Environment:    "dev",
+		BuildTime:      time.Now().Format(time.RFC3339),
+		BuildUser:      "kamalyes",
+		GoVersion:      "1.25.1",
+		GitCommit:      osx.HashUnixMicroCipherText(),
+		GitBranch:      "master",
+		GitTag:         "v1.0.0",
+		JSON:           DefaultJSON(),
+		HTTPServer:     DefaultHTTPServer(),
+		GRPC:           DefaultGRPC(),
+		Cache:          cache.Default(),
+		Database:       database.DefaultDatabaseConfig(),
+		Etcd:           etcd.Default(),
+		Kafka:          kafka.Default(),
+		OSS:            oss.DefaultOSSConfig(),
+		Mqtt:           queue.Default(),
+		Elasticsearch:  elasticsearch.Default(),
+		Smtp:           smtp.Default(),
+		Health:         health.Default(),
+		Monitoring:     monitoring.Default(),
+		Security:       security.Default(),
+		RequestContext: DefaultRequestContext(),
+		Middleware:     middleware.Default(),
+		CORS:           cors.Default(),
+		JWT:            jwt.Default(),
+		RateLimit:      ratelimit.Default(),
+		Swagger:        swagger.Default(),
+		Banner:         banner.Default(),
+		WSC:            wsc.Default(),
+		Jobs:           jobs.Default(),
+		Extensions:     make(map[string]any),
 	}
 }
 
@@ -228,6 +230,11 @@ func (c *Gateway) Validate() error {
 	}
 	if c.Security != nil {
 		if err := c.Security.Validate(); err != nil {
+			return err
+		}
+	}
+	if c.RequestContext != nil {
+		if err := c.RequestContext.Validate(); err != nil {
 			return err
 		}
 	}
@@ -365,6 +372,12 @@ func (c *Gateway) WithMonitoring(cfg *monitoring.Monitoring) *Gateway {
 // WithSecurity 设置安全配置
 func (c *Gateway) WithSecurity(cfg *security.Security) *Gateway {
 	c.Security = cfg
+	return c
+}
+
+// WithRequestContext 设置统一请求提取配置
+func (c *Gateway) WithRequestContext(cfg *RequestContext) *Gateway {
+	c.RequestContext = cfg
 	return c
 }
 

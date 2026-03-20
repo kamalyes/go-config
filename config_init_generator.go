@@ -57,7 +57,6 @@ import (
 	"github.com/kamalyes/go-config/pkg/ratelimit"
 	"github.com/kamalyes/go-config/pkg/recovery"
 	"github.com/kamalyes/go-config/pkg/redis"
-	"github.com/kamalyes/go-config/pkg/requestid"
 	"github.com/kamalyes/go-config/pkg/restful"
 	"github.com/kamalyes/go-config/pkg/rpcclient"
 	"github.com/kamalyes/go-config/pkg/rpcserver"
@@ -187,7 +186,6 @@ func (sg *SmartConfigGenerator) registerAllModules() {
 		{Name: "ratelimit", PackageName: "ratelimit", DefaultFunc: func() interface{} { return ratelimit.Default() }, OutputSubDir: "ratelimit", Description: "限流模块", Enabled: true},
 		{Name: "recovery", PackageName: "recovery", DefaultFunc: func() interface{} { return recovery.Default() }, OutputSubDir: "recovery", Description: "错误恢复模块", Enabled: true},
 		{Name: "redis", PackageName: "redis", DefaultFunc: func() interface{} { return redis.NewRedis(&redis.Redis{}) }, OutputSubDir: "redis", Description: "Redis缓存", Enabled: true},
-		{Name: "requestid", PackageName: "requestid", DefaultFunc: func() interface{} { return requestid.Default() }, OutputSubDir: "requestid", Description: "请求ID模块", Enabled: true},
 		{Name: "restful", PackageName: "restful", DefaultFunc: func() interface{} { return restful.Default() }, OutputSubDir: "restful", Description: "RESTful API模块", Enabled: true},
 		{Name: "rpcclient", PackageName: "rpcclient", DefaultFunc: func() interface{} { return rpcclient.Default() }, OutputSubDir: "rpcclient", Description: "RPC客户端", Enabled: true},
 		{Name: "rpcserver", PackageName: "rpcserver", DefaultFunc: func() interface{} { return rpcserver.Default() }, OutputSubDir: "rpcserver", Description: "RPC服务端", Enabled: true},

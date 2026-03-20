@@ -467,7 +467,6 @@ func TestConfigCompleteValidation(t *testing.T) {
 			assert.Equal(t, defaultCfg.Middleware.Recovery.Enabled, config.Middleware.Recovery.Enabled, "Middleware.Recovery.Enabled should match")
 			assert.Equal(t, defaultCfg.Middleware.Tracing.Enabled, config.Middleware.Tracing.Enabled, "Middleware.Tracing.Enabled should match")
 			assert.Equal(t, defaultCfg.Middleware.Metrics.Enabled, config.Middleware.Metrics.Enabled, "Middleware.Metrics.Enabled should match")
-			assert.Equal(t, defaultCfg.Middleware.RequestID.Enabled, config.Middleware.RequestID.Enabled, "Middleware.RequestID.Enabled should match")
 			assert.Equal(t, defaultCfg.Middleware.PProf.Enabled, config.Middleware.PProf.Enabled, "Middleware.PProf.Enabled should match")
 
 			// 验证 Middleware 额外子模块

@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2026-03-19 00:02:35
+// 生成时间: 2026-03-23 10:56:33
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2026-03-19T00:02:35+08:00",
+  "buildTime": "2026-03-23T10:56:33+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "bd557d987ef6536134cf8cd92b4841eb",
+  "gitCommit": "d7c7f1874fd72e7b80c6ce91a3203bbc",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -620,6 +620,348 @@
       "custom": ""
     }
   },
+  "requestContext": {
+    "authorizationSources": [
+      {
+        "type": "header",
+        "key": "Authorization"
+      },
+      {
+        "type": "query",
+        "key": "authorization"
+      },
+      {
+        "type": "cookie",
+        "key": "authorization"
+      }
+    ],
+    "userAgentSources": [
+      {
+        "type": "header",
+        "key": "User-Agent"
+      }
+    ],
+    "acceptSources": [
+      {
+        "type": "header",
+        "key": "Accept"
+      }
+    ],
+    "cacheControlSources": [
+      {
+        "type": "header",
+        "key": "Cache-Control"
+      }
+    ],
+    "connectionSources": [
+      {
+        "type": "header",
+        "key": "Connection"
+      }
+    ],
+    "requestIdSources": [
+      {
+        "type": "header",
+        "key": "X-Request-Id"
+      },
+      {
+        "type": "query",
+        "key": "request_id"
+      },
+      {
+        "type": "query",
+        "key": "requestId"
+      },
+      {
+        "type": "cookie",
+        "key": "request_id"
+      }
+    ],
+    "traceIdSources": [
+      {
+        "type": "header",
+        "key": "X-Trace-Id"
+      },
+      {
+        "type": "query",
+        "key": "trace_id"
+      },
+      {
+        "type": "query",
+        "key": "traceId"
+      },
+      {
+        "type": "cookie",
+        "key": "trace_id"
+      }
+    ],
+    "realIpSources": [
+      {
+        "type": "header",
+        "key": "X-Real-IP"
+      }
+    ],
+    "forwardedForSources": [
+      {
+        "type": "header",
+        "key": "X-Forwarded-For"
+      }
+    ],
+    "forwardedProtoSources": [
+      {
+        "type": "header",
+        "key": "X-Forwarded-Proto"
+      }
+    ],
+    "clientIdSources": [
+      {
+        "type": "header",
+        "key": "X-Client-ID"
+      },
+      {
+        "type": "query",
+        "key": "client_id"
+      },
+      {
+        "type": "query",
+        "key": "clientId"
+      },
+      {
+        "type": "cookie",
+        "key": "client_id"
+      }
+    ],
+    "userIdSources": [
+      {
+        "type": "header",
+        "key": "X-User-ID"
+      },
+      {
+        "type": "query",
+        "key": "user_id"
+      },
+      {
+        "type": "query",
+        "key": "userId"
+      },
+      {
+        "type": "cookie",
+        "key": "user_id"
+      }
+    ],
+    "userTypeSources": [
+      {
+        "type": "header",
+        "key": "X-User-Type"
+      },
+      {
+        "type": "query",
+        "key": "user_type"
+      },
+      {
+        "type": "query",
+        "key": "userType"
+      },
+      {
+        "type": "cookie",
+        "key": "user_type"
+      }
+    ],
+    "tenantIdSources": [
+      {
+        "type": "header",
+        "key": "X-Tenant-ID"
+      },
+      {
+        "type": "query",
+        "key": "tenant_id"
+      },
+      {
+        "type": "query",
+        "key": "tenantId"
+      },
+      {
+        "type": "cookie",
+        "key": "tenant_id"
+      }
+    ],
+    "sessionIdSources": [
+      {
+        "type": "header",
+        "key": "X-Session-ID"
+      },
+      {
+        "type": "query",
+        "key": "session_id"
+      },
+      {
+        "type": "query",
+        "key": "sessionId"
+      },
+      {
+        "type": "cookie",
+        "key": "session_id"
+      }
+    ],
+    "timezoneSources": [
+      {
+        "type": "header",
+        "key": "X-Timezone"
+      },
+      {
+        "type": "query",
+        "key": "timezone"
+      },
+      {
+        "type": "cookie",
+        "key": "timezone"
+      }
+    ],
+    "deviceIdSources": [
+      {
+        "type": "header",
+        "key": "X-Device-Id"
+      },
+      {
+        "type": "header",
+        "key": "X-Device-ID"
+      },
+      {
+        "type": "query",
+        "key": "device_id"
+      },
+      {
+        "type": "query",
+        "key": "deviceId"
+      },
+      {
+        "type": "cookie",
+        "key": "device_id"
+      }
+    ],
+    "appIdSources": [
+      {
+        "type": "header",
+        "key": "X-App-Id"
+      },
+      {
+        "type": "query",
+        "key": "app_id"
+      },
+      {
+        "type": "query",
+        "key": "appId"
+      },
+      {
+        "type": "cookie",
+        "key": "app_id"
+      }
+    ],
+    "appVersionSources": [
+      {
+        "type": "header",
+        "key": "X-App-Version"
+      },
+      {
+        "type": "query",
+        "key": "app_version"
+      },
+      {
+        "type": "query",
+        "key": "appVersion"
+      },
+      {
+        "type": "cookie",
+        "key": "app_version"
+      }
+    ],
+    "platformSources": [
+      {
+        "type": "header",
+        "key": "X-Platform"
+      },
+      {
+        "type": "query",
+        "key": "platform"
+      },
+      {
+        "type": "cookie",
+        "key": "platform"
+      }
+    ],
+    "timestampSources": [
+      {
+        "type": "header",
+        "key": "X-Timestamp"
+      },
+      {
+        "type": "query",
+        "key": "timestamp"
+      },
+      {
+        "type": "cookie",
+        "key": "timestamp"
+      }
+    ],
+    "signatureSources": [
+      {
+        "type": "header",
+        "key": "X-Signature"
+      },
+      {
+        "type": "query",
+        "key": "signature"
+      },
+      {
+        "type": "cookie",
+        "key": "signature"
+      }
+    ],
+    "nonceSources": [
+      {
+        "type": "header",
+        "key": "X-Nonce"
+      },
+      {
+        "type": "query",
+        "key": "nonce"
+      },
+      {
+        "type": "cookie",
+        "key": "nonce"
+      }
+    ],
+    "accessKeySources": [
+      {
+        "type": "header",
+        "key": "X-Access-Key"
+      },
+      {
+        "type": "query",
+        "key": "access_key"
+      },
+      {
+        "type": "query",
+        "key": "accessKey"
+      },
+      {
+        "type": "cookie",
+        "key": "access_key"
+      }
+    ],
+    "originSources": [
+      {
+        "type": "header",
+        "key": "Origin"
+      }
+    ],
+    "csrfTokenSources": [
+      {
+        "type": "header",
+        "key": "X-CSRF-Token"
+      }
+    ]
+  },
   "middleware": {
     "moduleName": "middleware",
     "enabled": false,
@@ -734,12 +1076,6 @@
       "requestSize": true,
       "responseSize": true
     },
-    "requestId": {
-      "moduleName": "requestid",
-      "enabled": false,
-      "headerName": "X-Request-ID",
-      "generator": "uuid"
-    },
     "i18n": {
       "moduleName": "i18n",
       "enabled": false,
@@ -843,36 +1179,6 @@
       "type": "hmac",
       "secretKey": "default-secret-key-change-in-production",
       "publicKeyPem": "",
-      "signatureSources": [
-        {
-          "type": "header",
-          "key": "X-Signature"
-        },
-        {
-          "type": "query",
-          "key": "signature"
-        }
-      ],
-      "timestampSources": [
-        {
-          "type": "header",
-          "key": "X-Timestamp"
-        },
-        {
-          "type": "query",
-          "key": "timestamp"
-        }
-      ],
-      "nonceSources": [
-        {
-          "type": "header",
-          "key": "X-Nonce"
-        },
-        {
-          "type": "query",
-          "key": "nonce"
-        }
-      ],
       "nonceKeyPrefix": "nonce:",
       "nonceTtl": 600000000000,
       "requireTimestamp": false,
@@ -1022,16 +1328,6 @@
     "routes": [],
     "ipRules": [],
     "userRules": [],
-    "userIdSources": [
-      {
-        "type": "header",
-        "key": "X-User-ID"
-      },
-      {
-        "type": "query",
-        "key": "user_id"
-      }
-    ],
     "storage": {
       "type": "memory",
       "keyPrefix": "rate_limit:",

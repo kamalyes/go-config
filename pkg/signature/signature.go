@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/kamalyes/go-config/internal"
-	"github.com/kamalyes/go-config/pkg/common"
 	"github.com/kamalyes/go-toolbox/pkg/sign"
 	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
@@ -30,23 +29,20 @@ const (
 
 // Signature 签名验证中间件配置
 type Signature struct {
-	ModuleName       string                   `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                   // 模块名称
-	Enabled          bool                     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                              // 是否启用签名验证
-	Type             SignatureType            `mapstructure:"type" yaml:"type" json:"type"`                                       // 签名类型 (hmac/rsa)
-	SecretKey        string                   `mapstructure:"secret-key" yaml:"secret-key" json:"secretKey"`                      // HMAC 签名密钥
-	PublicKeyPEM     string                   `mapstructure:"public-key-pem" yaml:"public-key-pem" json:"publicKeyPem"`           // RSA 公钥 PEM（用于验证签名）
-	SignatureSources []common.AttributeSource `mapstructure:"signature-sources" yaml:"signature-sources" json:"signatureSources"` // 签名提取来源（按优先级排序）
-	TimestampSources []common.AttributeSource `mapstructure:"timestamp-sources" yaml:"timestamp-sources" json:"timestampSources"` // 时间戳提取来源（按优先级排序）
-	NonceSources     []common.AttributeSource `mapstructure:"nonce-sources" yaml:"nonce-sources" json:"nonceSources"`             // 随机数提取来源（按优先级排序）
-	NonceKeyPrefix   string                   `mapstructure:"nonce-key-prefix" yaml:"nonce-key-prefix" json:"nonceKeyPrefix"`     // Nonce Redis key 前缀
-	NonceTTL         time.Duration            `mapstructure:"nonce-ttl" yaml:"nonce-ttl" json:"nonceTtl"`                         // Nonce 过期时间
-	RequireTimestamp bool                     `mapstructure:"require-timestamp" yaml:"require-timestamp" json:"requireTimestamp"` // 是否强制要求 Timestamp（向后兼容：false 允许旧客户端不传）
-	RequireNonce     bool                     `mapstructure:"require-nonce" yaml:"require-nonce" json:"requireNonce"`             // 是否强制要求 Nonce（向后兼容：false 允许旧客户端不传）
-	Algorithm        sign.HashCryptoFunc      `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"`                        // 签名算法 (MD5, SHA1, SHA224, SHA256, SHA384, SHA512)
-	TimeoutWindow    time.Duration            `mapstructure:"timeout-window" yaml:"timeout-window" json:"timeoutWindow"`          // 请求时间窗口
-	IgnorePaths      []string                 `mapstructure:"ignore-paths" yaml:"ignore-paths" json:"ignorePaths"`                // 忽略签名验证的路径
-	SkipQuery        bool                     `mapstructure:"skip-query" yaml:"skip-query" json:"skipQuery"`                      // 是否跳过查询参数
-	SkipBody         bool                     `mapstructure:"skip-body" yaml:"skip-body" json:"skipBody"`                         // 是否跳过请求体
+	ModuleName       string              `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                   // 模块名称
+	Enabled          bool                `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                              // 是否启用签名验证
+	Type             SignatureType       `mapstructure:"type" yaml:"type" json:"type"`                                       // 签名类型 (hmac/rsa)
+	SecretKey        string              `mapstructure:"secret-key" yaml:"secret-key" json:"secretKey"`                      // HMAC 签名密钥
+	PublicKeyPEM     string              `mapstructure:"public-key-pem" yaml:"public-key-pem" json:"publicKeyPem"`           // RSA 公钥 PEM（用于验证签名）
+	NonceKeyPrefix   string              `mapstructure:"nonce-key-prefix" yaml:"nonce-key-prefix" json:"nonceKeyPrefix"`     // Nonce Redis key 前缀
+	NonceTTL         time.Duration       `mapstructure:"nonce-ttl" yaml:"nonce-ttl" json:"nonceTtl"`                         // Nonce 过期时间
+	RequireTimestamp bool                `mapstructure:"require-timestamp" yaml:"require-timestamp" json:"requireTimestamp"` // 是否强制要求 Timestamp（向后兼容：false 允许旧客户端不传）
+	RequireNonce     bool                `mapstructure:"require-nonce" yaml:"require-nonce" json:"requireNonce"`             // 是否强制要求 Nonce（向后兼容：false 允许旧客户端不传）
+	Algorithm        sign.HashCryptoFunc `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"`                        // 签名算法 (MD5, SHA1, SHA224, SHA256, SHA384, SHA512)
+	TimeoutWindow    time.Duration       `mapstructure:"timeout-window" yaml:"timeout-window" json:"timeoutWindow"`          // 请求时间窗口
+	IgnorePaths      []string            `mapstructure:"ignore-paths" yaml:"ignore-paths" json:"ignorePaths"`                // 忽略签名验证的路径
+	SkipQuery        bool                `mapstructure:"skip-query" yaml:"skip-query" json:"skipQuery"`                      // 是否跳过查询参数
+	SkipBody         bool                `mapstructure:"skip-body" yaml:"skip-body" json:"skipBody"`                         // 是否跳过请求体
 }
 
 // Default 创建默认签名验证配置
@@ -61,20 +57,8 @@ func Default() *Signature {
 		NonceTTL:         10 * time.Minute,
 		RequireTimestamp: false, // 默认不强制要求（向后兼容旧客户端）
 		RequireNonce:     false, // 默认不强制要求（向后兼容旧客户端）
-		SignatureSources: []common.AttributeSource{
-			{Type: common.SourceTypeHeader, Key: "X-Signature"},
-			{Type: common.SourceTypeQuery, Key: "signature"},
-		},
-		TimestampSources: []common.AttributeSource{
-			{Type: common.SourceTypeHeader, Key: "X-Timestamp"},
-			{Type: common.SourceTypeQuery, Key: "timestamp"},
-		},
-		NonceSources: []common.AttributeSource{
-			{Type: common.SourceTypeHeader, Key: "X-Nonce"},
-			{Type: common.SourceTypeQuery, Key: "nonce"},
-		},
-		Algorithm:     sign.AlgorithmSHA256,
-		TimeoutWindow: time.Minute * 5,
+		Algorithm:        sign.AlgorithmSHA256,
+		TimeoutWindow:    time.Minute * 5,
 		IgnorePaths: []string{
 			"/health",
 			"/metrics",
