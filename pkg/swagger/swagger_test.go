@@ -34,6 +34,8 @@ func TestSwagger_Default(t *testing.T) {
 	assert.NotNil(t, config.Auth)
 	assert.Equal(t, AuthNone, config.Auth.Type)
 	assert.NotNil(t, config.Aggregate)
+	assert.NotNil(t, config.Aggregate.Documents)
+	assert.Empty(t, config.Aggregate.Documents)
 }
 
 func TestSwagger_WithModuleName(t *testing.T) {
@@ -182,6 +184,38 @@ func TestSwagger_AddAggregateService(t *testing.T) {
 	assert.True(t, result.Aggregate.Enabled)
 	assert.Contains(t, result.Aggregate.Services, service)
 	assert.Equal(t, config, result)
+}
+
+func TestSwagger_WithAggregateDocuments(t *testing.T) {
+	config := &Swagger{}
+	documents := []*DocumentSpec{
+		NewDocumentSpec("open-platform"),
+		NewDocumentSpec("internal-platform"),
+	}
+
+	result := config.WithAggregateDocuments(documents)
+
+	assert.Equal(t, config, result)
+	assert.NotNil(t, result.Aggregate)
+	assert.Equal(t, "merge", result.Aggregate.Mode)
+	assert.Equal(t, "tabs", result.Aggregate.UILayout)
+	assert.NotNil(t, result.Aggregate.Services)
+	assert.Equal(t, documents, result.Aggregate.Documents)
+}
+
+func TestSwagger_AddAggregateDocument(t *testing.T) {
+	config := &Swagger{}
+	document := NewDocumentSpec("open-platform")
+
+	result := config.AddAggregateDocument(document)
+
+	assert.Equal(t, config, result)
+	assert.NotNil(t, result.Aggregate)
+	assert.Equal(t, "merge", result.Aggregate.Mode)
+	assert.Equal(t, "tabs", result.Aggregate.UILayout)
+	assert.NotNil(t, result.Aggregate.Services)
+	assert.Len(t, result.Aggregate.Documents, 1)
+	assert.Same(t, document, result.Aggregate.Documents[0])
 }
 
 func TestSwagger_WithAggregateMode(t *testing.T) {
@@ -419,6 +453,109 @@ func TestServiceSpec_EnableDisable(t *testing.T) {
 
 	spec.Enable()
 	assert.True(t, spec.Enabled)
+}
+
+func TestNewDocumentSource(t *testing.T) {
+	source := NewDocumentSource("MessageService")
+
+	assert.NotNil(t, source)
+	assert.Equal(t, "MessageService", source.Service)
+	assert.NotNil(t, source.Paths)
+	assert.NotNil(t, source.Include)
+	assert.NotNil(t, source.Exclude)
+}
+
+func TestNewDocumentSpec(t *testing.T) {
+	spec := NewDocumentSpec("open-platform")
+
+	assert.NotNil(t, spec)
+	assert.Equal(t, "open-platform", spec.Name)
+	assert.Equal(t, "open-platform", spec.Title)
+	assert.Equal(t, "1.0.0", spec.Version)
+	assert.True(t, spec.Enabled)
+	assert.NotNil(t, spec.Sources)
+	assert.Empty(t, spec.Sources)
+}
+
+func TestDocumentSpec_WithMethods(t *testing.T) {
+	source := NewDocumentSource("MessageService").AddIncludePath("/v1/messages/history", "get")
+	spec := NewDocumentSpec("open-platform").
+		WithTitle("Open Platform").
+		WithDescription("External APIs").
+		WithVersion("2.0.0").
+		AddSource(source)
+
+	assert.Equal(t, "Open Platform", spec.Title)
+	assert.Equal(t, "External APIs", spec.Description)
+	assert.Equal(t, "2.0.0", spec.Version)
+	assert.Len(t, spec.Sources, 1)
+	assert.Same(t, source, spec.Sources[0])
+}
+
+func TestDocumentSpec_AddSourceInitializesNilSlice(t *testing.T) {
+	spec := &DocumentSpec{}
+	source := NewDocumentSource("MessageService")
+
+	result := spec.AddSource(source)
+
+	assert.Equal(t, spec, result)
+	assert.Len(t, spec.Sources, 1)
+	assert.Same(t, source, spec.Sources[0])
+}
+
+func TestDocumentSpec_EnableDisable(t *testing.T) {
+	spec := NewDocumentSpec("open-platform")
+
+	spec.Disable()
+	assert.False(t, spec.Enabled)
+
+	spec.Enable()
+	assert.True(t, spec.Enabled)
+}
+
+func TestDocumentSource_AddIncludeAndExcludePath(t *testing.T) {
+	source := &DocumentSource{Service: "MessageService"}
+
+	result := source.
+		AddIncludePath("/v1/messages/history", "get", "post").
+		AddExcludePath("/v1/messages/internal", "delete")
+
+	assert.Equal(t, source, result)
+	assert.Len(t, source.Include, 1)
+	assert.Equal(t, "/v1/messages/history", source.Include[0].Path)
+	assert.Equal(t, []string{"get", "post"}, source.Include[0].Methods)
+	assert.Len(t, source.Exclude, 1)
+	assert.Equal(t, "/v1/messages/internal", source.Exclude[0].Path)
+	assert.Equal(t, []string{"delete"}, source.Exclude[0].Methods)
+}
+
+func TestDocumentSource_GetEffectiveInclude(t *testing.T) {
+	source := NewDocumentSource("MessageService")
+	source.AddIncludePath("/v1/messages/history", "get")
+	effective := source.GetEffectiveInclude()
+	assert.Len(t, effective, 1)
+	assert.Equal(t, "/v1/messages/history", effective[0].Path)
+	assert.Equal(t, []string{"get"}, effective[0].Methods)
+}
+
+func TestDocumentSource_GetEffectiveIncludeFallsBackToPaths(t *testing.T) {
+	source := &DocumentSource{
+		Service: "MessageService",
+		Paths: []*DocumentPathSelector{
+			{Path: "/v1/messages/history", Methods: []string{"get"}},
+		},
+	}
+
+	effective := source.GetEffectiveInclude()
+
+	assert.Len(t, effective, 1)
+	assert.Equal(t, "/v1/messages/history", effective[0].Path)
+	assert.Equal(t, []string{"get"}, effective[0].Methods)
+}
+
+func TestDocumentSource_GetEffectiveIncludeNilReceiver(t *testing.T) {
+	var source *DocumentSource
+	assert.Nil(t, source.GetEffectiveInclude())
 }
 
 func TestSwagger_ChainedCalls(t *testing.T) {

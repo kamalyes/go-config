@@ -82,13 +82,38 @@ type ServiceSpec struct {
 	Tags        []string `mapstructure:"tags" yaml:"tags" json:"tags"`                      // 服务标签
 }
 
+// DocumentPathSelector 独立文档中的接口选择器
+type DocumentPathSelector struct {
+	Path    string   `mapstructure:"path" yaml:"path" json:"path"`          // Swagger路径，如 /v1/open-platform/apps
+	Methods []string `mapstructure:"methods" yaml:"methods" json:"methods"` // 可选的HTTP方法列表，留空表示该路径下全部方法
+}
+
+// DocumentSource 独立文档的数据源
+type DocumentSource struct {
+	Service string                  `mapstructure:"service" yaml:"service" json:"service"` // 来源服务名，对应 aggregate.services[].name
+	Paths   []*DocumentPathSelector `mapstructure:"paths" yaml:"paths" json:"paths"`       // include 的兼容简写，留空表示该服务全部路径
+	Include []*DocumentPathSelector `mapstructure:"include" yaml:"include" json:"include"` // 显式包含的路径列表，留空表示该服务全部路径
+	Exclude []*DocumentPathSelector `mapstructure:"exclude" yaml:"exclude" json:"exclude"` // 需要排除的路径列表
+}
+
+// DocumentSpec 独立Swagger文档配置
+type DocumentSpec struct {
+	Name        string            `mapstructure:"name" yaml:"name" json:"name"`                      // 文档名称，同时用于路由标识
+	Title       string            `mapstructure:"title" yaml:"title" json:"title"`                   // 文档标题
+	Description string            `mapstructure:"description" yaml:"description" json:"description"` // 文档描述
+	Version     string            `mapstructure:"version" yaml:"version" json:"version"`             // 文档版本
+	Enabled     bool              `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用
+	Sources     []*DocumentSource `mapstructure:"sources" yaml:"sources" json:"sources"`             // 文档来源
+}
+
 // AggregateConfig 聚合Swagger配置
 type AggregateConfig struct {
-	Enabled                  bool           `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                        // 是否启用聚合
-	Mode                     string         `mapstructure:"mode" yaml:"mode" json:"mode"`                                                                 // 聚合模式: merge|selector
-	Services                 []*ServiceSpec `mapstructure:"services" yaml:"services" json:"services"`                                                     // 微服务列表
-	UILayout                 string         `mapstructure:"ui-layout" yaml:"ui-layout" json:"uiLayout"`                                                   // UI布局: tabs|dropdown|list
-	SharedDefinitionPrefixes []string       `mapstructure:"shared-definition-prefixes" yaml:"shared-definition-prefixes" json:"sharedDefinitionPrefixes"` // 共享定义前缀列表（不添加服务名前缀）
+	Enabled                  bool            `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                        // 是否启用聚合
+	Mode                     string          `mapstructure:"mode" yaml:"mode" json:"mode"`                                                                 // 聚合模式: merge|selector
+	Services                 []*ServiceSpec  `mapstructure:"services" yaml:"services" json:"services"`                                                     // 微服务列表
+	Documents                []*DocumentSpec `mapstructure:"documents" yaml:"documents" json:"documents"`                                                  // 独立文档列表
+	UILayout                 string          `mapstructure:"ui-layout" yaml:"ui-layout" json:"uiLayout"`                                                   // UI布局: tabs|dropdown|list
+	SharedDefinitionPrefixes []string        `mapstructure:"shared-definition-prefixes" yaml:"shared-definition-prefixes" json:"sharedDefinitionPrefixes"` // 共享定义前缀列表（不添加服务名前缀）
 }
 
 // Swagger Swagger配置结构
@@ -151,6 +176,7 @@ func Default() *Swagger {
 			Enabled:                  false,
 			Mode:                     "merge",
 			Services:                 []*ServiceSpec{},
+			Documents:                []*DocumentSpec{},
 			UILayout:                 "tabs",
 			SharedDefinitionPrefixes: []string{"common", "rpcStatus", "protobuf", "google", "googleapis", "protoc"},
 		},
@@ -284,10 +310,11 @@ func (c *Swagger) WithAggregateServices(services []*ServiceSpec) *Swagger {
 func (c *Swagger) AddAggregateService(service *ServiceSpec) *Swagger {
 	if c.Aggregate == nil {
 		c.Aggregate = &AggregateConfig{
-			Enabled:  true,
-			Mode:     "merge",
-			UILayout: "tabs",
-			Services: []*ServiceSpec{},
+			Enabled:   true,
+			Mode:      "merge",
+			UILayout:  "tabs",
+			Services:  []*ServiceSpec{},
+			Documents: []*DocumentSpec{},
 		}
 	}
 	c.Aggregate.Services = append(c.Aggregate.Services, service)
@@ -295,13 +322,42 @@ func (c *Swagger) AddAggregateService(service *ServiceSpec) *Swagger {
 	return c
 }
 
+// WithAggregateDocuments 设置独立文档列表
+func (c *Swagger) WithAggregateDocuments(documents []*DocumentSpec) *Swagger {
+	if c.Aggregate == nil {
+		c.Aggregate = &AggregateConfig{
+			Mode:      "merge",
+			UILayout:  "tabs",
+			Services:  []*ServiceSpec{},
+			Documents: []*DocumentSpec{},
+		}
+	}
+	c.Aggregate.Documents = documents
+	return c
+}
+
+// AddAggregateDocument 添加单个独立文档
+func (c *Swagger) AddAggregateDocument(document *DocumentSpec) *Swagger {
+	if c.Aggregate == nil {
+		c.Aggregate = &AggregateConfig{
+			Mode:      "merge",
+			UILayout:  "tabs",
+			Services:  []*ServiceSpec{},
+			Documents: []*DocumentSpec{},
+		}
+	}
+	c.Aggregate.Documents = append(c.Aggregate.Documents, document)
+	return c
+}
+
 // WithAggregateMode 设置聚合模式
 func (c *Swagger) WithAggregateMode(mode string) *Swagger {
 	if c.Aggregate == nil {
 		c.Aggregate = &AggregateConfig{
-			Enabled:  false,
-			UILayout: "tabs",
-			Services: []*ServiceSpec{},
+			Enabled:   false,
+			UILayout:  "tabs",
+			Services:  []*ServiceSpec{},
+			Documents: []*DocumentSpec{},
 		}
 	}
 	c.Aggregate.Mode = mode
@@ -312,9 +368,10 @@ func (c *Swagger) WithAggregateMode(mode string) *Swagger {
 func (c *Swagger) WithAggregateUILayout(layout string) *Swagger {
 	if c.Aggregate == nil {
 		c.Aggregate = &AggregateConfig{
-			Enabled:  false,
-			Mode:     "merge",
-			Services: []*ServiceSpec{},
+			Enabled:   false,
+			Mode:      "merge",
+			Services:  []*ServiceSpec{},
+			Documents: []*DocumentSpec{},
 		}
 	}
 	c.Aggregate.UILayout = layout
@@ -328,6 +385,7 @@ func (c *Swagger) EnableAggregate() *Swagger {
 			Mode:                     "merge",
 			UILayout:                 "tabs",
 			Services:                 []*ServiceSpec{},
+			Documents:                []*DocumentSpec{},
 			SharedDefinitionPrefixes: []string{"common", "api", "protobuf", "google"},
 		}
 	}
@@ -673,6 +731,27 @@ func NewRemoteServiceSpec(name, description, url string) *ServiceSpec {
 	}
 }
 
+// NewDocumentSpec 创建新的独立Swagger文档配置
+func NewDocumentSpec(name string) *DocumentSpec {
+	return &DocumentSpec{
+		Name:    name,
+		Title:   name,
+		Version: "1.0.0",
+		Enabled: true,
+		Sources: []*DocumentSource{},
+	}
+}
+
+// NewDocumentSource 创建新的独立文档来源配置
+func NewDocumentSource(service string) *DocumentSource {
+	return &DocumentSource{
+		Service: service,
+		Paths:   []*DocumentPathSelector{},
+		Include: []*DocumentPathSelector{},
+		Exclude: []*DocumentPathSelector{},
+	}
+}
+
 // WithName 设置服务名称
 func (s *ServiceSpec) WithName(name string) *ServiceSpec {
 	s.Name = name
@@ -722,4 +801,78 @@ func (s *ServiceSpec) Enable() *ServiceSpec {
 func (s *ServiceSpec) Disable() *ServiceSpec {
 	s.Enabled = false
 	return s
+}
+
+// WithTitle 设置文档标题
+func (d *DocumentSpec) WithTitle(title string) *DocumentSpec {
+	d.Title = title
+	return d
+}
+
+// WithDescription 设置文档描述
+func (d *DocumentSpec) WithDescription(description string) *DocumentSpec {
+	d.Description = description
+	return d
+}
+
+// WithVersion 设置文档版本
+func (d *DocumentSpec) WithVersion(version string) *DocumentSpec {
+	d.Version = version
+	return d
+}
+
+// AddSource 添加文档来源
+func (d *DocumentSpec) AddSource(source *DocumentSource) *DocumentSpec {
+	if d.Sources == nil {
+		d.Sources = []*DocumentSource{}
+	}
+	d.Sources = append(d.Sources, source)
+	return d
+}
+
+// Enable 启用独立文档
+func (d *DocumentSpec) Enable() *DocumentSpec {
+	d.Enabled = true
+	return d
+}
+
+// Disable 禁用独立文档
+func (d *DocumentSpec) Disable() *DocumentSpec {
+	d.Enabled = false
+	return d
+}
+
+// AddIncludePath 添加包含路径选择器
+func (d *DocumentSource) AddIncludePath(path string, methods ...string) *DocumentSource {
+	if d.Include == nil {
+		d.Include = []*DocumentPathSelector{}
+	}
+	d.Include = append(d.Include, &DocumentPathSelector{
+		Path:    path,
+		Methods: methods,
+	})
+	return d
+}
+
+// AddExcludePath 添加排除路径选择器
+func (d *DocumentSource) AddExcludePath(path string, methods ...string) *DocumentSource {
+	if d.Exclude == nil {
+		d.Exclude = []*DocumentPathSelector{}
+	}
+	d.Exclude = append(d.Exclude, &DocumentPathSelector{
+		Path:    path,
+		Methods: methods,
+	})
+	return d
+}
+
+// GetEffectiveInclude 获取生效的 include 选择器，优先使用 include，其次兼容 paths
+func (d *DocumentSource) GetEffectiveInclude() []*DocumentPathSelector {
+	if d == nil {
+		return nil
+	}
+	if len(d.Include) > 0 {
+		return d.Include
+	}
+	return d.Paths
 }

@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2026-03-23 10:56:33
+// 生成时间: 2026-03-25 22:19:01
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2026-03-23T10:56:33+08:00",
+  "buildTime": "2026-03-25T22:19:01+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "d7c7f1874fd72e7b80c6ce91a3203bbc",
+  "gitCommit": "4c6e6c8d198548d79b674f93de8f8121",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -1283,6 +1283,7 @@
       "enabled": false,
       "mode": "merge",
       "services": [],
+      "documents": [],
       "uiLayout": "tabs",
       "sharedDefinitionPrefixes": [
         "common",
