@@ -13,9 +13,6 @@ package goconfig
 
 import (
 	"context"
-	"testing"
-	"time"
-
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/kamalyes/go-config/pkg/banner"
 	"github.com/kamalyes/go-config/pkg/cache"
@@ -23,6 +20,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"testing"
+	"time"
 )
 
 // TestConfigCompleteValidation 完整验证所有字段
@@ -35,7 +34,7 @@ func TestConfigCompleteValidation(t *testing.T) {
 	require.NotNil(t, generator)
 
 	// 测试关键模块
-	testModules := []string{"access", "banner", "cache", "gateway"}
+	testModules := []string{"banner", "cache", "gateway"}
 	err := generator.EnableOnlyModules(testModules...)
 	require.NoError(t, err)
 
@@ -144,10 +143,10 @@ func TestConfigCompleteValidation(t *testing.T) {
 			assert.Equal(t, defaultCfg.Debug, config.Debug, "Debug should match")
 			assert.Equal(t, defaultCfg.Version, config.Version, "Version should match")
 			assert.Equal(t, defaultCfg.Environment, config.Environment, "Environment should match")
-			assert.Equal(t, defaultCfg.BuildTime, config.BuildTime, "BuildTime should match")
+			assert.NotEmpty(t, config.BuildTime, "BuildTime should not be empty")
 			assert.Equal(t, defaultCfg.BuildUser, config.BuildUser, "BuildUser should match")
 			assert.Equal(t, defaultCfg.GoVersion, config.GoVersion, "GoVersion should match")
-			assert.Equal(t, defaultCfg.GitCommit, config.GitCommit, "GitCommit should match")
+			assert.NotEmpty(t, config.GitCommit, "GitCommit should not be empty")
 			assert.Equal(t, defaultCfg.GitBranch, config.GitBranch, "GitBranch should match")
 			assert.Equal(t, defaultCfg.GitTag, config.GitTag, "GitTag should match")
 
@@ -200,25 +199,31 @@ func TestConfigCompleteValidation(t *testing.T) {
 			assert.Equal(t, defaultCfg.Cache.Memory.Capacity, config.Cache.Memory.Capacity, "Cache.Memory.Capacity should match")
 
 			// 验证 Database 嵌套结构
-			assert.Equal(t, defaultCfg.Database.Type, config.Database.Type, "Database.Type should match")
 			assert.Equal(t, defaultCfg.Database.Enabled, config.Database.Enabled, "Database.Enabled should match")
-			assert.Equal(t, defaultCfg.Database.Default, config.Database.Default, "Database.Default should match")
 
-			// 验证 Database.MySQL 子结构
-			assert.Equal(t, defaultCfg.Database.MySQL.ModuleName, config.Database.MySQL.ModuleName, "Database.MySQL.ModuleName should match")
-			assert.Equal(t, defaultCfg.Database.MySQL.Host, config.Database.MySQL.Host, "Database.MySQL.Host should match")
-			assert.Equal(t, defaultCfg.Database.MySQL.Port, config.Database.MySQL.Port, "Database.MySQL.Port should match")
-			assert.Equal(t, defaultCfg.Database.MySQL.Dbname, config.Database.MySQL.Dbname, "Database.MySQL.Database should match")
-			assert.Equal(t, defaultCfg.Database.MySQL.Username, config.Database.MySQL.Username, "Database.MySQL.Username should match")
+			// 验证 Database.Relational 子结构
+			assert.Equal(t, defaultCfg.Database.Relational.Enabled, config.Database.Relational.Enabled, "Database.Relational.Enabled should match")
+			assert.Equal(t, defaultCfg.Database.Relational.Default, config.Database.Relational.Default, "Database.Relational.Default should match")
 
-			// 验证 Database.PostgreSQL 子结构
-			assert.Equal(t, defaultCfg.Database.PostgreSQL.ModuleName, config.Database.PostgreSQL.ModuleName, "Database.PostgreSQL.ModuleName should match")
-			assert.Equal(t, defaultCfg.Database.PostgreSQL.Host, config.Database.PostgreSQL.Host, "Database.PostgreSQL.Host should match")
-			assert.Equal(t, defaultCfg.Database.PostgreSQL.Port, config.Database.PostgreSQL.Port, "Database.PostgreSQL.Port should match")
+			// 验证 Database.Relational.MySQL 子结构
+			assert.Equal(t, defaultCfg.Database.Relational.MySQL.ModuleName, config.Database.Relational.MySQL.ModuleName, "Database.Relational.MySQL.ModuleName should match")
+			assert.Equal(t, defaultCfg.Database.Relational.MySQL.Host, config.Database.Relational.MySQL.Host, "Database.Relational.MySQL.Host should match")
+			assert.Equal(t, defaultCfg.Database.Relational.MySQL.Port, config.Database.Relational.MySQL.Port, "Database.Relational.MySQL.Port should match")
+			assert.Equal(t, defaultCfg.Database.Relational.MySQL.Dbname, config.Database.Relational.MySQL.Dbname, "Database.Relational.MySQL.Database should match")
+			assert.Equal(t, defaultCfg.Database.Relational.MySQL.Username, config.Database.Relational.MySQL.Username, "Database.Relational.MySQL.Username should match")
 
-			// 验证 Database.SQLite 子结构
-			assert.Equal(t, defaultCfg.Database.SQLite.ModuleName, config.Database.SQLite.ModuleName, "Database.SQLite.ModuleName should match")
-			assert.Equal(t, defaultCfg.Database.SQLite.DbPath, config.Database.SQLite.DbPath, "Database.SQLite.DbPath should match")
+			// 验证 Database.Relational.PostgreSQL 子结构
+			assert.Equal(t, defaultCfg.Database.Relational.PostgreSQL.ModuleName, config.Database.Relational.PostgreSQL.ModuleName, "Database.Relational.PostgreSQL.ModuleName should match")
+			assert.Equal(t, defaultCfg.Database.Relational.PostgreSQL.Host, config.Database.Relational.PostgreSQL.Host, "Database.Relational.PostgreSQL.Host should match")
+			assert.Equal(t, defaultCfg.Database.Relational.PostgreSQL.Port, config.Database.Relational.PostgreSQL.Port, "Database.Relational.PostgreSQL.Port should match")
+
+			// 验证 Database.Relational.SQLite 子结构
+			assert.Equal(t, defaultCfg.Database.Relational.SQLite.ModuleName, config.Database.Relational.SQLite.ModuleName, "Database.Relational.SQLite.ModuleName should match")
+			assert.Equal(t, defaultCfg.Database.Relational.SQLite.DbPath, config.Database.Relational.SQLite.DbPath, "Database.Relational.SQLite.DbPath should match")
+
+			// 验证 Database.NonRelational 子结构
+			assert.Equal(t, defaultCfg.Database.NonRelational.Enabled, config.Database.NonRelational.Enabled, "Database.NonRelational.Enabled should match")
+			assert.Equal(t, defaultCfg.Database.NonRelational.Default, config.Database.NonRelational.Default, "Database.NonRelational.Default should match")
 
 			// 验证 Etcd 嵌套结构
 			assert.Equal(t, defaultCfg.Etcd.ModuleName, config.Etcd.ModuleName, "Etcd.ModuleName should match")

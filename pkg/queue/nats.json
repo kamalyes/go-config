@@ -1,0 +1,22 @@
+// nats模块配置文件
+// 模块名称: nats
+// 包名: queue  
+// 描述: NATS消息队列
+// 生成时间: 2026-04-23 23:19:55
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "url": "nats://127.0.0.1:4222",
+  "name": "go-config-nats-client",
+  "username": "",
+  "password": "",
+  "token": "",
+  "jetStream": false,
+  "streamName": "",
+  "connectTimeout": 10,
+  "reconnectWait": 2,
+  "maxReconnects": 10,
+  "channelPrefix": "",
+  "source": "",
+  "moduleName": "nats"
+}

@@ -1,82 +1,147 @@
 # database模块配置文件
 # 模块名称: database
 # 包名: database  
-# 描述: 数据库模块
-# 生成时间: 2026-03-09 19:56:21
+# 描述: 数据库模块（关系型/非关系型分类）
+# 生成时间: 2026-04-25 00:00:00
 # 注意: 此文件由配置生成器自动生成
 
-# 数据库类型
-type: mysql
 # 是否启用
 enabled: false
-# 默认使用的数据库
-default: mysql
-# MySQL配置
-mysql:
-    module-name: mysql
-    host: localhost
-    port: "3306"
-    config: charset=utf8mb4&parseTime=True&loc=Local
-    log-level: info
-    slow-threshold: 100
-    ignore-record-not-found-error: false
-    db-name: test
-    username: root
-    password: mysql_password
-    max-idle-conns: 10
-    max-open-conns: 100
-    conn-max-idle-time: 300
-    conn-max-life-time: 3600
-    skip-default-transaction: false
-    prepare-stmt: true
-    disable-foreign-key-constraint-when-migrating: true
-    disable-nested-transaction: false
-    allow-global-update: false
-    query-fields: true
-    create-batch-size: 100
-    singular-table: true
-# PostgreSQL配置
-postgresql:
-    module-name: postgresql
-    host: localhost
-    port: "5432"
-    config: sslmode=disable
-    log-level: info
-    slow-threshold: 100
-    ignore-record-not-found-error: false
-    db-name: postgres
-    username: postgres
-    password: postgres_password
-    max-idle-conns: 10
-    max-open-conns: 100
-    conn-max-idle-time: 300
-    conn-max-life-time: 3600
-    skip-default-transaction: false
-    prepare-stmt: true
-    disable-foreign-key-constraint-when-migrating: true
-    disable-nested-transaction: false
-    allow-global-update: false
-    query-fields: true
-    create-batch-size: 100
-    singular-table: true
-# SQLite配置
-sqlite:
-    module-name: sqlite
-    config: _foreign_keys=on
-    log-level: info
-    slow-threshold: 100
-    ignore-record-not-found-error: false
-    db-path: ./data.db
-    vacuum: false
-    max-idle-conns: 10
-    max-open-conns: 1
-    conn-max-idle-time: 300
-    conn-max-life-time: 3600
-    skip-default-transaction: false
-    prepare-stmt: true
-    disable-foreign-key-constraint-when-migrating: true
-    disable-nested-transaction: false
-    allow-global-update: false
-    query-fields: true
-    create-batch-size: 100
-    singular-table: true
+# 关系型数据库配置
+relational:
+    enabled: false
+    default: mysql
+    # MySQL配置
+    mysql:
+        module-name: mysql
+        host: localhost
+        port: "3306"
+        config: charset=utf8mb4&parseTime=True&loc=Local
+        log-level: info
+        slow-threshold: 100
+        ignore-record-not-found-error: false
+        db-name: test
+        username: root
+        password: mysql_password
+        max-idle-conns: 10
+        max-open-conns: 100
+        conn-max-idle-time: 300
+        conn-max-life-time: 3600
+        skip-default-transaction: false
+        prepare-stmt: true
+        disable-foreign-key-constraint-when-migrating: true
+        disable-nested-transaction: false
+        allow-global-update: false
+        query-fields: true
+        create-batch-size: 100
+        singular-table: true
+    # PostgreSQL配置
+    postgresql:
+        module-name: postgresql
+        host: localhost
+        port: "5432"
+        config: sslmode=disable
+        log-level: info
+        slow-threshold: 100
+        ignore-record-not-found-error: false
+        db-name: postgres
+        username: postgres
+        password: postgres_password
+        max-idle-conns: 10
+        max-open-conns: 100
+        conn-max-idle-time: 300
+        conn-max-life-time: 3600
+        skip-default-transaction: false
+        prepare-stmt: true
+        disable-foreign-key-constraint-when-migrating: true
+        disable-nested-transaction: false
+        allow-global-update: false
+        query-fields: true
+        create-batch-size: 100
+        singular-table: true
+    # SQLite配置
+    sqlite:
+        module-name: sqlite
+        config: _foreign_keys=on
+        log-level: info
+        slow-threshold: 100
+        ignore-record-not-found-error: false
+        db-path: ./data.db
+        vacuum: false
+        max-idle-conns: 10
+        max-open-conns: 1
+        conn-max-idle-time: 300
+        conn-max-life-time: 3600
+        skip-default-transaction: false
+        prepare-stmt: true
+        disable-foreign-key-constraint-when-migrating: true
+        disable-nested-transaction: false
+        allow-global-update: false
+        query-fields: true
+        create-batch-size: 100
+        singular-table: true
+    # CockroachDB配置
+    cockroachdb:
+        module-name: cockroachdb
+        host: localhost
+        port: "26257"
+        config: sslmode=disable
+        log-level: info
+        slow-threshold: 100
+        ignore-record-not-found-error: false
+        db-name: defaultdb
+        username: root
+        password: ""
+        ssl-mode: disable
+        ssl-root-cert: ""
+        ssl-cert: ""
+        ssl-key: ""
+        application-name: go-config
+        max-idle-conns: 10
+        max-open-conns: 100
+        conn-max-idle-time: 300
+        conn-max-life-time: 3600
+        skip-default-transaction: false
+        prepare-stmt: true
+        disable-foreign-key-constraint-when-migrating: true
+        disable-nested-transaction: false
+        allow-global-update: false
+        query-fields: true
+        create-batch-size: 100
+        singular-table: true
+        max-retries: 3
+# 非关系型数据库配置
+non-relational:
+    enabled: false
+    default: clickhouse
+    # ClickHouse配置
+    clickhouse:
+        module-name: clickhouse
+        host: localhost
+        port: "9000"
+        config: dial_timeout=10s&read_timeout=20s
+        log-level: info
+        slow-threshold: 200
+        ignore-record-not-found-error: false
+        db-name: default
+        username: default
+        password: ""
+        protocol: native
+        cluster: ""
+        compress: true
+        debug: false
+        secure: false
+        dial-timeout: 10
+        read-timeout: 20
+        max-idle-conns: 5
+        max-open-conns: 20
+        conn-max-idle-time: 300
+        conn-max-life-time: 3600
+        skip-default-transaction: true
+        prepare-stmt: false
+        disable-foreign-key-constraint-when-migrating: true
+        disable-nested-transaction: true
+        allow-global-update: false
+        query-fields: true
+        create-batch-size: 1000
+        singular-table: true

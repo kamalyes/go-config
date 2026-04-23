@@ -12,20 +12,41 @@ package database
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/kamalyes/go-config/internal"
 	"github.com/kamalyes/go-toolbox/pkg/syncx"
+	"strings"
 )
 
 // DBType 定义数据库类型
 type DBType string
 
 const (
-	DBTypeMySQL      DBType = "mysql"
-	DBTypePostgreSQL DBType = "postgres"
-	DBTypeSQLite     DBType = "sqlite"
+	DBTypeMySQL       DBType = "mysql"       // MySQL数据库
+	DBTypePostgreSQL  DBType = "postgres"    // PostgreSQL数据库
+	DBTypeSQLite      DBType = "sqlite"      // SQLite数据库
+	DBTypeClickHouse  DBType = "clickhouse"  // ClickHouse数据库
+	DBTypeCockroachDB DBType = "cockroachdb" // CockroachDB数据库
 )
+
+// DataCategory 定义数据库分类（关系型/非关系型）
+type DataCategory string
+
+const (
+	CategoryRelational    DataCategory = "relational"     // 关系型数据库
+	CategoryNonRelational DataCategory = "non-relational" // 非关系型数据库
+)
+
+// Category 根据数据库类型返回其所属分类
+func (t DBType) Category() DataCategory {
+	switch t {
+	case DBTypeMySQL, DBTypePostgreSQL, DBTypeSQLite, DBTypeCockroachDB:
+		return CategoryRelational
+	case DBTypeClickHouse:
+		return CategoryNonRelational
+	default:
+		return ""
+	}
+}
 
 // DatabaseProvider 数据库提供商接口，统一不同数据库的操作
 type DatabaseProvider interface {
@@ -99,81 +120,329 @@ type DatabaseProvider interface {
 	SetDBName(dbName string)
 }
 
-// Database 数据库统一配置结构
-type Database struct {
-	Type       DBType      `mapstructure:"type" yaml:"type" json:"type"`                   // 数据库类型
-	Enabled    bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`          // 是否启用
-	Default    string      `mapstructure:"default" yaml:"default" json:"default"`          // 默认使用的数据库
-	MySQL      *MySQL      `mapstructure:"mysql" yaml:"mysql" json:"mysql"`                // MySQL配置
-	PostgreSQL *PostgreSQL `mapstructure:"postgresql" yaml:"postgresql" json:"postgresql"` // PostgreSQL配置
-	SQLite     *SQLite     `mapstructure:"sqlite" yaml:"sqlite" json:"sqlite"`             // SQLite配置
+// RelationalDatabase 关系型数据库配置
+type RelationalDatabase struct {
+	Enabled     bool         `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用关系型数据库
+	Default     string       `mapstructure:"default" yaml:"default" json:"default"`             // 默认关系型数据库类型
+	MySQL       *MySQL       `mapstructure:"mysql" yaml:"mysql" json:"mysql"`                   // MySQL配置
+	PostgreSQL  *PostgreSQL  `mapstructure:"postgresql" yaml:"postgresql" json:"postgresql"`    // PostgreSQL配置
+	SQLite      *SQLite      `mapstructure:"sqlite" yaml:"sqlite" json:"sqlite"`                // SQLite配置
+	CockroachDB *CockroachDB `mapstructure:"cockroachdb" yaml:"cockroachdb" json:"cockroachdb"` // CockroachDB配置
 }
 
-// NewDatabase 创建新的数据库配置管理器
-func NewDatabase() *Database {
-	return &Database{
-		Type:       DBTypeMySQL,
-		Enabled:    false,
-		Default:    string(DBTypeMySQL),
-		MySQL:      DefaultMySQL(),
-		PostgreSQL: DefaultPostgreSQL(),
-		SQLite:     DefaultSQLite(),
+// NewRelationalDatabase 创建默认关系型数据库配置
+func NewRelationalDatabase() *RelationalDatabase {
+	return &RelationalDatabase{
+		Enabled:     false,
+		Default:     string(DBTypeMySQL),
+		MySQL:       DefaultMySQL(),
+		PostgreSQL:  DefaultPostgreSQL(),
+		SQLite:      DefaultSQLite(),
+		CockroachDB: DefaultCockroachDB(),
 	}
 }
 
-// GetProvider 获取指定类型的数据库提供商
-func (c *Database) GetProvider(dbType DBType) (DatabaseProvider, error) {
+// GetProvider 根据数据库类型获取对应的关系型数据库提供商
+func (r *RelationalDatabase) GetProvider(dbType DBType) (DatabaseProvider, error) {
 	switch dbType {
 	case DBTypeMySQL:
-		if c.MySQL == nil {
+		if r.MySQL == nil {
 			return nil, fmt.Errorf("mysql config not found")
 		}
-		return c.MySQL, nil
+		return r.MySQL, nil
 	case DBTypePostgreSQL:
-		if c.PostgreSQL == nil {
+		if r.PostgreSQL == nil {
 			return nil, fmt.Errorf("postgresql config not found")
 		}
-		return c.PostgreSQL, nil
+		return r.PostgreSQL, nil
 	case DBTypeSQLite:
-		if c.SQLite == nil {
+		if r.SQLite == nil {
 			return nil, fmt.Errorf("sqlite config not found")
 		}
-		return c.SQLite, nil
+		return r.SQLite, nil
+	case DBTypeCockroachDB:
+		if r.CockroachDB == nil {
+			return nil, fmt.Errorf("cockroachdb config not found")
+		}
+		return r.CockroachDB, nil
+	default:
+		return nil, fmt.Errorf("unsupported relational database type: %s", dbType)
+	}
+}
+
+// GetDefaultProvider 获取默认的关系型数据库提供商
+func (r *RelationalDatabase) GetDefaultProvider() (DatabaseProvider, error) {
+	if r.Default == "" {
+		return nil, fmt.Errorf("relational default database not specified")
+	}
+	return r.GetProvider(DBType(r.Default))
+}
+
+// SetDefault 设置默认的关系型数据库类型
+func (r *RelationalDatabase) SetDefault(dbType DBType) {
+	r.Default = string(dbType)
+}
+
+// ListAvailableProviders 列出所有可用的关系型数据库提供商
+func (r *RelationalDatabase) ListAvailableProviders() []DBType {
+	var providers []DBType
+	if r.MySQL != nil {
+		providers = append(providers, DBTypeMySQL)
+	}
+	if r.PostgreSQL != nil {
+		providers = append(providers, DBTypePostgreSQL)
+	}
+	if r.SQLite != nil {
+		providers = append(providers, DBTypeSQLite)
+	}
+	if r.CockroachDB != nil {
+		providers = append(providers, DBTypeCockroachDB)
+	}
+	return providers
+}
+
+// ValidateProvider 验证指定的关系型数据库提供商配置
+func (r *RelationalDatabase) ValidateProvider(dbType DBType) error {
+	provider, err := r.GetProvider(dbType)
+	if err != nil {
+		return err
+	}
+	return provider.Validate()
+}
+
+// ValidateAll 验证所有关系型数据库提供商配置
+func (r *RelationalDatabase) ValidateAll() error {
+	providers := r.ListAvailableProviders()
+	for _, providerType := range providers {
+		if err := r.ValidateProvider(providerType); err != nil {
+			return fmt.Errorf("validation failed for %s: %w", providerType, err)
+		}
+	}
+	return nil
+}
+
+// Validate 验证关系型数据库配置
+func (r *RelationalDatabase) Validate() error {
+	if !r.Enabled {
+		return nil
+	}
+	if r.Default == "" {
+		return fmt.Errorf("relational default database not specified")
+	}
+	if err := r.ValidateProvider(DBType(r.Default)); err != nil {
+		return fmt.Errorf("relational default provider validation failed: %w", err)
+	}
+	return nil
+}
+
+// EnsureDefaults 确保关系型数据库配置的默认值
+func (r *RelationalDatabase) EnsureDefaults() {
+	if r.MySQL == nil {
+		r.MySQL = DefaultMySQL()
+	}
+	if r.PostgreSQL == nil {
+		r.PostgreSQL = DefaultPostgreSQL()
+	}
+	if r.SQLite == nil {
+		r.SQLite = DefaultSQLite()
+	}
+	if r.CockroachDB == nil {
+		r.CockroachDB = DefaultCockroachDB()
+	}
+	if r.Default == "" {
+		r.Default = string(DBTypeMySQL)
+	}
+}
+
+// NonRelationalDatabase 非关系型数据库配置
+type NonRelationalDatabase struct {
+	Enabled    bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`          // 是否启用非关系型数据库
+	Default    string      `mapstructure:"default" yaml:"default" json:"default"`          // 默认非关系型数据库类型
+	ClickHouse *ClickHouse `mapstructure:"clickhouse" yaml:"clickhouse" json:"clickhouse"` // ClickHouse配置
+}
+
+// NewNonRelationalDatabase 创建默认非关系型数据库配置
+func NewNonRelationalDatabase() *NonRelationalDatabase {
+	return &NonRelationalDatabase{
+		Enabled:    false,
+		Default:    string(DBTypeClickHouse),
+		ClickHouse: DefaultClickHouse(),
+	}
+}
+
+// GetProvider 根据数据库类型获取对应的非关系型数据库提供商
+func (n *NonRelationalDatabase) GetProvider(dbType DBType) (DatabaseProvider, error) {
+	switch dbType {
+	case DBTypeClickHouse:
+		if n.ClickHouse == nil {
+			return nil, fmt.Errorf("clickhouse config not found")
+		}
+		return n.ClickHouse, nil
+	default:
+		return nil, fmt.Errorf("unsupported non-relational database type: %s", dbType)
+	}
+}
+
+// GetDefaultProvider 获取默认的非关系型数据库提供商
+func (n *NonRelationalDatabase) GetDefaultProvider() (DatabaseProvider, error) {
+	if n.Default == "" {
+		return nil, fmt.Errorf("non-relational default database not specified")
+	}
+	return n.GetProvider(DBType(n.Default))
+}
+
+// SetDefault 设置默认的非关系型数据库类型
+func (n *NonRelationalDatabase) SetDefault(dbType DBType) {
+	n.Default = string(dbType)
+}
+
+// ListAvailableProviders 列出所有可用的非关系型数据库提供商
+func (n *NonRelationalDatabase) ListAvailableProviders() []DBType {
+	var providers []DBType
+	if n.ClickHouse != nil {
+		providers = append(providers, DBTypeClickHouse)
+	}
+	return providers
+}
+
+// ValidateProvider 验证指定的非关系型数据库提供商配置
+func (n *NonRelationalDatabase) ValidateProvider(dbType DBType) error {
+	provider, err := n.GetProvider(dbType)
+	if err != nil {
+		return err
+	}
+	return provider.Validate()
+}
+
+// ValidateAll 验证所有非关系型数据库提供商配置
+func (n *NonRelationalDatabase) ValidateAll() error {
+	providers := n.ListAvailableProviders()
+	for _, providerType := range providers {
+		if err := n.ValidateProvider(providerType); err != nil {
+			return fmt.Errorf("validation failed for %s: %w", providerType, err)
+		}
+	}
+	return nil
+}
+
+// Validate 验证非关系型数据库配置
+func (n *NonRelationalDatabase) Validate() error {
+	if !n.Enabled {
+		return nil
+	}
+	if n.Default == "" {
+		return fmt.Errorf("non-relational default database not specified")
+	}
+	if err := n.ValidateProvider(DBType(n.Default)); err != nil {
+		return fmt.Errorf("non-relational default provider validation failed: %w", err)
+	}
+	return nil
+}
+
+// EnsureDefaults 确保非关系型数据库配置的默认值
+func (n *NonRelationalDatabase) EnsureDefaults() {
+	if n.ClickHouse == nil {
+		n.ClickHouse = DefaultClickHouse()
+	}
+	if n.Default == "" {
+		n.Default = string(DBTypeClickHouse)
+	}
+}
+
+// Database 数据库统一配置，支持关系型和非关系型数据库同时使用
+type Database struct {
+	Enabled       bool                   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                     // 是否启用数据库
+	Relational    *RelationalDatabase    `mapstructure:"relational" yaml:"relational" json:"relational"`            // 关系型数据库配置
+	NonRelational *NonRelationalDatabase `mapstructure:"non-relational" yaml:"non-relational" json:"nonRelational"` // 非关系型数据库配置
+}
+
+// NewDatabase 创建默认数据库配置（关系型和非关系型均初始化）
+func NewDatabase() *Database {
+	return &Database{
+		Enabled:       false,
+		Relational:    NewRelationalDatabase(),
+		NonRelational: NewNonRelationalDatabase(),
+	}
+}
+
+// GetProvider 根据数据库类型获取对应的数据库提供商（自动判断分类）
+func (c *Database) GetProvider(dbType DBType) (DatabaseProvider, error) {
+	category := dbType.Category()
+	switch category {
+	case CategoryRelational:
+		if c.Relational == nil {
+			return nil, fmt.Errorf("relational database config not found")
+		}
+		return c.Relational.GetProvider(dbType)
+	case CategoryNonRelational:
+		if c.NonRelational == nil {
+			return nil, fmt.Errorf("non-relational database config not found")
+		}
+		return c.NonRelational.GetProvider(dbType)
 	default:
 		return nil, fmt.Errorf("unsupported database type: %s", dbType)
 	}
 }
 
-// GetDefaultProvider 获取默认的数据库提供商
-func (c *Database) GetDefaultProvider() (DatabaseProvider, error) {
-	defaultType := DBType(c.Default)
-	return c.GetProvider(defaultType)
+// GetDefaultProviderByCategory 根据分类获取默认数据库提供商
+func (c *Database) GetDefaultProviderByCategory(category DataCategory) (DatabaseProvider, error) {
+	switch category {
+	case CategoryRelational:
+		if c.Relational == nil {
+			return nil, fmt.Errorf("relational database config not found")
+		}
+		return c.Relational.GetDefaultProvider()
+	case CategoryNonRelational:
+		if c.NonRelational == nil {
+			return nil, fmt.Errorf("non-relational database config not found")
+		}
+		return c.NonRelational.GetDefaultProvider()
+	default:
+		return nil, fmt.Errorf("unsupported category: %s", category)
+	}
 }
 
-// SetDefaultProvider 设置默认数据库提供商
-func (c *Database) SetDefaultProvider(dbType DBType) {
-	c.Default = string(dbType)
-	c.Type = dbType
+// GetDefaultRelationalProvider 获取默认的关系型数据库提供商
+func (c *Database) GetDefaultRelationalProvider() (DatabaseProvider, error) {
+	return c.GetDefaultProviderByCategory(CategoryRelational)
+}
+
+// GetDefaultNonRelationalProvider 获取默认的非关系型数据库提供商
+func (c *Database) GetDefaultNonRelationalProvider() (DatabaseProvider, error) {
+	return c.GetDefaultProviderByCategory(CategoryNonRelational)
 }
 
 // ListAvailableProviders 列出所有可用的数据库提供商
 func (c *Database) ListAvailableProviders() []DBType {
 	var providers []DBType
-
-	if c.MySQL != nil {
-		providers = append(providers, DBTypeMySQL)
+	if c.Relational != nil {
+		providers = append(providers, c.Relational.ListAvailableProviders()...)
 	}
-	if c.PostgreSQL != nil {
-		providers = append(providers, DBTypePostgreSQL)
+	if c.NonRelational != nil {
+		providers = append(providers, c.NonRelational.ListAvailableProviders()...)
 	}
-	if c.SQLite != nil {
-		providers = append(providers, DBTypeSQLite)
-	}
-
 	return providers
 }
 
-// ValidateProvider 验证指定提供商的配置
+// ListAvailableProvidersByCategory 根据分类列出可用的数据库提供商
+func (c *Database) ListAvailableProvidersByCategory(category DataCategory) []DBType {
+	switch category {
+	case CategoryRelational:
+		if c.Relational == nil {
+			return nil
+		}
+		return c.Relational.ListAvailableProviders()
+	case CategoryNonRelational:
+		if c.NonRelational == nil {
+			return nil
+		}
+		return c.NonRelational.ListAvailableProviders()
+	default:
+		return nil
+	}
+}
+
+// ValidateProvider 验证指定数据库提供商的配置
 func (c *Database) ValidateProvider(dbType DBType) error {
 	provider, err := c.GetProvider(dbType)
 	if err != nil {
@@ -183,20 +452,22 @@ func (c *Database) ValidateProvider(dbType DBType) error {
 	return provider.Validate()
 }
 
-// ValidateAll 验证所有配置的提供商
+// ValidateAll 验证所有数据库提供商配置
 func (c *Database) ValidateAll() error {
-	providers := c.ListAvailableProviders()
-
-	for _, providerType := range providers {
-		if err := c.ValidateProvider(providerType); err != nil {
-			return fmt.Errorf("validation failed for %s: %w", providerType, err)
+	if c.Relational != nil {
+		if err := c.Relational.ValidateAll(); err != nil {
+			return err
 		}
 	}
-
+	if c.NonRelational != nil {
+		if err := c.NonRelational.ValidateAll(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-// Clone 返回Database配置的副本
+// Clone 深拷贝数据库配置
 func (c *Database) Clone() internal.Configurable {
 	var cloned Database
 	if err := syncx.DeepCopy(&cloned, c); err != nil {
@@ -223,42 +494,34 @@ func (c *Database) Validate() error {
 	if !c.Enabled {
 		return nil
 	}
-
-	// 验证默认提供商设置
-	if c.Default == "" {
-		return fmt.Errorf("default database provider not specified")
+	if c.Relational != nil {
+		if err := c.Relational.Validate(); err != nil {
+			return err
+		}
 	}
-
-	defaultType := DBType(c.Default)
-	if err := c.ValidateProvider(defaultType); err != nil {
-		return fmt.Errorf("default provider validation failed: %w", err)
+	if c.NonRelational != nil {
+		if err := c.NonRelational.Validate(); err != nil {
+			return err
+		}
 	}
-
 	return nil
 }
 
-// EnsureDefaults 确保所有子配置都有默认值，避免空指针
+// EnsureDefaults 确保数据库配置的默认值
 func (c *Database) EnsureDefaults() {
-	if c.MySQL == nil {
-		c.MySQL = DefaultMySQL()
+	if c.Relational == nil {
+		c.Relational = NewRelationalDatabase()
+	} else {
+		c.Relational.EnsureDefaults()
 	}
-	if c.PostgreSQL == nil {
-		c.PostgreSQL = DefaultPostgreSQL()
-	}
-	if c.SQLite == nil {
-		c.SQLite = DefaultSQLite()
-	}
-
-	// 如果没有设置默认类型，使用MySQL
-	if c.Default == "" {
-		c.Default = string(DBTypeMySQL)
-	}
-	if c.Type == "" {
-		c.Type = DBTypeMySQL
+	if c.NonRelational == nil {
+		c.NonRelational = NewNonRelationalDatabase()
+	} else {
+		c.NonRelational.EnsureDefaults()
 	}
 }
 
-// GetSafe 安全获取配置，确保所有字段都有默认值
+// GetSafe 安全获取数据库配置，如果为空则返回默认配置
 func (c *Database) GetSafe() interface{} {
 	if c == nil {
 		return DefaultDatabaseConfig()
@@ -267,29 +530,33 @@ func (c *Database) GetSafe() interface{} {
 	return c
 }
 
-// BeforeLoad 配置加载前的钩子
+// BeforeLoad 加载前确保默认值
 func (c *Database) BeforeLoad() error {
 	c.EnsureDefaults()
 	return nil
 }
 
-// AfterLoad 配置加载后的钩子
+// AfterLoad 加载后校验并修正默认数据库类型
 func (c *Database) AfterLoad() error {
 	c.EnsureDefaults()
 
-	// 验证默认提供商配置的有效性
-	if c.Default != "" {
-		if err := c.ValidateProvider(DBType(c.Default)); err != nil {
-			// 如果默认提供商配置无效，回退到MySQL
-			c.Default = string(DBTypeMySQL)
-			c.Type = DBTypeMySQL
+	// 校验关系型默认数据库类型，无效则回退为MySQL
+	if c.Relational != nil && c.Relational.Default != "" {
+		if err := c.Relational.ValidateProvider(DBType(c.Relational.Default)); err != nil {
+			c.Relational.Default = string(DBTypeMySQL)
+		}
+	}
+	// 校验非关系型默认数据库类型，无效则回退为ClickHouse
+	if c.NonRelational != nil && c.NonRelational.Default != "" {
+		if err := c.NonRelational.ValidateProvider(DBType(c.NonRelational.Default)); err != nil {
+			c.NonRelational.Default = string(DBTypeClickHouse)
 		}
 	}
 
 	return nil
 }
 
-// GetProviderName 获取提供商显示名称
+// GetProviderName 获取数据库类型对应的人类可读名称
 func GetProviderName(dbType DBType) string {
 	switch dbType {
 	case DBTypeMySQL:
@@ -298,12 +565,16 @@ func GetProviderName(dbType DBType) string {
 		return "PostgreSQL"
 	case DBTypeSQLite:
 		return "SQLite"
+	case DBTypeClickHouse:
+		return "ClickHouse"
+	case DBTypeCockroachDB:
+		return "CockroachDB"
 	default:
 		return string(dbType)
 	}
 }
 
-// ParseDBType 解析数据库类型字符串
+// ParseDBType 将字符串解析为数据库类型
 func ParseDBType(typeStr string) (DBType, error) {
 	switch strings.ToLower(typeStr) {
 	case "mysql":
@@ -312,12 +583,21 @@ func ParseDBType(typeStr string) (DBType, error) {
 		return DBTypePostgreSQL, nil
 	case "sqlite", "sqlite3":
 		return DBTypeSQLite, nil
+	case "clickhouse":
+		return DBTypeClickHouse, nil
+	case "cockroachdb", "cockroach", "crdb":
+		return DBTypeCockroachDB, nil
 	default:
 		return "", fmt.Errorf("unsupported database type: %s", typeStr)
 	}
 }
 
-// DefaultDatabaseConfig 返回默认的数据库配置
+// GetCategoryByDBType 根据数据库类型获取其分类
+func GetCategoryByDBType(dbType DBType) DataCategory {
+	return dbType.Category()
+}
+
+// DefaultDatabaseConfig 创建默认数据库配置
 func DefaultDatabaseConfig() *Database {
 	return NewDatabase()
 }
@@ -328,15 +608,20 @@ func GetSupportedTypes() []DBType {
 		DBTypeMySQL,
 		DBTypePostgreSQL,
 		DBTypeSQLite,
+		DBTypeClickHouse,
+		DBTypeCockroachDB,
 	}
 }
 
-// ========== Database 链式调用方法 ==========
-
-// WithType 设置数据库类型
-func (d *Database) WithType(dbType DBType) *Database {
-	d.Type = dbType
-	return d
+// GetSupportedTypesByCategory 根据分类获取支持的数据库类型
+func GetSupportedTypesByCategory(category DataCategory) []DBType {
+	var result []DBType
+	for _, t := range GetSupportedTypes() {
+		if t.Category() == category {
+			result = append(result, t)
+		}
+	}
+	return result
 }
 
 // WithEnabled 设置是否启用数据库
@@ -351,56 +636,142 @@ func (d *Database) EnableDatabase() *Database {
 	return d
 }
 
-// WithDefault 设置默认数据库
-func (d *Database) WithDefault(defaultDB string) *Database {
-	d.Default = defaultDB
+// WithRelational 设置关系型数据库配置
+func (d *Database) WithRelational(relational *RelationalDatabase) *Database {
+	d.Relational = relational
+	return d
+}
+
+// EnableRelational 启用关系型数据库
+func (d *Database) EnableRelational() *Database {
+	if d.Relational == nil {
+		d.Relational = NewRelationalDatabase()
+	}
+	d.Relational.Enabled = true
+	return d
+}
+
+// WithNonRelational 设置非关系型数据库配置
+func (d *Database) WithNonRelational(nonRelational *NonRelationalDatabase) *Database {
+	d.NonRelational = nonRelational
+	return d
+}
+
+// EnableNonRelational 启用非关系型数据库
+func (d *Database) EnableNonRelational() *Database {
+	if d.NonRelational == nil {
+		d.NonRelational = NewNonRelationalDatabase()
+	}
+	d.NonRelational.Enabled = true
 	return d
 }
 
 // WithMySQL 设置MySQL配置
 func (d *Database) WithMySQL(mysql *MySQL) *Database {
-	d.MySQL = mysql
+	if d.Relational == nil {
+		d.Relational = NewRelationalDatabase()
+	}
+	d.Relational.MySQL = mysql
 	return d
 }
 
-// EnableMySQL 启用MySQL并设置默认配置
+// EnableMySQL 启用MySQL并设为默认关系型数据库
 func (d *Database) EnableMySQL() *Database {
-	if d.MySQL == nil {
-		d.MySQL = DefaultMySQL()
+	if d.Relational == nil {
+		d.Relational = NewRelationalDatabase()
 	}
-	d.Type = DBTypeMySQL
-	d.Default = "mysql"
+	if d.Relational.MySQL == nil {
+		d.Relational.MySQL = DefaultMySQL()
+	}
+	d.Relational.Enabled = true
+	d.Relational.Default = "mysql"
 	return d
 }
 
 // WithPostgreSQL 设置PostgreSQL配置
 func (d *Database) WithPostgreSQL(postgresql *PostgreSQL) *Database {
-	d.PostgreSQL = postgresql
+	if d.Relational == nil {
+		d.Relational = NewRelationalDatabase()
+	}
+	d.Relational.PostgreSQL = postgresql
 	return d
 }
 
-// EnablePostgreSQL 启用PostgreSQL并设置默认配置
+// EnablePostgreSQL 启用PostgreSQL并设为默认关系型数据库
 func (d *Database) EnablePostgreSQL() *Database {
-	if d.PostgreSQL == nil {
-		d.PostgreSQL = DefaultPostgreSQL()
+	if d.Relational == nil {
+		d.Relational = NewRelationalDatabase()
 	}
-	d.Type = DBTypePostgreSQL
-	d.Default = "postgresql"
+	if d.Relational.PostgreSQL == nil {
+		d.Relational.PostgreSQL = DefaultPostgreSQL()
+	}
+	d.Relational.Enabled = true
+	d.Relational.Default = "postgresql"
 	return d
 }
 
 // WithSQLite 设置SQLite配置
 func (d *Database) WithSQLite(sqlite *SQLite) *Database {
-	d.SQLite = sqlite
+	if d.Relational == nil {
+		d.Relational = NewRelationalDatabase()
+	}
+	d.Relational.SQLite = sqlite
 	return d
 }
 
-// EnableSQLite 启用SQLite并设置默认配置
+// EnableSQLite 启用SQLite并设为默认关系型数据库
 func (d *Database) EnableSQLite() *Database {
-	if d.SQLite == nil {
-		d.SQLite = DefaultSQLite()
+	if d.Relational == nil {
+		d.Relational = NewRelationalDatabase()
 	}
-	d.Type = DBTypeSQLite
-	d.Default = "sqlite"
+	if d.Relational.SQLite == nil {
+		d.Relational.SQLite = DefaultSQLite()
+	}
+	d.Relational.Enabled = true
+	d.Relational.Default = "sqlite"
+	return d
+}
+
+// WithClickHouse 设置ClickHouse配置
+func (d *Database) WithClickHouse(clickhouse *ClickHouse) *Database {
+	if d.NonRelational == nil {
+		d.NonRelational = NewNonRelationalDatabase()
+	}
+	d.NonRelational.ClickHouse = clickhouse
+	return d
+}
+
+// EnableClickHouse 启用ClickHouse并设为默认非关系型数据库
+func (d *Database) EnableClickHouse() *Database {
+	if d.NonRelational == nil {
+		d.NonRelational = NewNonRelationalDatabase()
+	}
+	if d.NonRelational.ClickHouse == nil {
+		d.NonRelational.ClickHouse = DefaultClickHouse()
+	}
+	d.NonRelational.Enabled = true
+	d.NonRelational.Default = string(DBTypeClickHouse)
+	return d
+}
+
+// WithCockroachDB 设置CockroachDB配置
+func (d *Database) WithCockroachDB(cockroachdb *CockroachDB) *Database {
+	if d.Relational == nil {
+		d.Relational = NewRelationalDatabase()
+	}
+	d.Relational.CockroachDB = cockroachdb
+	return d
+}
+
+// EnableCockroachDB 启用CockroachDB并设为默认关系型数据库
+func (d *Database) EnableCockroachDB() *Database {
+	if d.Relational == nil {
+		d.Relational = NewRelationalDatabase()
+	}
+	if d.Relational.CockroachDB == nil {
+		d.Relational.CockroachDB = DefaultCockroachDB()
+	}
+	d.Relational.Enabled = true
+	d.Relational.Default = string(DBTypeCockroachDB)
 	return d
 }

@@ -129,6 +129,7 @@
       "allowall",
       "apikey",
       "casbin",
+      "clickhouse",
       "clientidv",
       "cooldown",
       "CSBEF",

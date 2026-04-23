@@ -19,11 +19,11 @@ func printCurrentConfig(config *gateway.Gateway) {
 	if config.HTTPServer != nil {
 		fmt.Printf("HTTP服务: %s:%d\n", config.HTTPServer.Host, config.HTTPServer.Port)
 	}
-	if config.Database != nil && config.Database.MySQL != nil {
+	if config.Database != nil && config.Database.Relational != nil && config.Database.Relational.MySQL != nil {
 		fmt.Printf("数据库: %s:%s/%s\n",
-			config.Database.MySQL.Host,
-			config.Database.MySQL.Port,
-			config.Database.MySQL.Dbname)
+			config.Database.Relational.MySQL.Host,
+			config.Database.Relational.MySQL.Port,
+			config.Database.Relational.MySQL.Dbname)
 	}
 	fmt.Println("----------------")
 }
