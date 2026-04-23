@@ -1,0 +1,65 @@
+# clickhouse模块配置文件
+# 模块名称: clickhouse
+# 包名: database  
+# 描述: ClickHouse列式分析型数据库
+# 生成时间: 2026-04-23 23:57:07
+# 注意: 此文件由配置生成器自动生成
+
+# 模块名称
+module-name: clickhouse
+# 数据库 IP 地址
+host: localhost
+# 端口（原生协议默认9000，HTTP协议默认8123）
+port: "9000"
+# 后缀配置 例如: dial_timeout=10s&read_timeout=20s
+config: dial_timeout=10s&read_timeout=20s
+# SQL 日志等级
+log-level: info
+# 慢查询阈值（毫秒）
+slow-threshold: 200
+# 是否忽略ErrRecordNotFound错误
+ignore-record-not-found-error: false
+# 数据库名称
+db-name: default
+# 数据库用户名
+username: default
+# 数据库密码（ClickHouse允许为空）
+password: ""
+# 协议类型：native（默认）或 http
+protocol: native
+# ClickHouse集群名称（集群模式使用）
+cluster: ""
+# 是否启用压缩
+compress: true
+# 是否启用调试模式
+debug: false
+# 是否启用TLS安全连接
+secure: false
+# 连接超时（秒）
+dial-timeout: 10
+# 读取超时（秒）
+read-timeout: 20
+# 最大空闲连接数
+max-idle-conns: 5
+# 最大连接数
+max-open-conns: 20
+# 连接最大空闲时间 单位：秒
+conn-max-idle-time: 300
+# 连接最大生命周期 单位：秒
+conn-max-life-time: 3600
+# 跳过默认事务
+skip-default-transaction: true
+# 预编译语句
+prepare-stmt: false
+# 禁用自动创建外键约束（ClickHouse不支持外键）
+disable-foreign-key-constraint-when-migrating: true
+# 禁用嵌套事务
+disable-nested-transaction: true
+# 允许全局更新
+allow-global-update: false
+# 执行查询时选择所有字段
+query-fields: true
+# 批量创建大小
+create-batch-size: 1000
+# 使用单数表名
+singular-table: true

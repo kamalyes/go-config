@@ -22,9 +22,11 @@ import (
 type DBType string
 
 const (
-	DBTypeMySQL      DBType = "mysql"
-	DBTypePostgreSQL DBType = "postgres"
-	DBTypeSQLite     DBType = "sqlite"
+	DBTypeMySQL       DBType = "mysql"
+	DBTypePostgreSQL  DBType = "postgres"
+	DBTypeSQLite      DBType = "sqlite"
+	DBTypeClickHouse  DBType = "clickhouse"
+	DBTypeCockroachDB DBType = "cockroachdb"
 )
 
 // DatabaseProvider 数据库提供商接口，统一不同数据库的操作
@@ -101,23 +103,27 @@ type DatabaseProvider interface {
 
 // Database 数据库统一配置结构
 type Database struct {
-	Type       DBType      `mapstructure:"type" yaml:"type" json:"type"`                   // 数据库类型
-	Enabled    bool        `mapstructure:"enabled" yaml:"enabled" json:"enabled"`          // 是否启用
-	Default    string      `mapstructure:"default" yaml:"default" json:"default"`          // 默认使用的数据库
-	MySQL      *MySQL      `mapstructure:"mysql" yaml:"mysql" json:"mysql"`                // MySQL配置
-	PostgreSQL *PostgreSQL `mapstructure:"postgresql" yaml:"postgresql" json:"postgresql"` // PostgreSQL配置
-	SQLite     *SQLite     `mapstructure:"sqlite" yaml:"sqlite" json:"sqlite"`             // SQLite配置
+	Type        DBType       `mapstructure:"type" yaml:"type" json:"type"`                      // 数据库类型
+	Enabled     bool         `mapstructure:"enabled" yaml:"enabled" json:"enabled"`             // 是否启用
+	Default     string       `mapstructure:"default" yaml:"default" json:"default"`             // 默认使用的数据库
+	MySQL       *MySQL       `mapstructure:"mysql" yaml:"mysql" json:"mysql"`                   // MySQL配置
+	PostgreSQL  *PostgreSQL  `mapstructure:"postgresql" yaml:"postgresql" json:"postgresql"`    // PostgreSQL配置
+	SQLite      *SQLite      `mapstructure:"sqlite" yaml:"sqlite" json:"sqlite"`                // SQLite配置
+	ClickHouse  *ClickHouse  `mapstructure:"clickhouse" yaml:"clickhouse" json:"clickhouse"`    // ClickHouse配置
+	CockroachDB *CockroachDB `mapstructure:"cockroachdb" yaml:"cockroachdb" json:"cockroachdb"` // CockroachDB配置
 }
 
 // NewDatabase 创建新的数据库配置管理器
 func NewDatabase() *Database {
 	return &Database{
-		Type:       DBTypeMySQL,
-		Enabled:    false,
-		Default:    string(DBTypeMySQL),
-		MySQL:      DefaultMySQL(),
-		PostgreSQL: DefaultPostgreSQL(),
-		SQLite:     DefaultSQLite(),
+		Type:        DBTypeMySQL,
+		Enabled:     false,
+		Default:     string(DBTypeMySQL),
+		MySQL:       DefaultMySQL(),
+		PostgreSQL:  DefaultPostgreSQL(),
+		SQLite:      DefaultSQLite(),
+		ClickHouse:  DefaultClickHouse(),
+		CockroachDB: DefaultCockroachDB(),
 	}
 }
 
@@ -139,6 +145,16 @@ func (c *Database) GetProvider(dbType DBType) (DatabaseProvider, error) {
 			return nil, fmt.Errorf("sqlite config not found")
 		}
 		return c.SQLite, nil
+	case DBTypeClickHouse:
+		if c.ClickHouse == nil {
+			return nil, fmt.Errorf("clickhouse config not found")
+		}
+		return c.ClickHouse, nil
+	case DBTypeCockroachDB:
+		if c.CockroachDB == nil {
+			return nil, fmt.Errorf("cockroachdb config not found")
+		}
+		return c.CockroachDB, nil
 	default:
 		return nil, fmt.Errorf("unsupported database type: %s", dbType)
 	}
@@ -168,6 +184,12 @@ func (c *Database) ListAvailableProviders() []DBType {
 	}
 	if c.SQLite != nil {
 		providers = append(providers, DBTypeSQLite)
+	}
+	if c.ClickHouse != nil {
+		providers = append(providers, DBTypeClickHouse)
+	}
+	if c.CockroachDB != nil {
+		providers = append(providers, DBTypeCockroachDB)
 	}
 
 	return providers
@@ -248,6 +270,12 @@ func (c *Database) EnsureDefaults() {
 	if c.SQLite == nil {
 		c.SQLite = DefaultSQLite()
 	}
+	if c.ClickHouse == nil {
+		c.ClickHouse = DefaultClickHouse()
+	}
+	if c.CockroachDB == nil {
+		c.CockroachDB = DefaultCockroachDB()
+	}
 
 	// 如果没有设置默认类型，使用MySQL
 	if c.Default == "" {
@@ -298,6 +326,10 @@ func GetProviderName(dbType DBType) string {
 		return "PostgreSQL"
 	case DBTypeSQLite:
 		return "SQLite"
+	case DBTypeClickHouse:
+		return "ClickHouse"
+	case DBTypeCockroachDB:
+		return "CockroachDB"
 	default:
 		return string(dbType)
 	}
@@ -312,6 +344,10 @@ func ParseDBType(typeStr string) (DBType, error) {
 		return DBTypePostgreSQL, nil
 	case "sqlite", "sqlite3":
 		return DBTypeSQLite, nil
+	case "clickhouse":
+		return DBTypeClickHouse, nil
+	case "cockroachdb", "cockroach", "crdb":
+		return DBTypeCockroachDB, nil
 	default:
 		return "", fmt.Errorf("unsupported database type: %s", typeStr)
 	}
@@ -328,6 +364,8 @@ func GetSupportedTypes() []DBType {
 		DBTypeMySQL,
 		DBTypePostgreSQL,
 		DBTypeSQLite,
+		DBTypeClickHouse,
+		DBTypeCockroachDB,
 	}
 }
 
@@ -402,5 +440,37 @@ func (d *Database) EnableSQLite() *Database {
 	}
 	d.Type = DBTypeSQLite
 	d.Default = "sqlite"
+	return d
+}
+
+// WithClickHouse 设置ClickHouse配置
+func (d *Database) WithClickHouse(clickhouse *ClickHouse) *Database {
+	d.ClickHouse = clickhouse
+	return d
+}
+
+// EnableClickHouse 启用ClickHouse并设置默认配置
+func (d *Database) EnableClickHouse() *Database {
+	if d.ClickHouse == nil {
+		d.ClickHouse = DefaultClickHouse()
+	}
+	d.Type = DBTypeClickHouse
+	d.Default = string(DBTypeClickHouse)
+	return d
+}
+
+// WithCockroachDB 设置CockroachDB配置
+func (d *Database) WithCockroachDB(cockroachdb *CockroachDB) *Database {
+	d.CockroachDB = cockroachdb
+	return d
+}
+
+// EnableCockroachDB 启用CockroachDB并设置默认配置
+func (d *Database) EnableCockroachDB() *Database {
+	if d.CockroachDB == nil {
+		d.CockroachDB = DefaultCockroachDB()
+	}
+	d.Type = DBTypeCockroachDB
+	d.Default = string(DBTypeCockroachDB)
 	return d
 }

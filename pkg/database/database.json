@@ -2,7 +2,7 @@
 // 模块名称: database
 // 包名: database  
 // 描述: 数据库模块
-// 生成时间: 2026-03-09 19:56:21
+// 生成时间: 2026-04-23 23:57:07
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -77,5 +77,66 @@
     "queryFields": true,
     "createBatchSize": 100,
     "singularTable": true
+  },
+  "clickhouse": {
+    "moduleName": "clickhouse",
+    "host": "localhost",
+    "port": "9000",
+    "config": "dial_timeout=10s\u0026read_timeout=20s",
+    "logLevel": "info",
+    "slowThreshold": 200,
+    "ignoreRecordNotFoundError": false,
+    "dbName": "default",
+    "username": "default",
+    "password": "",
+    "protocol": "native",
+    "cluster": "",
+    "compress": true,
+    "debug": false,
+    "secure": false,
+    "dialTimeout": 10,
+    "readTimeout": 20,
+    "maxIdleConns": 5,
+    "maxOpenConns": 20,
+    "connMaxIdleTime": 300,
+    "connMaxLifeTime": 3600,
+    "skipDefaultTransaction": true,
+    "prepareStmt": false,
+    "disableForeignKeyConstraintWhenMigrating": true,
+    "disableNestedTransaction": true,
+    "allowGlobalUpdate": false,
+    "queryFields": true,
+    "createBatchSize": 1000,
+    "singularTable": true
+  },
+  "cockroachdb": {
+    "moduleName": "cockroachdb",
+    "host": "localhost",
+    "port": "26257",
+    "config": "sslmode=disable",
+    "logLevel": "info",
+    "slowThreshold": 100,
+    "ignoreRecordNotFoundError": false,
+    "dbName": "defaultdb",
+    "username": "root",
+    "password": "",
+    "sslMode": "disable",
+    "sslRootCert": "",
+    "sslCert": "",
+    "sslKey": "",
+    "applicationName": "go-config",
+    "maxIdleConns": 10,
+    "maxOpenConns": 100,
+    "connMaxIdleTime": 300,
+    "connMaxLifeTime": 3600,
+    "skipDefaultTransaction": false,
+    "prepareStmt": true,
+    "disableForeignKeyConstraintWhenMigrating": true,
+    "disableNestedTransaction": false,
+    "allowGlobalUpdate": false,
+    "queryFields": true,
+    "createBatchSize": 100,
+    "singularTable": true,
+    "maxRetries": 3
   }
 }

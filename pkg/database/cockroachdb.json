@@ -1,0 +1,37 @@
+// cockroachdb模块配置文件
+// 模块名称: cockroachdb
+// 包名: database  
+// 描述: CockroachDB分布式SQL数据库
+// 生成时间: 2026-04-23 23:57:07
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "moduleName": "cockroachdb",
+  "host": "localhost",
+  "port": "26257",
+  "config": "sslmode=disable",
+  "logLevel": "info",
+  "slowThreshold": 100,
+  "ignoreRecordNotFoundError": false,
+  "dbName": "defaultdb",
+  "username": "root",
+  "password": "",
+  "sslMode": "disable",
+  "sslRootCert": "",
+  "sslCert": "",
+  "sslKey": "",
+  "applicationName": "go-config",
+  "maxIdleConns": 10,
+  "maxOpenConns": 100,
+  "connMaxIdleTime": 300,
+  "connMaxLifeTime": 3600,
+  "skipDefaultTransaction": false,
+  "prepareStmt": true,
+  "disableForeignKeyConstraintWhenMigrating": true,
+  "disableNestedTransaction": false,
+  "allowGlobalUpdate": false,
+  "queryFields": true,
+  "createBatchSize": 100,
+  "singularTable": true,
+  "maxRetries": 3
+}

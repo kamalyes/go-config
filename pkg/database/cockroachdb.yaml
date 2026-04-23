@@ -1,0 +1,63 @@
+# cockroachdb模块配置文件
+# 模块名称: cockroachdb
+# 包名: database  
+# 描述: CockroachDB分布式SQL数据库
+# 生成时间: 2026-04-23 23:57:07
+# 注意: 此文件由配置生成器自动生成
+
+# 模块名称
+module-name: cockroachdb
+# 数据库 IP 地址
+host: localhost
+# 端口（默认26257）
+port: "26257"
+# 后缀配置
+config: sslmode=disable
+# SQL 日志等级
+log-level: info
+# 慢查询阈值（毫秒）
+slow-threshold: 100
+# 是否忽略ErrRecordNotFound错误
+ignore-record-not-found-error: false
+# 数据库名称
+db-name: defaultdb
+# 数据库用户名
+username: root
+# 数据库密码（CockroachDB insecure 模式下可为空）
+password: ""
+# SSL模式: disable, require, verify-ca, verify-full
+ssl-mode: disable
+# SSL根证书路径
+ssl-root-cert: ""
+# SSL客户端证书路径
+ssl-cert: ""
+# SSL客户端密钥路径
+ssl-key: ""
+# 应用名称（便于CockroachDB追踪）
+application-name: go-config
+# 最大空闲连接数
+max-idle-conns: 10
+# 最大连接数
+max-open-conns: 100
+# 连接最大空闲时间 单位：秒
+conn-max-idle-time: 300
+# 连接最大生命周期 单位：秒
+conn-max-life-time: 3600
+# 跳过默认事务
+skip-default-transaction: false
+# 预编译语句
+prepare-stmt: true
+# 禁用自动创建外键约束
+disable-foreign-key-constraint-when-migrating: true
+# 禁用嵌套事务
+disable-nested-transaction: false
+# 允许全局更新
+allow-global-update: false
+# 执行查询时选择所有字段
+query-fields: true
+# 批量创建大小
+create-batch-size: 100
+# 使用单数表名
+singular-table: true
+# 事务重试次数（CockroachDB乐观事务遇到冲突时重试）
+max-retries: 3
