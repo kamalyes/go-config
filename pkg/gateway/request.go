@@ -35,22 +35,28 @@ type RequestContext struct {
 	ForwardedProtoSources []common.AttributeSource `mapstructure:"forwarded-proto-sources" yaml:"forwarded-proto-sources" json:"forwardedProtoSources"` // X-Forwarded-Proto 提取来源
 
 	// 用户上下文相关头部
-	ClientIDSources  []common.AttributeSource `mapstructure:"client-id-sources" yaml:"client-id-sources" json:"clientIdSources"`    // X-Client-ID 提取来源
-	UserIDSources    []common.AttributeSource `mapstructure:"user-id-sources" yaml:"user-id-sources" json:"userIdSources"`          // X-User-ID 提取来源
-	UserTypeSources  []common.AttributeSource `mapstructure:"user-type-sources" yaml:"user-type-sources" json:"userTypeSources"`    // X-User-Type 提取来源
-	TenantIDSources  []common.AttributeSource `mapstructure:"tenant-id-sources" yaml:"tenant-id-sources" json:"tenantIdSources"`    // X-Tenant-ID 提取来源
-	SessionIDSources []common.AttributeSource `mapstructure:"session-id-sources" yaml:"session-id-sources" json:"sessionIdSources"` // X-Session-ID 提取来源
-	TimezoneSources  []common.AttributeSource `mapstructure:"timezone-sources" yaml:"timezone-sources" json:"timezoneSources"`      // X-Timezone 提取来源
+	ClientIDSources   []common.AttributeSource `mapstructure:"client-id-sources" yaml:"client-id-sources" json:"clientIdSources"`       // X-Client-ID 提取来源
+	UserIDSources     []common.AttributeSource `mapstructure:"user-id-sources" yaml:"user-id-sources" json:"userIdSources"`             // X-User-ID 提取来源
+	UserTypeSources   []common.AttributeSource `mapstructure:"user-type-sources" yaml:"user-type-sources" json:"userTypeSources"`       // X-User-Type 提取来源
+	TenantIDSources   []common.AttributeSource `mapstructure:"tenant-id-sources" yaml:"tenant-id-sources" json:"tenantIdSources"`       // X-Tenant-ID 提取来源
+	TenantCodeSources []common.AttributeSource `mapstructure:"tenant-code-sources" yaml:"tenant-code-sources" json:"tenantCodeSources"` // X-Tenant-Code 提取来源
+	SessionIDSources  []common.AttributeSource `mapstructure:"session-id-sources" yaml:"session-id-sources" json:"sessionIdSources"`    // X-Session-ID 提取来源
+	TimezoneSources   []common.AttributeSource `mapstructure:"timezone-sources" yaml:"timezone-sources" json:"timezoneSources"`         // X-Timezone 提取来源
+	IDSources         []common.AttributeSource `mapstructure:"id-sources" yaml:"id-sources" json:"idSources"`                           // X-ID 提取来源
 
 	// 设备和应用相关头部
-	DeviceIDSources   []common.AttributeSource `mapstructure:"device-id-sources" yaml:"device-id-sources" json:"deviceIdSources"`       // X-Device-Id / X-Device-ID 提取来源
-	AppIDSources      []common.AttributeSource `mapstructure:"app-id-sources" yaml:"app-id-sources" json:"appIdSources"`                // X-App-Id 提取来源
-	AppVersionSources []common.AttributeSource `mapstructure:"app-version-sources" yaml:"app-version-sources" json:"appVersionSources"` // X-App-Version 提取来源
-	PlatformSources   []common.AttributeSource `mapstructure:"platform-sources" yaml:"platform-sources" json:"platformSources"`         // X-Platform 提取来源
-	TimestampSources  []common.AttributeSource `mapstructure:"timestamp-sources" yaml:"timestamp-sources" json:"timestampSources"`      // X-Timestamp 提取来源
-	SignatureSources  []common.AttributeSource `mapstructure:"signature-sources" yaml:"signature-sources" json:"signatureSources"`      // X-Signature 提取来源
-	NonceSources      []common.AttributeSource `mapstructure:"nonce-sources" yaml:"nonce-sources" json:"nonceSources"`                  // X-Nonce 提取来源
-	AccessKeySources  []common.AttributeSource `mapstructure:"access-key-sources" yaml:"access-key-sources" json:"accessKeySources"`    // X-Access-Key 提取来源
+	DeviceIDSources     []common.AttributeSource `mapstructure:"device-id-sources" yaml:"device-id-sources" json:"deviceIdSources"`             // X-Device-Id / X-Device-ID 提取来源
+	AppIDSources        []common.AttributeSource `mapstructure:"app-id-sources" yaml:"app-id-sources" json:"appIdSources"`                      // X-App-Id 提取来源
+	AppVersionSources   []common.AttributeSource `mapstructure:"app-version-sources" yaml:"app-version-sources" json:"appVersionSources"`       // X-App-Version 提取来源
+	PlatformSources     []common.AttributeSource `mapstructure:"platform-sources" yaml:"platform-sources" json:"platformSources"`               // X-Platform 提取来源
+	PlatformIDSources   []common.AttributeSource `mapstructure:"platform-id-sources" yaml:"platform-id-sources" json:"platformIDSources"`       // X-Platform-ID 提取来源
+	PlatformCodeSources []common.AttributeSource `mapstructure:"platform-code-sources" yaml:"platform-code-sources" json:"platformCodeSources"` // X-Platform-Code 提取来源
+	RegionIDSources     []common.AttributeSource `mapstructure:"region-id-sources" yaml:"region-id-sources" json:"regionIDSources"`             // X-Region-ID 提取来源
+	RegionCodeSources   []common.AttributeSource `mapstructure:"region-code-sources" yaml:"region-code-sources" json:"regionCodeSources"`       // X-Region-Code 提取来源
+	TimestampSources    []common.AttributeSource `mapstructure:"timestamp-sources" yaml:"timestamp-sources" json:"timestampSources"`            // X-Timestamp 提取来源
+	SignatureSources    []common.AttributeSource `mapstructure:"signature-sources" yaml:"signature-sources" json:"signatureSources"`            // X-Signature 提取来源
+	NonceSources        []common.AttributeSource `mapstructure:"nonce-sources" yaml:"nonce-sources" json:"nonceSources"`                        // X-Nonce 提取来源
+	AccessKeySources    []common.AttributeSource `mapstructure:"access-key-sources" yaml:"access-key-sources" json:"accessKeySources"`          // X-Access-Key 提取来源
 
 	// 其他请求头
 	OriginSources    []common.AttributeSource `mapstructure:"origin-sources" yaml:"origin-sources" json:"originSources"`            // Origin 提取来源
@@ -124,6 +130,12 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeQuery, Key: "tenantId"},
 			{Type: common.SourceTypeCookie, Key: "tenant_id"},
 		},
+		TenantCodeSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Tenant-Code"},
+			{Type: common.SourceTypeQuery, Key: "tenant_code"},
+			{Type: common.SourceTypeQuery, Key: "tenantCode"},
+			{Type: common.SourceTypeCookie, Key: "tenant_code"},
+		},
 		SessionIDSources: []common.AttributeSource{
 			{Type: common.SourceTypeHeader, Key: "X-Session-ID"},
 			{Type: common.SourceTypeQuery, Key: "session_id"},
@@ -134,6 +146,11 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeHeader, Key: "X-Timezone"},
 			{Type: common.SourceTypeQuery, Key: "timezone"},
 			{Type: common.SourceTypeCookie, Key: "timezone"},
+		},
+		IDSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-ID"},
+			{Type: common.SourceTypeQuery, Key: "id"},
+			{Type: common.SourceTypeCookie, Key: "id"},
 		},
 
 		DeviceIDSources: []common.AttributeSource{
@@ -159,6 +176,30 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeHeader, Key: "X-Platform"},
 			{Type: common.SourceTypeQuery, Key: "platform"},
 			{Type: common.SourceTypeCookie, Key: "platform"},
+		},
+		PlatformIDSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Platform-Id"},
+			{Type: common.SourceTypeQuery, Key: "platform_id"},
+			{Type: common.SourceTypeQuery, Key: "platformId"},
+			{Type: common.SourceTypeCookie, Key: "platform_id"},
+		},
+		PlatformCodeSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Platform-Code"},
+			{Type: common.SourceTypeQuery, Key: "platform_code"},
+			{Type: common.SourceTypeQuery, Key: "platformCode"},
+			{Type: common.SourceTypeCookie, Key: "platform_code"},
+		},
+		RegionIDSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Region-ID"},
+			{Type: common.SourceTypeQuery, Key: "region_id"},
+			{Type: common.SourceTypeQuery, Key: "regionId"},
+			{Type: common.SourceTypeCookie, Key: "region_id"},
+		},
+		RegionCodeSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Region-Code"},
+			{Type: common.SourceTypeQuery, Key: "region_code"},
+			{Type: common.SourceTypeQuery, Key: "regionCode"},
+			{Type: common.SourceTypeCookie, Key: "region_code"},
 		},
 		TimestampSources: []common.AttributeSource{
 			{Type: common.SourceTypeHeader, Key: "X-Timestamp"},
@@ -232,12 +273,17 @@ func (c *RequestContext) Validate() error {
 		c.UserIDSources,
 		c.UserTypeSources,
 		c.TenantIDSources,
+		c.TenantCodeSources,
 		c.SessionIDSources,
 		c.TimezoneSources,
+		c.IDSources,
 		c.DeviceIDSources,
 		c.AppIDSources,
 		c.AppVersionSources,
-		c.PlatformSources,
+		c.PlatformIDSources,
+		c.PlatformCodeSources,
+		c.RegionIDSources,
+		c.RegionCodeSources,
 		c.TimestampSources,
 		c.SignatureSources,
 		c.NonceSources,

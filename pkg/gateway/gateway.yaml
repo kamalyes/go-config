@@ -2,7 +2,7 @@
 # 模块名称: gateway
 # 包名: gateway  
 # 描述: API网关模块
-# 生成时间: 2026-03-25 22:19:01
+# 生成时间: 2026-04-28 10:29:26
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -18,13 +18,13 @@ version: v1.0.0
 # 环境 (dev, test, prod)
 environment: dev
 # 构建时间
-build-time: "2026-03-25T22:19:01+08:00"
+build-time: "2026-04-28T10:29:26+08:00"
 # 构建用户
 build-user: kamalyes
 # Go版本
 go-version: 1.25.1
 # Git提交哈希
-git-commit: 4c6e6c8d198548d79b674f93de8f8121
+git-commit: 824a09576b64f8048c2bb61e9a834d9e
 # Git分支
 git-branch: master
 # Git标签
@@ -711,6 +711,15 @@ request-context:
           key: tenantId
         - type: cookie
           key: tenant_id
+    tenant-code-sources:
+        - type: header
+          key: X-Tenant-Code
+        - type: query
+          key: tenant_code
+        - type: query
+          key: tenantCode
+        - type: cookie
+          key: tenant_code
     session-id-sources:
         - type: header
           key: X-Session-ID
@@ -727,6 +736,13 @@ request-context:
           key: timezone
         - type: cookie
           key: timezone
+    id-sources:
+        - type: header
+          key: X-ID
+        - type: query
+          key: id
+        - type: cookie
+          key: id
     device-id-sources:
         - type: header
           key: X-Device-Id
@@ -763,6 +779,42 @@ request-context:
           key: platform
         - type: cookie
           key: platform
+    platform-id-sources:
+        - type: header
+          key: X-Platform-Id
+        - type: query
+          key: platform_id
+        - type: query
+          key: platformId
+        - type: cookie
+          key: platform_id
+    platform-code-sources:
+        - type: header
+          key: X-Platform-Code
+        - type: query
+          key: platform_code
+        - type: query
+          key: platformCode
+        - type: cookie
+          key: platform_code
+    region-id-sources:
+        - type: header
+          key: X-Region-ID
+        - type: query
+          key: region_id
+        - type: query
+          key: regionId
+        - type: cookie
+          key: region_id
+    region-code-sources:
+        - type: header
+          key: X-Region-Code
+        - type: query
+          key: region_code
+        - type: query
+          key: regionCode
+        - type: cookie
+          key: region_code
     timestamp-sources:
         - type: header
           key: X-Timestamp
