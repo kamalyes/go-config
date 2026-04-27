@@ -248,11 +248,6 @@ func (c *Gateway) Validate() error {
 			return err
 		}
 	}
-	if c.CORS != nil {
-		if err := c.CORS.Validate(); err != nil {
-			return err
-		}
-	}
 	if c.JWT != nil {
 		if err := c.JWT.Validate(); err != nil {
 			return err
