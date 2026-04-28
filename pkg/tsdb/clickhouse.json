@@ -1,0 +1,38 @@
+// clickhouse模块配置文件
+// 模块名称: clickhouse
+// 包名: database  
+// 描述: ClickHouse列式分析型数据库
+// 生成时间: 2026-04-23 23:57:07
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "moduleName": "clickhouse",
+  "host": "localhost",
+  "port": "9000",
+  "config": "dial_timeout=10s\u0026read_timeout=20s",
+  "logLevel": "info",
+  "slowThreshold": 200,
+  "ignoreRecordNotFoundError": false,
+  "dbName": "default",
+  "username": "default",
+  "password": "",
+  "protocol": "native",
+  "cluster": "",
+  "compress": true,
+  "debug": false,
+  "secure": false,
+  "dialTimeout": 10,
+  "readTimeout": 20,
+  "maxIdleConns": 5,
+  "maxOpenConns": 20,
+  "connMaxIdleTime": 300,
+  "connMaxLifeTime": 3600,
+  "skipDefaultTransaction": true,
+  "prepareStmt": false,
+  "disableForeignKeyConstraintWhenMigrating": true,
+  "disableNestedTransaction": true,
+  "allowGlobalUpdate": false,
+  "queryFields": true,
+  "createBatchSize": 1000,
+  "singularTable": true
+}

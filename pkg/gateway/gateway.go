@@ -33,6 +33,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/security"
 	"github.com/kamalyes/go-config/pkg/smtp"
 	"github.com/kamalyes/go-config/pkg/swagger"
+	"github.com/kamalyes/go-config/pkg/tsdb"
 	"github.com/kamalyes/go-config/pkg/wsc"
 	"github.com/kamalyes/go-toolbox/pkg/convert"
 	"github.com/kamalyes/go-toolbox/pkg/osx"
@@ -59,6 +60,7 @@ type Gateway struct {
 	GRPC           *GRPC                        `mapstructure:"grpc" yaml:"grpc" json:"grpc"`                                 // GRPC配置
 	Cache          *cache.Cache                 `mapstructure:"cache" yaml:"cache" json:"cache"`                              // 缓存配置(包含Redis)
 	Database       *database.Database           `mapstructure:"database" yaml:"database" json:"database"`                     // 数据库统一配置
+	ClickHouse     *tsdb.ClickHouse             `mapstructure:"clickhouse" yaml:"clickhouse" json:"clickhouse"`               // ClickHouse数据库配置
 	Etcd           *etcd.Etcd                   `mapstructure:"etcd" yaml:"etcd" json:"etcd"`                                 // Etcd配置
 	Kafka          *kafka.Kafka                 `mapstructure:"kafka" yaml:"kafka" json:"kafka"`                              // Kafka配置
 	OSS            *oss.OSSConfig               `mapstructure:"oss" yaml:"oss" json:"oss"`                                    // 对象存储统一配置

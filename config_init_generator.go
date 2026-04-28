@@ -68,6 +68,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/swagger"
 	"github.com/kamalyes/go-config/pkg/timeout"
 	"github.com/kamalyes/go-config/pkg/tracing"
+	"github.com/kamalyes/go-config/pkg/tsdb"
 	"github.com/kamalyes/go-config/pkg/wsc"
 	"github.com/kamalyes/go-config/pkg/youzan"
 	"github.com/kamalyes/go-config/pkg/zap"
@@ -162,7 +163,7 @@ func (sg *SmartConfigGenerator) registerAllModules() {
 		{Name: "mysql", PackageName: "database", DefaultFunc: func() interface{} { return database.DefaultMySQL() }, OutputSubDir: "database", Description: "MySQL数据库", Enabled: true},
 		{Name: "postgresql", PackageName: "database", DefaultFunc: func() interface{} { return database.DefaultPostgreSQL() }, OutputSubDir: "database", Description: "PostgreSQL数据库", Enabled: true},
 		{Name: "sqlite", PackageName: "database", DefaultFunc: func() interface{} { return database.DefaultSQLite() }, OutputSubDir: "database", Description: "SQLite数据库", Enabled: true},
-			{Name: "elasticsearch", PackageName: "elasticsearch", DefaultFunc: func() interface{} { return elasticsearch.Default() }, OutputSubDir: "elasticsearch", Description: "Elasticsearch搜索引擎", Enabled: true},
+		{Name: "elasticsearch", PackageName: "elasticsearch", DefaultFunc: func() interface{} { return elasticsearch.Default() }, OutputSubDir: "elasticsearch", Description: "Elasticsearch搜索引擎", Enabled: true},
 		{Name: "email", PackageName: "email", DefaultFunc: func() interface{} { return email.Default() }, OutputSubDir: "email", Description: "邮件发送模块", Enabled: true},
 		{Name: "etcd", PackageName: "etcd", DefaultFunc: func() interface{} { return etcd.Default() }, OutputSubDir: "etcd", Description: "Etcd分布式键值存储", Enabled: true},
 		{Name: "ftp", PackageName: "ftp", DefaultFunc: func() interface{} { return ftp.Default() }, OutputSubDir: "ftp", Description: "FTP文件传输模块", Enabled: true},
@@ -196,6 +197,7 @@ func (sg *SmartConfigGenerator) registerAllModules() {
 		{Name: "smtp", PackageName: "smtp", DefaultFunc: func() interface{} { return smtp.Default() }, OutputSubDir: "smtp", Description: "SMTP邮件模块", Enabled: true},
 		{Name: "sts", PackageName: "sts", DefaultFunc: func() interface{} { return sts.DefaultAliyunSts() }, OutputSubDir: "sts", Description: "STS临时凭证", Enabled: true},
 		{Name: "swagger", PackageName: "swagger", DefaultFunc: func() interface{} { return swagger.Default() }, OutputSubDir: "swagger", Description: "Swagger API文档", Enabled: true},
+		{Name: "clickhouse", PackageName: "tsdb", DefaultFunc: func() interface{} { return tsdb.DefaultClickHouse() }, OutputSubDir: "clickhouse", Description: "时间序列数据库模块", Enabled: true},
 		{Name: "timeout", PackageName: "timeout", DefaultFunc: func() interface{} { return timeout.Default() }, OutputSubDir: "timeout", Description: "超时控制模块", Enabled: true},
 		{Name: "tracing", PackageName: "tracing", DefaultFunc: func() interface{} { return tracing.Default() }, OutputSubDir: "tracing", Description: "链路追踪模块", Enabled: true},
 		{Name: "wsc", PackageName: "wsc", DefaultFunc: func() interface{} { return wsc.Default() }, OutputSubDir: "wsc", Description: "WebSocket通信模块", Enabled: true},
