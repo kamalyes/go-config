@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2026-04-28 11:01:23
+// 生成时间: 2026-04-28 11:57:09
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2026-04-28T11:01:23+08:00",
+  "buildTime": "2026-04-28T11:57:09+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "77720083c847ba4daf229367c7a5f54b",
+  "gitCommit": "dd610b33f25a8994e7fb073843b266fb",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -254,6 +254,30 @@
       "vacuum": false,
       "maxIdleConns": 10,
       "maxOpenConns": 1,
+      "connMaxIdleTime": 300,
+      "connMaxLifeTime": 3600,
+      "skipDefaultTransaction": false,
+      "prepareStmt": true,
+      "disableForeignKeyConstraintWhenMigrating": true,
+      "disableNestedTransaction": false,
+      "allowGlobalUpdate": false,
+      "queryFields": true,
+      "createBatchSize": 100,
+      "singularTable": true
+    },
+    "cockroachdb": {
+      "moduleName": "cockroachdb",
+      "host": "localhost",
+      "port": "26257",
+      "config": "sslmode=disable",
+      "logLevel": "info",
+      "slowThreshold": 100,
+      "ignoreRecordNotFoundError": false,
+      "dbName": "defaultdb",
+      "username": "root",
+      "password": "",
+      "maxIdleConns": 10,
+      "maxOpenConns": 100,
       "connMaxIdleTime": 300,
       "connMaxLifeTime": 3600,
       "skipDefaultTransaction": false,

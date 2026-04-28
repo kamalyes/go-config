@@ -1,0 +1,51 @@
+# cockroachdb模块配置文件
+# 模块名称: cockroachdb
+# 包名: database  
+# 描述: Cockroachdb数据库
+# 生成时间: 2026-04-28 11:57:09
+# 注意: 此文件由配置生成器自动生成
+
+# 模块标识名称 (字符串)
+module-name: cockroachdb
+# 主机地址 (字符串)
+host: localhost
+# 端口号 (字符串)
+port: "26257"
+# config (字符串)
+config: sslmode=disable
+# log level (字符串)
+log-level: info
+# slow threshold (整数)
+slow-threshold: 100
+# ignore record not found error (true/false)
+ignore-record-not-found-error: false
+# dbname (字符串)
+db-name: defaultdb
+# 用户名 (字符串)
+username: root
+# 密码 (字符串)
+password: ""
+# max idle conns (整数)
+max-idle-conns: 10
+# max open conns (整数)
+max-open-conns: 100
+# conn max idle time (整数)
+conn-max-idle-time: 300
+# conn max life time (整数)
+conn-max-life-time: 3600
+# skip default transaction (true/false)
+skip-default-transaction: false
+# prepare stmt (true/false)
+prepare-stmt: true
+# disable foreign key constraint when migrating (true/false)
+disable-foreign-key-constraint-when-migrating: true
+# disable nested transaction (true/false)
+disable-nested-transaction: false
+# allow global update (true/false)
+allow-global-update: false
+# query fields (true/false)
+query-fields: true
+# create batch size (整数)
+create-batch-size: 100
+# singular table (true/false)
+singular-table: true

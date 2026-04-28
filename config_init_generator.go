@@ -163,6 +163,7 @@ func (sg *SmartConfigGenerator) registerAllModules() {
 		{Name: "mysql", PackageName: "database", DefaultFunc: func() interface{} { return database.DefaultMySQL() }, OutputSubDir: "database", Description: "MySQL数据库", Enabled: true},
 		{Name: "postgresql", PackageName: "database", DefaultFunc: func() interface{} { return database.DefaultPostgreSQL() }, OutputSubDir: "database", Description: "PostgreSQL数据库", Enabled: true},
 		{Name: "sqlite", PackageName: "database", DefaultFunc: func() interface{} { return database.DefaultSQLite() }, OutputSubDir: "database", Description: "SQLite数据库", Enabled: true},
+		{Name: "cockroachdb", PackageName: "database", DefaultFunc: func() interface{} { return database.DefaultCockroachDB() }, OutputSubDir: "database", Description: "Cockroachdb数据库", Enabled: true},
 		{Name: "elasticsearch", PackageName: "elasticsearch", DefaultFunc: func() interface{} { return elasticsearch.Default() }, OutputSubDir: "elasticsearch", Description: "Elasticsearch搜索引擎", Enabled: true},
 		{Name: "email", PackageName: "email", DefaultFunc: func() interface{} { return email.Default() }, OutputSubDir: "email", Description: "邮件发送模块", Enabled: true},
 		{Name: "etcd", PackageName: "etcd", DefaultFunc: func() interface{} { return etcd.Default() }, OutputSubDir: "etcd", Description: "Etcd分布式键值存储", Enabled: true},
