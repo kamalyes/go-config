@@ -23,19 +23,21 @@ import (
 //   - 事件驱动架构中的发布/订阅
 //   - 启用 JetStream 后支持消息持久化、重放
 type Nats struct {
-	URL            string `mapstructure:"url" yaml:"url" json:"url" validate:"required"`                                                    // NATS 服务器地址，如 nats://127.0.0.1:4222
-	Name           string `mapstructure:"name" yaml:"name" json:"name"`                                                                     // 客户端名称，用于服务端识别
-	Username       string `mapstructure:"username" yaml:"username" json:"username"`                                                         // 用户名（可选）
-	Password       string `mapstructure:"password" yaml:"password" json:"password"`                                                         // 密码（可选）
-	Token          string `mapstructure:"token" yaml:"token" json:"token"`                                                                  // Token 鉴权（可选）
-	JetStream      bool   `mapstructure:"jet-stream" yaml:"jet-stream" json:"jetStream"`                                                    // 是否启用 JetStream 持久化
-	StreamName     string `mapstructure:"stream-name" yaml:"stream-name" json:"streamName"`                                                 // JetStream Stream 名称（启用 JetStream 时生效）
-	ConnectTimeout int    `mapstructure:"connect-timeout" yaml:"connect-timeout" json:"connectTimeout" validate:"min=1"`                    // 连接超时时间（秒）
-	ReconnectWait  int    `mapstructure:"reconnect-wait" yaml:"reconnect-wait" json:"reconnectWait" validate:"min=1"`                       // 重连等待时间（秒）
-	MaxReconnects  int    `mapstructure:"max-reconnects" yaml:"max-reconnects" json:"maxReconnects"`                                        // 最大重连次数，-1 表示无限
-	ChannelPrefix  string `mapstructure:"channel-prefix" yaml:"channel-prefix" json:"channelPrefix"`                                        // Subject 前缀（上层业务可基于此构造租户级 Subject）
-	Source         string `mapstructure:"source" yaml:"source" json:"source"`                                                               // 当前节点标识（为空时由业务方自动生成），用于消息去重与来源过滤
-	ModuleName     string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                                 // 模块名称
+	URL             string `mapstructure:"url" yaml:"url" json:"url" validate:"required"`                                 // NATS 服务器地址，如 nats://127.0.0.1:4222
+	Name            string `mapstructure:"name" yaml:"name" json:"name"`                                                  // 客户端名称，用于服务端识别
+	Username        string `mapstructure:"username" yaml:"username" json:"username"`                                      // 用户名（可选）
+	Password        string `mapstructure:"password" yaml:"password" json:"password"`                                      // 密码（可选）
+	Token           string `mapstructure:"token" yaml:"token" json:"token"`                                               // Token 鉴权（可选）
+	JetStream       bool   `mapstructure:"jet-stream" yaml:"jet-stream" json:"jetStream"`                                 // 是否启用 JetStream 持久化
+	StreamName      string `mapstructure:"stream-name" yaml:"stream-name" json:"streamName"`                              // JetStream Stream 名称（启用 JetStream 时生效）
+	ConnectTimeout  int    `mapstructure:"connect-timeout" yaml:"connect-timeout" json:"connectTimeout" validate:"min=1"` // 连接超时时间（秒）
+	ReconnectWait   int    `mapstructure:"reconnect-wait" yaml:"reconnect-wait" json:"reconnectWait" validate:"min=1"`    // 重连等待时间（秒）
+	MaxReconnects   int    `mapstructure:"max-reconnects" yaml:"max-reconnects" json:"maxReconnects"`                     // 最大重连次数，-1 表示无限
+	ChannelPrefix   string `mapstructure:"channel-prefix" yaml:"channel-prefix" json:"channelPrefix"`                     // Subject 前缀（上层业务可基于此构造租户级 Subject）
+	Source          string `mapstructure:"source" yaml:"source" json:"source"`                                            // 当前节点标识（为空时由业务方自动生成），用于消息去重与来源过滤
+	ModuleName      string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                              // 模块名称
+	WorkerPoolSize  int    `mapstructure:"worker-pool-size" yaml:"worker-pool-size" json:"workerPoolSize"`                // 全局消费者 WorkerPool 大小（0 表示不初始化）
+	WorkerQueueSize int    `mapstructure:"worker-queue-size" yaml:"worker-queue-size" json:"workerQueueSize"`             // 全局消费者 WorkerPool 任务队列大小（0 表示不初始化）
 }
 
 // NewNats 创建一个新的 Nats 实例
@@ -78,6 +80,8 @@ func (n *Nats) Set(data interface{}) {
 		n.MaxReconnects = configData.MaxReconnects
 		n.ChannelPrefix = configData.ChannelPrefix
 		n.Source = configData.Source
+		n.WorkerPoolSize = configData.WorkerPoolSize
+		n.WorkerQueueSize = configData.WorkerQueueSize
 	}
 }
 
@@ -89,16 +93,18 @@ func (n *Nats) Validate() error {
 // DefaultNats 返回默认 NATS 配置
 func DefaultNats() Nats {
 	return Nats{
-		ModuleName:     "nats",
-		URL:            "nats://127.0.0.1:4222",
-		Name:           "go-config-nats-client",
-		JetStream:      false,
-		StreamName:     "",
-		ConnectTimeout: 10, // 10 秒
-		ReconnectWait:  2,  // 2 秒
-		MaxReconnects:  10,
-		ChannelPrefix:  "",
-		Source:         "",
+		ModuleName:      "nats",
+		URL:             "nats://127.0.0.1:4222",
+		Name:            "go-config-nats-client",
+		JetStream:       false,
+		StreamName:      "",
+		ConnectTimeout:  10, // 10 秒
+		ReconnectWait:   2,  // 2 秒
+		MaxReconnects:   10,
+		ChannelPrefix:   "",
+		Source:          "",
+		WorkerPoolSize:  4,
+		WorkerQueueSize: 100,
 	}
 }
 
@@ -183,5 +189,17 @@ func (n *Nats) WithChannelPrefix(prefix string) *Nats {
 // WithSource 设置当前节点标识
 func (n *Nats) WithSource(source string) *Nats {
 	n.Source = source
+	return n
+}
+
+// WithWorkerPoolSize 设置全局消费者 WorkerPool 大小
+func (n *Nats) WithWorkerPoolSize(size int) *Nats {
+	n.WorkerPoolSize = size
+	return n
+}
+
+// WithWorkerQueueSize 设置全局消费者 WorkerPool 任务队列大小
+func (n *Nats) WithWorkerQueueSize(size int) *Nats {
+	n.WorkerQueueSize = size
 	return n
 }

@@ -386,7 +386,9 @@
     "maxReconnects": 10,
     "channelPrefix": "",
     "source": "",
-    "moduleName": "nats"
+    "moduleName": "nats",
+    "workerPoolSize": 4,
+    "workerQueueSize": 100
   },
   "elasticsearch": {
     "endpoint": "http://127.0.0.1:9200",

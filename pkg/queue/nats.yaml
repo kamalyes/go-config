@@ -31,3 +31,7 @@ channel-prefix: ""
 source: ""
 # 模块名称
 module-name: nats
+# 全局消费者 WorkerPool 大小
+worker-pool-size: 4
+# 全局消费者 WorkerPool 任务队列大小
+worker-queue-size: 100
