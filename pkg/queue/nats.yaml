@@ -1,0 +1,33 @@
+# nats模块配置文件
+# 模块名称: nats
+# 包名: queue  
+# 描述: NATS消息队列
+# 生成时间: 2026-04-23 23:19:55
+# 注意: 此文件由配置生成器自动生成
+
+# NATS 服务器地址，如 nats://127.0.0.1:4222
+url: nats://127.0.0.1:4222
+# 客户端名称，用于服务端识别
+name: go-config-nats-client
+# 用户名（可选）
+username: ""
+# 密码（可选）
+password: ""
+# Token 鉴权（可选）
+token: ""
+# 是否启用 JetStream 持久化
+jet-stream: false
+# JetStream Stream 名称（启用 JetStream 时生效）
+stream-name: ""
+# 连接超时时间（秒）
+connect-timeout: 10
+# 重连等待时间（秒）
+reconnect-wait: 2
+# 最大重连次数，-1 表示无限
+max-reconnects: 10
+# Subject 前缀（上层业务可基于此构造租户级 Subject）
+channel-prefix: ""
+# 当前节点标识（为空时由业务方自动生成），用于消息去重与来源过滤
+source: ""
+# 模块名称
+module-name: nats

@@ -63,6 +63,7 @@ type Gateway struct {
 	Kafka          *kafka.Kafka                 `mapstructure:"kafka" yaml:"kafka" json:"kafka"`                              // Kafka配置
 	OSS            *oss.OSSConfig               `mapstructure:"oss" yaml:"oss" json:"oss"`                                    // 对象存储统一配置
 	Mqtt           *queue.Mqtt                  `mapstructure:"mqtt" yaml:"mqtt" json:"mqtt"`                                 // MQTT配置
+	Nats           *queue.Nats                  `mapstructure:"nats" yaml:"nats" json:"nats"`                                 // NATS配置
 	Elasticsearch  *elasticsearch.Elasticsearch `mapstructure:"elasticsearch" yaml:"elasticsearch" json:"elasticsearch"`      // Elasticsearch配置
 	Smtp           *smtp.Smtp                   `mapstructure:"smtp" yaml:"smtp" json:"smtp"`                                 // SMTP邮件服务配置
 	Health         *health.Health               `mapstructure:"health" yaml:"health" json:"health"`                           // 健康检查配置
@@ -104,6 +105,7 @@ func Default() *Gateway {
 		Kafka:          kafka.Default(),
 		OSS:            oss.DefaultOSSConfig(),
 		Mqtt:           queue.Default(),
+		Nats:           queue.DefaultNatsPtr(),
 		Elasticsearch:  elasticsearch.Default(),
 		Smtp:           smtp.Default(),
 		Health:         health.Default(),
@@ -200,6 +202,11 @@ func (c *Gateway) Validate() error {
 	}
 	if c.Mqtt != nil {
 		if err := c.Mqtt.Validate(); err != nil {
+			return err
+		}
+	}
+	if c.Nats != nil {
+		if err := c.Nats.Validate(); err != nil {
 			return err
 		}
 	}
