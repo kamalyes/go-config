@@ -43,6 +43,8 @@ type RequestContext struct {
 	SessionIDSources  []common.AttributeSource `mapstructure:"session-id-sources" yaml:"session-id-sources" json:"sessionIdSources"`    // X-Session-ID 提取来源
 	TimezoneSources   []common.AttributeSource `mapstructure:"timezone-sources" yaml:"timezone-sources" json:"timezoneSources"`         // X-Timezone 提取来源
 	IDSources         []common.AttributeSource `mapstructure:"id-sources" yaml:"id-sources" json:"idSources"`                           // X-ID 提取来源
+	DomainSources     []common.AttributeSource `mapstructure:"domain-sources" yaml:"domain-sources" json:"domainSources"`               // X-Domain 提取来源
+	RoleCodeSources   []common.AttributeSource `mapstructure:"role-code-sources" yaml:"role-code-sources" json:"roleCodeSources"`       // X-Role-Code 提取来源
 
 	// 设备和应用相关头部
 	DeviceIDSources     []common.AttributeSource `mapstructure:"device-id-sources" yaml:"device-id-sources" json:"deviceIdSources"`             // X-Device-Id / X-Device-ID 提取来源
@@ -151,6 +153,17 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeHeader, Key: "X-ID"},
 			{Type: common.SourceTypeQuery, Key: "id"},
 			{Type: common.SourceTypeCookie, Key: "id"},
+		},
+		DomainSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Domain"},
+			{Type: common.SourceTypeQuery, Key: "domain"},
+			{Type: common.SourceTypeCookie, Key: "domain"},
+		},
+		RoleCodeSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Role-Code"},
+			{Type: common.SourceTypeQuery, Key: "role_code"},
+			{Type: common.SourceTypeQuery, Key: "roleCode"},
+			{Type: common.SourceTypeCookie, Key: "role_code"},
 		},
 
 		DeviceIDSources: []common.AttributeSource{
@@ -277,6 +290,8 @@ func (c *RequestContext) Validate() error {
 		c.SessionIDSources,
 		c.TimezoneSources,
 		c.IDSources,
+		c.DomainSources,
+		c.RoleCodeSources,
 		c.DeviceIDSources,
 		c.AppIDSources,
 		c.AppVersionSources,

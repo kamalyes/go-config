@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2026-04-28 11:57:09
+// 生成时间: 2026-05-12 21:08:18
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2026-04-28T11:57:09+08:00",
+  "buildTime": "2026-05-12T21:08:18+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "dd610b33f25a8994e7fb073843b266fb",
+  "gitCommit": "ea8e5fc327ec0c7238abf61a0ae2edeb",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -889,6 +889,38 @@
       {
         "type": "cookie",
         "key": "id"
+      }
+    ],
+    "domainSources": [
+      {
+        "type": "header",
+        "key": "X-Domain"
+      },
+      {
+        "type": "query",
+        "key": "domain"
+      },
+      {
+        "type": "cookie",
+        "key": "domain"
+      }
+    ],
+    "roleCodeSources": [
+      {
+        "type": "header",
+        "key": "X-Role-Code"
+      },
+      {
+        "type": "query",
+        "key": "role_code"
+      },
+      {
+        "type": "query",
+        "key": "roleCode"
+      },
+      {
+        "type": "cookie",
+        "key": "role_code"
       }
     ],
     "deviceIdSources": [
