@@ -5,8 +5,8 @@ go 1.25.0
 require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-viper/mapstructure/v2 v2.4.0
-	github.com/kamalyes/go-logger v0.4.6-0.20260423015836-299999af76ec
-	github.com/kamalyes/go-toolbox v0.11.88-0.20260422051535-9c51526b8753
+	github.com/kamalyes/go-logger v0.4.6
+	github.com/kamalyes/go-toolbox v0.12.0
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 )
@@ -39,3 +39,8 @@ require (
 	golang.org/x/text v0.33.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+// 本地开发替换
+// replace github.com/kamalyes/go-toolbox => ../go-toolbox
+
+// replace github.com/kamalyes/go-logger => ../go-logger
