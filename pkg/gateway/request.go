@@ -244,6 +244,104 @@ func DefaultRequestContext() *RequestContext {
 	}
 }
 
+// FieldSourceKeys 存储单个字段的所有来源 key（header / query / cookie）
+type FieldSourceKeys struct {
+	Header string
+	Query  string
+	Cookie string
+}
+
+// SourceKeys 存储每个字段对应的各来源类型的首选 Key
+// 用于外部包动态获取 header / query / cookie key，而非依赖硬编码常量
+type SourceKeys struct {
+	ID             FieldSourceKeys
+	TraceID        FieldSourceKeys
+	RequestID      FieldSourceKeys
+	Authorization  FieldSourceKeys
+	UserAgent      FieldSourceKeys
+	ClientID       FieldSourceKeys
+	UserID         FieldSourceKeys
+	UserType       FieldSourceKeys
+	Domain         FieldSourceKeys
+	RoleCode       FieldSourceKeys
+	TenantID       FieldSourceKeys
+	TenantCode     FieldSourceKeys
+	SessionID      FieldSourceKeys
+	Timezone       FieldSourceKeys
+	RealIP         FieldSourceKeys
+	ForwardedFor   FieldSourceKeys
+	ForwardedProto FieldSourceKeys
+	DeviceID       FieldSourceKeys
+	AppID          FieldSourceKeys
+	AppVersion     FieldSourceKeys
+	PlatformID     FieldSourceKeys
+	PlatformCode   FieldSourceKeys
+	RegionID       FieldSourceKeys
+	RegionCode     FieldSourceKeys
+	Timestamp      FieldSourceKeys
+	Signature      FieldSourceKeys
+	Nonce          FieldSourceKeys
+	AccessKey      FieldSourceKeys
+	Origin         FieldSourceKeys
+	CSRFToken      FieldSourceKeys
+}
+
+// firstSourceKey 返回 sources 中第一个指定类型来源的 Key
+func firstSourceKey(sources []common.AttributeSource, sourceType common.AttributeSourceType) string {
+	for _, s := range sources {
+		if s.Type == sourceType {
+			return s.Key
+		}
+	}
+	return ""
+}
+
+// extractFieldSourceKeys 从 sources 中提取所有来源类型的首选 Key
+func extractFieldSourceKeys(sources []common.AttributeSource) FieldSourceKeys {
+	return FieldSourceKeys{
+		Header: firstSourceKey(sources, common.SourceTypeHeader),
+		Query:  firstSourceKey(sources, common.SourceTypeQuery),
+		Cookie: firstSourceKey(sources, common.SourceTypeCookie),
+	}
+}
+
+// GetSourceKeys 从当前 RequestContext 配置中提取所有字段的各来源首选 key
+// 当配置变更时，调用此方法可获取最新的 key
+func (c *RequestContext) GetSourceKeys() *SourceKeys {
+	return &SourceKeys{
+		ID:             extractFieldSourceKeys(c.IDSources),
+		TraceID:        extractFieldSourceKeys(c.TraceIDSources),
+		RequestID:      extractFieldSourceKeys(c.RequestIDSources),
+		Authorization:  extractFieldSourceKeys(c.AuthorizationSources),
+		UserAgent:      extractFieldSourceKeys(c.UserAgentSources),
+		ClientID:       extractFieldSourceKeys(c.ClientIDSources),
+		UserID:         extractFieldSourceKeys(c.UserIDSources),
+		UserType:       extractFieldSourceKeys(c.UserTypeSources),
+		Domain:         extractFieldSourceKeys(c.DomainSources),
+		RoleCode:       extractFieldSourceKeys(c.RoleCodeSources),
+		TenantID:       extractFieldSourceKeys(c.TenantIDSources),
+		TenantCode:     extractFieldSourceKeys(c.TenantCodeSources),
+		SessionID:      extractFieldSourceKeys(c.SessionIDSources),
+		Timezone:       extractFieldSourceKeys(c.TimezoneSources),
+		RealIP:         extractFieldSourceKeys(c.RealIPSources),
+		ForwardedFor:   extractFieldSourceKeys(c.ForwardedForSources),
+		ForwardedProto: extractFieldSourceKeys(c.ForwardedProtoSources),
+		DeviceID:       extractFieldSourceKeys(c.DeviceIDSources),
+		AppID:          extractFieldSourceKeys(c.AppIDSources),
+		AppVersion:     extractFieldSourceKeys(c.AppVersionSources),
+		PlatformID:     extractFieldSourceKeys(c.PlatformIDSources),
+		PlatformCode:   extractFieldSourceKeys(c.PlatformCodeSources),
+		RegionID:       extractFieldSourceKeys(c.RegionIDSources),
+		RegionCode:     extractFieldSourceKeys(c.RegionCodeSources),
+		Timestamp:      extractFieldSourceKeys(c.TimestampSources),
+		Signature:      extractFieldSourceKeys(c.SignatureSources),
+		Nonce:          extractFieldSourceKeys(c.NonceSources),
+		AccessKey:      extractFieldSourceKeys(c.AccessKeySources),
+		Origin:         extractFieldSourceKeys(c.OriginSources),
+		CSRFToken:      extractFieldSourceKeys(c.CSRFTokenSources),
+	}
+}
+
 // Get 返回配置接口
 func (c *RequestContext) Get() any {
 	return c
