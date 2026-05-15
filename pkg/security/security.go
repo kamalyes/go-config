@@ -23,6 +23,8 @@ type Security struct {
 	Auth       *Auth       `mapstructure:"auth" yaml:"auth" json:"auth"`                     // 通用认证配置
 	Protection *Protection `mapstructure:"protection" yaml:"protection" json:"protection"`   // 服务保护配置
 	CSP        *CSP        `mapstructure:"csp" yaml:"csp" json:"csp"`                        // CSP内容安全策略配置
+	CSRF       *CSRF       `mapstructure:"csrf" yaml:"csrf" json:"csrf"`                     // CSRF 防护配置
+	Validation *Validation `mapstructure:"validation" yaml:"validation" json:"validation"`   // 安全校验规则
 }
 
 // JWT JWT配置
@@ -105,6 +107,23 @@ type ServiceProtection struct {
 	RequireHTTPS bool     `mapstructure:"require-https" yaml:"require-https" json:"requireHttps"` // 是否要求HTTPS
 	Username     string   `mapstructure:"username" yaml:"username" json:"username"`               // 用户名
 	Password     string   `mapstructure:"password" yaml:"password" json:"password"`               // 密码
+}
+
+// CSRF 防护配置
+type CSRF struct {
+	Enabled         bool     `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                             // 是否启用 CSRF 防护
+	ExemptMethods   []string `mapstructure:"exempt-methods" yaml:"exempt-methods" json:"exemptMethods"`         // 豁免校验的 HTTP 方法
+	TokenFormField  string   `mapstructure:"token-form-field" yaml:"token-form-field" json:"tokenFormField"`    // 表单字段名
+	TokenCookieName string   `mapstructure:"token-cookie-name" yaml:"token-cookie-name" json:"tokenCookieName"` // Cookie 名称
+	TokenLength     int      `mapstructure:"token-length" yaml:"token-length" json:"tokenLength"`               // Token 长度
+	Secret          string   `mapstructure:"secret" yaml:"secret" json:"secret"`                                // Token 生成密钥
+}
+
+// Validation 安全校验规则配置
+type Validation struct {
+	HTTPMethods         []string `mapstructure:"http-methods" yaml:"http-methods" json:"httpMethods"`                         // 有效 HTTP 方法集合
+	DangerousExtensions []string `mapstructure:"dangerous-extensions" yaml:"dangerous-extensions" json:"dangerousExtensions"` // 危险文件扩展名
+	XSSPatterns         []string `mapstructure:"xss-patterns" yaml:"xss-patterns" json:"xssPatterns"`                         // XSS 检测模式
 }
 
 // CSP 内容安全策略配置
@@ -206,6 +225,39 @@ func Default() *Security {
 			Enabled: false,
 			Mode:    "balanced", // 默认使用平衡模式
 			Custom:  "",
+		},
+		CSRF:       DefaultCSRF(),
+		Validation: DefaultValidation(),
+	}
+}
+
+// DefaultCSRF 创建默认 CSRF 配置
+func DefaultCSRF() *CSRF {
+	return &CSRF{
+		Enabled:         false,
+		ExemptMethods:   []string{"GET", "HEAD", "OPTIONS", "TRACE"},
+		TokenFormField:  "_csrf_token",
+		TokenCookieName: "csrf_token",
+		TokenLength:     32,
+		Secret:          "csrf-secret",
+	}
+}
+
+// DefaultValidation 创建默认安全校验规则
+func DefaultValidation() *Validation {
+	return &Validation{
+		HTTPMethods: []string{"OPTIONS", "GET", "HEAD", "POST", "PUT", "PATCH", "TRACE", "DELETE"},
+		DangerousExtensions: []string{
+			".exe", ".bat", ".cmd", ".scr", ".pif", ".com",
+			".js", ".vbs", ".ps1", ".sh", ".php", ".asp",
+		},
+		XSSPatterns: []string{
+			"<script",
+			"javascript:",
+			"onload=",
+			"onerror=",
+			"onclick=",
+			"onmouseover=",
 		},
 	}
 }

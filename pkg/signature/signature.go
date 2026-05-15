@@ -42,6 +42,9 @@ type Signature struct {
 	TimeoutWindow    time.Duration       `mapstructure:"timeout-window" yaml:"timeout-window" json:"timeoutWindow"`          // 请求时间窗口
 	IgnorePaths      []string            `mapstructure:"ignore-paths" yaml:"ignore-paths" json:"ignorePaths"`                // 忽略签名验证的路径
 	SkipQuery        bool                `mapstructure:"skip-query" yaml:"skip-query" json:"skipQuery"`                      // 是否跳过查询参数
+	SkipHeaders      []string            `mapstructure:"skip-headers" yaml:"skip-headers" json:"skipHeaders"`                // 不参与签名计算的 headers
+	RequiredHeaders  []string            `mapstructure:"required-headers" yaml:"required-headers" json:"requiredHeaders"`    // 签名校验必须包含的 headers
+	TimestampFormat  string              `mapstructure:"timestamp-format" yaml:"timestamp-format" json:"timestampFormat"`    // 时间戳格式
 	SkipBody         bool                `mapstructure:"skip-body" yaml:"skip-body" json:"skipBody"`                         // 是否跳过请求体
 }
 
@@ -64,8 +67,23 @@ func Default() *Signature {
 			"/metrics",
 			"/ping",
 		},
-		SkipQuery: false,
-		SkipBody:  false,
+		SkipHeaders: []string{
+			"Authorization",
+			"User-Agent",
+			"Accept",
+			"Accept-Encoding",
+			"Accept-Language",
+			"Connection",
+			"Cache-Control",
+			"X-Signature",
+		},
+		RequiredHeaders: []string{
+			"X-Timestamp",
+			"Content-Type",
+		},
+		TimestampFormat: "unix",
+		SkipQuery:       false,
+		SkipBody:        false,
 	}
 }
 
@@ -123,6 +141,24 @@ func (s *Signature) AddIgnorePath(path string) *Signature {
 // WithSkipQuery 设置是否跳过查询参数
 func (s *Signature) WithSkipQuery(skip bool) *Signature {
 	s.SkipQuery = skip
+	return s
+}
+
+// WithSkipHeaders 设置不参与签名计算的 headers
+func (s *Signature) WithSkipHeaders(headers []string) *Signature {
+	s.SkipHeaders = headers
+	return s
+}
+
+// WithRequiredHeaders 设置签名校验必须包含的 headers
+func (s *Signature) WithRequiredHeaders(headers []string) *Signature {
+	s.RequiredHeaders = headers
+	return s
+}
+
+// WithTimestampFormat 设置时间戳格式
+func (s *Signature) WithTimestampFormat(format string) *Signature {
+	s.TimestampFormat = format
 	return s
 }
 

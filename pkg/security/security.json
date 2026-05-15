@@ -2,7 +2,7 @@
 // 模块名称: security
 // 包名: security  
 // 描述: 安全模块
-// 生成时间: 2026-03-09 19:56:22
+// 生成时间: 2026-05-15 16:19:59
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -90,5 +90,52 @@
     "enabled": false,
     "mode": "balanced",
     "custom": ""
+  },
+  "csrf": {
+    "enabled": false,
+    "exemptMethods": [
+      "GET",
+      "HEAD",
+      "OPTIONS",
+      "TRACE"
+    ],
+    "tokenFormField": "_csrf_token",
+    "tokenCookieName": "csrf_token",
+    "tokenLength": 32,
+    "secret": "csrf-secret"
+  },
+  "validation": {
+    "httpMethods": [
+      "OPTIONS",
+      "GET",
+      "HEAD",
+      "POST",
+      "PUT",
+      "PATCH",
+      "TRACE",
+      "DELETE"
+    ],
+    "dangerousExtensions": [
+      ".exe",
+      ".bat",
+      ".cmd",
+      ".scr",
+      ".pif",
+      ".com",
+      ".js",
+      ".vbs",
+      ".ps1",
+      ".sh",
+      ".php",
+      ".asp"
+    ],
+    "xssPatterns": [
+      "\u003cscript",
+      "javascript:",
+      "onload=",
+      "onerror=",
+      "onclick=",
+      "onmouseover="
+    ]
   }
 }

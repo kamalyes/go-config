@@ -22,8 +22,8 @@ github.com/kamalyes/go-jsonpath v0.0.0-20260129163507-0b67ed48bb28 h1:mftqfK+BB1
 github.com/kamalyes/go-jsonpath v0.0.0-20260129163507-0b67ed48bb28/go.mod h1:Yu4Vw7F4dOKlhHK5RzBHYDvoSRdeHJgVwAjqXHXu4p4=
 github.com/kamalyes/go-logger v0.4.6 h1:kVJGp54IGAGrVHTwzwNKBYlcIyzrnfstXuhIFP8hjqU=
 github.com/kamalyes/go-logger v0.4.6/go.mod h1:3w7WwuBoJfWh+P/nrsxjjHk+xNtTNsBJdw3bXzYlFeg=
-github.com/kamalyes/go-toolbox v0.12.0 h1:ezby/cK83e4UxS4B8Ta02OgIFch8cw/Cz372rmCDNQE=
-github.com/kamalyes/go-toolbox v0.12.0/go.mod h1:T0toLZCP952jKKJFo8Rn+sZ9OktxxU7GYWFPpk/c98k=
+github.com/kamalyes/go-toolbox v0.12.1-0.20260515075122-8e9c571fbaa5 h1:l74VqefphDjyoUvEHkl2fFA9LXO8kg9VzWIpY70FuKI=
+github.com/kamalyes/go-toolbox v0.12.1-0.20260515075122-8e9c571fbaa5/go.mod h1:T0toLZCP952jKKJFo8Rn+sZ9OktxxU7GYWFPpk/c98k=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=

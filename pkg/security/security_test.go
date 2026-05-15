@@ -25,6 +25,8 @@ func TestSecurity_Default(t *testing.T) {
 	assert.NotNil(t, config.Auth)
 	assert.NotNil(t, config.Protection)
 	assert.NotNil(t, config.CSP)
+	assert.NotNil(t, config.CSRF)
+	assert.NotNil(t, config.Validation)
 }
 
 func TestSecurity_JWT_Default(t *testing.T) {
@@ -147,6 +149,22 @@ func TestSecurity_CSP_Default(t *testing.T) {
 	assert.False(t, config.CSP.Enabled)
 	assert.Equal(t, "balanced", config.CSP.Mode)
 	assert.Equal(t, "", config.CSP.Custom)
+}
+
+func TestSecurity_CSRF_Default(t *testing.T) {
+	config := Default()
+	assert.False(t, config.CSRF.Enabled)
+	assert.Contains(t, config.CSRF.ExemptMethods, "GET")
+	assert.Equal(t, "_csrf_token", config.CSRF.TokenFormField)
+	assert.Equal(t, "csrf_token", config.CSRF.TokenCookieName)
+	assert.Equal(t, 32, config.CSRF.TokenLength)
+}
+
+func TestSecurity_Validation_Default(t *testing.T) {
+	config := Default()
+	assert.Contains(t, config.Validation.HTTPMethods, "OPTIONS")
+	assert.Contains(t, config.Validation.DangerousExtensions, ".exe")
+	assert.Contains(t, config.Validation.XSSPatterns, "<script")
 }
 
 func TestSecurity_CSP_GetPolicy(t *testing.T) {

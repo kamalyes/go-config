@@ -28,6 +28,9 @@ func TestSignature_Default(t *testing.T) {
 	assert.Equal(t, sign.AlgorithmSHA256, config.Algorithm)
 	assert.Equal(t, time.Minute*5, config.TimeoutWindow)
 	assert.NotNil(t, config.IgnorePaths)
+	assert.Contains(t, config.SkipHeaders, "X-Signature")
+	assert.Contains(t, config.RequiredHeaders, "X-Timestamp")
+	assert.Equal(t, "unix", config.TimestampFormat)
 	assert.False(t, config.SkipQuery)
 	assert.False(t, config.SkipBody)
 }
@@ -66,6 +69,19 @@ func TestSignature_WithSkipQuery(t *testing.T) {
 	config := Default()
 	result := config.WithSkipQuery(true)
 	assert.True(t, result.SkipQuery)
+	assert.Equal(t, config, result)
+}
+
+func TestSignature_WithHeaderRules(t *testing.T) {
+	config := Default()
+	result := config.
+		WithSkipHeaders([]string{"Authorization"}).
+		WithRequiredHeaders([]string{"X-Timestamp"}).
+		WithTimestampFormat(time.RFC3339)
+
+	assert.Equal(t, []string{"Authorization"}, result.SkipHeaders)
+	assert.Equal(t, []string{"X-Timestamp"}, result.RequiredHeaders)
+	assert.Equal(t, time.RFC3339, result.TimestampFormat)
 	assert.Equal(t, config, result)
 }
 

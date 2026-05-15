@@ -2,7 +2,7 @@
 # 模块名称: signature
 # 包名: signature  
 # 描述: 数字签名模块
-# 生成时间: 2026-03-21 00:25:57
+# 生成时间: 2026-05-15 16:19:59
 # 注意: 此文件由配置生成器自动生成
 
 # 模块名称
@@ -34,5 +34,21 @@ ignore-paths:
     - /ping
 # 是否跳过查询参数
 skip-query: false
+# 不参与签名计算的 headers
+skip-headers:
+    - Authorization
+    - User-Agent
+    - Accept
+    - Accept-Encoding
+    - Accept-Language
+    - Connection
+    - Cache-Control
+    - X-Signature
+# 签名校验必须包含的 headers
+required-headers:
+    - X-Timestamp
+    - Content-Type
+# 时间戳格式
+timestamp-format: unix
 # 是否跳过请求体
 skip-body: false
