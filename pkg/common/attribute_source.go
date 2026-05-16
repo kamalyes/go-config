@@ -13,7 +13,7 @@ package common
 import (
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/kamalyes/go-argus"
 )
 
 // AttributeSourceType 属性提取来源类型

@@ -14,7 +14,7 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/kamalyes/go-argus"
 	"gopkg.in/yaml.v3"
 )
 
