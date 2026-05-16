@@ -24,41 +24,62 @@ type GRPC struct {
 	Clients map[string]*GRPCClient `mapstructure:"clients" yaml:"clients" json:"clients"` // GRPC客户端配置（key为服务名）
 }
 
+// GRPCCompressType GRPC压缩算法类型
+type GRPCCompressType string
+
+const (
+	GRPCCompressGzip   GRPCCompressType = "gzip"   // Gzip压缩
+	GRPCCompressSnappy GRPCCompressType = "snappy" // Snappy压缩（高速度）
+	GRPCCompressZstd   GRPCCompressType = "zstd"   // Zstandard压缩（高压缩率）
+)
+
+// String 实现 Stringer 接口，返回压缩算法类型的字符串表示
+func (c GRPCCompressType) String() string {
+	return string(c)
+}
+
 // GRPCServer GRPC服务端配置
 type GRPCServer struct {
-	Enable            bool   `mapstructure:"enable" yaml:"enable" json:"enable"`                                    // 是否启用GRPC服务
-	Host              string `mapstructure:"host" yaml:"host" json:"host"`                                          // 主机地址
-	Port              int    `mapstructure:"port" yaml:"port" json:"port"`                                          // 端口
-	Network           string `mapstructure:"network" yaml:"network" json:"network"`                                 // 网络类型 (tcp, tcp4, tcp6, unix)
-	MaxRecvMsgSize    int    `mapstructure:"max-recv-msg-size" yaml:"max-recv-msg-size" json:"maxRecvMsgSize"`      // 最大接收消息大小(字节)
-	MaxSendMsgSize    int    `mapstructure:"max-send-msg-size" yaml:"max-send-msg-size" json:"maxSendMsgSize"`      // 最大发送消息大小(字节)
-	KeepaliveTime     int    `mapstructure:"keepalive-time" yaml:"keepalive-time" json:"keepaliveTime"`             // Keepalive时间(秒)
-	KeepaliveTimeout  int    `mapstructure:"keepalive-timeout" yaml:"keepalive-timeout" json:"keepaliveTimeout"`    // Keepalive超时(秒)
-	ConnectionTimeout int    `mapstructure:"connection-timeout" yaml:"connection-timeout" json:"connectionTimeout"` // 连接超时(秒)
-	EnableReflection  bool   `mapstructure:"enable-reflection" yaml:"enable-reflection" json:"enableReflection"`    // 是否启用反射
-	Endpoint          string `mapstructure:"-" yaml:"-" json:""`                                                    // 完整的服务端点地址（自动计算）
+	Enable             bool             `mapstructure:"enable" yaml:"enable" json:"enable"`                                         // 是否启用GRPC服务
+	Host               string           `mapstructure:"host" yaml:"host" json:"host"`                                               // 主机地址
+	Port               int              `mapstructure:"port" yaml:"port" json:"port"`                                               // 端口
+	Network            string           `mapstructure:"network" yaml:"network" json:"network"`                                      // 网络类型 (tcp, tcp4, tcp6, unix)
+	MaxRecvMsgSize     int              `mapstructure:"max-recv-msg-size" yaml:"max-recv-msg-size" json:"maxRecvMsgSize"`           // 最大接收消息大小(字节)
+	MaxSendMsgSize     int              `mapstructure:"max-send-msg-size" yaml:"max-send-msg-size" json:"maxSendMsgSize"`           // 最大发送消息大小(字节)
+	KeepaliveTime      int              `mapstructure:"keepalive-time" yaml:"keepalive-time" json:"keepaliveTime"`                  // Keepalive时间(秒)
+	KeepaliveTimeout   int              `mapstructure:"keepalive-timeout" yaml:"keepalive-timeout" json:"keepaliveTimeout"`         // Keepalive超时(秒)
+	ConnectionTimeout  int              `mapstructure:"connection-timeout" yaml:"connection-timeout" json:"connectionTimeout"`      // 连接超时(秒)
+	EnableReflection   bool             `mapstructure:"enable-reflection" yaml:"enable-reflection" json:"enableReflection"`         // 是否启用反射
+	EnableProtobufResp bool             `mapstructure:"enable-protobuf-resp" yaml:"enable-protobuf-resp" json:"enableProtobufResp"` // 是否启用protobuf格式响应（grpc-gateway场景下默认返回JSON，开启后返回原始protobuf）
+	EnableCompression  bool             `mapstructure:"enable-compression" yaml:"enable-compression" json:"enableCompression"`      // 是否启用压缩
+	CompressionType    GRPCCompressType `mapstructure:"compression-type" yaml:"compression-type" json:"compressionType"`            // 压缩算法类型 (gzip, snappy, zstd)
+	CompressionLevel   int              `mapstructure:"compression-level" yaml:"compression-level" json:"compressionLevel"`         // 压缩级别 (gzip: 1-9, zstd: 1-22, snappy: 忽略此值)
+	MinCompressSize    int              `mapstructure:"min-compress-size" yaml:"min-compress-size" json:"minCompressSize"`          // 最小压缩大小(字节)，小于此大小不压缩
+	Endpoint           string           `mapstructure:"-" yaml:"-" json:""`                                                         // 完整的服务端点地址（自动计算）
 }
 
 // GRPCClient GRPC客户端配置
 type GRPCClient struct {
-	ServiceName           string   `mapstructure:"service-name" yaml:"service-name" json:"serviceName"`                                   // 服务名称
-	Endpoints             []string `mapstructure:"endpoints" yaml:"endpoints" json:"endpoints"`                                           // 服务端点列表
-	Network               string   `mapstructure:"network" yaml:"network" json:"network"`                                                 // 网络类型 (tcp, tcp4, tcp6, unix)
-	MaxRecvMsgSize        int      `mapstructure:"max-recv-msg-size" yaml:"max-recv-msg-size" json:"maxRecvMsgSize"`                      // 最大接收消息大小(字节)
-	MaxSendMsgSize        int      `mapstructure:"max-send-msg-size" yaml:"max-send-msg-size" json:"maxSendMsgSize"`                      // 最大发送消息大小(字节)
-	KeepaliveTime         int      `mapstructure:"keepalive-time" yaml:"keepalive-time" json:"keepaliveTime"`                             // Keepalive时间(秒)
-	KeepaliveTimeout      int      `mapstructure:"keepalive-timeout" yaml:"keepalive-timeout" json:"keepaliveTimeout"`                    // Keepalive超时(秒)
-	ConnectionTimeout     int      `mapstructure:"connection-timeout" yaml:"connection-timeout" json:"connectionTimeout"`                 // 连接超时(秒)
-	RetryTimes            int      `mapstructure:"retry-times" yaml:"retry-times" json:"retryTimes"`                                      // 重试次数
-	EnableLoadBalance     bool     `mapstructure:"enable-load-balance" yaml:"enable-load-balance" json:"enableLoadBalance"`               // 是否启用负载均衡
-	LoadBalancePolicy     string   `mapstructure:"load-balance-policy" yaml:"load-balance-policy" json:"loadBalancePolicy"`               // 负载均衡策略
-	EnableTLS             bool     `mapstructure:"enable-tls" yaml:"enable-tls" json:"enableTls"`                                         // 是否启用TLS
-	TLSCertFile           string   `mapstructure:"tls-cert-file" yaml:"tls-cert-file" json:"tlsCertFile"`                                 // TLS证书文件
-	TLSKeyFile            string   `mapstructure:"tls-key-file" yaml:"tls-key-file" json:"tlsKeyFile"`                                    // TLS密钥文件
-	TLSCAFile             string   `mapstructure:"tls-ca-file" yaml:"tls-ca-file" json:"tlsCaFile"`                                       // TLS CA文件
-	InitialWindowSize     int32    `mapstructure:"initial-window-size" yaml:"initial-window-size" json:"initialWindowSize"`               // HTTP/2 初始窗口大小（字节）
-	InitialConnWindowSize int32    `mapstructure:"initial-conn-window-size" yaml:"initial-conn-window-size" json:"initialConnWindowSize"` // HTTP/2 初始连接窗口大小（字节）
-	WaitForReady          bool     `mapstructure:"wait-for-ready" yaml:"wait-for-ready" json:"waitForReady"`                              // 是否等待连接就绪
+	ServiceName           string           `mapstructure:"service-name" yaml:"service-name" json:"serviceName"`                                   // 服务名称
+	Endpoints             []string         `mapstructure:"endpoints" yaml:"endpoints" json:"endpoints"`                                           // 服务端点列表
+	Network               string           `mapstructure:"network" yaml:"network" json:"network"`                                                 // 网络类型 (tcp, tcp4, tcp6, unix)
+	MaxRecvMsgSize        int              `mapstructure:"max-recv-msg-size" yaml:"max-recv-msg-size" json:"maxRecvMsgSize"`                      // 最大接收消息大小(字节)
+	MaxSendMsgSize        int              `mapstructure:"max-send-msg-size" yaml:"max-send-msg-size" json:"maxSendMsgSize"`                      // 最大发送消息大小(字节)
+	KeepaliveTime         int              `mapstructure:"keepalive-time" yaml:"keepalive-time" json:"keepaliveTime"`                             // Keepalive时间(秒)
+	KeepaliveTimeout      int              `mapstructure:"keepalive-timeout" yaml:"keepalive-timeout" json:"keepaliveTimeout"`                    // Keepalive超时(秒)
+	ConnectionTimeout     int              `mapstructure:"connection-timeout" yaml:"connection-timeout" json:"connectionTimeout"`                 // 连接超时(秒)
+	RetryTimes            int              `mapstructure:"retry-times" yaml:"retry-times" json:"retryTimes"`                                      // 重试次数
+	EnableLoadBalance     bool             `mapstructure:"enable-load-balance" yaml:"enable-load-balance" json:"enableLoadBalance"`               // 是否启用负载均衡
+	LoadBalancePolicy     string           `mapstructure:"load-balance-policy" yaml:"load-balance-policy" json:"loadBalancePolicy"`               // 负载均衡策略
+	EnableTLS             bool             `mapstructure:"enable-tls" yaml:"enable-tls" json:"enableTls"`                                         // 是否启用TLS
+	TLSCertFile           string           `mapstructure:"tls-cert-file" yaml:"tls-cert-file" json:"tlsCertFile"`                                 // TLS证书文件
+	TLSKeyFile            string           `mapstructure:"tls-key-file" yaml:"tls-key-file" json:"tlsKeyFile"`                                    // TLS密钥文件
+	TLSCAFile             string           `mapstructure:"tls-ca-file" yaml:"tls-ca-file" json:"tlsCaFile"`                                       // TLS CA文件
+	InitialWindowSize     int32            `mapstructure:"initial-window-size" yaml:"initial-window-size" json:"initialWindowSize"`               // HTTP/2 初始窗口大小（字节）
+	InitialConnWindowSize int32            `mapstructure:"initial-conn-window-size" yaml:"initial-conn-window-size" json:"initialConnWindowSize"` // HTTP/2 初始连接窗口大小（字节）
+	WaitForReady          bool             `mapstructure:"wait-for-ready" yaml:"wait-for-ready" json:"waitForReady"`                              // 是否等待连接就绪
+	EnableCompression     bool             `mapstructure:"enable-compression" yaml:"enable-compression" json:"enableCompression"`                 // 是否启用压缩
+	CompressionType       GRPCCompressType `mapstructure:"compression-type" yaml:"compression-type" json:"compressionType"`                       // 压缩算法类型 (gzip, snappy, zstd)
 }
 
 // DefaultGRPC 创建默认GRPC配置
@@ -72,16 +93,21 @@ func DefaultGRPC() *GRPC {
 // DefaultGRPCServer 创建默认GRPC服务端配置
 func DefaultGRPCServer() *GRPCServer {
 	g := &GRPCServer{
-		Enable:            false, // 默认不启用，需要显式配置
-		Host:              "0.0.0.0",
-		Port:              9090,
-		Network:           "tcp4",          // 默认使用 tcp4 强制 IPv4
-		MaxRecvMsgSize:    4 * 1024 * 1024, // 4MB
-		MaxSendMsgSize:    4 * 1024 * 1024, // 4MB
-		KeepaliveTime:     30,
-		KeepaliveTimeout:  10,
-		ConnectionTimeout: 5,
-		EnableReflection:  true,
+		Enable:             false, // 默认不启用，需要显式配置
+		Host:               "0.0.0.0",
+		Port:               9090,
+		Network:            "tcp4",          // 默认使用 tcp4 强制 IPv4
+		MaxRecvMsgSize:     4 * 1024 * 1024, // 4MB
+		MaxSendMsgSize:     4 * 1024 * 1024, // 4MB
+		KeepaliveTime:      30,
+		KeepaliveTimeout:   10,
+		ConnectionTimeout:  5,
+		EnableReflection:   true,
+		EnableProtobufResp: false,            // 默认返回JSON（grpc-gateway场景）
+		EnableCompression:  false,            // 默认不启用压缩，需显式开启
+		CompressionType:    GRPCCompressGzip, // 默认Gzip压缩
+		CompressionLevel:   5,                // 平衡速度和压缩率
+		MinCompressSize:    1024,             // 1KB以下不压缩
 	}
 	internal.CallAfterLoad(g) // 自动调用 AfterLoad 钩子
 	return g
@@ -242,6 +268,57 @@ func (g *GRPCServer) DisableReflectionService() *GRPCServer {
 	return g
 }
 
+// EnableProtobufResponse 启用protobuf格式响应
+func (g *GRPCServer) EnableProtobufResponse() *GRPCServer {
+	g.EnableProtobufResp = true
+	return g
+}
+
+// DisableProtobufResponse 禁用protobuf格式响应（返回JSON）
+func (g *GRPCServer) DisableProtobufResponse() *GRPCServer {
+	g.EnableProtobufResp = false
+	return g
+}
+
+// WithCompression 设置压缩配置
+func (g *GRPCServer) WithCompression(compressType GRPCCompressType, level, minCompressSize int) *GRPCServer {
+	g.EnableCompression = true
+	g.CompressionType = compressType
+	g.CompressionLevel = level
+	g.MinCompressSize = minCompressSize
+	return g
+}
+
+// EnableCompressionService 启用压缩
+func (g *GRPCServer) EnableCompressionService() *GRPCServer {
+	g.EnableCompression = true
+	return g
+}
+
+// DisableCompressionService 禁用压缩
+func (g *GRPCServer) DisableCompressionService() *GRPCServer {
+	g.EnableCompression = false
+	return g
+}
+
+// WithCompressionType 设置压缩算法类型
+func (g *GRPCServer) WithCompressionType(compressType GRPCCompressType) *GRPCServer {
+	g.CompressionType = compressType
+	return g
+}
+
+// WithCompressionLevel 设置压缩级别
+func (g *GRPCServer) WithCompressionLevel(level int) *GRPCServer {
+	g.CompressionLevel = level
+	return g
+}
+
+// WithMinCompressSize 设置最小压缩大小
+func (g *GRPCServer) WithMinCompressSize(size int) *GRPCServer {
+	g.MinCompressSize = size
+	return g
+}
+
 // AddClient 添加GRPC客户端配置
 func (g *GRPC) AddClient(name string, client *GRPCClient) *GRPC {
 	if g.Clients == nil {
@@ -315,5 +392,24 @@ func (g *GRPCClient) WithHTTP2WindowSize(initialWindow, connWindow int32) *GRPCC
 // WithWaitForReady 设置是否等待连接就绪
 func (g *GRPCClient) WithWaitForReady(wait bool) *GRPCClient {
 	g.WaitForReady = wait
+	return g
+}
+
+// WithClientCompression 设置客户端压缩配置
+func (g *GRPCClient) WithClientCompression(compressType GRPCCompressType) *GRPCClient {
+	g.EnableCompression = true
+	g.CompressionType = compressType
+	return g
+}
+
+// EnableClientCompression 启用客户端压缩
+func (g *GRPCClient) EnableClientCompression() *GRPCClient {
+	g.EnableCompression = true
+	return g
+}
+
+// DisableClientCompression 禁用客户端压缩
+func (g *GRPCClient) DisableClientCompression() *GRPCClient {
+	g.EnableCompression = false
 	return g
 }
