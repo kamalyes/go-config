@@ -56,7 +56,8 @@ type Gateway struct {
 	GitBranch      string                       `mapstructure:"git-branch" yaml:"git-branch" json:"gitBranch"`                // Git分支
 	GitTag         string                       `mapstructure:"git-tag" yaml:"git-tag" json:"gitTag"`                         // Git标签
 	JSON           *JSON                        `mapstructure:"json" yaml:"json" json:"json"`                                 // JSON序列化配置
-	HTTPServer     *HTTPServer                  `mapstructure:"http" yaml:"http" json:"http"`                                 // HTTP服务器配置
+	HTTPServer     *HTTPServer                  `mapstructure:"http" yaml:"http" json:"http"`                                 // HTTP服务器配置（主监听器）
+	Listeners      []*Listener                  `mapstructure:"listeners" yaml:"listeners" json:"listeners"`                  // 命名监听器列表（支持多端口，如 Ops/Tenant 分离）
 	GRPC           *GRPC                        `mapstructure:"grpc" yaml:"grpc" json:"grpc"`                                 // GRPC配置
 	Cache          *cache.Cache                 `mapstructure:"cache" yaml:"cache" json:"cache"`                              // 缓存配置(包含Redis)
 	Database       *database.Database           `mapstructure:"database" yaml:"database" json:"database"`                     // 数据库统一配置
@@ -100,6 +101,7 @@ func Default() *Gateway {
 		GitTag:         "v1.0.0",
 		JSON:           DefaultJSON(),
 		HTTPServer:     DefaultHTTPServer(),
+		Listeners:      []*Listener{}, // 默认无额外监听器
 		GRPC:           DefaultGRPC(),
 		Cache:          cache.Default(),
 		Database:       database.DefaultDatabaseConfig(),
@@ -471,6 +473,31 @@ func (c *Gateway) EnableWSC() *Gateway {
 func (c *Gateway) WithWSC(cfg *wsc.WSC) *Gateway {
 	c.WSC = cfg
 	return c
+}
+
+// WithListeners 设置命名监听器列表
+func (c *Gateway) WithListeners(listeners []*Listener) *Gateway {
+	c.Listeners = listeners
+	return c
+}
+
+// AddListener 添加命名监听器
+func (c *Gateway) AddListener(listener *Listener) *Gateway {
+	if c.Listeners == nil {
+		c.Listeners = []*Listener{}
+	}
+	c.Listeners = append(c.Listeners, listener)
+	return c
+}
+
+// GetListener 按名称获取监听器
+func (c *Gateway) GetListener(name string) *Listener {
+	for _, l := range c.Listeners {
+		if l.Name == name {
+			return l
+		}
+	}
+	return nil
 }
 
 // EnableJob 启用 Job 调度

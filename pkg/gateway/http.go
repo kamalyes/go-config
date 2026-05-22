@@ -318,3 +318,53 @@ func (h *HTTPServer) WithHTTP2Config(maxStreams uint32, windowSize, connWindowSi
 	h.HTTP2.InitialConnWindowSize = connWindowSize
 	return h
 }
+
+// Listener 命名监听器配置，用于在同一进程中启动多个 HTTP 监听端口
+// 典型场景：Ops 内网端口 + Tenant 公网端口
+type Listener struct {
+	Name     string `mapstructure:"name" yaml:"name" json:"name"`           // 监听器名称（如 "ops", "tenant"）
+	Host     string `mapstructure:"host" yaml:"host" json:"host"`           // 主机地址
+	Port     int    `mapstructure:"port" yaml:"port" json:"port"`           // 端口
+	Network  string `mapstructure:"network" yaml:"network" json:"network"`  // 网络类型: tcp, tcp4, tcp6
+	Endpoint string `mapstructure:"-" yaml:"-" json:""`                     // 完整端点地址（自动计算）
+}
+
+// DefaultListener 创建默认监听器配置
+func DefaultListener(name string) *Listener {
+	l := &Listener{
+		Name:    name,
+		Host:    "0.0.0.0",
+		Port:    8080,
+		Network: "tcp4",
+	}
+	l.AfterLoad()
+	return l
+}
+
+// AfterLoad 配置加载后的钩子 - 计算衍生字段
+func (l *Listener) AfterLoad() error {
+	l.Endpoint = fmt.Sprintf("http://%s:%d", l.Host, l.Port)
+	return nil
+}
+
+// GetEndpoint 获取服务端点地址
+func (l *Listener) GetEndpoint() string {
+	if l.Endpoint == "" {
+		l.AfterLoad()
+	}
+	return l.Endpoint
+}
+
+// WithListenerHost 设置监听器主机地址
+func (l *Listener) WithListenerHost(host string) *Listener {
+	l.Host = host
+	l.AfterLoad()
+	return l
+}
+
+// WithListenerPort 设置监听器端口
+func (l *Listener) WithListenerPort(port int) *Listener {
+	l.Port = port
+	l.AfterLoad()
+	return l
+}
