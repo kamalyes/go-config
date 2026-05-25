@@ -22,6 +22,9 @@ import (
 type RequestContext struct {
 	// 标准请求头
 	AuthorizationSources []common.AttributeSource `mapstructure:"authorization-sources" yaml:"authorization-sources" json:"authorizationSources"` // Authorization 提取来源
+	AuthPayloadSources   []common.AttributeSource `mapstructure:"auth-payload-sources" yaml:"auth-payload-sources" json:"authPayloadSources"`     // Auth-Payload 提取来源
+	JtiSources           []common.AttributeSource `mapstructure:"jti-sources" yaml:"jti-sources" json:"jtiSources"`                               // Jti 提取来源
+	FamilyIdSources      []common.AttributeSource `mapstructure:"family-id-sources" yaml:"family-id-sources" json:"familyIdSources"`              // FamilyId 提取来源
 	UserAgentSources     []common.AttributeSource `mapstructure:"user-agent-sources" yaml:"user-agent-sources" json:"userAgentSources"`           // User-Agent 提取来源
 	AcceptSources        []common.AttributeSource `mapstructure:"accept-sources" yaml:"accept-sources" json:"acceptSources"`                      // Accept 提取来源
 	CacheControlSources  []common.AttributeSource `mapstructure:"cache-control-sources" yaml:"cache-control-sources" json:"cacheControlSources"`  // Cache-Control 提取来源
@@ -72,6 +75,15 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeHeader, Key: "Authorization"},
 			{Type: common.SourceTypeQuery, Key: "authorization"},
 			{Type: common.SourceTypeCookie, Key: "authorization"},
+		},
+		AuthPayloadSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Auth-Payload"},
+		},
+		JtiSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Jti"},
+		},
+		FamilyIdSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Family-Id"},
 		},
 		UserAgentSources: []common.AttributeSource{
 			{Type: common.SourceTypeHeader, Key: "User-Agent"},
@@ -258,6 +270,9 @@ type SourceKeys struct {
 	TraceID        FieldSourceKeys
 	RequestID      FieldSourceKeys
 	Authorization  FieldSourceKeys
+	AuthPayload    FieldSourceKeys
+	Jti            FieldSourceKeys
+	FamilyId       FieldSourceKeys
 	UserAgent      FieldSourceKeys
 	ClientID       FieldSourceKeys
 	UserID         FieldSourceKeys
@@ -313,6 +328,9 @@ func (c *RequestContext) GetSourceKeys() *SourceKeys {
 		TraceID:        extractFieldSourceKeys(c.TraceIDSources),
 		RequestID:      extractFieldSourceKeys(c.RequestIDSources),
 		Authorization:  extractFieldSourceKeys(c.AuthorizationSources),
+		AuthPayload:    extractFieldSourceKeys(c.AuthPayloadSources),
+		Jti:            extractFieldSourceKeys(c.JtiSources),
+		FamilyId:       extractFieldSourceKeys(c.FamilyIdSources),
 		UserAgent:      extractFieldSourceKeys(c.UserAgentSources),
 		ClientID:       extractFieldSourceKeys(c.ClientIDSources),
 		UserID:         extractFieldSourceKeys(c.UserIDSources),
@@ -371,6 +389,9 @@ func (c *RequestContext) Validate() error {
 
 	sourceGroups := [][]common.AttributeSource{
 		c.AuthorizationSources,
+		c.AuthPayloadSources,
+		c.JtiSources,
+		c.FamilyIdSources,
 		c.UserAgentSources,
 		c.AcceptSources,
 		c.CacheControlSources,
