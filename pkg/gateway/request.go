@@ -48,6 +48,8 @@ type RequestContext struct {
 	IDSources         []common.AttributeSource `mapstructure:"id-sources" yaml:"id-sources" json:"idSources"`                           // X-ID 提取来源
 	DomainSources     []common.AttributeSource `mapstructure:"domain-sources" yaml:"domain-sources" json:"domainSources"`               // X-Domain 提取来源
 	RoleCodeSources   []common.AttributeSource `mapstructure:"role-code-sources" yaml:"role-code-sources" json:"roleCodeSources"`       // X-Role-Code 提取来源
+	PushTokenSources  []common.AttributeSource `mapstructure:"push-token-sources" yaml:"push-token-sources" json:"pushTokenSources"`    // X-Push-Token 提取来源
+	TokenSources      []common.AttributeSource `mapstructure:"token-sources" yaml:"token-sources" json:"tokenSources"`                  // X-Token 提取来源
 
 	// 设备和应用相关头部
 	DeviceIDSources     []common.AttributeSource `mapstructure:"device-id-sources" yaml:"device-id-sources" json:"deviceIdSources"`             // X-Device-Id / X-Device-ID 提取来源
@@ -177,6 +179,18 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeQuery, Key: "roleCode"},
 			{Type: common.SourceTypeCookie, Key: "role_code"},
 		},
+		PushTokenSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Push-Token"},
+			{Type: common.SourceTypeQuery, Key: "push_token"},
+			{Type: common.SourceTypeQuery, Key: "pushToken"},
+			{Type: common.SourceTypeCookie, Key: "push_token"},
+		},
+		TokenSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Token"},
+			{Type: common.SourceTypeQuery, Key: "token"},
+			{Type: common.SourceTypeQuery, Key: "token"},
+			{Type: common.SourceTypeCookie, Key: "token"},
+		},
 
 		DeviceIDSources: []common.AttributeSource{
 			{Type: common.SourceTypeHeader, Key: "X-Device-Id"},
@@ -297,6 +311,8 @@ type SourceKeys struct {
 	Signature      FieldSourceKeys
 	Nonce          FieldSourceKeys
 	AccessKey      FieldSourceKeys
+	PushToken      FieldSourceKeys
+	Token          FieldSourceKeys
 	Origin         FieldSourceKeys
 	CSRFToken      FieldSourceKeys
 }
@@ -355,6 +371,8 @@ func (c *RequestContext) GetSourceKeys() *SourceKeys {
 		Signature:      extractFieldSourceKeys(c.SignatureSources),
 		Nonce:          extractFieldSourceKeys(c.NonceSources),
 		AccessKey:      extractFieldSourceKeys(c.AccessKeySources),
+		PushToken:      extractFieldSourceKeys(c.PushTokenSources),
+		Token:          extractFieldSourceKeys(c.TokenSources),
 		Origin:         extractFieldSourceKeys(c.OriginSources),
 		CSRFToken:      extractFieldSourceKeys(c.CSRFTokenSources),
 	}
@@ -422,6 +440,8 @@ func (c *RequestContext) Validate() error {
 		c.SignatureSources,
 		c.NonceSources,
 		c.AccessKeySources,
+		c.PushTokenSources,
+		c.TokenSources,
 		c.OriginSources,
 		c.CSRFTokenSources,
 	}

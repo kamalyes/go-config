@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2026-05-22 15:02:52
+// 生成时间: 2026-06-01 18:57:58
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2026-05-22T15:02:52+08:00",
+  "buildTime": "2026-06-01T18:57:58+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "c31ee6920f34265f7c598d20b1619c0d",
+  "gitCommit": "1fd0ab11e60beeeb834394fecf6cb374",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -730,6 +730,24 @@
         "key": "authorization"
       }
     ],
+    "authPayloadSources": [
+      {
+        "type": "header",
+        "key": "X-Auth-Payload"
+      }
+    ],
+    "jtiSources": [
+      {
+        "type": "header",
+        "key": "X-Jti"
+      }
+    ],
+    "familyIdSources": [
+      {
+        "type": "header",
+        "key": "X-Family-Id"
+      }
+    ],
     "userAgentSources": [
       {
         "type": "header",
@@ -974,6 +992,42 @@
       {
         "type": "cookie",
         "key": "role_code"
+      }
+    ],
+    "pushTokenSources": [
+      {
+        "type": "header",
+        "key": "X-Push-Token"
+      },
+      {
+        "type": "query",
+        "key": "push_token"
+      },
+      {
+        "type": "query",
+        "key": "pushToken"
+      },
+      {
+        "type": "cookie",
+        "key": "push_token"
+      }
+    ],
+    "tokenSources": [
+      {
+        "type": "header",
+        "key": "X-Token"
+      },
+      {
+        "type": "query",
+        "key": "token"
+      },
+      {
+        "type": "query",
+        "key": "token"
+      },
+      {
+        "type": "cookie",
+        "key": "token"
       }
     ],
     "deviceIdSources": [
