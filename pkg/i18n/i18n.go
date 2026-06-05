@@ -285,10 +285,19 @@ func (i *I18N) ParseAcceptLanguage(acceptLang string) string {
 	// 依次尝试解析每个语言
 	for _, lang := range languages {
 		resolved := i.ResolveLanguage(lang)
-		// 如果解析后不是默认语言，说明找到了支持的语言
-		if resolved != i.DefaultLanguage || i.IsSupportedLanguage(resolved) {
+		// 只有当 resolved 是 lang 的有效映射结果时才返回
+		// 即 lang 本身受支持，或 lang 通过映射解析到了受支持的语言
+		// 排除 ResolveLanguage 回退到默认语言的情况（lang 不支持且无映射）
+		if resolved != i.DefaultLanguage {
+			// 解析到了非默认的支持语言，直接返回
 			return resolved
 		}
+		// resolved == DefaultLanguage，需要区分是 lang 本身就是默认语言，还是回退的
+		if i.IsSupportedLanguage(lang) {
+			// lang 本身受支持（如 lang == "en"），返回
+			return resolved
+		}
+		// lang 不受支持且无映射，ResolveLanguage 回退到了默认语言，继续尝试下一个
 	}
 
 	return i.DefaultLanguage
