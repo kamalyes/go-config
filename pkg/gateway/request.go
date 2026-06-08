@@ -36,6 +36,7 @@ type RequestContext struct {
 	RealIPSources         []common.AttributeSource `mapstructure:"real-ip-sources" yaml:"real-ip-sources" json:"realIpSources"`                         // X-Real-IP 提取来源
 	ForwardedForSources   []common.AttributeSource `mapstructure:"forwarded-for-sources" yaml:"forwarded-for-sources" json:"forwardedForSources"`       // X-Forwarded-For 提取来源
 	ForwardedProtoSources []common.AttributeSource `mapstructure:"forwarded-proto-sources" yaml:"forwarded-proto-sources" json:"forwardedProtoSources"` // X-Forwarded-Proto 提取来源
+	ForwardedHostSources  []common.AttributeSource `mapstructure:"forwarded-host-sources" yaml:"forwarded-host-sources" json:"forwardedHostSources"`    // X-Forwarded-Host 提取来源
 
 	// 用户上下文相关头部
 	ClientIDSources   []common.AttributeSource `mapstructure:"client-id-sources" yaml:"client-id-sources" json:"clientIdSources"`       // X-Client-ID 提取来源
@@ -120,6 +121,9 @@ func DefaultRequestContext() *RequestContext {
 		},
 		ForwardedProtoSources: []common.AttributeSource{
 			{Type: common.SourceTypeHeader, Key: "X-Forwarded-Proto"},
+		},
+		ForwardedHostSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Forwarded-Host"},
 		},
 
 		ClientIDSources: []common.AttributeSource{
@@ -300,6 +304,7 @@ type SourceKeys struct {
 	RealIP         FieldSourceKeys
 	ForwardedFor   FieldSourceKeys
 	ForwardedProto FieldSourceKeys
+	ForwardedHost  FieldSourceKeys
 	DeviceID       FieldSourceKeys
 	AppID          FieldSourceKeys
 	AppVersion     FieldSourceKeys
@@ -360,6 +365,7 @@ func (c *RequestContext) GetSourceKeys() *SourceKeys {
 		RealIP:         extractFieldSourceKeys(c.RealIPSources),
 		ForwardedFor:   extractFieldSourceKeys(c.ForwardedForSources),
 		ForwardedProto: extractFieldSourceKeys(c.ForwardedProtoSources),
+		ForwardedHost:  extractFieldSourceKeys(c.ForwardedHostSources),
 		DeviceID:       extractFieldSourceKeys(c.DeviceIDSources),
 		AppID:          extractFieldSourceKeys(c.AppIDSources),
 		AppVersion:     extractFieldSourceKeys(c.AppVersionSources),
@@ -419,6 +425,7 @@ func (c *RequestContext) Validate() error {
 		c.RealIPSources,
 		c.ForwardedForSources,
 		c.ForwardedProtoSources,
+		c.ForwardedHostSources,
 		c.ClientIDSources,
 		c.UserIDSources,
 		c.UserTypeSources,
