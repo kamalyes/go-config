@@ -22,6 +22,8 @@ func TestClickHouse_DefaultClickHouse(t *testing.T) {
 
 	assert.NotNil(t, ch)
 	assert.Equal(t, "clickhouse", ch.ModuleName)
+	assert.False(t, ch.Enabled)
+	assert.False(t, ch.IsEnabled())
 	assert.Equal(t, "localhost", ch.Host)
 	assert.Equal(t, "9000", ch.Port)
 	assert.Equal(t, "info", ch.LogLevel)
@@ -61,6 +63,7 @@ func TestClickHouse_SettersAndGetters(t *testing.T) {
 func TestClickHouse_WithMethods(t *testing.T) {
 	ch := DefaultClickHouse().
 		WithModuleName("ch").
+		WithEnabled(true).
 		WithHost("ch.example.com").
 		WithPort("8123").
 		WithConfig("debug=true").
@@ -81,6 +84,8 @@ func TestClickHouse_WithMethods(t *testing.T) {
 		WithConnMaxLifeTime(7200)
 
 	assert.Equal(t, "ch", ch.ModuleName)
+	assert.True(t, ch.Enabled)
+	assert.True(t, ch.IsEnabled())
 	assert.Equal(t, "ch.example.com", ch.Host)
 	assert.Equal(t, "8123", ch.Port)
 	assert.Equal(t, "http", ch.Protocol)
@@ -117,6 +122,13 @@ func TestClickHouse_GetSet(t *testing.T) {
 
 	newCfg := DefaultClickHouse()
 	newCfg.Host = "new-host"
+	newCfg.Enabled = true
 	ch.Set(newCfg)
 	assert.Equal(t, "new-host", ch.Host)
+	assert.True(t, ch.Enabled)
+}
+
+func TestClickHouse_IsEnabledNil(t *testing.T) {
+	var ch *ClickHouse
+	assert.False(t, ch.IsEnabled())
 }

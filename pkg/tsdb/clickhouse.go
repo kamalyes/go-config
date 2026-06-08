@@ -18,6 +18,7 @@ import (
 // ClickHouse ClickHouse数据库配置
 type ClickHouse struct {
 	ModuleName                               string `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                                                                                                   // 模块名称
+	Enabled                                  bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                                                                              // 是否启用
 	Host                                     string `mapstructure:"host" yaml:"host" json:"host"            validate:"required"`                                                                                        // 数据库 IP 地址
 	Port                                     string `mapstructure:"port" yaml:"port" json:"port"            validate:"required"`                                                                                        // 端口（原生协议默认9000，HTTP协议默认8123）
 	Config                                   string `mapstructure:"config" yaml:"config" json:"config"          validate:"required"`                                                                                    // 后缀配置 例如: dial_timeout=10s&read_timeout=20s
@@ -95,6 +96,7 @@ func (c *ClickHouse) Validate() error { return internal.ValidateStruct(c) }
 func DefaultClickHouse() *ClickHouse {
 	return &ClickHouse{
 		ModuleName:                               "clickhouse",
+		Enabled:                                  false,
 		Host:                                     "localhost",
 		Port:                                     "9000",
 		Config:                                   "dial_timeout=10s&read_timeout=20s",
@@ -139,6 +141,17 @@ func NewClickHouseConfig(opt *ClickHouse) *ClickHouse {
 func (c *ClickHouse) WithModuleName(moduleName string) *ClickHouse {
 	c.ModuleName = moduleName
 	return c
+}
+
+// WithEnabled 设置是否启用ClickHouse
+func (c *ClickHouse) WithEnabled(enabled bool) *ClickHouse {
+	c.Enabled = enabled
+	return c
+}
+
+// IsEnabled 检查ClickHouse是否启用
+func (c *ClickHouse) IsEnabled() bool {
+	return c != nil && c.Enabled
 }
 
 // WithHost 设置数据库主机地址

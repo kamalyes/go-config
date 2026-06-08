@@ -2,9 +2,11 @@
 # 模块名称: nats
 # 包名: queue  
 # 描述: NATS消息队列
-# 生成时间: 2026-04-23 23:19:55
+# 生成时间: 2026-06-08 13:25:56
 # 注意: 此文件由配置生成器自动生成
 
+# 是否启用
+enabled: false
 # NATS 服务器地址，如 nats://127.0.0.1:4222
 url: nats://127.0.0.1:4222
 # 客户端名称，用于服务端识别
@@ -31,7 +33,7 @@ channel-prefix: ""
 source: ""
 # 模块名称
 module-name: nats
-# 全局消费者 WorkerPool 大小
+# 全局消费者 WorkerPool 大小（0 表示不初始化）
 worker-pool-size: 4
-# 全局消费者 WorkerPool 任务队列大小
+# 全局消费者 WorkerPool 任务队列大小（0 表示不初始化）
 worker-queue-size: 100

@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2026-06-01 18:57:58
+// 生成时间: 2026-06-08 13:25:56
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2026-06-01T18:57:58+08:00",
+  "buildTime": "2026-06-08T13:25:56+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "1fd0ab11e60beeeb834394fecf6cb374",
+  "gitCommit": "97572a01f2fe8c1c9ab4654b605f2e8c",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -380,6 +380,7 @@
     "moduleName": "mqtt"
   },
   "nats": {
+    "enabled": false,
     "url": "nats://127.0.0.1:4222",
     "name": "go-config-nats-client",
     "username": "",

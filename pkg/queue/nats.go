@@ -23,6 +23,7 @@ import (
 //   - 事件驱动架构中的发布/订阅
 //   - 启用 JetStream 后支持消息持久化、重放
 type Nats struct {
+	Enabled         bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                         // 是否启用
 	URL             string `mapstructure:"url" yaml:"url" json:"url" validate:"required"`                                 // NATS 服务器地址，如 nats://127.0.0.1:4222
 	Name            string `mapstructure:"name" yaml:"name" json:"name"`                                                  // 客户端名称，用于服务端识别
 	Username        string `mapstructure:"username" yaml:"username" json:"username"`                                      // 用户名（可选）
@@ -68,6 +69,7 @@ func (n *Nats) Get() interface{} {
 func (n *Nats) Set(data interface{}) {
 	if configData, ok := data.(*Nats); ok {
 		n.ModuleName = configData.ModuleName
+		n.Enabled = configData.Enabled
 		n.URL = configData.URL
 		n.Name = configData.Name
 		n.Username = configData.Username
@@ -94,6 +96,7 @@ func (n *Nats) Validate() error {
 func DefaultNats() Nats {
 	return Nats{
 		ModuleName:      "nats",
+		Enabled:         false,
 		URL:             "nats://127.0.0.1:4222",
 		Name:            "go-config-nats-client",
 		JetStream:       false,
@@ -118,6 +121,17 @@ func DefaultNatsPtr() *Nats {
 func (n *Nats) WithModuleName(moduleName string) *Nats {
 	n.ModuleName = moduleName
 	return n
+}
+
+// WithEnabled 设置是否启用NATS
+func (n *Nats) WithEnabled(enabled bool) *Nats {
+	n.Enabled = enabled
+	return n
+}
+
+// IsEnabled 检查NATS是否启用
+func (n *Nats) IsEnabled() bool {
+	return n != nil && n.Enabled
 }
 
 // WithURL 设置 NATS 服务器地址

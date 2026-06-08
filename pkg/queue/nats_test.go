@@ -20,6 +20,7 @@ import (
 func TestNats_Clone(t *testing.T) {
 	original := &Nats{
 		ModuleName:     "test-nats",
+		Enabled:        true,
 		URL:            "nats://localhost:4222",
 		Name:           "test-client",
 		Username:       "user",
@@ -37,6 +38,7 @@ func TestNats_Clone(t *testing.T) {
 	cloned := original.Clone().(*Nats)
 
 	assert.Equal(t, original.ModuleName, cloned.ModuleName)
+	assert.Equal(t, original.Enabled, cloned.Enabled)
 	assert.Equal(t, original.URL, cloned.URL)
 	assert.Equal(t, original.Name, cloned.Name)
 	assert.Equal(t, original.JetStream, cloned.JetStream)
@@ -54,6 +56,8 @@ func TestNats_Clone(t *testing.T) {
 func TestNats_Default(t *testing.T) {
 	cfg := DefaultNats()
 	assert.Equal(t, "nats", cfg.ModuleName)
+	assert.False(t, cfg.Enabled)
+	assert.False(t, cfg.IsEnabled())
 	assert.Equal(t, "nats://127.0.0.1:4222", cfg.URL)
 	assert.False(t, cfg.JetStream)
 	assert.Equal(t, 10, cfg.MaxReconnects)
@@ -61,6 +65,7 @@ func TestNats_Default(t *testing.T) {
 
 func TestNats_Builders(t *testing.T) {
 	cfg := DefaultNatsPtr().
+		WithEnabled(true).
 		WithURL("nats://broker:4222").
 		WithJetStream(true).
 		WithStreamName("CASBIN_POLICY").
@@ -68,6 +73,8 @@ func TestNats_Builders(t *testing.T) {
 		WithSource("node-xyz")
 
 	assert.Equal(t, "nats://broker:4222", cfg.URL)
+	assert.True(t, cfg.Enabled)
+	assert.True(t, cfg.IsEnabled())
 	assert.True(t, cfg.JetStream)
 	assert.Equal(t, "CASBIN_POLICY", cfg.StreamName)
 	assert.Equal(t, "casbin.policy", cfg.ChannelPrefix)
@@ -81,4 +88,19 @@ func TestNats_Validate(t *testing.T) {
 	bad := cfg
 	bad.URL = ""
 	assert.Error(t, bad.Validate())
+}
+
+func TestNats_SetCopiesEnabled(t *testing.T) {
+	cfg := DefaultNatsPtr()
+	next := DefaultNatsPtr().WithEnabled(true)
+
+	cfg.Set(next)
+
+	assert.True(t, cfg.Enabled)
+	assert.True(t, cfg.IsEnabled())
+}
+
+func TestNats_IsEnabledNil(t *testing.T) {
+	var cfg *Nats
+	assert.False(t, cfg.IsEnabled())
 }
