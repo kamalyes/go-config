@@ -61,6 +61,7 @@ type RequestContext struct {
 	PlatformCodeSources []common.AttributeSource `mapstructure:"platform-code-sources" yaml:"platform-code-sources" json:"platformCodeSources"` // X-Platform-Code 提取来源
 	RegionIDSources     []common.AttributeSource `mapstructure:"region-id-sources" yaml:"region-id-sources" json:"regionIDSources"`             // X-Region-ID 提取来源
 	RegionCodeSources   []common.AttributeSource `mapstructure:"region-code-sources" yaml:"region-code-sources" json:"regionCodeSources"`       // X-Region-Code 提取来源
+	AgentLineIDSources  []common.AttributeSource `mapstructure:"agent-line-id-sources" yaml:"agent-line-id-sources" json:"agentLineIDSources"`  // X-Agent-Line 提取来源
 	TimestampSources    []common.AttributeSource `mapstructure:"timestamp-sources" yaml:"timestamp-sources" json:"timestampSources"`            // X-Timestamp 提取来源
 	SignatureSources    []common.AttributeSource `mapstructure:"signature-sources" yaml:"signature-sources" json:"signatureSources"`            // X-Signature 提取来源
 	NonceSources        []common.AttributeSource `mapstructure:"nonce-sources" yaml:"nonce-sources" json:"nonceSources"`                        // X-Nonce 提取来源
@@ -182,6 +183,12 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeQuery, Key: "role_code"},
 			{Type: common.SourceTypeQuery, Key: "roleCode"},
 			{Type: common.SourceTypeCookie, Key: "role_code"},
+		},
+		AgentLineIDSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Agent-Line-ID"},
+			{Type: common.SourceTypeQuery, Key: "agent_line_id"},
+			{Type: common.SourceTypeQuery, Key: "agentLineId"},
+			{Type: common.SourceTypeCookie, Key: "agent_line_id"},
 		},
 		PushTokenSources: []common.AttributeSource{
 			{Type: common.SourceTypeHeader, Key: "X-Push-Token"},
@@ -312,6 +319,7 @@ type SourceKeys struct {
 	PlatformCode   FieldSourceKeys
 	RegionID       FieldSourceKeys
 	RegionCode     FieldSourceKeys
+	AgentLineID    FieldSourceKeys
 	Timestamp      FieldSourceKeys
 	Signature      FieldSourceKeys
 	Nonce          FieldSourceKeys
@@ -373,6 +381,7 @@ func (c *RequestContext) GetSourceKeys() *SourceKeys {
 		PlatformCode:   extractFieldSourceKeys(c.PlatformCodeSources),
 		RegionID:       extractFieldSourceKeys(c.RegionIDSources),
 		RegionCode:     extractFieldSourceKeys(c.RegionCodeSources),
+		AgentLineID:    extractFieldSourceKeys(c.AgentLineIDSources),
 		Timestamp:      extractFieldSourceKeys(c.TimestampSources),
 		Signature:      extractFieldSourceKeys(c.SignatureSources),
 		Nonce:          extractFieldSourceKeys(c.NonceSources),
@@ -443,6 +452,7 @@ func (c *RequestContext) Validate() error {
 		c.PlatformCodeSources,
 		c.RegionIDSources,
 		c.RegionCodeSources,
+		c.AgentLineIDSources,
 		c.TimestampSources,
 		c.SignatureSources,
 		c.NonceSources,
