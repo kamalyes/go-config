@@ -7,6 +7,12 @@
 
 # 是否启用
 enabled: false
+# 是否启用客服(Agent/Bot)连接管理（禁用时不维护 agentClients 映射，适用于纯通知场景）
+enable-agent: true
+# 是否启用观察者模块（禁用时不维护 observerClients 映射且跳过观察者通知）
+enable-observer: true
+# 是否启用客服负载管理（禁用时不初始化 workloadRepo）
+enable-workload: true
 # 网络类型: tcp, tcp4, tcp6
 network: tcp4
 # 节点IP

@@ -26,6 +26,9 @@ import (
 type WSC struct {
 	// === 基础配置 ===
 	Enabled                    bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                                              // 是否启用
+	EnableAgent                bool          `mapstructure:"enable-agent" yaml:"enable-agent" json:"enableAgent"`                                                // 是否启用客服(Agent/Bot)连接管理（禁用时不维护 agentClients 映射，适用于纯通知场景）
+	EnableObserver             bool          `mapstructure:"enable-observer" yaml:"enable-observer" json:"enableObserver"`                                       // 是否启用观察者模块（禁用时不维护 observerClients 映射且跳过观察者通知）
+	EnableWorkload             bool          `mapstructure:"enable-workload" yaml:"enable-workload" json:"enableWorkload"`                                       // 是否启用客服负载管理（禁用时不初始化 workloadRepo）
 	Network                    string        `mapstructure:"network" yaml:"network" json:"network"`                                                              // 网络类型: tcp, tcp4, tcp6
 	NodeIP                     string        `mapstructure:"node-ip" yaml:"node-ip" json:"nodeIp"`                                                               // 节点IP
 	NodePort                   int           `mapstructure:"node-port" yaml:"node-port" json:"nodePort"`                                                         // 节点端口
@@ -584,6 +587,125 @@ type Security struct {
 
 	// 消息风控配置
 	MessageRateLimit *MessageRateLimit `mapstructure:"message-rate-limit" yaml:"message-rate-limit" json:"messageRateLimit"` // 消息风控配置
+
+	// 连接 Token 配置（将 user_id/user_type/device_id 加密为单一 JWT token，避免明文暴露）
+	ConnectionToken *ConnectionToken `mapstructure:"connection-token" yaml:"connection-token" json:"connectionToken"` // 连接 Token 配置（可选启用，默认关闭向后兼容明文参数）
+}
+
+// ConnectionToken 连接 Token 配置
+// 启用后客户端通过单一 JWT token 参数连接，避免 user_id/user_type/device_id 明文暴露
+// 支持可选的 Redis 白名单校验，实现多节点共享会话状态与主动吊销能力
+type ConnectionToken struct {
+	Enabled        bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                          // 是否启用连接 Token（默认 false，向后兼容明文参数方式）
+	TokenParamName string `mapstructure:"token-param-name" yaml:"token-param-name" json:"tokenParamName"` // Token 在请求中的参数名（默认 "token"）
+	TokenSource    string `mapstructure:"token-source" yaml:"token-source" json:"tokenSource"`            // Token 来源: query, header（默认 query）
+
+	// JWT 配置
+	SigningKey  string        `mapstructure:"signing-key" yaml:"signing-key" json:"signingKey"`    // JWT 签名密钥（HS256/HS384/HS512，生产环境必须配置）
+	Issuer      string        `mapstructure:"issuer" yaml:"issuer" json:"issuer"`                  // JWT 发行者（可选校验，留空则不校验）
+	Audience    string        `mapstructure:"audience" yaml:"audience" json:"audience"`            // JWT 接收者（可选校验，留空则不校验）
+	Algorithm   string        `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"`         // 签名算法: HS256, HS384, HS512（默认 HS256）
+	ExpiresTime time.Duration `mapstructure:"expires-time" yaml:"expires-time" json:"expiresTime"` // Token 默认过期时间（仅 Issue 时使用，验证时由 JWT 自身 exp 控制，默认 5m）
+
+	// Redis 分布式校验配置
+	UseRedis       bool   `mapstructure:"use-redis" yaml:"use-redis" json:"useRedis"`                     // 是否启用 Redis 白名单校验（多节点共享会话状态，支持主动吊销）
+	RedisKeyPrefix string `mapstructure:"redis-key-prefix" yaml:"redis-key-prefix" json:"redisKeyPrefix"` // Redis 键前缀（默认 "wsc:conn_token:"）
+
+	// 容错控制
+	AllowFallback bool `mapstructure:"allow-fallback" yaml:"allow-fallback" json:"allowFallback"` // Token 解析失败时是否回退到明文参数提取（默认 false，更安全）
+}
+
+// GetTokenParamName 获取 Token 参数名
+func (c *ConnectionToken) GetTokenParamName() string {
+	return mathx.IfEmpty(c.TokenParamName, "token")
+}
+
+// GetTokenSource 获取 Token 来源类型
+func (c *ConnectionToken) GetTokenSource() string {
+	return mathx.IfEmpty(c.TokenSource, "query")
+}
+
+// GetSigningKey 获取签名密钥
+func (c *ConnectionToken) GetSigningKey() string {
+	return c.SigningKey
+}
+
+// GetIssuer 获取发行者
+func (c *ConnectionToken) GetIssuer() string {
+	return c.Issuer
+}
+
+// GetAudience 获取接收者
+func (c *ConnectionToken) GetAudience() string {
+	return c.Audience
+}
+
+// GetAlgorithm 获取签名算法
+func (c *ConnectionToken) GetAlgorithm() string {
+	return mathx.IfEmpty(c.Algorithm, "HS256")
+}
+
+// GetExpiresTime 获取 Token 默认过期时间
+func (c *ConnectionToken) GetExpiresTime() time.Duration {
+	return mathx.IfNotZero(c.ExpiresTime, 5*time.Minute)
+}
+
+// GetRedisKeyPrefix 获取 Redis 键前缀
+func (c *ConnectionToken) GetRedisKeyPrefix() string {
+	return mathx.IfEmpty(c.RedisKeyPrefix, "wsc:conn_token:")
+}
+
+// IsEnabled 检查是否启用
+func (c *ConnectionToken) IsEnabled() bool {
+	return c != nil && c.Enabled
+}
+
+// IsRedisEnabled 检查是否启用 Redis 白名单校验
+func (c *ConnectionToken) IsRedisEnabled() bool {
+	return c.IsEnabled() && c.UseRedis
+}
+
+// WithEnabled 设置启用状态
+func (c *ConnectionToken) WithEnabled(enabled bool) *ConnectionToken {
+	c.Enabled = enabled
+	return c
+}
+
+// WithSigningKey 设置签名密钥
+func (c *ConnectionToken) WithSigningKey(key string) *ConnectionToken {
+	c.SigningKey = key
+	return c
+}
+
+// WithAlgorithm 设置签名算法
+func (c *ConnectionToken) WithAlgorithm(algorithm string) *ConnectionToken {
+	c.Algorithm = algorithm
+	return c
+}
+
+// WithExpiresTime 设置过期时间
+func (c *ConnectionToken) WithExpiresTime(d time.Duration) *ConnectionToken {
+	c.ExpiresTime = d
+	return c
+}
+
+// WithUseRedis 设置是否使用 Redis 白名单
+func (c *ConnectionToken) WithUseRedis(useRedis bool) *ConnectionToken {
+	c.UseRedis = useRedis
+	return c
+}
+
+// WithTokenSource 设置 Token 来源和参数名
+func (c *ConnectionToken) WithTokenSource(source, paramName string) *ConnectionToken {
+	c.TokenSource = source
+	c.TokenParamName = paramName
+	return c
+}
+
+// WithAllowFallback 设置是否允许回退到明文
+func (c *ConnectionToken) WithAllowFallback(allow bool) *ConnectionToken {
+	c.AllowFallback = allow
+	return c
 }
 
 // MessageEncryption 消息加密配置
@@ -880,6 +1002,9 @@ var DefaultNonRetryableErrors = []string{
 func Default() *WSC {
 	return &WSC{
 		Enabled:                    false,
+		EnableAgent:                true, // 默认启用客服连接管理（向后兼容）
+		EnableObserver:             true, // 默认启用观察者模块（向后兼容）
+		EnableWorkload:             true, // 默认启用客服负载管理（向后兼容）
 		Network:                    "tcp4",
 		NodeIP:                     "0.0.0.0",
 		NodePort:                   8080,
@@ -989,6 +1114,21 @@ func DefaultSecurity() *Security {
 		LoginLockDuration: 300,
 		MessageEncryption: DefaultMessageEncryption(),
 		MessageRateLimit:  DefaultMessageRateLimit(),
+		ConnectionToken:   DefaultConnectionToken(),
+	}
+}
+
+// DefaultConnectionToken 默认连接 Token 配置（默认关闭，向后兼容明文参数）
+func DefaultConnectionToken() *ConnectionToken {
+	return &ConnectionToken{
+		Enabled:        false, // 默认关闭，启用后客户端通过单一 JWT token 连接
+		TokenParamName: "token",
+		TokenSource:    "query",
+		Algorithm:      "HS256",
+		ExpiresTime:    5 * time.Minute,
+		UseRedis:       false,
+		RedisKeyPrefix: "wsc:conn_token:",
+		AllowFallback:  false,
 	}
 }
 
@@ -1424,6 +1564,39 @@ func (c *WSC) Disable() *WSC {
 // IsEnabled 检查是否启用
 func (c *WSC) IsEnabled() bool {
 	return c.Enabled
+}
+
+// IsAgentEnabled 检查是否启用客服连接管理
+func (c *WSC) IsAgentEnabled() bool {
+	return c.EnableAgent
+}
+
+// IsObserverEnabled 检查是否启用观察者模块
+func (c *WSC) IsObserverEnabled() bool {
+	return c.EnableObserver
+}
+
+// IsWorkloadEnabled 检查是否启用客服负载管理
+func (c *WSC) IsWorkloadEnabled() bool {
+	return c.EnableWorkload
+}
+
+// WithEnableAgent 设置是否启用客服连接管理
+func (c *WSC) WithEnableAgent(enable bool) *WSC {
+	c.EnableAgent = enable
+	return c
+}
+
+// WithEnableObserver 设置是否启用观察者模块
+func (c *WSC) WithEnableObserver(enable bool) *WSC {
+	c.EnableObserver = enable
+	return c
+}
+
+// WithEnableWorkload 设置是否启用客服负载管理
+func (c *WSC) WithEnableWorkload(enable bool) *WSC {
+	c.EnableWorkload = enable
+	return c
 }
 
 // WithNodeIP 设置节点IP
