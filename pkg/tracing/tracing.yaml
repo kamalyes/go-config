@@ -35,3 +35,9 @@ headers:
     - User-Agent
 # 自定义属性
 attributes: {}
+# 导出器自定义请求头 (如 Authorization、stream-name)
+exporter-headers: {}
+# 导出器是否跳过 TLS 验证
+exporter-tls-insecure: true
+# 遥测日志级别 (debug/info/warn/error)
+telemetry-log-level: info

@@ -69,6 +69,9 @@ type WSC struct {
 	// === Redis 仓库配置 ===
 	RedisRepository *RedisRepository `mapstructure:"redis-repository" yaml:"redis-repository" json:"redisRepository"` // Redis仓库配置
 
+	// === 节点间 gRPC 通信配置 ===
+	NodeGRPC *NodeGRPC `mapstructure:"node-grpc" yaml:"node-grpc" json:"nodeGrpc"` // 节点间 gRPC 通信配置
+
 	// === 性能配置 ===
 	Performance *Performance `mapstructure:"performance" yaml:"performance" json:"performance"` // 性能配置
 
@@ -125,6 +128,7 @@ type RedisRepository struct {
 	OfflineMessage  *OfflineMessage  `mapstructure:"offline-message" yaml:"offline-message" json:"offlineMessage"`      // 离线消息配置
 	PubSub          *PubSub          `mapstructure:"pubsub" yaml:"pubsub" json:"pubsub"`                                // 分布式消息订阅配置
 	DeadLetterQueue *DeadLetterQueue `mapstructure:"dead-letter-queue" yaml:"dead-letter-queue" json:"deadLetterQueue"` // 死信队列配置
+	Group           *Group           `mapstructure:"group" yaml:"group" json:"group"`                                   // 群组配置
 }
 
 // OnlineStatus 在线状态配置
@@ -151,6 +155,58 @@ type Workload struct {
 	KeyPrefix     string      `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`             // Redis键前缀
 	MaxCandidates int         `mapstructure:"max-candidates" yaml:"max-candidates" json:"maxCandidates"` // 获取负载最小客服时的最大候选数量
 	WorkStatus    *WorkStatus `mapstructure:"work-status" yaml:"work-status" json:"workStatus"`          // 工作状态统计配置
+}
+
+// Group 群组配置
+type Group struct {
+	KeyPrefix string `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"` // Redis键前缀
+}
+
+// GetKeyPrefix 获取群组Redis键前缀
+func (g *Group) GetKeyPrefix() string {
+	return g.KeyPrefix
+}
+
+// NodeGRPC 节点间 gRPC 通信配置
+type NodeGRPC struct {
+	Enabled          bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                // 是否启用 gRPC 节点通信
+	Host             string `mapstructure:"host" yaml:"host" json:"host"`                                         // gRPC 监听地址
+	Port             int    `mapstructure:"port" yaml:"port" json:"port"`                                         // gRPC 监听端口
+	TLSEnabled       bool   `mapstructure:"tls-enabled" yaml:"tls-enabled" json:"tlsEnabled"`                     // 是否启用 TLS
+	TLSCertFile      string `mapstructure:"tls-cert-file" yaml:"tls-cert-file" json:"tlsCertFile"`                // TLS 证书文件
+	TLSKeyFile       string `mapstructure:"tls-key-file" yaml:"tls-key-file" json:"tlsKeyFile"`                   // TLS 私钥文件
+	NodeGRPCKey      string `mapstructure:"node-grpc-key" yaml:"node-grpc-key" json:"nodeGrpcKey"`                // 节点 gRPC 地址 Hash key，默认 "wsc:nodes:grpc"
+	NodeHeartbeatKey string `mapstructure:"node-heartbeat-key" yaml:"node-heartbeat-key" json:"nodeHeartbeatKey"` // 节点心跳 Hash key，默认 "wsc:nodes:heartbeat"
+}
+
+// IsEnabled 是否启用 gRPC 节点通信
+func (n *NodeGRPC) IsEnabled() bool {
+	return n != nil && n.Enabled
+}
+
+// GetAddress 获取 gRPC 监听地址
+func (n *NodeGRPC) GetAddress() string {
+	if n == nil {
+		return ""
+	}
+	host := mathx.IfNotEmpty(n.Host, "0.0.0.0")
+	return fmt.Sprintf("%s:%d", host, n.Port)
+}
+
+// GetNodeGRPCKey 获取节点 gRPC 地址 Hash key
+func (n *NodeGRPC) GetNodeGRPCKey() string {
+	if n == nil {
+		return defaultNodeGRPCKey
+	}
+	return mathx.IfNotEmpty(n.NodeGRPCKey, defaultNodeGRPCKey)
+}
+
+// GetNodeHeartbeatKey 获取节点心跳 Hash key
+func (n *NodeGRPC) GetNodeHeartbeatKey() string {
+	if n == nil {
+		return defaultNodeHeartbeatKey
+	}
+	return mathx.IfNotEmpty(n.NodeHeartbeatKey, defaultNodeHeartbeatKey)
 }
 
 // WorkStatusGranularity 工作状态统计粒度
@@ -214,6 +270,12 @@ type PubSub struct {
 	PingInterval       time.Duration `mapstructure:"ping-interval" yaml:"ping-interval" json:"pingInterval"`                     // 心跳间隔
 	EnableCompression  bool          `mapstructure:"enable-compression" yaml:"enable-compression" json:"enableCompression"`      // 是否启用消息压缩
 	CompressionMinSize int           `mapstructure:"compression-min-size" yaml:"compression-min-size" json:"compressionMinSize"` // 压缩阈值（字节）
+
+	// Channel/Key 前缀配置（消除 hub 包中的硬编码 Redis key）
+	NodeChannelPrefix string `mapstructure:"node-channel-prefix" yaml:"node-channel-prefix" json:"nodeChannelPrefix"` // 节点消息 channel 前缀，默认 "wsc:node:"
+	BroadcastChannel  string `mapstructure:"broadcast-channel" yaml:"broadcast-channel" json:"broadcastChannel"`      // 广播 channel 名称，默认 "wsc:broadcast"
+	ObserverChannel   string `mapstructure:"observer-channel" yaml:"observer-channel" json:"observerChannel"`         // 观察者 channel 名称，默认 "wsc:observers"
+	LockKeyPrefix     string `mapstructure:"lock-key-prefix" yaml:"lock-key-prefix" json:"lockKeyPrefix"`             // 分布式锁 key 前缀，默认 "wsc:lock:"
 }
 
 // DeadLetterQueue 死信队列配置
@@ -405,6 +467,38 @@ func (p *PubSub) GetPingInterval() time.Duration {
 	return p.PingInterval
 }
 
+// GetNodeChannelPrefix 获取节点消息 channel 前缀
+func (p *PubSub) GetNodeChannelPrefix() string {
+	if p == nil {
+		return defaultNodeChannelPrefix
+	}
+	return mathx.IfNotEmpty(p.NodeChannelPrefix, defaultNodeChannelPrefix)
+}
+
+// GetBroadcastChannel 获取广播 channel 名称
+func (p *PubSub) GetBroadcastChannel() string {
+	if p == nil {
+		return defaultBroadcastChannel
+	}
+	return mathx.IfNotEmpty(p.BroadcastChannel, defaultBroadcastChannel)
+}
+
+// GetObserverChannel 获取观察者 channel 名称
+func (p *PubSub) GetObserverChannel() string {
+	if p == nil {
+		return defaultObserverChannel
+	}
+	return mathx.IfNotEmpty(p.ObserverChannel, defaultObserverChannel)
+}
+
+// GetLockKeyPrefix 获取分布式锁 key 前缀
+func (p *PubSub) GetLockKeyPrefix() string {
+	if p == nil {
+		return defaultLockKeyPrefix
+	}
+	return mathx.IfNotEmpty(p.LockKeyPrefix, defaultLockKeyPrefix)
+}
+
 // GetEnableCompression 获取是否启用消息压缩
 func (p *PubSub) GetEnableCompression() bool {
 	return p.EnableCompression
@@ -422,7 +516,7 @@ func (d *DeadLetterQueue) GetEnabled() bool {
 
 // GetKeyPrefix 获取死信队列Redis键前缀
 func (d *DeadLetterQueue) GetKeyPrefix() string {
-	return mathx.IF(d.KeyPrefix == "", "wsc:dlq:", d.KeyPrefix)
+	return mathx.IF(d.KeyPrefix == "", defaultDLQKeyPrefix, d.KeyPrefix)
 }
 
 // GetMaxSize 获取死信队列最大长度
@@ -652,7 +746,7 @@ func (c *ConnectionToken) GetExpiresTime() time.Duration {
 
 // GetRedisKeyPrefix 获取 Redis 键前缀
 func (c *ConnectionToken) GetRedisKeyPrefix() string {
-	return mathx.IfEmpty(c.RedisKeyPrefix, "wsc:conn_token:")
+	return mathx.IfEmpty(c.RedisKeyPrefix, defaultConnTokenKeyPrefix)
 }
 
 // IsEnabled 检查是否启用
@@ -762,6 +856,12 @@ type ClientAttributes struct {
 
 	// DeviceID 提取配置
 	DeviceIdSources []common.AttributeSource `mapstructure:"device-id-sources" yaml:"device-id-sources" json:"deviceIdSources"` // DeviceID 提取来源（按优先级排序）
+
+	// Namespace 提取配置（命名空间隔离，默认 "default"）
+	NamespaceSources []common.AttributeSource `mapstructure:"namespace-sources" yaml:"namespace-sources" json:"namespaceSources"` // Namespace 提取来源（按优先级排序）
+
+	// GroupID 提取配置（默认群组，连接后自动加入，为空不自动加入）
+	GroupIDSources []common.AttributeSource `mapstructure:"group-id-sources" yaml:"group-id-sources" json:"groupIdSources"` // GroupID 提取来源（按优先级排序）
 }
 
 // TemporalHasherConfig 时间窗口哈希生成器配置
@@ -813,6 +913,20 @@ func (c *ClientAttributes) Validate() error {
 	for i, source := range c.DeviceIdSources {
 		if err := source.Validate(); err != nil {
 			return fmt.Errorf("device-id-sources: invalid source at index %d: %w", i, err)
+		}
+	}
+
+	// 验证 Namespace 来源
+	for i, source := range c.NamespaceSources {
+		if err := source.Validate(); err != nil {
+			return fmt.Errorf("namespace-sources: invalid source at index %d: %w", i, err)
+		}
+	}
+
+	// 验证 GroupID 来源
+	for i, source := range c.GroupIDSources {
+		if err := source.Validate(); err != nil {
+			return fmt.Errorf("group-id-sources: invalid source at index %d: %w", i, err)
 		}
 	}
 
@@ -998,6 +1112,33 @@ var DefaultNonRetryableErrors = []string{
 	"validation",   // 验证错误
 }
 
+// ========== 默认 Redis key 前缀与 channel 名称 ==========
+// 集中维护 wsc: 前缀的默认值，避免散落在各 getter 与 Default* 函数中产生硬编码
+var (
+	// PubSub channel / lock 默认值
+	defaultNodeChannelPrefix = "wsc:node:"     // 节点消息 channel 前缀
+	defaultBroadcastChannel  = "wsc:broadcast" // 广播 channel 名称
+	defaultObserverChannel   = "wsc:observers" // 观察者 channel 名称
+	defaultLockKeyPrefix     = "wsc:lock:"     // 分布式锁 key 前缀
+	defaultPubSubNamespace   = "wsc:pubsub:"   // PubSub 命名空间
+
+	// NodeGRPC hash key 默认值
+	defaultNodeGRPCKey      = "wsc:nodes:grpc"      // 节点 gRPC 地址 Hash key
+	defaultNodeHeartbeatKey = "wsc:nodes:heartbeat" // 节点心跳 Hash key
+
+	// Redis 仓库键前缀默认值
+	defaultOnlineStatusKeyPrefix   = "wsc:online_status:"    // 在线状态键前缀
+	defaultStatsKeyPrefix          = "wsc:stats:"            // 统计数据键前缀
+	defaultWorkloadKeyPrefix       = "wsc:workload:"         // 负载管理键前缀
+	defaultGroupKeyPrefix          = "wsc:group:"            // 群组键前缀
+	defaultOfflineMessageKeyPrefix = "wsc:offline_messages:" // 离线消息键前缀
+	defaultDLQKeyPrefix            = "wsc:dlq:"              // 死信队列键前缀
+
+	// 安全 / 限流 Redis 键前缀默认值
+	defaultConnTokenKeyPrefix = "wsc:conn_token:" // 连接 Token Redis 键前缀
+	defaultRateLimitKeyPrefix = "wsc:rate_limit:" // 消息风控 Redis 键前缀
+)
+
 // Default 创建默认 WSC 配置
 func Default() *WSC {
 	return &WSC{
@@ -1040,6 +1181,7 @@ func Default() *WSC {
 		SSETimeout:                 120 * time.Second,
 		SSEMessageBuffer:           100,
 		RedisRepository:            DefaultRedisRepository(),
+		NodeGRPC:                   DefaultNodeGRPC(),
 		Database:                   DefaultDatabase(),
 		Performance:                DefaultPerformance(),
 		Security:                   DefaultSecurity(),
@@ -1066,6 +1208,7 @@ func DefaultRedisRepository() *RedisRepository {
 		OfflineMessage:  DefaultOfflineMessage(),
 		PubSub:          DefaultPubSub(),
 		DeadLetterQueue: DefaultDeadLetterQueue(),
+		Group:           DefaultGroup(),
 	}
 }
 
@@ -1127,7 +1270,7 @@ func DefaultConnectionToken() *ConnectionToken {
 		Algorithm:      "HS256",
 		ExpiresTime:    5 * time.Minute,
 		UseRedis:       false,
-		RedisKeyPrefix: "wsc:conn_token:",
+		RedisKeyPrefix: defaultConnTokenKeyPrefix,
 		AllowFallback:  false,
 	}
 }
@@ -1150,6 +1293,14 @@ func DefaultClientAttributes() *ClientAttributes {
 		DeviceIdSources: []common.AttributeSource{
 			{Type: common.SourceTypeQuery, Key: "device_id"},
 			{Type: common.SourceTypeHeader, Key: "X-Device-ID"},
+		},
+		NamespaceSources: []common.AttributeSource{
+			{Type: common.SourceTypeQuery, Key: "namespace"},
+			{Type: common.SourceTypeHeader, Key: "X-Namespace"},
+		},
+		GroupIDSources: []common.AttributeSource{
+			{Type: common.SourceTypeQuery, Key: "group_id"},
+			{Type: common.SourceTypeHeader, Key: "X-Group-ID"},
 		},
 	}
 }
@@ -1227,7 +1378,7 @@ func DefaultMessageRateLimit() *MessageRateLimit {
 		AlertThreshold:   80,
 		BlockDuration:    5 * time.Minute,
 		UseRedis:         true,
-		RedisKeyPrefix:   "wsc:rate_limit:",
+		RedisKeyPrefix:   defaultRateLimitKeyPrefix,
 		EnableEmailAlert: false,
 		EmailAlertConfig: DefaultEmailAlert(),
 	}
@@ -1398,7 +1549,7 @@ func DefaultRetryPolicy() *RetryPolicy {
 func DefaultDeadLetterQueue() *DeadLetterQueue {
 	return &DeadLetterQueue{
 		Enabled:           false,
-		KeyPrefix:         "wsc:dlq:",
+		KeyPrefix:         defaultDLQKeyPrefix,
 		MaxSize:           1000,
 		TTL:               7 * 24 * time.Hour,
 		MaxRetries:        3,
@@ -1415,7 +1566,7 @@ func DefaultDeadLetterQueue() *DeadLetterQueue {
 // DefaultOnlineStatus 默认在线状态配置
 func DefaultOnlineStatus() *OnlineStatus {
 	return &OnlineStatus{
-		KeyPrefix:             "wsc:online_status:",
+		KeyPrefix:             defaultOnlineStatusKeyPrefix,
 		TTL:                   90 * time.Second, // 心跳间隔的3倍 (30s * 3)
 		StatusRefreshInterval: 45 * time.Second, // 默认 45 秒刷新一次（ClientTimeout 的一半，确保超时前至少刷新 2 次）
 		EnableCompression:     false,            // 默认关闭压缩
@@ -1426,7 +1577,7 @@ func DefaultOnlineStatus() *OnlineStatus {
 // DefaultStats 默认统计数据配置
 func DefaultStats() *Stats {
 	return &Stats{
-		KeyPrefix: "wsc:stats:",
+		KeyPrefix: defaultStatsKeyPrefix,
 		TTL:       10 * time.Minute,
 	}
 }
@@ -1434,9 +1585,25 @@ func DefaultStats() *Stats {
 // DefaultWorkload 默认负载管理配置
 func DefaultWorkload() *Workload {
 	return &Workload{
-		KeyPrefix:     "wsc:workload:",
+		KeyPrefix:     defaultWorkloadKeyPrefix,
 		MaxCandidates: 50,
 		WorkStatus:    DefaultWorkStatus(),
+	}
+}
+
+// DefaultGroup 默认群组配置
+func DefaultGroup() *Group {
+	return &Group{
+		KeyPrefix: defaultGroupKeyPrefix,
+	}
+}
+
+// DefaultNodeGRPC 默认 gRPC 节点通信配置
+func DefaultNodeGRPC() *NodeGRPC {
+	return &NodeGRPC{
+		Enabled: false,
+		Host:    "0.0.0.0",
+		Port:    50052,
 	}
 }
 
@@ -1456,7 +1623,7 @@ func DefaultWorkStatus() *WorkStatus {
 // DefaultOfflineMessage 默认离线消息配置
 func DefaultOfflineMessage() *OfflineMessage {
 	return &OfflineMessage{
-		KeyPrefix: "wsc:offline_messages:",
+		KeyPrefix: defaultOfflineMessageKeyPrefix,
 		QueueTTL:  7 * 24 * time.Hour,
 		AutoStore: true,
 		AutoPush:  true,
@@ -1468,7 +1635,7 @@ func DefaultOfflineMessage() *OfflineMessage {
 func DefaultPubSub() *PubSub {
 	return &PubSub{
 		Enabled:            true,                   // 默认启用分布式
-		Namespace:          "wsc:pubsub:",          // 命名空间
+		Namespace:          defaultPubSubNamespace, // 命名空间
 		MaxRetries:         2,                      // 最大重试次数
 		RetryDelay:         100 * time.Millisecond, // 重试延迟
 		BufferSize:         100,                    // 消息缓冲区大小

@@ -12,8 +12,9 @@
 package tracing
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestTracing_Default(t *testing.T) {
@@ -33,6 +34,9 @@ func TestTracing_Default(t *testing.T) {
 	assert.Equal(t, 0.1, config.SamplerRate)
 	assert.NotNil(t, config.Headers)
 	assert.NotNil(t, config.Attributes)
+	assert.NotNil(t, config.ExporterHeaders)
+	assert.True(t, config.ExporterTLSInsecure)
+	assert.Equal(t, "info", config.TelemetryLogLevel)
 }
 
 func TestTracing_WithServiceName(t *testing.T) {
@@ -94,6 +98,7 @@ func TestTracing_Clone(t *testing.T) {
 		WithHeaders([]string{"X-Test"})
 	config.Attributes["key1"] = "value1"
 	config.Attributes["key2"] = "value2"
+	config.ExporterHeaders["Authorization"] = "Basic xxx"
 
 	clone := config.Clone()
 	assert.NotNil(t, clone)
@@ -112,6 +117,11 @@ func TestTracing_Clone(t *testing.T) {
 	clonedConfig.Attributes["key3"] = "value3"
 	_, exists := config.Attributes["key3"]
 	assert.False(t, exists)
+
+	// 验证深拷贝 - 导出器请求头 map
+	clonedConfig.ExporterHeaders["stream-name"] = "default"
+	_, exists = config.ExporterHeaders["stream-name"]
+	assert.False(t, exists)
 }
 
 func TestTracing_Get(t *testing.T) {
@@ -124,20 +134,23 @@ func TestTracing_Get(t *testing.T) {
 func TestTracing_Set(t *testing.T) {
 	config := Default()
 	newConfig := &Tracing{
-		ModuleName:         "new-tracing",
-		Enabled:            true,
-		ServiceName:        "new-service",
-		ServiceVersion:     "2.0.0",
-		Environment:        "production",
-		Endpoint:           "http://new-endpoint.com",
-		ExporterType:       "otlp",
-		ExporterEndpoint:   "http://otlp:4318",
-		SampleRate:         0.2,
-		SamplerType:        "always",
-		SamplerProbability: 1.0,
-		SamplerRate:        1.0,
-		Headers:            []string{"X-New-Header"},
-		Attributes:         map[string]string{"env": "prod"},
+		ModuleName:          "new-tracing",
+		Enabled:             true,
+		ServiceName:         "new-service",
+		ServiceVersion:      "2.0.0",
+		Environment:         "production",
+		Endpoint:            "http://new-endpoint.com",
+		ExporterType:        "otlp",
+		ExporterEndpoint:    "http://otlp:4318",
+		SampleRate:          0.2,
+		SamplerType:         "always",
+		SamplerProbability:  1.0,
+		SamplerRate:         1.0,
+		Headers:             []string{"X-New-Header"},
+		Attributes:          map[string]string{"env": "prod"},
+		ExporterHeaders:     map[string]string{"Authorization": "Basic xxx"},
+		ExporterTLSInsecure: false,
+		TelemetryLogLevel:   "warn",
 	}
 
 	config.Set(newConfig)
@@ -149,6 +162,9 @@ func TestTracing_Set(t *testing.T) {
 	assert.Equal(t, "http://new-endpoint.com", config.Endpoint)
 	assert.Equal(t, "otlp", config.ExporterType)
 	assert.Equal(t, 0.2, config.SampleRate)
+	assert.Equal(t, "Basic xxx", config.ExporterHeaders["Authorization"])
+	assert.False(t, config.ExporterTLSInsecure)
+	assert.Equal(t, "warn", config.TelemetryLogLevel)
 }
 
 func TestTracing_Validate(t *testing.T) {

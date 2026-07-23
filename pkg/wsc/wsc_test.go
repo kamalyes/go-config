@@ -15,6 +15,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kamalyes/go-config/pkg/common"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -80,4 +81,68 @@ func TestWSC_Clone(t *testing.T) {
 	assert.NotEqual(t, original.NodePort, cloned.NodePort)
 	assert.NotEqual(t, original.Path, cloned.Path)
 	assert.NotEqual(t, original.WebSocketOrigins[0], cloned.WebSocketOrigins[0])
+}
+
+// TestDefaultClientAttributesHasNamespaceGroup 验证默认配置包含 NamespaceSources/GroupIDSources
+func TestDefaultClientAttributesHasNamespaceGroup(t *testing.T) {
+	ca := DefaultClientAttributes()
+	assert.NotEmpty(t, ca.NamespaceSources, "默认配置应包含 NamespaceSources")
+	assert.NotEmpty(t, ca.GroupIDSources, "默认配置应包含 GroupIDSources")
+
+	// 验证默认来源包含 query 和 header
+	hasNamespaceQuery, hasNamespaceHeader := false, false
+	for _, src := range ca.NamespaceSources {
+		if src.Type == common.SourceTypeQuery && src.Key == "namespace" {
+			hasNamespaceQuery = true
+		}
+		if src.Type == common.SourceTypeHeader && src.Key == "X-Namespace" {
+			hasNamespaceHeader = true
+		}
+	}
+	assert.True(t, hasNamespaceQuery, "NamespaceSources 应包含 query:namespace")
+	assert.True(t, hasNamespaceHeader, "NamespaceSources 应包含 header:X-Namespace")
+
+	hasGroupQuery, hasGroupHeader := false, false
+	for _, src := range ca.GroupIDSources {
+		if src.Type == common.SourceTypeQuery && src.Key == "group_id" {
+			hasGroupQuery = true
+		}
+		if src.Type == common.SourceTypeHeader && src.Key == "X-Group-ID" {
+			hasGroupHeader = true
+		}
+	}
+	assert.True(t, hasGroupQuery, "GroupIDSources 应包含 query:group_id")
+	assert.True(t, hasGroupHeader, "GroupIDSources 应包含 header:X-Group-ID")
+}
+
+// TestClientAttributesValidateNamespaceGroup 验证 NamespaceSources/GroupIDSources 的 Validate
+func TestClientAttributesValidateNamespaceGroup(t *testing.T) {
+	// 合法配置
+	ca := &ClientAttributes{
+		NamespaceSources: []common.AttributeSource{
+			{Type: common.SourceTypeQuery, Key: "namespace"},
+		},
+		GroupIDSources: []common.AttributeSource{
+			{Type: common.SourceTypeHeader, Key: "X-Group-ID"},
+		},
+	}
+	assert.NoError(t, ca.Validate())
+
+	// 非法 Namespace 来源（空 Key）
+	invalid := &ClientAttributes{
+		NamespaceSources: []common.AttributeSource{
+			{Type: common.SourceTypeQuery, Key: ""},
+		},
+	}
+	err := invalid.Validate()
+	assert.Error(t, err, "空 Key 的 NamespaceSources 应验证失败")
+
+	// 非法 GroupID 来源（空 Key）
+	invalid2 := &ClientAttributes{
+		GroupIDSources: []common.AttributeSource{
+			{Type: common.SourceTypeQuery, Key: ""},
+		},
+	}
+	err2 := invalid2.Validate()
+	assert.Error(t, err2, "空 Key 的 GroupIDSources 应验证失败")
 }

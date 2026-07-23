@@ -97,7 +97,11 @@
       "bufferSize": 100,
       "pingInterval": 10000000000,
       "enableCompression": false,
-      "compressionMinSize": 512
+      "compressionMinSize": 512,
+      "nodeChannelPrefix": "",
+      "broadcastChannel": "",
+      "observerChannel": "",
+      "lockKeyPrefix": ""
     },
     "deadLetterQueue": {
       "enabled": false,
@@ -112,7 +116,20 @@
       "batchSize": 10,
       "lockTimeout": 300000000000,
       "cleanupInterval": 600000000000
+    },
+    "group": {
+      "keyPrefix": "wsc:group:"
     }
+  },
+  "nodeGrpc": {
+    "enabled": false,
+    "host": "0.0.0.0",
+    "port": 50052,
+    "tlsEnabled": false,
+    "tlsCertFile": "",
+    "tlsKeyFile": "",
+    "nodeGrpcKey": "",
+    "nodeHeartbeatKey": ""
   },
   "performance": {
     "maxConnectionsPerNode": 10000,
@@ -174,6 +191,19 @@
         "templateBlock": "\u003c!DOCTYPE html\u003e\n\u003chtml\u003e\n\u003chead\u003e\n    \u003cmeta charset=\"UTF-8\"\u003e\n    \u003cstyle\u003e\n        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n        .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n        .header { background: #f44336; color: white; padding: 20px; border-radius: 5px 5px 0 0; }\n        .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }\n        .info-table { width: 100%; border-collapse: collapse; margin: 15px 0; }\n        .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }\n        .info-table td:first-child { font-weight: bold; width: 150px; }\n        .footer { background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #666; }\n        .warning { background: #ffebee; border-left: 4px solid #f44336; padding: 12px; margin: 15px 0; }\n    \u003c/style\u003e\n\u003c/head\u003e\n\u003cbody\u003e\n    \u003cdiv class=\"container\"\u003e\n        \u003cdiv class=\"header\"\u003e\n            \u003ch2\u003e🚫 用户已被封禁 - {{.AppName}}\u003c/h2\u003e\n        \u003c/div\u003e\n        \u003cdiv class=\"content\"\u003e\n            \u003cdiv class=\"warning\"\u003e\n                \u003cstrong\u003e用户消息发送频率超过限制，已被临时封禁\u003c/strong\u003e\n            \u003c/div\u003e\n            \u003ctable class=\"info-table\"\u003e\n                \u003ctr\u003e\u003ctd\u003e用户ID\u003c/td\u003e\u003ctd\u003e{{.UserID}}\u003c/td\u003e\u003c/tr\u003e\n                \u003ctr\u003e\u003ctd\u003e用户类型\u003c/td\u003e\u003ctd\u003e{{.UserType}}\u003c/td\u003e\u003c/tr\u003e\n                \u003ctr\u003e\u003ctd\u003e当前分钟消息数\u003c/td\u003e\u003ctd\u003e\u003cstrong style=\"color: #f44336; font-size: 18px;\"\u003e{{.MinuteCount}} 条\u003c/strong\u003e\u003c/td\u003e\u003c/tr\u003e\n                \u003ctr\u003e\u003ctd\u003e当前小时消息数\u003c/td\u003e\u003ctd\u003e\u003cstrong style=\"color: #f44336; font-size: 18px;\"\u003e{{.HourCount}} 条\u003c/strong\u003e\u003c/td\u003e\u003c/tr\u003e\n                \u003ctr\u003e\u003ctd\u003e封禁时间\u003c/td\u003e\u003ctd\u003e{{.TriggerTime}}\u003c/td\u003e\u003c/tr\u003e\n            \u003c/table\u003e\n            \u003cp\u003e\u003cstrong\u003e紧急处理：\u003c/strong\u003e\u003c/p\u003e\n            \u003cul\u003e\n                \u003cli\u003e立即审查该用户的所有消息内容\u003c/li\u003e\n                \u003cli\u003e评估是否需要永久封禁\u003c/li\u003e\n                \u003cli\u003e通知相关运维人员\u003c/li\u003e\n                \u003cli\u003e记录异常行为日志\u003c/li\u003e\n            \u003c/ul\u003e\n        \u003c/div\u003e\n        \u003cdiv class=\"footer\"\u003e\n            \u003cp\u003e此邮件由 {{.AppName}} 自动发送，请勿直接回复\u003c/p\u003e\n            \u003cp\u003eGenerated at {{.GenerateTime}}\u003c/p\u003e\n        \u003c/div\u003e\n    \u003c/div\u003e\n\u003c/body\u003e\n\u003c/html\u003e",
         "appName": "WebSocket消息系统"
       }
+    },
+    "connectionToken": {
+      "enabled": false,
+      "tokenParamName": "token",
+      "tokenSource": "query",
+      "signingKey": "",
+      "issuer": "",
+      "audience": "",
+      "algorithm": "HS256",
+      "expiresTime": 300000000000,
+      "useRedis": false,
+      "redisKeyPrefix": "wsc:conn_token:",
+      "allowFallback": false
     }
   },
   "clientAttributes": {
@@ -215,6 +245,26 @@
       {
         "type": "header",
         "key": "X-Device-ID"
+      }
+    ],
+    "namespaceSources": [
+      {
+        "type": "query",
+        "key": "namespace"
+      },
+      {
+        "type": "header",
+        "key": "X-Namespace"
+      }
+    ],
+    "groupIdSources": [
+      {
+        "type": "query",
+        "key": "group_id"
+      },
+      {
+        "type": "header",
+        "key": "X-Group-ID"
       }
     ]
   },

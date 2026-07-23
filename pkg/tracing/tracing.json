@@ -22,5 +22,8 @@
     "Authorization",
     "User-Agent"
   ],
-  "attributes": {}
+  "attributes": {},
+  "exporterHeaders": {},
+  "exporterTLSInsecure": true,
+  "telemetryLogLevel": "info"
 }
