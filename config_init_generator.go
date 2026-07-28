@@ -527,25 +527,6 @@ func (sg *SmartConfigGenerator) toKebabCase(s string) string {
 	return strings.ToLower(string(result))
 }
 
-// extractFieldComment 从结构体字段提取注释(改进版)
-func (sg *SmartConfigGenerator) extractFieldComment(field reflect.StructField) string {
-	// 尝试从tag中提取注释信息
-	if comment := field.Tag.Get("comment"); comment != "" {
-		return comment
-	}
-
-	if description := field.Tag.Get("description"); description != "" {
-		return description
-	}
-
-	if doc := field.Tag.Get("doc"); doc != "" {
-		return doc
-	}
-
-	// 根据字段名生成更详细的注释
-	return sg.generateDetailedComment(field.Name, field.Type)
-}
-
 // extractDetailedComment 提取详细注释(优先从源代码,包含类型信息)
 func (sg *SmartConfigGenerator) extractDetailedComment(field reflect.StructField, config interface{}) string {
 	parts := []string{}
@@ -687,14 +668,6 @@ func (sg *SmartConfigGenerator) getTypeInfo(t reflect.Type) string {
 		return "嵌套配置"
 	}
 	return ""
-}
-
-// generateGenericComment 根据字段名生成通用注释
-func (sg *SmartConfigGenerator) generateGenericComment(fieldName string) string {
-	// 将驼峰命名转换为有意义的注释
-	re := regexp.MustCompile("([a-z0-9])([A-Z])")
-	result := re.ReplaceAllString(fieldName, "${1} ${2}")
-	return strings.ToLower(result) + "配置"
 }
 
 // fileExists 检查文件是否存在

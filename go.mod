@@ -13,6 +13,9 @@ require (
 )
 
 require (
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	go.opentelemetry.io/otel v1.44.0 // indirect
+	go.opentelemetry.io/otel/trace v1.44.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.47.0 // indirect
 	google.golang.org/grpc v1.80.0 // indirect
@@ -37,6 +40,6 @@ require (
 // 本地开发替换
 // replace github.com/kamalyes/go-toolbox => ../go-toolbox
 
-// replace github.com/kamalyes/go-logger => ../go-logger
+replace github.com/kamalyes/go-logger => ../go-logger
 
 // replace github.com/kamalyes/go-argus => ../go-argus

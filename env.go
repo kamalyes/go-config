@@ -298,6 +298,7 @@ func (em *EnvironmentManager) registerDefaultEnvironments() {
 	for envType, prefixes := range DefaultEnvPrefixes {
 		em.registerEnvironmentInternal(envType, prefixes...)
 	}
+	logger.GetGlobalLogger().DebugKV("注册环境类型", DefaultEnvPrefixes)
 }
 
 // registerEnvironmentInternal 内部注册方法，不会反向更新 DefaultEnvPrefixes
@@ -315,7 +316,6 @@ func (em *EnvironmentManager) registerEnvironmentInternal(envType EnvironmentTyp
 	}
 
 	em.environments[envType] = allAliases
-	logger.GetGlobalLogger().InfoKV("注册环境类型", "type", envType, "aliases", allAliases)
 }
 
 // RegisterEnvironment 注册环境类型及其别名
@@ -382,7 +382,7 @@ var defaultEnvManager = NewEnvironmentManager()
 func init() {
 	// 自动初始化全局环境实例
 	initGlobalEnvironment()
-	logger.GetGlobalLogger().InfoKV("go-config包已自动初始化", "environment", GetCurrentEnvironment())
+	logger.GetGlobalLogger().DebugKV("go-config包已自动初始化", "environment", GetCurrentEnvironment())
 }
 
 // GetGlobalEnvManager 获取全局环境管理器
@@ -450,7 +450,7 @@ func (e *Environment) RegisterCallback(id string, callback EnvironmentCallback, 
 		Async:    async,
 	}
 
-	logger.GetGlobalLogger().InfoKV("注册环境变更回调", "id", id, "priority", priority, "async", async)
+	logger.GetGlobalLogger().DebugKV("注册环境变更回调", "id", id, "priority", priority, "async", async)
 	return nil
 }
 
@@ -464,7 +464,7 @@ func (e *Environment) UnregisterCallback(id string) error {
 	}
 
 	delete(e.callbacks, id)
-	logger.GetGlobalLogger().InfoKV("注销环境变更回调", "id", id)
+	logger.GetGlobalLogger().DebugKV("注销环境变更回调", "id", id)
 	return nil
 }
 
@@ -491,7 +491,7 @@ func (e *Environment) triggerCallbacks(oldEnv, newEnv EnvironmentType) {
 		}
 	}
 
-	logger.GetGlobalLogger().InfoKV("触发环境变更回调", "count", len(callbacks), "oldEnv", oldEnv, "newEnv", newEnv)
+	logger.GetGlobalLogger().DebugKV("触发环境变更回调", "count", len(callbacks), "oldEnv", oldEnv, "newEnv", newEnv)
 
 	// 执行回调
 	for _, cb := range callbacks {
@@ -514,7 +514,7 @@ func (e *Environment) executeCallback(cb *EnvironmentCallbackInfo, oldEnv, newEn
 	if err := cb.Callback(oldEnv, newEnv); err != nil {
 		logger.GetGlobalLogger().ErrorKV("环境变更回调执行失败", "id", cb.ID, "error", err)
 	} else {
-		logger.GetGlobalLogger().InfoKV("环境变更回调执行成功", "id", cb.ID)
+		logger.GetGlobalLogger().DebugKV("环境变更回调执行成功", "id", cb.ID)
 	}
 }
 
@@ -537,7 +537,7 @@ func (e *Environment) ClearCallbacks() {
 
 	count := len(e.callbacks)
 	e.callbacks = make(map[string]*EnvironmentCallbackInfo)
-	logger.GetGlobalLogger().InfoKV("已清除环境变更回调", "count", count)
+	logger.GetGlobalLogger().DebugKV("已清除环境变更回调", "count", count)
 }
 
 // RegisterEnvironment 注册新的环境类型
@@ -554,7 +554,7 @@ func (e *Environment) RegisterEnvironment(env EnvironmentType) error {
 
 	// 注册新的环境类型
 	e.registeredEnvs = append(e.registeredEnvs, env)
-	logger.GetGlobalLogger().InfoKV("环境类型注册成功", "type", env)
+	logger.GetGlobalLogger().DebugKV("环境类型注册成功", "type", env)
 	return nil
 }
 
@@ -636,7 +636,7 @@ func (e *Environment) CheckAndUpdateEnv() {
 		e.mu.Unlock()
 
 		e.SetEnvironment(newEnv) // 更新环境
-		logger.GetGlobalLogger().InfoKV("环境变量已更新", "key", envContextKey, "value", newEnv)
+		logger.GetGlobalLogger().DebugKV("环境变量已更新", "key", envContextKey, "value", newEnv)
 
 		// 触发环境变更回调
 		e.triggerCallbacks(oldValue, newEnv)
@@ -711,7 +711,7 @@ func setEnv(key ContextKey, value EnvironmentType) error {
 	if err := os.Setenv(key.String(), value.String()); err != nil {
 		return err // 返回错误
 	}
-	logger.GetGlobalLogger().InfoKV("环境变量设置成功", "key", key, "value", value)
+	logger.GetGlobalLogger().DebugKV("环境变量设置成功", "key", key, "value", value)
 	return nil
 }
 
@@ -732,7 +732,7 @@ func (e *Environment) ClearEnv() {
 	if err := os.Unsetenv(envContextKey.String()); err != nil {
 		logger.GetGlobalLogger().ErrorKV("清除环境变量失败", "key", envContextKey.String(), "error", err)
 	} else {
-		logger.GetGlobalLogger().InfoKV("环境变量已清除", "key", envContextKey.String())
+		logger.GetGlobalLogger().DebugKV("环境变量已清除", "key", envContextKey.String())
 	}
 }
 
@@ -776,7 +776,7 @@ var globalEnvOnce sync.Once
 func initGlobalEnvironment() {
 	globalEnvOnce.Do(func() {
 		globalEnvironment = NewEnvironment()
-		logger.GetGlobalLogger().InfoKV("全局环境实例已自动初始化", "environment", globalEnvironment.Value)
+		logger.GetGlobalLogger().DebugKV("全局环境实例已自动初始化", "environment", globalEnvironment.Value)
 	})
 }
 

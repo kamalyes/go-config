@@ -199,7 +199,7 @@ func (cm *CommonCallbackManager) TriggerCallbacks(ctx context.Context, event Cal
 			currentInfo := info // 捕获循环变量
 			syncx.Go(ctx).
 				OnPanic(func(r any) {
-					logger.GetGlobalLogger().Error("回调执行时发生panic: %v", r)
+					logger.GetGlobalLogger().ErrorContext(ctx, "回调执行时发生panic: %v", r)
 				}).
 				Exec(func() {
 					defer wg.Done()
@@ -285,13 +285,13 @@ func (cm *CommonCallbackManager) executeCallback(ctx context.Context, info *call
 			cancel()
 			if err == nil {
 				if attempt > 0 {
-					logger.GetGlobalLogger().Info("✅ 回调 %s 在第 %d 次重试后成功", info.options.ID, attempt)
+					logger.GetGlobalLogger().InfoContext(ctx, "✅ 回调 %s 在第 %d 次重试后成功", info.options.ID, attempt)
 				}
 				return nil
 			}
 			lastErr = err
 			if attempt < info.options.Retry {
-				logger.GetGlobalLogger().Warn("⚠️ 回调 %s 执行失败，准备重试 (尝试 %d/%d): %v",
+				logger.GetGlobalLogger().WarnContext(ctx, "⚠️ 回调 %s 执行失败，准备重试 (尝试 %d/%d): %v",
 					info.options.ID, attempt+1, info.options.Retry+1, err)
 				time.Sleep(time.Duration(attempt+1) * time.Second) // 递增延迟
 			}
@@ -299,13 +299,13 @@ func (cm *CommonCallbackManager) executeCallback(ctx context.Context, info *call
 			cancel()
 			lastErr = fmt.Errorf("回调超时")
 			if attempt < info.options.Retry {
-				logger.GetGlobalLogger().Warn("⏰ 回调 %s 执行超时，准备重试 (尝试 %d/%d)",
+				logger.GetGlobalLogger().WarnContext(ctx, "⏰ 回调 %s 执行超时，准备重试 (尝试 %d/%d)",
 					info.options.ID, attempt+1, info.options.Retry+1)
 			}
 		}
 	}
 
-	logger.GetGlobalLogger().Error("❌ 回调 %s 执行失败，已用尽所有重试: %v", info.options.ID, lastErr)
+	logger.GetGlobalLogger().ErrorContext(ctx, "❌ 回调 %s 执行失败，已用尽所有重试: %v", info.options.ID, lastErr)
 	return fmt.Errorf("回调 %s 执行失败: %w", info.options.ID, lastErr)
 }
 

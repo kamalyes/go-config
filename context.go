@@ -86,7 +86,7 @@ func (cm *ContextManager) onEnvironmentChanged(oldEnv, newEnv EnvironmentType) e
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
-	logger.GetGlobalLogger().InfoKV("上下文管理器接收到环境变更", "oldEnv", oldEnv, "newEnv", newEnv)
+	logger.GetGlobalLogger().DebugKV("上下文管理器接收到环境变更", "oldEnv", oldEnv, "newEnv", newEnv)
 
 	cm.configCtx.Environment = newEnv
 	cm.configCtx.UpdatedAt = time.Now()
@@ -104,7 +104,7 @@ func (cm *ContextManager) onConfigChanged(ctx context.Context, event CallbackEve
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
-	logger.GetGlobalLogger().InfoKV("上下文管理器接收到配置变更", "type", event.Type)
+	logger.GetGlobalLogger().DebugKV("上下文管理器接收到配置变更", "type", event.Type)
 
 	cm.configCtx.Config = event.NewValue
 	cm.configCtx.UpdatedAt = time.Now()

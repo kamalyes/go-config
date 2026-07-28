@@ -269,7 +269,7 @@ func (h *hotReloadManager) SetConfig(config interface{}) error {
 
 // Reload 手动重新加载配置
 func (h *hotReloadManager) Reload(ctx context.Context) error {
-	logger.GetGlobalLogger().Info("🔄 手动重新加载配置")
+	logger.GetGlobalLogger().InfoContext(ctx, "🔄 手动重新加载配置")
 	return h.reloadConfig(ctx, "manual_reload")
 }
 
@@ -284,24 +284,24 @@ func (h *hotReloadManager) runEventLoop(ctx context.Context) {
 		}).
 		// 文件监控错误
 		OnChannel(h.watcher.Errors, func(err error) {
-			logger.GetGlobalLogger().Error("文件监控错误: %v", err)
+			logger.GetGlobalLogger().ErrorContext(ctx, "文件监控错误: %v", err)
 			h.triggerErrorCallback(ctx, err, "file_watcher")
 		}).
 		// 环境变量监控（条件注册）
 		IfTicker(h.hotConfig.EnableEnvWatch, h.hotConfig.WatchInterval, func() {
 			currentEnv := GetEnvironment()
 			if currentEnv != lastEnv {
-				logger.GetGlobalLogger().Info("🌍 环境变量发生变化: %s -> %s", lastEnv, currentEnv)
+				logger.GetGlobalLogger().InfoContext(ctx, "🌍 环境变量发生变化: %s -> %s", lastEnv, currentEnv)
 
 				event := CreateEvent(CallbackTypeEnvVarChanged, string(GetContextKey()), lastEnv, currentEnv)
 				event.WithMetadata("context_key", GetContextKey())
 
 				syncx.Go(ctx).
 					OnPanic(func(r any) {
-						logger.GetGlobalLogger().Error("触发环境变更回调时发生panic: %v", r)
+						logger.GetGlobalLogger().ErrorContext(ctx, "触发环境变更回调时发生panic: %v", r)
 					}).
 					OnError(func(err error) {
-						logger.GetGlobalLogger().Error("触发环境变更回调失败: %v", err)
+						logger.GetGlobalLogger().ErrorContext(ctx, "触发环境变更回调失败: %v", err)
 					}).
 					ExecWithContext(func(ctx context.Context) error {
 						return h.TriggerCallbacks(ctx, event)
@@ -312,11 +312,11 @@ func (h *hotReloadManager) runEventLoop(ctx context.Context) {
 		}).
 		// Panic 处理
 		OnPanic(func(r any) {
-			logger.GetGlobalLogger().Error("热重载事件循环发生panic: %v", r)
+			logger.GetGlobalLogger().ErrorContext(ctx, "热重载事件循环发生panic: %v", r)
 		}).
 		// 优雅关闭
 		OnShutdown(func() {
-			logger.GetGlobalLogger().Info("⏹️ 热重载事件循环已停止")
+			logger.GetGlobalLogger().InfoContext(ctx, "⏹️ 热重载事件循环已停止")
 		}).
 		Run()
 }
@@ -326,7 +326,7 @@ func (h *hotReloadManager) handleFileEvent(ctx context.Context, event fsnotify.E
 	// 获取事件文件的绝对路径
 	eventPath, err := filepath.Abs(event.Name)
 	if err != nil {
-		logger.GetGlobalLogger().Error("获取事件文件绝对路径失败: %v", err)
+		logger.GetGlobalLogger().ErrorContext(ctx, "获取事件文件绝对路径失败: %v", err)
 		return
 	}
 
@@ -347,9 +347,9 @@ func (h *hotReloadManager) handleFileEvent(ctx context.Context, event fsnotify.E
 		}
 
 		h.debounceTimer = time.AfterFunc(h.hotConfig.DebounceDelay, func() {
-			logger.GetGlobalLogger().Info("📁 配置文件发生变化，开始重新加载: %s", event.Name)
+			logger.GetGlobalLogger().InfoContext(ctx, "📁 配置文件发生变化，开始重新加载: %s", event.Name)
 			if err := h.reloadConfig(ctx, event.Name); err != nil {
-				logger.GetGlobalLogger().Error("重新加载配置失败: %v", err)
+				logger.GetGlobalLogger().ErrorContext(ctx, "重新加载配置失败: %v", err)
 			}
 		})
 		h.mu.Unlock()
@@ -366,7 +366,7 @@ func (h *hotReloadManager) reloadConfig(ctx context.Context, source string) erro
 
 	// 重新读取配置文件
 	if err := h.viper.ReadInConfig(); err != nil {
-		logger.GetGlobalLogger().Error("重新读取配置文件失败: %v", err)
+		logger.GetGlobalLogger().ErrorContext(ctx, "重新读取配置文件失败: %v", err)
 		h.triggerErrorCallback(ctx, err, source)
 		return err
 	}
@@ -377,7 +377,7 @@ func (h *hotReloadManager) reloadConfig(ctx context.Context, source string) erro
 	// 使用灵活的命名匹配策略进行反序列化
 	// 支持 kebab-case、camelCase、PascalCase 到 snake_case 的自动转换
 	if err := UnmarshalWithFlexibleNaming(h.viper, newConfig); err != nil {
-		logger.GetGlobalLogger().Error("解析配置文件失败: %v", err)
+		logger.GetGlobalLogger().ErrorContext(ctx, "解析配置文件失败: %v", err)
 		h.triggerErrorCallback(ctx, err, source)
 		return err
 	}
@@ -392,16 +392,16 @@ func (h *hotReloadManager) reloadConfig(ctx context.Context, source string) erro
 
 	syncx.Go(ctx).
 		OnPanic(func(r any) {
-			logger.GetGlobalLogger().Error("触发配置变更回调时发生panic: %v", r)
+			logger.GetGlobalLogger().ErrorContext(ctx, "触发配置变更回调时发生panic: %v", r)
 		}).
 		OnError(func(err error) {
-			logger.GetGlobalLogger().Error("触发配置变更回调失败: %v", err)
+			logger.GetGlobalLogger().ErrorContext(ctx, "触发配置变更回调失败: %v", err)
 		}).
 		ExecWithContext(func(ctx context.Context) error {
 			return h.TriggerCallbacks(ctx, event)
 		})
 
-	logger.GetGlobalLogger().Info("✅ 配置重新加载完成 (耗时: %v)", duration)
+	logger.GetGlobalLogger().InfoContext(ctx, "✅ 配置重新加载完成 (耗时: %v)", duration)
 	return nil
 }
 
@@ -412,10 +412,10 @@ func (h *hotReloadManager) triggerErrorCallback(ctx context.Context, err error, 
 
 	syncx.Go(ctx).
 		OnPanic(func(r any) {
-			logger.GetGlobalLogger().Error("触发错误回调时发生panic: %v", r)
+			logger.GetGlobalLogger().ErrorContext(ctx, "触发错误回调时发生panic: %v", r)
 		}).
 		OnError(func(triggerErr error) {
-			logger.GetGlobalLogger().Error("触发错误回调失败: %v", triggerErr)
+			logger.GetGlobalLogger().ErrorContext(ctx, "触发错误回调失败: %v", triggerErr)
 		}).
 		ExecWithContext(func(ctx context.Context) error {
 			return h.TriggerCallbacks(ctx, event)

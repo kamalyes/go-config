@@ -231,7 +231,7 @@ func (icm *IntegratedConfigManager) Stop() error {
 	icm.environment.StopWatch()
 
 	icm.running = false
-	logger.GetGlobalLogger().Info("⏹️ 集成配置管理器已停止")
+	logger.GetGlobalLogger().Warn("⏹️ 集成配置管理器已停止")
 	return nil
 }
 
@@ -327,7 +327,7 @@ func (icm *IntegratedConfigManager) ValidateConfig() error {
 		return ErrConfigEmpty
 	}
 
-	logger.GetGlobalLogger().Info("✅ 配置验证通过")
+	logger.GetGlobalLogger().Debug("✅ 配置验证通过")
 	return nil
 }
 
@@ -391,25 +391,27 @@ func ScanAndDisplayConfigs(searchPath string, env EnvironmentType) ([]*ConfigFil
 		logger.GetGlobalLogger().Error("扫描目录失败: %v", err)
 	}
 
-	logger.GetGlobalLogger().Info("\n📋 配置文件发现报告:")
-	logger.GetGlobalLogger().Info("🔍 搜索路径: %s", searchPath)
-	logger.GetGlobalLogger().Info("🌍 目标环境: %s", env)
+	logger.GetGlobalLogger().InfoLines(
+		"📋 配置文件发现报告:",
+		fmt.Sprintf("🔍 搜索路径: %s", searchPath),
+		fmt.Sprintf("🌍 目标环境: %s", env),
+	)
 
 	if len(existingConfigs) > 0 {
 		logger.GetGlobalLogger().Info("\n✅ 发现的现有配置文件:")
 		for i, info := range existingConfigs {
 			if i < 5 { // 只显示前5个
-				logger.GetGlobalLogger().Info("   %d. %s (环境: %s, 优先级: %d)",
+				logger.GetGlobalLogger().Debug("   %d. %s (环境: %s, 优先级: %d)",
 					i+1, info.Name, info.Environment, info.Priority)
 			}
 		}
 		if len(existingConfigs) > 5 {
-			logger.GetGlobalLogger().Info("   ... 还有 %d 个文件", len(existingConfigs)-5)
+			logger.GetGlobalLogger().Debug("   ... 还有 %d 个文件", len(existingConfigs)-5)
 		}
 	}
 
 	// 显示推荐的配置文件
-	logger.GetGlobalLogger().Info("\n💡 推荐的配置文件候选:")
+	logger.GetGlobalLogger().Debug("\n💡 推荐的配置文件候选:")
 	shown := 0
 	for _, info := range allConfigs {
 		if shown >= 3 {
@@ -419,7 +421,7 @@ func ScanAndDisplayConfigs(searchPath string, env EnvironmentType) ([]*ConfigFil
 		if info.Exists {
 			status = "✅ 存在"
 		}
-		logger.GetGlobalLogger().Info("   %d. %s (%s, 优先级: %d)",
+		logger.GetGlobalLogger().Debug("   %d. %s (%s, 优先级: %d)",
 			shown+1, info.Name, status, info.Priority)
 		shown++
 	}

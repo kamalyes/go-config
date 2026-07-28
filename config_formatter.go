@@ -12,16 +12,9 @@
 package goconfig
 
 import (
-	"sync"
-	"time"
+	"fmt"
 
 	"github.com/kamalyes/go-logger"
-)
-
-var (
-	// 全局自动日志开关，默认开启
-	autoLogEnabled = true
-	autoLogMutex   sync.RWMutex
 )
 
 // ConfigFormatter 配置格式化器
@@ -45,12 +38,14 @@ func NewConfigFormatter(lg ...*logger.Logger) *ConfigFormatter {
 
 // LogConfigChanged 记录配置变更 - 主要入口函数
 func (cf *ConfigFormatter) LogConfigChanged(event CallbackEvent, newConfig any) {
-	cf.logger.Info("🔄 配置发生变更!")
-	cf.logger.Info("   📂 来源: %s", event.Source)
-	cf.logger.Info("   🕐 时间: %s", event.Timestamp.Format(time.DateTime))
-	cf.logger.Info("   🌍 环境: %s", event.Environment)
-	cf.logger.Info("   📋 事件类型: %s", event.Type)
+	lines := []string{
+		"🔄 配置发生变更!",
+		fmt.Sprintf("   📂 来源: %s", event.Source),
+		fmt.Sprintf("   🕐 时间: %s", event.Timestamp),
+		fmt.Sprintf("   🌍 环境: %s", event.Environment),
+		fmt.Sprintf("   📋 事件类型: %s", event.Type),
+		fmt.Sprintf("   🔄 新配置: %T", newConfig),
+	}
 
-	// 根据配置类型记录详细信息
-	cf.logger.Info("🆕 配置已更新: %T", newConfig)
+	cf.logger.DebugLines(lines...)
 }

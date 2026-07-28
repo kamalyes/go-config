@@ -281,34 +281,39 @@ func (b *ManagerBuilder[T]) buildConfigNotFoundError(prefix string) error {
 	}
 
 	// 构建详细错误信息
-	logger.GetGlobalLogger().Error("❌ %s", msg)
-	logger.GetGlobalLogger().Error("📍 搜索路径: %s", b.searchPath)
-	logger.GetGlobalLogger().Error("🌍 当前环境: %s", b.environment)
+	lines := []string{
+		fmt.Sprintf("❌ %s", msg),
+		fmt.Sprintf("📍 搜索路径: %s", b.searchPath),
+		fmt.Sprintf("🌍 当前环境: %s", b.environment),
+	}
 
 	if len(supportedSuffixes) > 0 {
-		logger.GetGlobalLogger().Error("📋 当前环境支持的配置文件后缀: %v", supportedSuffixes)
+		lines = append(lines, fmt.Sprintf("📋 当前环境支持的配置文件后缀: %v", supportedSuffixes))
 		if prefix != "" {
-			logger.GetGlobalLogger().Error("💡 建议创建以下配置文件之一:")
+			lines = append(lines, "💡 建议创建以下配置文件之一:")
 			for _, suffix := range supportedSuffixes {
 				for _, ext := range DefaultSupportedExtensions[:2] { // 只显示 .yaml 和 .yml
-					logger.GetGlobalLogger().Error("   - %s-%s%s", prefix, suffix, ext)
+					lines = append(lines, fmt.Sprintf("   - %s-%s%s", prefix, suffix, ext))
 				}
 			}
 		}
 	} else {
-		logger.GetGlobalLogger().Error("⚠️ 当前环境 '%s' 未在 DefaultEnvPrefixes 中注册", b.environment)
-		logger.GetGlobalLogger().Error("📋 已注册的环境及其后缀:")
+		lines = append(lines,
+			fmt.Sprintf("⚠️ 当前环境 '%s' 未在 DefaultEnvPrefixes 中注册", b.environment),
+			"📋 已注册的环境及其后缀:",
+		)
 		for env, suffixes := range DefaultEnvPrefixes {
-			logger.GetGlobalLogger().Error("   - %s: %v", env, suffixes)
+			lines = append(lines, fmt.Sprintf("   - %s: %v", env, suffixes))
 		}
-		logger.GetGlobalLogger().Error("")
-		logger.GetGlobalLogger().Error("💡 如需注册自定义环境，请在程序启动前注册:")
-		logger.GetGlobalLogger().Error("")
-		logger.GetGlobalLogger().Error("   示例代码:")
-		logger.GetGlobalLogger().Error("   func init() {")
-		logger.GetGlobalLogger().Error("       goconfig.RegisterEnvPrefixes(\"%s\", \"%s\", \"custom-alias\")", b.environment, b.environment)
-		logger.GetGlobalLogger().Error("   }")
+		lines = append(lines,
+			"💡 如需注册自定义环境，请在程序启动前注册:",
+			"   示例代码:",
+			"   func init() {",
+			fmt.Sprintf("       goconfig.RegisterEnvPrefixes(\"%s\", \"%s\", \"custom-alias\")", b.environment, b.environment),
+			"   }",
+		)
 	}
+	logger.GetGlobalLogger().ErrorLines(lines...)
 
 	return fmt.Errorf("%s (环境: %s, 搜索路径: %s)", msg, b.environment, b.searchPath)
 }
