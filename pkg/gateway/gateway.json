@@ -2103,6 +2103,21 @@
       "agentRatio": 0.1,
       "observerRatio": 0.05,
       "sseRatio": 0.1
+    },
+    "workerPool": {
+      "messageWorkers": 64,
+      "messageQueueSize": 4096,
+      "callbackWorkers": 32,
+      "callbackQueueSize": 2048,
+      "recordWorkers": 16,
+      "recordQueueSize": 2048,
+      "distributedWorkers": 32,
+      "distributedQueueSize": 2048
+    },
+    "routerCache": {
+      "ttl": 300000000000,
+      "maxLocalCacheSize": 50000,
+      "namespace": "wsc"
     }
   },
   "jobs": {

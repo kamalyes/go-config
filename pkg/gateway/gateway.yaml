@@ -1826,6 +1826,19 @@ wsc:
         agent-ratio: 0.1
         observer-ratio: 0.05
         sse-ratio: 0.1
+    worker-pool:
+        message-workers: 64
+        message-queue-size: 4096
+        callback-workers: 32
+        callback-queue-size: 2048
+        record-workers: 16
+        record-queue-size: 2048
+        distributed-workers: 32
+        distributed-queue-size: 2048
+    router-cache:
+        ttl: 5m0s
+        max-local-cache-size: 50000
+        namespace: wsc
 # Job调度配置
 jobs:
     # 是否启用网关

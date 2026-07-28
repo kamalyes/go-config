@@ -113,6 +113,76 @@ type WSC struct {
 
 	// === Hub 容量估算配置 ===
 	CapacityEstimation *CapacityEstimation `mapstructure:"capacity-estimation" yaml:"capacity-estimation" json:"capacityEstimation"` // Hub 容量估算配置
+
+	// === Hub 工作池配置 ===
+	WorkerPool *WorkerPoolConfig `mapstructure:"worker-pool" yaml:"worker-pool" json:"workerPool"` // Hub 工作池配置（消息/回调/记录/分布式分池）
+
+	// === 路由缓存配置 ===
+	RouterCache *RouterCacheConfig `mapstructure:"router-cache" yaml:"router-cache" json:"routerCache"` // 分布式路由缓存配置
+}
+
+// ============================================================================
+// WorkerPoolConfig — Hub 工作池配置
+// ============================================================================
+
+// WorkerPoolConfig WorkerPool 配置
+// 基于 go-toolbox/syncx.WorkerPool，按任务类型分池控制并发
+type WorkerPoolConfig struct {
+	// MessageWorkers 消息发送 worker 数（默认 64）
+	MessageWorkers int `mapstructure:"message-workers" yaml:"message-workers" json:"messageWorkers"`
+	// MessageQueueSize 消息发送队列大小（默认 4096）
+	MessageQueueSize int `mapstructure:"message-queue-size" yaml:"message-queue-size" json:"messageQueueSize"`
+	// CallbackWorkers 业务回调 worker 数（默认 32）
+	CallbackWorkers int `mapstructure:"callback-workers" yaml:"callback-workers" json:"callbackWorkers"`
+	// CallbackQueueSize 业务回调队列大小（默认 2048）
+	CallbackQueueSize int `mapstructure:"callback-queue-size" yaml:"callback-queue-size" json:"callbackQueueSize"`
+	// RecordWorkers 数据库记录 worker 数（默认 16）
+	RecordWorkers int `mapstructure:"record-workers" yaml:"record-workers" json:"recordWorkers"`
+	// RecordQueueSize 数据库记录队列大小（默认 2048）
+	RecordQueueSize int `mapstructure:"record-queue-size" yaml:"record-queue-size" json:"recordQueueSize"`
+	// DistributedWorkers 跨节点消息 worker 数（默认 32）
+	DistributedWorkers int `mapstructure:"distributed-workers" yaml:"distributed-workers" json:"distributedWorkers"`
+	// DistributedQueueSize 跨节点消息队列大小（默认 2048）
+	DistributedQueueSize int `mapstructure:"distributed-queue-size" yaml:"distributed-queue-size" json:"distributedQueueSize"`
+}
+
+// DefaultWorkerPoolConfig 默认 WorkerPool 配置
+// 针对 8C16G 节点调优，可按实际负载调整
+func DefaultWorkerPoolConfig() *WorkerPoolConfig {
+	return &WorkerPoolConfig{
+		MessageWorkers:       64,
+		MessageQueueSize:     4096,
+		CallbackWorkers:      32,
+		CallbackQueueSize:    2048,
+		RecordWorkers:        16,
+		RecordQueueSize:      2048,
+		DistributedWorkers:   32,
+		DistributedQueueSize: 2048,
+	}
+}
+
+// ============================================================================
+// RouterCacheConfig — 分布式路由缓存配置
+// ============================================================================
+
+// RouterCacheConfig 路由缓存配置
+// 基于 go-cachex KVCache 实现 user→nodeIDs 三层兜底缓存
+type RouterCacheConfig struct {
+	// TTL 缓存过期时间（默认 5 分钟）
+	TTL time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`
+	// MaxLocalCacheSize 本地缓存最大条目数（默认 50000，约 5 万用户）
+	MaxLocalCacheSize int `mapstructure:"max-local-cache-size" yaml:"max-local-cache-size" json:"maxLocalCacheSize"`
+	// Namespace Redis 命名空间（默认 "wsc"）
+	Namespace string `mapstructure:"namespace" yaml:"namespace" json:"namespace"`
+}
+
+// DefaultRouterCacheConfig 默认路由缓存配置
+func DefaultRouterCacheConfig() *RouterCacheConfig {
+	return &RouterCacheConfig{
+		TTL:               5 * time.Minute,
+		MaxLocalCacheSize: 50000,
+		Namespace:         "wsc",
+	}
 }
 
 // RedisRepository Redis仓库配置
@@ -1196,6 +1266,8 @@ func Default() *WSC {
 		RetryPolicy:                DefaultRetryPolicy(),
 		ClientCapacity:             DefaultClientCapacity(),
 		CapacityEstimation:         DefaultCapacityEstimation(),
+		WorkerPool:                 DefaultWorkerPoolConfig(),
+		RouterCache:                DefaultRouterCacheConfig(),
 	}
 }
 

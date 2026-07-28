@@ -469,3 +469,18 @@ capacity-estimation:
     agent-ratio: 0.1
     observer-ratio: 0.05
     sse-ratio: 0.1
+# Hub 工作池配置（消息/回调/记录/分布式分池）
+worker-pool:
+    message-workers: 64
+    message-queue-size: 4096
+    callback-workers: 32
+    callback-queue-size: 2048
+    record-workers: 16
+    record-queue-size: 2048
+    distributed-workers: 32
+    distributed-queue-size: 2048
+# 分布式路由缓存配置
+router-cache:
+    ttl: 5m0s
+    max-local-cache-size: 50000
+    namespace: wsc
