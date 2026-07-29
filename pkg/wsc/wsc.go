@@ -119,6 +119,9 @@ type WSC struct {
 
 	// === 路由缓存配置 ===
 	RouterCache *RouterCacheConfig `mapstructure:"router-cache" yaml:"router-cache" json:"routerCache"` // 分布式路由缓存配置
+
+	// === 批量处理器配置 ===
+	Batcher *BatcherConfig `mapstructure:"batcher" yaml:"batcher" json:"batcher"` // 批量处理器配置（队列/批次/flush 间隔）
 }
 
 // ============================================================================
@@ -183,6 +186,95 @@ func DefaultRouterCacheConfig() *RouterCacheConfig {
 		MaxLocalCacheSize: 50000,
 		Namespace:         "wsc",
 	}
+}
+
+// ============================================================================
+// BatcherConfig — 批量处理器配置
+// ============================================================================
+
+// BatcherParams 单个批量处理器的参数（队列大小、批次大小、flush 间隔）
+type BatcherParams struct {
+	QueueSize     int           `mapstructure:"queue-size" yaml:"queue-size" json:"queueSize"`             // 队列缓冲大小（channel buffer）
+	BatchSize     int           `mapstructure:"batch-size" yaml:"batch-size" json:"batchSize"`             // 每批最大条数，达到即 flush
+	FlushInterval time.Duration `mapstructure:"flush-interval" yaml:"flush-interval" json:"flushInterval"` // 定时 flush 间隔
+}
+
+// BatcherConfig 批量处理器配置
+// 控制 Hub 内部所有 BatchProcessor 的队列大小、批次大小、flush 间隔
+// 每个子配置对应一个 BatchProcessor，nil 或零值时使用默认值
+type BatcherConfig struct {
+	MessageStatus   *BatcherParams `mapstructure:"message-status" yaml:"message-status" json:"messageStatus"`       // 消息状态更新（广播万人=1次UPDATE）
+	HeartbeatStats  *BatcherParams `mapstructure:"heartbeat-stats" yaml:"heartbeat-stats" json:"heartbeatStats"`    // 心跳统计批量更新
+	MessageStats    *BatcherParams `mapstructure:"message-stats" yaml:"message-stats" json:"messageStats"`          // 消息统计批量更新（广播939人=1次事务）
+	ObserverNotify  *BatcherParams `mapstructure:"observer-notify" yaml:"observer-notify" json:"observerNotify"`    // 观察者通知批量处理
+	ClusterDispatch *BatcherParams `mapstructure:"cluster-dispatch" yaml:"cluster-dispatch" json:"clusterDispatch"` // 跨节点分发批量处理
+}
+
+// DefaultBatcherConfig 默认批量处理器配置
+// 针对 8C16G 节点调优，可按实际负载通过 YAML/链式方法调整
+func DefaultBatcherConfig() *BatcherConfig {
+	return &BatcherConfig{
+		MessageStatus:   &BatcherParams{QueueSize: 4096, BatchSize: 100, FlushInterval: 500 * time.Millisecond},
+		HeartbeatStats:  &BatcherParams{QueueSize: 4096, BatchSize: 200, FlushInterval: 10 * time.Second},
+		MessageStats:    &BatcherParams{QueueSize: 8192, BatchSize: 500, FlushInterval: 2 * time.Second},
+		ObserverNotify:  &BatcherParams{QueueSize: 4096, BatchSize: 100, FlushInterval: 50 * time.Millisecond},
+		ClusterDispatch: &BatcherParams{QueueSize: 4096, BatchSize: 100, FlushInterval: 50 * time.Millisecond},
+	}
+}
+
+// defaultBatcher 默认参数缓存（仅供 getter 兜底，init 一次后只读）
+var defaultBatcher = DefaultBatcherConfig()
+
+// resolveParams 解析 batcher 参数，nil 或零值时使用默认值
+func resolveParams(p *BatcherParams, def BatcherParams) BatcherParams {
+	if p == nil {
+		return def
+	}
+	return BatcherParams{
+		QueueSize:     mathx.IfLeZero(p.QueueSize, def.QueueSize),
+		BatchSize:     mathx.IfLeZero(p.BatchSize, def.BatchSize),
+		FlushInterval: mathx.IfNotZero(p.FlushInterval, def.FlushInterval),
+	}
+}
+
+// GetMessageStatusParams 获取消息状态更新参数（nil/零值时返回默认值）
+func (b *BatcherConfig) GetMessageStatusParams() BatcherParams {
+	if b == nil {
+		return *defaultBatcher.MessageStatus
+	}
+	return resolveParams(b.MessageStatus, *defaultBatcher.MessageStatus)
+}
+
+// GetHeartbeatStatsParams 获取心跳统计参数（nil/零值时返回默认值）
+func (b *BatcherConfig) GetHeartbeatStatsParams() BatcherParams {
+	if b == nil {
+		return *defaultBatcher.HeartbeatStats
+	}
+	return resolveParams(b.HeartbeatStats, *defaultBatcher.HeartbeatStats)
+}
+
+// GetMessageStatsParams 获取消息统计参数（nil/零值时返回默认值）
+func (b *BatcherConfig) GetMessageStatsParams() BatcherParams {
+	if b == nil {
+		return *defaultBatcher.MessageStats
+	}
+	return resolveParams(b.MessageStats, *defaultBatcher.MessageStats)
+}
+
+// GetObserverNotifyParams 获取观察者通知参数（nil/零值时返回默认值）
+func (b *BatcherConfig) GetObserverNotifyParams() BatcherParams {
+	if b == nil {
+		return *defaultBatcher.ObserverNotify
+	}
+	return resolveParams(b.ObserverNotify, *defaultBatcher.ObserverNotify)
+}
+
+// GetClusterDispatchParams 获取跨节点分发参数（nil/零值时返回默认值）
+func (b *BatcherConfig) GetClusterDispatchParams() BatcherParams {
+	if b == nil {
+		return *defaultBatcher.ClusterDispatch
+	}
+	return resolveParams(b.ClusterDispatch, *defaultBatcher.ClusterDispatch)
 }
 
 // RedisRepository Redis仓库配置
@@ -1268,6 +1360,7 @@ func Default() *WSC {
 		CapacityEstimation:         DefaultCapacityEstimation(),
 		WorkerPool:                 DefaultWorkerPoolConfig(),
 		RouterCache:                DefaultRouterCacheConfig(),
+		Batcher:                    DefaultBatcherConfig(),
 	}
 }
 
@@ -2251,5 +2344,11 @@ func (r *RetryPolicy) WithNonRetryableErrors(errors []string) *RetryPolicy {
 // WithClientCapacity 设置客户端容量配置
 func (c *WSC) WithClientCapacity(capacity *ClientCapacity) *WSC {
 	c.ClientCapacity = capacity
+	return c
+}
+
+// WithBatcher 设置批量处理器配置
+func (c *WSC) WithBatcher(batcher *BatcherConfig) *WSC {
+	c.Batcher = batcher
 	return c
 }
