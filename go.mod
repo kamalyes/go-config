@@ -5,9 +5,9 @@ go 1.25.0
 require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-viper/mapstructure/v2 v2.4.0
-	github.com/kamalyes/go-argus v0.3.0
-	github.com/kamalyes/go-logger v0.5.5-0.20260728161616-cc643ae0fae7
-	github.com/kamalyes/go-toolbox v0.15.6-0.20260729085951-81590c775d02
+	github.com/kamalyes/go-argus v0.3.1
+	github.com/kamalyes/go-logger v0.5.6
+	github.com/kamalyes/go-toolbox v0.15.6
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 )
