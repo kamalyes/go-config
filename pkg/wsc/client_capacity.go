@@ -126,7 +126,7 @@ type CapacityEstimation struct {
 // DefaultCapacityEstimation 返回默认的容量估算配置
 func DefaultCapacityEstimation() *CapacityEstimation {
 	return &CapacityEstimation{
-		Clients:       1000, // 默认预估 1000 个并发连接
+		Clients:       0, // 0 表示未配置，联动 Performance.MaxConnectionsPerNode 自动计算（见 Hub 初始化）
 		Nodes:         10,
 		AgentRatio:    0.1,  // 客服占 10%
 		ObserverRatio: 0.05, // 观察者占 5%
