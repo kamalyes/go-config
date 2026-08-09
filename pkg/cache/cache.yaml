@@ -44,22 +44,35 @@ redis:
     addr: 127.0.0.1:6379
     addrs:
         - 127.0.0.1:6379
+    client-name: ""
+    protocol: 0
     username: default
     password: redis123456
+    sentinel-username: ""
+    sentinel-password: ""
     db: 0
     max-retries: 3
+    max-redirects: 0
     pool-size: 10
+    max-active-conns: 0
     min-idle-conns: 0
     max-idle-conns: 20
+    read-buffer-size: 0
+    write-buffer-size: 0
     max-conn-age: 30m0s
-    dial-timeout: 0s
+    dial-timeout: 5s
     pool-timeout: 4s
     idle-timeout: 5m0s
     read-timeout: 3s
     write-timeout: 3s
     min-retry-backoff: 8ms
     max-retry-backoff: 512ms
+    context-timeout-enabled: true
+    read-only: false
     cluster-mode: false
+    master-name: ""
+    route-by-latency: false
+    route-randomly: false
 # 嵌套配置
 sharded:
     # 模块标识名称 (字符串)
