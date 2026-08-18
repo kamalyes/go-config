@@ -2,7 +2,7 @@
 # 模块名称: wsc
 # 包名: wsc  
 # 描述: WebSocket通信模块
-# 生成时间: 2026-03-18 21:27:54
+# 生成时间: 2026-08-18 23:23:35
 # 注意: 此文件由配置生成器自动生成
 
 # 是否启用
@@ -92,6 +92,7 @@ redis-repository:
         cleanup-days-ago: 0
         enable-auto-cleanup: false
         status-refresh-interval: 45s
+        heartbeat-refresh-interval: 2s
         enable-compression: false
         compression-min-size: 512
     stats:
@@ -465,7 +466,7 @@ client-capacity:
 # Hub 容量估算配置
 capacity-estimation:
     nodes: 10
-    clients: 1000
+    clients: 0
     agent-ratio: 0.1
     observer-ratio: 0.05
     sse-ratio: 0.1
@@ -484,3 +485,25 @@ router-cache:
     ttl: 5m0s
     max-local-cache-size: 50000
     namespace: wsc
+# 批量处理器配置（队列/批次/flush 间隔）
+batcher:
+    message-status:
+        queue-size: 4096
+        batch-size: 100
+        flush-interval: 500ms
+    heartbeat-stats:
+        queue-size: 4096
+        batch-size: 200
+        flush-interval: 10s
+    message-stats:
+        queue-size: 8192
+        batch-size: 500
+        flush-interval: 2s
+    observer-notify:
+        queue-size: 4096
+        batch-size: 100
+        flush-interval: 50ms
+    cluster-dispatch:
+        queue-size: 4096
+        batch-size: 100
+        flush-interval: 50ms

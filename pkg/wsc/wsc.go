@@ -299,8 +299,9 @@ type OnlineStatus struct {
 	TTL                   time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                                                           // 过期时间
 	CleanupDaysAgo        int           `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`                      // 启动时清理N天前的数据（0表示不清理）
 	EnableAutoCleanup     bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"`             // 是否启用自动清理
-	StatusRefreshInterval time.Duration `mapstructure:"status-refresh-interval" yaml:"status-refresh-interval" json:"statusRefreshInterval"` // 状态刷新间隔
-	EnableCompression     bool          `mapstructure:"enable-compression" yaml:"enable-compression" json:"enableCompression"`               // 是否启用压缩
+	StatusRefreshInterval    time.Duration `mapstructure:"status-refresh-interval" yaml:"status-refresh-interval" json:"statusRefreshInterval"`      // 状态刷新间隔
+	HeartbeatRefreshInterval time.Duration `mapstructure:"heartbeat-refresh-interval" yaml:"heartbeat-refresh-interval" json:"heartbeatRefreshInterval"` // 心跳批量重建在线索引的 flush 间隔（processHeartbeatRedisUpdates 用，默认 2s）
+	EnableCompression        bool          `mapstructure:"enable-compression" yaml:"enable-compression" json:"enableCompression"`               // 是否启用压缩
 	CompressionMinSize    int           `mapstructure:"compression-min-size" yaml:"compression-min-size" json:"compressionMinSize"`          // 压缩阈值（字节）
 }
 
@@ -1731,11 +1732,12 @@ func DefaultDeadLetterQueue() *DeadLetterQueue {
 // DefaultOnlineStatus 默认在线状态配置
 func DefaultOnlineStatus() *OnlineStatus {
 	return &OnlineStatus{
-		KeyPrefix:             defaultOnlineStatusKeyPrefix,
-		TTL:                   90 * time.Second, // 心跳间隔的3倍 (30s * 3)
-		StatusRefreshInterval: 45 * time.Second, // 默认 45 秒刷新一次（ClientTimeout 的一半，确保超时前至少刷新 2 次）
-		EnableCompression:     false,            // 默认关闭压缩
-		CompressionMinSize:    512,              // 512字节以上才压缩
+		KeyPrefix:                defaultOnlineStatusKeyPrefix,
+		TTL:                      90 * time.Second, // 心跳间隔的3倍 (30s * 3)
+		StatusRefreshInterval:    45 * time.Second, // 默认 45 秒刷新一次（ClientTimeout 的一半，确保超时前至少刷新 2 次）
+		HeartbeatRefreshInterval: 2 * time.Second,  // 默认 2 秒 flush 一次心跳批量重建在线索引（processHeartbeatRedisUpdates 用）
+		EnableCompression:        false,            // 默认关闭压缩
+		CompressionMinSize:       512,              // 512字节以上才压缩
 	}
 }
 
