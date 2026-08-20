@@ -62,6 +62,7 @@ type WSC struct {
 	RecordCleanupInterval      time.Duration `mapstructure:"record-cleanup-interval" yaml:"record-cleanup-interval" json:"recordCleanupInterval"`                // 消息记录清理间隔
 
 	// === SSE 配置 ===
+	SSEPath          string        `mapstructure:"sse-path" yaml:"sse-path" json:"ssePath"`                              // SSE 服务路径（网关层注册的 HTTP 路由）
 	SSEHeartbeat     time.Duration `mapstructure:"sse-heartbeat" yaml:"sse-heartbeat" json:"sseHeartbeat"`               // SSE心跳间隔
 	SSETimeout       time.Duration `mapstructure:"sse-timeout" yaml:"sse-timeout" json:"sseTimeout"`                     // SSE超时
 	SSEMessageBuffer int           `mapstructure:"sse-message-buffer" yaml:"sse-message-buffer" json:"sseMessageBuffer"` // SSE消息缓冲区大小
@@ -870,6 +871,11 @@ type ConnectionToken struct {
 
 	// 容错控制
 	AllowFallback bool `mapstructure:"allow-fallback" yaml:"allow-fallback" json:"allowFallback"` // Token 解析失败时是否回退到明文参数提取（默认 false，更安全）
+
+	// 多 appid 配置（多租户隔离）
+	// 兼容策略：Tokens 为空时使用上方顶层旧字段作为单 Default 配置（向后兼容）
+	DefaultAppID string                         `mapstructure:"default-app-id" yaml:"default-app-id" json:"defaultAppId"` // 兜底 appid（claims.aid 为空或未知时使用）
+	Tokens       map[string]*ConnectionTokenSet `mapstructure:"tokens" yaml:"tokens" json:"tokens"`                       // 按 appid 索引的多套配置
 }
 
 // GetTokenParamName 获取 Token 参数名
@@ -963,6 +969,252 @@ func (c *ConnectionToken) WithTokenSource(source, paramName string) *ConnectionT
 func (c *ConnectionToken) WithAllowFallback(allow bool) *ConnectionToken {
 	c.AllowFallback = allow
 	return c
+}
+
+// ============================================================================
+// 多 appid 连接 Token 配置（多租户隔离）
+// ============================================================================
+
+// 支持的签名算法白名单
+var validTokenAlgorithms = map[string]struct{}{
+	"HS256": {},
+	"HS384": {},
+	"HS512": {},
+}
+
+// 默认 appid（旧配置自动包装时使用）
+const defaultTokenAppID = "__default_app__"
+
+// ConnectionTokenSet 单个 appid 的连接 Token 配置
+// 每个 appid 拥有独立的签名密钥、算法、Issuer/Audience、Redis 白名单前缀
+// 字段与 ConnectionToken 顶层旧字段一一对应，便于 ResolveTokens 包装
+type ConnectionTokenSet struct {
+	AppID          string        `mapstructure:"-" yaml:"-" json:"-"`                                            // 由 map key 回填，不参与序列化
+	SigningKey     string        `mapstructure:"signing-key" yaml:"signing-key" json:"signingKey"`               // JWT 签名密钥（必填）
+	Issuer         string        `mapstructure:"issuer" yaml:"issuer" json:"issuer"`                             // JWT 发行者（可选校验）
+	Audience       string        `mapstructure:"audience" yaml:"audience" json:"audience"`                       // JWT 接收者（可选校验）
+	Algorithm      string        `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"`                    // 签名算法: HS256, HS384, HS512
+	ExpiresTime    time.Duration `mapstructure:"expires-time" yaml:"expires-time" json:"expiresTime"`            // Token 默认过期时间
+	UseRedis       bool          `mapstructure:"use-redis" yaml:"use-redis" json:"useRedis"`                     // 是否启用 Redis 白名单
+	RedisKeyPrefix string        `mapstructure:"redis-key-prefix" yaml:"redis-key-prefix" json:"redisKeyPrefix"` // Redis 键前缀（每 appid 独立）
+	TokenSource    string        `mapstructure:"token-source" yaml:"token-source" json:"tokenSource"`            // Token 来源: query, header
+	TokenParamName string        `mapstructure:"token-param-name" yaml:"token-param-name" json:"tokenParamName"` // Token 参数名
+}
+
+// Validate 校验单套配置合法性
+func (s *ConnectionTokenSet) Validate() error {
+	if s == nil {
+		return fmt.Errorf("connection token set is nil")
+	}
+	if s.SigningKey == "" {
+		return fmt.Errorf("connection token set signing-key is required (app_id=%q)", s.AppID)
+	}
+	if _, ok := validTokenAlgorithms[s.GetAlgorithm()]; !ok {
+		return fmt.Errorf("connection token set invalid algorithm %q, must be one of HS256/HS384/HS512 (app_id=%q)", s.Algorithm, s.AppID)
+	}
+	if s.GetExpiresTime() <= 0 {
+		return fmt.Errorf("connection token set expires-time must be positive (app_id=%q)", s.AppID)
+	}
+	return nil
+}
+
+// GetAppID 获取 appid
+func (s *ConnectionTokenSet) GetAppID() string {
+	if s == nil {
+		return ""
+	}
+	return s.AppID
+}
+
+// GetSigningKey 获取签名密钥
+func (s *ConnectionTokenSet) GetSigningKey() string {
+	if s == nil {
+		return ""
+	}
+	return s.SigningKey
+}
+
+// GetIssuer 获取发行者
+func (s *ConnectionTokenSet) GetIssuer() string {
+	if s == nil {
+		return ""
+	}
+	return s.Issuer
+}
+
+// GetAudience 获取接收者
+func (s *ConnectionTokenSet) GetAudience() string {
+	if s == nil {
+		return ""
+	}
+	return s.Audience
+}
+
+// GetAlgorithm 获取签名算法（默认 HS256）
+func (s *ConnectionTokenSet) GetAlgorithm() string {
+	if s == nil {
+		return "HS256"
+	}
+	return mathx.IfEmpty(s.Algorithm, "HS256")
+}
+
+// GetExpiresTime 获取过期时间（默认 5m）
+func (s *ConnectionTokenSet) GetExpiresTime() time.Duration {
+	if s == nil {
+		return 5 * time.Minute
+	}
+	return mathx.IfNotZero(s.ExpiresTime, 5*time.Minute)
+}
+
+// IsRedisEnabled 是否启用 Redis 白名单
+func (s *ConnectionTokenSet) IsRedisEnabled() bool {
+	return s != nil && s.UseRedis
+}
+
+// GetRedisKeyPrefix 获取 Redis 键前缀（空前缀时按 appid 自动生成）
+func (s *ConnectionTokenSet) GetRedisKeyPrefix() string {
+	if s == nil {
+		return defaultConnTokenKeyPrefix
+	}
+	return mathx.IfEmpty(s.RedisKeyPrefix, defaultConnTokenKeyPrefix+s.AppID+":")
+}
+
+// GetTokenSource 获取 Token 来源（默认 query）
+func (s *ConnectionTokenSet) GetTokenSource() string {
+	if s == nil {
+		return "query"
+	}
+	return mathx.IfEmpty(s.TokenSource, "query")
+}
+
+// GetTokenParamName 获取 Token 参数名（默认 token）
+func (s *ConnectionTokenSet) GetTokenParamName() string {
+	if s == nil {
+		return "token"
+	}
+	return mathx.IfEmpty(s.TokenParamName, "token")
+}
+
+// toLegacySet 从顶层旧字段构造单 Default set（向后兼容）
+// 当 Tokens 为空时调用，用 ConnectionToken 顶层字段包装为单 set
+func (c *ConnectionToken) toLegacySet() *ConnectionTokenSet {
+	return &ConnectionTokenSet{
+		AppID:          defaultTokenAppID,
+		SigningKey:     c.SigningKey,
+		Issuer:         c.Issuer,
+		Audience:       c.Audience,
+		Algorithm:      c.GetAlgorithm(),
+		ExpiresTime:    c.GetExpiresTime(),
+		UseRedis:       c.UseRedis,
+		RedisKeyPrefix: c.GetRedisKeyPrefix(),
+		TokenSource:    c.GetTokenSource(),
+		TokenParamName: c.GetTokenParamName(),
+	}
+}
+
+// ResolveTokens 解析配置为 appid→set 映射
+// 兼容策略：
+//   - tokens 为空时用旧顶层字段构造单 Default set（向后兼容）
+//   - tokens 非空时以 tokens 为准，回填 AppID
+//   - 同时配置时 tokens 优先，旧字段忽略
+//
+// 返回 (appid→set, defaultAppID, error)
+func (c *ConnectionToken) ResolveTokens() (map[string]*ConnectionTokenSet, string, error) {
+	if c == nil {
+		return nil, "", fmt.Errorf("connection token config is nil")
+	}
+
+	// 纯旧配置：tokens 为空，用顶层字段包装为单 Default
+	if len(c.Tokens) == 0 {
+		set := c.toLegacySet()
+		if err := set.Validate(); err != nil {
+			return nil, "", err
+		}
+		return map[string]*ConnectionTokenSet{set.AppID: set}, set.AppID, nil
+	}
+
+	// 新配置：以 tokens 为准
+	result := make(map[string]*ConnectionTokenSet, len(c.Tokens))
+	for appID, set := range c.Tokens {
+		if set == nil {
+			return nil, "", fmt.Errorf("connection token set for app_id=%q is nil", appID)
+		}
+		set.AppID = appID // 回填 map key
+		result[appID] = set
+	}
+
+	defaultID := c.DefaultAppID
+	if defaultID == "" {
+		// 未显式指定 Default 时回退到常量
+		defaultID = defaultTokenAppID
+		if _, ok := result[defaultID]; !ok {
+			// tokens 中也不存在 __default_app__，取第一个作为 Default
+			for k := range result {
+				defaultID = k
+				break
+			}
+		}
+	}
+
+	return result, defaultID, nil
+}
+
+// ValidateMultiAppID 跨 appid 校验（NewHub 调用）
+// 校验项：
+//  1. 每套 set 自身 Validate 通过
+//  2. DefaultAppID 非空且存在于 tokens map
+//  3. 跨 appid 的 (Issuer, SigningKey) 二元组不重复（防止误用同一密钥签不同 appid）
+//  4. 启用 Redis 时 RedisKeyPrefix 每套独立
+//  5. TokenSource ∈ {query, header}
+func (c *ConnectionToken) ValidateMultiAppID() error {
+	if c == nil {
+		return fmt.Errorf("connection token config is nil")
+	}
+	if !c.IsEnabled() {
+		return nil // 未启用不校验
+	}
+
+	tokens, defaultID, err := c.ResolveTokens()
+	if err != nil {
+		return err
+	}
+
+	if _, ok := tokens[defaultID]; !ok {
+		return fmt.Errorf("default-app-id %q not found in tokens", defaultID)
+	}
+
+	seenIssuerKey := make(map[string]string, len(tokens)) // "issuer|key" → appID
+	seenRedisPrefix := make(map[string]string, len(tokens))
+
+	for appID, set := range tokens {
+		if err := set.Validate(); err != nil {
+			return err
+		}
+
+		// TokenSource 校验
+		src := set.GetTokenSource()
+		if src != "query" && src != "header" {
+			return fmt.Errorf("connection token set invalid token-source %q, must be query or header (app_id=%q)", src, appID)
+		}
+
+		// (Issuer, SigningKey) 唯一性
+		ikKey := set.Issuer + "|" + set.SigningKey
+		if prev, ok := seenIssuerKey[ikKey]; ok {
+			return fmt.Errorf("duplicate (issuer, signing-key) between app_id=%q and app_id=%q", prev, appID)
+		}
+		seenIssuerKey[ikKey] = appID
+
+		// Redis 前缀唯一性（仅启用 Redis 的 set 参与校验）
+		if set.IsRedisEnabled() {
+			prefix := set.GetRedisKeyPrefix()
+			if prev, ok := seenRedisPrefix[prefix]; ok {
+				return fmt.Errorf("duplicate redis-key-prefix %q between app_id=%q and app_id=%q", prefix, prev, appID)
+			}
+			seenRedisPrefix[prefix] = appID
+		}
+	}
+
+	return nil
 }
 
 // MessageEncryption 消息加密配置
@@ -1372,6 +1624,7 @@ func Default() *WSC {
 		WorkerPool:                 DefaultWorkerPoolConfig(),
 		RouterCache:                DefaultRouterCacheConfig(),
 		Batcher:                    DefaultBatcherConfig(),
+		SSEPath:                    "/sse",
 	}
 }
 
@@ -2127,6 +2380,17 @@ func (c *WSC) WithAutoReconnect(enabled bool) *WSC {
 // WithRetryPolicy 设置重试策略配置
 func (c *WSC) WithRetryPolicy(policy *RetryPolicy) *WSC {
 	c.RetryPolicy = policy
+	return c
+}
+
+// GetSSEPath 获取 SSE 路径，空值回退默认 "/sse"
+func (c *WSC) GetSSEPath() string {
+	return mathx.IfEmpty(c.SSEPath, "/sse")
+}
+
+// WithSSEPath 设置 SSE 路径
+func (c *WSC) WithSSEPath(path string) *WSC {
+	c.SSEPath = path
 	return c
 }
 

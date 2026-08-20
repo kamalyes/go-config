@@ -76,6 +76,8 @@ enable-ack: false
 message-record-ttl: 24h0m0s
 # 消息记录清理间隔
 record-cleanup-interval: 30m0s
+# SSE 服务路径（网关层注册的 HTTP 路由）
+sse-path: /sse
 # SSE心跳间隔
 sse-heartbeat: 30s
 # SSE超时
@@ -283,6 +285,8 @@ security:
         use-redis: false
         redis-key-prefix: 'wsc:conn_token:'
         allow-fallback: false
+        default-app-id: ""
+        tokens: {}
 # 客户端属性提取配置
 client-attributes:
     client-id-sources:
@@ -305,6 +309,11 @@ client-attributes:
           key: device_id
         - type: header
           key: X-Device-ID
+    app-id-sources:
+        - type: query
+          key: app_id
+        - type: header
+          key: X-App-ID
     namespace-sources:
         - type: query
           key: namespace

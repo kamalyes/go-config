@@ -43,6 +43,7 @@
   "enableAck": false,
   "messageRecordTtl": 86400000000000,
   "recordCleanupInterval": 1800000000000,
+  "ssePath": "/sse",
   "sseHeartbeat": 30000000000,
   "sseTimeout": 120000000000,
   "sseMessageBuffer": 100,
@@ -204,7 +205,9 @@
       "expiresTime": 300000000000,
       "useRedis": false,
       "redisKeyPrefix": "wsc:conn_token:",
-      "allowFallback": false
+      "allowFallback": false,
+      "defaultAppId": "",
+      "tokens": null
     }
   },
   "clientAttributes": {
@@ -246,6 +249,16 @@
       {
         "type": "header",
         "key": "X-Device-ID"
+      }
+    ],
+    "appIdSources": [
+      {
+        "type": "query",
+        "key": "app_id"
+      },
+      {
+        "type": "header",
+        "key": "X-App-ID"
       }
     ],
     "namespaceSources": [

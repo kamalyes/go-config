@@ -1463,6 +1463,7 @@ wsc:
     enable-ack: false
     message-record-ttl: 24h0m0s
     record-cleanup-interval: 30m0s
+    sse-path: /sse
     sse-heartbeat: 30s
     sse-timeout: 2m0s
     sse-message-buffer: 100
@@ -1663,6 +1664,8 @@ wsc:
             use-redis: false
             redis-key-prefix: 'wsc:conn_token:'
             allow-fallback: false
+            default-app-id: ""
+            tokens: {}
     client-attributes:
         client-id-sources:
             - type: query
@@ -1684,6 +1687,11 @@ wsc:
               key: device_id
             - type: header
               key: X-Device-ID
+        app-id-sources:
+            - type: query
+              key: app_id
+            - type: header
+              key: X-App-ID
         namespace-sources:
             - type: query
               key: namespace
