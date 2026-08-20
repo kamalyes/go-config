@@ -295,14 +295,14 @@ type RedisRepository struct {
 
 // OnlineStatus 在线状态配置
 type OnlineStatus struct {
-	KeyPrefix             string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`                                       // Redis键前缀
-	TTL                   time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                                                           // 过期时间
-	CleanupDaysAgo        int           `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`                      // 启动时清理N天前的数据（0表示不清理）
-	EnableAutoCleanup     bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"`             // 是否启用自动清理
-	StatusRefreshInterval    time.Duration `mapstructure:"status-refresh-interval" yaml:"status-refresh-interval" json:"statusRefreshInterval"`      // 状态刷新间隔
+	KeyPrefix                string        `mapstructure:"key-prefix" yaml:"key-prefix" json:"keyPrefix"`                                                // Redis键前缀
+	TTL                      time.Duration `mapstructure:"ttl" yaml:"ttl" json:"ttl"`                                                                    // 过期时间
+	CleanupDaysAgo           int           `mapstructure:"cleanup-days-ago" yaml:"cleanup-days-ago" json:"cleanupDaysAgo"`                               // 启动时清理N天前的数据（0表示不清理）
+	EnableAutoCleanup        bool          `mapstructure:"enable-auto-cleanup" yaml:"enable-auto-cleanup" json:"enableAutoCleanup"`                      // 是否启用自动清理
+	StatusRefreshInterval    time.Duration `mapstructure:"status-refresh-interval" yaml:"status-refresh-interval" json:"statusRefreshInterval"`          // 状态刷新间隔
 	HeartbeatRefreshInterval time.Duration `mapstructure:"heartbeat-refresh-interval" yaml:"heartbeat-refresh-interval" json:"heartbeatRefreshInterval"` // 心跳批量重建在线索引的 flush 间隔（processHeartbeatRedisUpdates 用，默认 2s）
-	EnableCompression        bool          `mapstructure:"enable-compression" yaml:"enable-compression" json:"enableCompression"`               // 是否启用压缩
-	CompressionMinSize    int           `mapstructure:"compression-min-size" yaml:"compression-min-size" json:"compressionMinSize"`          // 压缩阈值（字节）
+	EnableCompression        bool          `mapstructure:"enable-compression" yaml:"enable-compression" json:"enableCompression"`                        // 是否启用压缩
+	CompressionMinSize       int           `mapstructure:"compression-min-size" yaml:"compression-min-size" json:"compressionMinSize"`                   // 压缩阈值（字节）
 }
 
 // Stats 统计数据配置
@@ -1020,10 +1020,13 @@ type ClientAttributes struct {
 	// DeviceID 提取配置
 	DeviceIdSources []common.AttributeSource `mapstructure:"device-id-sources" yaml:"device-id-sources" json:"deviceIdSources"` // DeviceID 提取来源（按优先级排序）
 
+	// AppID 提取配置（应用ID，最上层隔离维度，默认 "__default_app__"）
+	AppIDSources []common.AttributeSource `mapstructure:"app-id-sources" yaml:"app-id-sources" json:"appIdSources"` // AppID 提取来源（按优先级排序）
+
 	// Namespace 提取配置（命名空间隔离，默认 "default"）
 	NamespaceSources []common.AttributeSource `mapstructure:"namespace-sources" yaml:"namespace-sources" json:"namespaceSources"` // Namespace 提取来源（按优先级排序）
 
-	// GroupID 提取配置（默认群组，连接后自动加入，为空不自动加入）
+	// GroupID 提取配置（默认群组，连接后自动加入，为空不自动加入；支持逗号分隔多群组）
 	GroupIDSources []common.AttributeSource `mapstructure:"group-id-sources" yaml:"group-id-sources" json:"groupIdSources"` // GroupID 提取来源（按优先级排序）
 }
 
@@ -1076,6 +1079,13 @@ func (c *ClientAttributes) Validate() error {
 	for i, source := range c.DeviceIdSources {
 		if err := source.Validate(); err != nil {
 			return fmt.Errorf("device-id-sources: invalid source at index %d: %w", i, err)
+		}
+	}
+
+	// 验证 AppID 来源
+	for i, source := range c.AppIDSources {
+		if err := source.Validate(); err != nil {
+			return fmt.Errorf("app-id-sources: invalid source at index %d: %w", i, err)
 		}
 	}
 
@@ -1459,6 +1469,10 @@ func DefaultClientAttributes() *ClientAttributes {
 		DeviceIdSources: []common.AttributeSource{
 			{Type: common.SourceTypeQuery, Key: "device_id"},
 			{Type: common.SourceTypeHeader, Key: "X-Device-ID"},
+		},
+		AppIDSources: []common.AttributeSource{
+			{Type: common.SourceTypeQuery, Key: "app_id"},
+			{Type: common.SourceTypeHeader, Key: "X-App-ID"},
 		},
 		NamespaceSources: []common.AttributeSource{
 			{Type: common.SourceTypeQuery, Key: "namespace"},
