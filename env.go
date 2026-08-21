@@ -597,12 +597,15 @@ func GetContextKey() ContextKey {
 
 // SetEnvironment 设置环境变量
 func (e *Environment) SetEnvironment(value EnvironmentType) *Environment {
+	// 先在 e.mu 之外读取上下文键，避免 contextKeyMutex 与 e.mu 嵌套造成锁顺序倒置
+	ctxKey := GetContextKey()
+
 	e.mu.Lock() // 获取写锁
 
 	oldValue := e.Value
 	e.Value = value // 更新环境值
 
-	if err := setEnv(envContextKey, value); err != nil {
+	if err := setEnv(ctxKey, value); err != nil {
 		logger.GetGlobalLogger().ErrorKV("设置环境失败", "value", value, "error", err)
 	}
 
@@ -619,13 +622,16 @@ func (e *Environment) SetEnvironment(value EnvironmentType) *Environment {
 
 // CheckAndUpdateEnv 检查并更新环境变量
 func (e *Environment) CheckAndUpdateEnv() {
+	// 先在 e.mu 之外读取上下文键，避免 contextKeyMutex 与 e.mu 嵌套造成锁顺序倒置
+	ctxKey := GetContextKey()
+
 	e.mu.RLock() // 获取读锁
-	currentOsEnv := os.Getenv(envContextKey.String())
+	currentOsEnv := os.Getenv(ctxKey.String())
 	oldValue := e.Value
 	e.mu.RUnlock() // 释放读锁
 
 	if currentOsEnv == "" {
-		logger.GetGlobalLogger().WarnKV("环境变量当前为空", "key", envContextKey)
+		logger.GetGlobalLogger().WarnKV("环境变量当前为空", "key", ctxKey)
 		return
 	}
 
@@ -636,7 +642,7 @@ func (e *Environment) CheckAndUpdateEnv() {
 		e.mu.Unlock()
 
 		e.SetEnvironment(newEnv) // 更新环境
-		logger.GetGlobalLogger().DebugKV("环境变量已更新", "key", envContextKey, "value", newEnv)
+		logger.GetGlobalLogger().DebugKV("环境变量已更新", "key", ctxKey, "value", newEnv)
 
 		// 触发环境变更回调
 		e.triggerCallbacks(oldValue, newEnv)

@@ -157,9 +157,6 @@
     "blockedIps": [],
     "whitelistIps": [],
     "enableIpWhitelist": false,
-    "tokenExpiration": 3600,
-    "maxLoginAttempts": 5,
-    "loginLockDuration": 300,
     "messageEncryption": {
       "enabled": false,
       "algorithm": "AES-256-GCM",
@@ -307,6 +304,9 @@
     "enabled": true,
     "requireUserId": true,
     "requireUserType": true,
+    "tokenExpiration": 3600,
+    "maxLoginAttempts": 5,
+    "loginLockDuration": 300,
     "missingUserIdMessage": "Missing required parameter: userid",
     "missingUserTypeMessage": "Missing required parameter: usertype",
     "missingBothMessage": "Missing required parameters: userid and usertype"

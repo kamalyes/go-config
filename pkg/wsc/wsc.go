@@ -836,9 +836,6 @@ type Security struct {
 	BlockedIPs        []string `mapstructure:"blocked-ips" yaml:"blocked-ips" json:"blockedIps"`                        // 黑名单IP
 	WhitelistIPs      []string `mapstructure:"whitelist-ips" yaml:"whitelist-ips" json:"whitelistIps"`                  // 白名单IP
 	EnableIPWhitelist bool     `mapstructure:"enable-ip-whitelist" yaml:"enable-ip-whitelist" json:"enableIpWhitelist"` // 是否启用IP白名单
-	TokenExpiration   int      `mapstructure:"token-expiration" yaml:"token-expiration" json:"tokenExpiration"`         // Token过期时间(秒)
-	MaxLoginAttempts  int      `mapstructure:"max-login-attempts" yaml:"max-login-attempts" json:"maxLoginAttempts"`    // 最大登录尝试次数
-	LoginLockDuration int      `mapstructure:"login-lock-duration" yaml:"login-lock-duration" json:"loginLockDuration"` // 登录锁定时长(秒)
 
 	// 消息加密配置
 	MessageEncryption *MessageEncryption `mapstructure:"message-encryption" yaml:"message-encryption" json:"messageEncryption"` // 消息加密配置
@@ -1438,6 +1435,11 @@ type ConnectionValidation struct {
 	RequireUserID   bool `mapstructure:"require-user-id" yaml:"require-user-id" json:"requireUserId"`       // 是否要求 UserID（默认: true）
 	RequireUserType bool `mapstructure:"require-user-type" yaml:"require-user-type" json:"requireUserType"` // 是否要求 UserType（默认: true）
 
+	// 连接鉴权与登录防爆破
+	TokenExpiration   int `mapstructure:"token-expiration" yaml:"token-expiration" json:"tokenExpiration"`         // Token过期时间(秒)
+	MaxLoginAttempts  int `mapstructure:"max-login-attempts" yaml:"max-login-attempts" json:"maxLoginAttempts"`    // 最大登录尝试次数
+	LoginLockDuration int `mapstructure:"login-lock-duration" yaml:"login-lock-duration" json:"loginLockDuration"` // 登录锁定时长(秒)
+
 	// 错误消息模板
 	MissingUserIDMessage   string `mapstructure:"missing-user-id-message" yaml:"missing-user-id-message" json:"missingUserIdMessage"`       // 缺少 UserID 的错误消息
 	MissingUserTypeMessage string `mapstructure:"missing-user-type-message" yaml:"missing-user-type-message" json:"missingUserTypeMessage"` // 缺少 UserType 的错误消息
@@ -1457,6 +1459,19 @@ func (c *ConnectionValidation) GetMissingUserTypeMessage() string {
 // GetMissingBothMessage 获取同时缺少的错误消息
 func (c *ConnectionValidation) GetMissingBothMessage() string {
 	return mathx.IfEmpty(c.MissingBothMessage, "Missing required parameters: userid and usertype")
+}
+
+// WithTokenExpiration 设置Token过期时间
+func (c *ConnectionValidation) WithTokenExpiration(expireSeconds int) *ConnectionValidation {
+	c.TokenExpiration = expireSeconds
+	return c
+}
+
+// WithLoginSecurity 设置登录防爆破配置
+func (c *ConnectionValidation) WithLoginSecurity(maxAttempts int, lockDurationSeconds int) *ConnectionValidation {
+	c.MaxLoginAttempts = maxAttempts
+	c.LoginLockDuration = lockDurationSeconds
+	return c
 }
 
 // ValidateConnection 验证连接参数
@@ -1674,16 +1689,11 @@ func DefaultPerformance() *Performance {
 func DefaultSecurity() *Security {
 	return &Security{
 		EnableAuth:        true,
-		EnableEncryption:  false,
 		EnableRateLimit:   true,
 		MaxMessageSize:    1024,
 		AllowedUserTypes:  []string{"customer", "agent", "admin"},
 		BlockedIPs:        []string{},
 		WhitelistIPs:      []string{},
-		EnableIPWhitelist: false,
-		TokenExpiration:   3600,
-		MaxLoginAttempts:  5,
-		LoginLockDuration: 300,
 		MessageEncryption: DefaultMessageEncryption(),
 		MessageRateLimit:  DefaultMessageRateLimit(),
 		ConnectionToken:   DefaultConnectionToken(),
@@ -1782,6 +1792,9 @@ func DefaultConnectionValidation() *ConnectionValidation {
 		Enabled:                true,                                               // 默认启用连接验证
 		RequireUserID:          true,                                               // 默认要求 UserID
 		RequireUserType:        true,                                               // 默认要求 UserType
+		TokenExpiration:        3600,                                               // Token 过期时间(秒)
+		MaxLoginAttempts:       5,                                                  // 最大登录尝试次数
+		LoginLockDuration:      300,                                                // 登录锁定时长(秒)
 		MissingUserIDMessage:   "Missing required parameter: userid",               // 缺少 UserID 的错误消息
 		MissingUserTypeMessage: "Missing required parameter: usertype",             // 缺少 UserType 的错误消息
 		MissingBothMessage:     "Missing required parameters: userid and usertype", // 同时缺少的错误消息
@@ -2514,19 +2527,6 @@ func (s *Security) WithBlockedIPs(ips []string) *Security {
 func (s *Security) WithWhitelist(enabled bool, ips []string) *Security {
 	s.EnableIPWhitelist = enabled
 	s.WhitelistIPs = ips
-	return s
-}
-
-// WithTokenExpiration 设置Token过期时间
-func (s *Security) WithTokenExpiration(expireSeconds int) *Security {
-	s.TokenExpiration = expireSeconds
-	return s
-}
-
-// WithLoginSecurity 设置登录安全配置
-func (s *Security) WithLoginSecurity(maxAttempts int, lockDurationSeconds int) *Security {
-	s.MaxLoginAttempts = maxAttempts
-	s.LoginLockDuration = lockDurationSeconds
 	return s
 }
 

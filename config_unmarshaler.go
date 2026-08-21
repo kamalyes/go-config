@@ -94,7 +94,22 @@ func FlexibleMatchName(mapKey, fieldName string) bool {
 		}
 	}
 
-	// 4. camelCase/PascalCase 转 snake_case (serviceName/ServiceName -> service_name)
+	// 4. snake_case 转 kebab-case (service_name -> service-name)
+	if len(mapKey) > 0 {
+		normalizedKey := make([]byte, 0, len(mapKey))
+		for i := 0; i < len(mapKey); i++ {
+			if mapKey[i] == '_' {
+				normalizedKey = append(normalizedKey, '-')
+			} else {
+				normalizedKey = append(normalizedKey, mapKey[i])
+			}
+		}
+		if string(normalizedKey) == fieldName {
+			return true
+		}
+	}
+
+	// 5. camelCase/PascalCase 转 snake_case (serviceName/ServiceName -> service_name)
 	if len(mapKey) > 0 && len(fieldName) > 0 {
 		snakeCase := make([]byte, 0, len(mapKey)+5)
 		for i := 0; i < len(mapKey); i++ {

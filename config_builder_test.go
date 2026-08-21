@@ -333,3 +333,161 @@ func TestConfigBuilder_EmptyBuilder(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, manager)
 }
+
+// --- WithHotReload nil 分支 ---
+
+func TestConfigBuilder_WithHotReload_Nil(t *testing.T) {
+	config := &TestConfig{}
+	builder := NewConfigBuilder(config)
+	result := builder.WithHotReload(nil)
+	assert.Same(t, builder, result)
+}
+
+// --- MustBuildAndStart ---
+
+func TestConfigBuilder_MustBuildAndStart_OK(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	require.NoError(t, os.WriteFile(configPath, []byte("name: test\n"), 0644))
+
+	config := &TestConfig{}
+	manager := NewConfigBuilder(config).
+		WithConfigPath(configPath).
+		WithEnvironment(EnvDevelopment).
+		MustBuildAndStart(context.Background())
+	require.NotNil(t, manager)
+	defer manager.Stop()
+}
+
+func TestConfigBuilder_MustBuildAndStart_Panic(t *testing.T) {
+	config := &TestConfig{}
+	assert.Panics(t, func() {
+		NewConfigBuilder(config).
+			WithConfigPath("/non/existent/path/config.yaml").
+			MustBuildAndStart(context.Background())
+	})
+}
+
+// --- resolveByPattern (WithPattern) ---
+
+func TestConfigBuilder_WithPattern_OK(t *testing.T) {
+	tmpDir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "config.yaml"), []byte("name: test\n"), 0644))
+
+	config := &TestConfig{}
+	manager, err := NewConfigBuilder(config).
+		WithSearchPath(tmpDir).
+		WithPattern("config").
+		WithEnvironment(EnvDevelopment).
+		Build()
+	require.NoError(t, err)
+	require.NotNil(t, manager)
+}
+
+func TestConfigBuilder_WithPattern_NoMatch(t *testing.T) {
+	tmpDir := t.TempDir()
+	config := &TestConfig{}
+	manager, err := NewConfigBuilder(config).
+		WithSearchPath(tmpDir).
+		WithPattern("non-existent-pattern").
+		WithEnvironment(EnvDevelopment).
+		Build()
+	assert.Error(t, err)
+	assert.Nil(t, manager)
+}
+
+// --- resolveByPrefix (WithPrefix) ---
+
+func TestConfigBuilder_WithPrefix_OK(t *testing.T) {
+	tmpDir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "myapp.yaml"), []byte("name: test\n"), 0644))
+
+	config := &TestConfig{}
+	manager, err := NewConfigBuilder(config).
+		WithSearchPath(tmpDir).
+		WithPrefix("myapp").
+		WithEnvironment(EnvDevelopment).
+		Build()
+	require.NoError(t, err)
+	require.NotNil(t, manager)
+}
+
+func TestConfigBuilder_WithPrefix_NotFound(t *testing.T) {
+	tmpDir := t.TempDir()
+	config := &TestConfig{}
+	manager, err := NewConfigBuilder(config).
+		WithSearchPath(tmpDir).
+		WithPrefix("missing-prefix").
+		WithEnvironment(EnvDevelopment).
+		Build()
+	assert.Error(t, err)
+	assert.Nil(t, manager)
+}
+
+func TestConfigBuilder_WithPrefix_NotRegisteredEnv(t *testing.T) {
+	// 使用未注册的环境触发 buildConfigNotFoundError 的 else 分支
+	tmpDir := t.TempDir()
+	config := &TestConfig{}
+	manager, err := NewConfigBuilder(config).
+		WithSearchPath(tmpDir).
+		WithPrefix("missing").
+		WithEnvironment(EnvironmentType("unregistered-env-xyz")).
+		Build()
+	assert.Error(t, err)
+	assert.Nil(t, manager)
+}
+
+// --- BuilderFactory ---
+
+func TestBuilderFactory_SetDefaults(t *testing.T) {
+	factory := NewBuilderFactory()
+	require.NotNil(t, factory)
+
+	opts := ConfigBuilderOptions{
+		Environment: EnvTest,
+	}
+	result := factory.SetDefaults(opts)
+	assert.Same(t, factory, result)
+	assert.Equal(t, EnvTest, factory.defaultOptions.Environment)
+}
+
+func TestGlobalBuilderFactory(t *testing.T) {
+	orig := GetGlobalBuilderFactory()
+	factory := NewBuilderFactory()
+	SetGlobalBuilderFactory(factory)
+	assert.Same(t, factory, GetGlobalBuilderFactory())
+	// 恢复
+	SetGlobalBuilderFactory(orig)
+	assert.Same(t, orig, GetGlobalBuilderFactory())
+}
+
+// --- QuickBuild / QuickStart ---
+
+func TestQuickBuild(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	require.NoError(t, os.WriteFile(configPath, []byte("name: test\n"), 0644))
+
+	config := &TestConfig{}
+	manager, err := QuickBuild(config, configPath, EnvDevelopment)
+	require.NoError(t, err)
+	require.NotNil(t, manager)
+}
+
+func TestQuickStart(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	require.NoError(t, os.WriteFile(configPath, []byte("name: test\n"), 0644))
+
+	config := &TestConfig{}
+	manager, err := QuickStart(config, configPath, EnvDevelopment)
+	require.NoError(t, err)
+	require.NotNil(t, manager)
+	defer manager.Stop()
+}
+
+func TestNewManager_Func(t *testing.T) {
+	config := &TestConfig{}
+	builder := NewManager(config)
+	assert.NotNil(t, builder)
+}

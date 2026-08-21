@@ -171,7 +171,7 @@ func TestI18N_LanguageMapping(t *testing.T) {
 func TestI18N_DetectionOrder(t *testing.T) {
 	config := Default()
 	assert.NotNil(t, config.DetectionOrder)
-	assert.Equal(t, []string{"header", "query", "cookie", "default"}, config.DetectionOrder)
+	assert.Equal(t, []DetectionType{DetectionHeader, DetectionQuery, DetectionCookie, DetectionDefault}, config.DetectionOrder)
 }
 
 func TestI18N_AddLanguageMapping(t *testing.T) {

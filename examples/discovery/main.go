@@ -8,7 +8,7 @@ import (
 
 // ConfigDiscovery 演示配置发现
 func ConfigDiscovery() {
-	fmt.Println("=== 配置发现示例 ===\n")
+	fmt.Println("=== 配置发现示例 ===")
 
 	// 1. 自动发现配置文件
 	fmt.Println("1. 自动发现配置文件:")
@@ -30,7 +30,7 @@ func ConfigDiscovery() {
 	if err != nil {
 		fmt.Printf("   查找失败: %v\n", err)
 	} else {
-		fmt.Printf("   最佳配置: %s\n", bestFile)
+		fmt.Printf("   最佳配置: %s\n", bestFile.Path)
 	}
 
 	// 3. 扫描目录中的所有配置文件

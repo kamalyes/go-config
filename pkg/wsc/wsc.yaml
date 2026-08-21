@@ -190,9 +190,6 @@ security:
     blocked-ips: []
     whitelist-ips: []
     enable-ip-whitelist: false
-    token-expiration: 3600
-    max-login-attempts: 5
-    login-lock-duration: 300
     message-encryption:
         # 是否启用
         enabled: false
@@ -353,6 +350,9 @@ connection-validation:
     enabled: true
     require-user-id: true
     require-user-type: true
+    token-expiration: 3600
+    max-login-attempts: 5
+    login-lock-duration: 300
     missing-user-id-message: 'Missing required parameter: userid'
     missing-user-type-message: 'Missing required parameter: usertype'
     missing-both-message: 'Missing required parameters: userid and usertype'
