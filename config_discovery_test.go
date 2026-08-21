@@ -307,3 +307,133 @@ func TestConfigDiscovery_FindBestMatch(t *testing.T) {
 	assert.NotNil(t, bestMatch)
 	assert.True(t, bestMatch.Exists)
 }
+
+// --- FindBestConfigFile ---
+
+func TestFindBestConfigFile_Found(t *testing.T) {
+	tmpDir := t.TempDir()
+	// 创建存在的配置文件
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "config.yaml"), []byte("k: v"), 0644))
+
+	cd := NewConfigDiscovery()
+	info, err := cd.FindBestConfigFile(tmpDir, EnvDevelopment)
+	require.NoError(t, err)
+	assert.NotNil(t, info)
+	assert.True(t, info.Exists)
+}
+
+func TestFindBestConfigFile_NotFound(t *testing.T) {
+	tmpDir := t.TempDir()
+	cd := NewConfigDiscovery()
+	info, err := cd.FindBestConfigFile(tmpDir, EnvDevelopment)
+	// 没有存在的文件，返回优先级最高的候选 + 错误
+	require.Error(t, err)
+	assert.NotNil(t, info)
+	assert.False(t, info.Exists)
+}
+
+func TestFindBestConfigFile_SearchPathNotExist(t *testing.T) {
+	cd := NewConfigDiscovery()
+	info, err := cd.FindBestConfigFile("/non/existent/path/xyz", EnvDevelopment)
+	require.Error(t, err)
+	assert.Nil(t, info)
+}
+
+// --- FindConfigFileByPattern ---
+
+func TestFindConfigFileByPattern(t *testing.T) {
+	tmpDir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "config-dev.yaml"), []byte("k: v"), 0644))
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "config-prod.yaml"), []byte("k: v"), 0644))
+
+	cd := NewConfigDiscovery()
+	// 模式命中 dev
+	matched, err := cd.FindConfigFileByPattern(tmpDir, "dev", EnvDevelopment)
+	require.NoError(t, err)
+	assert.NotEmpty(t, matched)
+	for _, f := range matched {
+		assert.Contains(t, f.BaseName, "dev")
+	}
+
+	// 模式不命中
+	none, err := cd.FindConfigFileByPattern(tmpDir, "nope-pattern", EnvDevelopment)
+	require.NoError(t, err)
+	assert.Empty(t, none)
+}
+
+// --- ScanDirectory ---
+
+func TestScanDirectory(t *testing.T) {
+	tmpDir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "config-dev.yaml"), []byte("k: v"), 0644))
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "app.json"), []byte("{}"), 0644))
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "ignore.txt"), []byte("nope"), 0644))
+
+	cd := NewConfigDiscovery()
+	files, err := cd.ScanDirectory(tmpDir)
+	require.NoError(t, err)
+	assert.Len(t, files, 2) // 仅 yaml/json 被扫描
+
+	// 子目录递归
+	sub := filepath.Join(tmpDir, "sub")
+	require.NoError(t, os.Mkdir(sub, 0755))
+	require.NoError(t, os.WriteFile(filepath.Join(sub, "deep.yml"), []byte("k: v"), 0644))
+	files2, err := cd.ScanDirectory(tmpDir)
+	require.NoError(t, err)
+	assert.Len(t, files2, 3)
+}
+
+func TestScanDirectory_NotExist(t *testing.T) {
+	cd := NewConfigDiscovery()
+	files, err := cd.ScanDirectory("/non/existent/path/xyz")
+	assert.Error(t, err)
+	assert.Nil(t, files)
+}
+
+// --- calculatePriority / detectEnvironment / isSupportedExtension ---
+
+func TestCalculatePriority(t *testing.T) {
+	cd := NewConfigDiscovery()
+	// 环境匹配 + 默认名称匹配 => 最低优先级数字
+	pEnv := cd.calculatePriority("config-dev", EnvDevelopment)
+	pName := cd.calculatePriority("config", EnvDevelopment)
+	pOther := cd.calculatePriority("random", EnvProduction)
+	assert.Less(t, pEnv, pName)
+	assert.Less(t, pName, pOther)
+}
+
+func TestDetectEnvironment(t *testing.T) {
+	cd := NewConfigDiscovery()
+	assert.Equal(t, EnvDevelopment, cd.detectEnvironment("config-dev"))
+	assert.Equal(t, EnvProduction, cd.detectEnvironment("config-prod"))
+	assert.Equal(t, EnvDevelopment, cd.detectEnvironment("no-match-here")) // 默认
+}
+
+func TestIsSupportedExtension(t *testing.T) {
+	cd := NewConfigDiscovery()
+	assert.True(t, cd.isSupportedExtension(".yaml"))
+	assert.True(t, cd.isSupportedExtension(".json"))
+	assert.False(t, cd.isSupportedExtension(".txt"))
+	assert.False(t, cd.isSupportedExtension(""))
+}
+
+// --- 便利函数 ---
+
+func TestDiscoverConfig_Func(t *testing.T) {
+	tmpDir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "config.yaml"), []byte("k: v"), 0644))
+
+	files, err := DiscoverConfig(tmpDir, EnvDevelopment)
+	require.NoError(t, err)
+	assert.NotEmpty(t, files)
+}
+
+func TestFindBestConfig_Func(t *testing.T) {
+	tmpDir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "config.yaml"), []byte("k: v"), 0644))
+
+	info, err := FindBestConfig(tmpDir, EnvDevelopment)
+	require.NoError(t, err)
+	assert.NotNil(t, info)
+	assert.True(t, info.Exists)
+}

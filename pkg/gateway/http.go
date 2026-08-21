@@ -109,7 +109,7 @@ type HTTPServer struct {
 // TLS TLS配置
 type TLS struct {
 	CertFile            string         `mapstructure:"cert-file" yaml:"cert-file" json:"certFile"`                                    // 证书文件路径
-	KeyFile             string         `mapstructure:"key-key" yaml:"key-file" json:"keyFile"`                                        // 私钥文件路径
+	KeyFile             string         `mapstructure:"key-file" yaml:"key-file" json:"keyFile"`                                        // 私钥文件路径
 	CAFile              string         `mapstructure:"ca-file" yaml:"ca-file" json:"caFile"`                                          // CA文件路径
 	MinVersion          TLSVersion     `mapstructure:"min-version" yaml:"min-version" json:"minVersion"`                              // 最小TLS版本
 	PreferServerCiphers bool           `mapstructure:"prefer-server-ciphers" yaml:"prefer-server-ciphers" json:"preferServerCiphers"` // 优先使用服务器密码套件

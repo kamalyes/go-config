@@ -61,6 +61,11 @@ func NewIntegratedConfigManager(config interface{}, options *IntegratedConfigOpt
 		options = DefaultIntegratedConfigOptions()
 	}
 
+	// 统一补全热重载配置默认值，避免下游字段为 nil 导致解引用 panic
+	if options.HotReloadConfig == nil {
+		options.HotReloadConfig = DefaultHotReloadConfig()
+	}
+
 	// 创建环境管理器
 	env := NewEnvironment()
 	if options.Environment != "" {
@@ -218,8 +223,9 @@ func (icm *IntegratedConfigManager) Stop() error {
 	icm.mu.Lock()
 	defer icm.mu.Unlock()
 
+	// 幂等：未启动时直接返回 nil，使 defer Stop() 安全
 	if !icm.running {
-		return ErrManagerNotRunning
+		return nil
 	}
 
 	// 停止热更新器

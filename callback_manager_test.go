@@ -350,3 +350,70 @@ func TestDefaultCallbackOptions(t *testing.T) {
 	assert.Equal(t, 3, options.Retry)
 	assert.Contains(t, options.Types, CallbackTypeConfigChanged)
 }
+
+func TestGetCallbackInfo(t *testing.T) {
+	cm := NewCallbackManager().(*CommonCallbackManager)
+	cb := func(ctx context.Context, event CallbackEvent) error { return nil }
+	require.NoError(t, cm.RegisterCallback(cb, CallbackOptions{ID: "cb1", Priority: 5}))
+
+	info, exists := cm.GetCallbackInfo("cb1")
+	assert.True(t, exists)
+	assert.Equal(t, 5, info.Priority)
+
+	_, exists = cm.GetCallbackInfo("nope")
+	assert.False(t, exists)
+}
+
+func TestGetCallbackCount(t *testing.T) {
+	cm := NewCallbackManager().(*CommonCallbackManager)
+	assert.Equal(t, 0, cm.GetCallbackCount())
+	cb := func(ctx context.Context, event CallbackEvent) error { return nil }
+	require.NoError(t, cm.RegisterCallback(cb, CallbackOptions{ID: "a"}))
+	require.NoError(t, cm.RegisterCallback(cb, CallbackOptions{ID: "b"}))
+	assert.Equal(t, 2, cm.GetCallbackCount())
+}
+
+func TestCreateErrorEvent(t *testing.T) {
+	err := errors.New("boom")
+	event := CreateErrorEvent("src", err)
+	assert.Equal(t, CallbackTypeError, event.Type)
+	assert.Equal(t, "src", event.Source)
+	assert.Equal(t, err, event.Error)
+	assert.NotNil(t, event.Metadata)
+}
+
+func TestCallbackEvent_WithMetadata_GetMetadata(t *testing.T) {
+	// nil metadata 初始化分支
+	e2 := CallbackEvent{}
+	(&e2).WithMetadata("k", "v")
+	assert.Equal(t, "v", e2.Metadata["k"])
+
+	e := CreateEvent(CallbackTypeConfigChanged, "s", nil, nil)
+	_, ok := e.GetMetadata("missing")
+	assert.False(t, ok)
+
+	e.WithMetadata("duration", 5*time.Second)
+	assert.Equal(t, 5*time.Second, e.Duration)
+	e.WithMetadata("config_path", "/x")
+	assert.Equal(t, "/x", e.ConfigPath)
+	e.WithMetadata("environment", EnvProduction)
+	assert.Equal(t, EnvProduction, e.Environment)
+
+	val, ok := e.GetMetadata("duration")
+	assert.True(t, ok)
+	assert.Equal(t, 5*time.Second, val)
+}
+
+func TestRegisterCallback_Errors(t *testing.T) {
+	cm := NewCallbackManager()
+	cb := func(ctx context.Context, event CallbackEvent) error { return nil }
+	// nil 回调
+	assert.ErrorIs(t, cm.RegisterCallback(nil, CallbackOptions{ID: "x"}), ErrCallbackFuncNil)
+	// 空 ID
+	assert.ErrorIs(t, cm.RegisterCallback(cb, CallbackOptions{ID: ""}), ErrCallbackIDEmpty)
+	// 重复 ID
+	require.NoError(t, cm.RegisterCallback(cb, CallbackOptions{ID: "dup"}))
+	assert.Error(t, cm.RegisterCallback(cb, CallbackOptions{ID: "dup"}))
+	// 注销不存在的
+	assert.Error(t, cm.UnregisterCallback("missing"))
+}

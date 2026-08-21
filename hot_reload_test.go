@@ -13,10 +13,12 @@ package goconfig
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -823,4 +825,136 @@ func TestHTTPServerHotReload_JSON(t *testing.T) {
 	assert.Equal(t, "/json/path/to/ca.pem", updatedConfig.TLS.CAFile)
 	assert.Equal(t, "json-updated-value", updatedConfig.Headers["x-updated-header"])       // JSON会将键名转为小写
 	assert.Equal(t, "json-additional-value", updatedConfig.Headers["x-additional-header"]) // JSON会将键名转为小写	t.Logf("✅ HTTPServer JSON热更新测试通过")
+}
+
+// newTestHotReloader 创建用于测试的热重载器
+func newTestHotReloader(t *testing.T, enabled bool) HotReloader {
+	t.Helper()
+	configFile := createTempConfigFile(t, `
+app:
+  name: "test"
+  version: "1.0.0"
+server:
+  host: "localhost"
+  port: 8080
+`)
+
+	config := &TestConfig{}
+	v, err := createViper(configFile)
+	require.NoError(t, err)
+	require.NoError(t, v.Unmarshal(config))
+
+	hotCfg := DefaultHotReloadConfig()
+	hotCfg.Enabled = enabled
+	hotCfg.DebounceDelay = 50 * time.Millisecond
+
+	hr, err := NewHotReloader(config, v, configFile, hotCfg)
+	require.NoError(t, err)
+	return hr
+}
+
+// --- 回调管理四件套 ---
+
+func TestHotReloader_ListAndHasCallback(t *testing.T) {
+	hr := newTestHotReloader(t, false)
+	cb := func(ctx context.Context, event CallbackEvent) error { return nil }
+
+	require.NoError(t, hr.RegisterCallback(cb, CallbackOptions{ID: "hr-cb-1"}))
+	require.NoError(t, hr.RegisterCallback(cb, CallbackOptions{ID: "hr-cb-2"}))
+
+	ids := hr.ListCallbacks()
+	assert.Contains(t, ids, "hr-cb-1")
+	assert.Contains(t, ids, "hr-cb-2")
+	assert.True(t, hr.HasCallback("hr-cb-1"))
+	assert.False(t, hr.HasCallback("nope"))
+}
+
+func TestHotReloader_UnregisterCallback(t *testing.T) {
+	hr := newTestHotReloader(t, false)
+	cb := func(ctx context.Context, event CallbackEvent) error { return nil }
+	require.NoError(t, hr.RegisterCallback(cb, CallbackOptions{ID: "unreg-hr"}))
+
+	require.NoError(t, hr.UnregisterCallback("unreg-hr"))
+	assert.False(t, hr.HasCallback("unreg-hr"))
+	// 注销不存在的回调返回错误
+	assert.Error(t, hr.UnregisterCallback("non-existent"))
+}
+
+func TestHotReloader_ClearCallbacks(t *testing.T) {
+	hr := newTestHotReloader(t, false)
+	cb := func(ctx context.Context, event CallbackEvent) error { return nil }
+	require.NoError(t, hr.RegisterCallback(cb, CallbackOptions{ID: "clear-hr-1"}))
+	require.NoError(t, hr.RegisterCallback(cb, CallbackOptions{ID: "clear-hr-2"}))
+
+	hr.ClearCallbacks()
+	assert.Empty(t, hr.ListCallbacks())
+}
+
+func TestHotReloader_RegisterCallback_DefaultOptions(t *testing.T) {
+	// 空 Types 触发默认值分支
+	hr := newTestHotReloader(t, false)
+	cb := func(ctx context.Context, event CallbackEvent) error { return nil }
+	// 不设置 Timeout 和 Types，命中默认分支
+	require.NoError(t, hr.RegisterCallback(cb, CallbackOptions{ID: "default-opts"}))
+	assert.True(t, hr.HasCallback("default-opts"))
+}
+
+// --- IsRunning 状态机 ---
+
+func TestHotReloader_IsRunning_Disabled(t *testing.T) {
+	hr := newTestHotReloader(t, false)
+	// 禁用热更新，Start 返回 nil 但不运行
+	require.NoError(t, hr.Start(context.Background()))
+	assert.False(t, hr.IsRunning())
+}
+
+func TestHotReloader_IsRunning_Enabled(t *testing.T) {
+	hr := newTestHotReloader(t, true)
+	require.NoError(t, hr.Start(context.Background()))
+	assert.True(t, hr.IsRunning())
+
+	// 重复 Start 返回错误
+	assert.Error(t, hr.Start(context.Background()))
+
+	require.NoError(t, hr.Stop())
+}
+
+// --- SetConfig ---
+
+func TestHotReloader_SetConfig(t *testing.T) {
+	hr := newTestHotReloader(t, false)
+	var triggered atomic.Bool
+	cb := func(ctx context.Context, event CallbackEvent) error {
+		triggered.Store(true)
+		return nil
+	}
+	require.NoError(t, hr.RegisterCallback(cb, CallbackOptions{ID: "setcfg-cb", Types: []CallbackType{CallbackTypeReloaded}}))
+
+	newCfg := &TestConfig{}
+	require.NoError(t, hr.SetConfig(newCfg))
+	// SetConfig 异步触发回调，等待一会
+	time.Sleep(150 * time.Millisecond)
+	assert.True(t, triggered.Load())
+	assert.Same(t, newCfg, hr.GetConfig())
+}
+
+// --- triggerErrorCallback ---
+
+func TestHotReloader_TriggerErrorCallback(t *testing.T) {
+	hr := newTestHotReloader(t, false)
+	var triggered atomic.Bool
+	cb := func(ctx context.Context, event CallbackEvent) error {
+		if event.Type == CallbackTypeError {
+			triggered.Store(true)
+		}
+		return nil
+	}
+	require.NoError(t, hr.RegisterCallback(cb, CallbackOptions{ID: "err-cb", Types: []CallbackType{CallbackTypeError}}))
+
+	// 直接调用内部方法触发错误回调
+	mgr := hr.(*hotReloadManager)
+	mgr.triggerErrorCallback(context.Background(), errors.New("test error"), "test_source")
+
+	time.Sleep(150 * time.Millisecond)
+	assert.True(t, triggered.Load())
 }

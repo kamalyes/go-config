@@ -222,26 +222,33 @@ func (cm *ContextManager) GetConfigContext() *ConfigContext {
 }
 
 // 全局上下文管理器实例
-var globalContextManager *ContextManager
-var globalContextManagerOnce sync.Once
+var (
+	globalContextManager   *ContextManager
+	globalContextManagerMu sync.Mutex
+)
 
 // InitializeContextManager 初始化全局上下文管理器
 func InitializeContextManager(env *Environment, reloader HotReloader) *ContextManager {
-	globalContextManagerOnce.Do(func() {
+	globalContextManagerMu.Lock()
+	defer globalContextManagerMu.Unlock()
+	if globalContextManager == nil {
 		globalContextManager = NewContextManager(env, reloader)
 		logger.GetGlobalLogger().Info("全局上下文管理器初始化完成")
-	})
-
+	}
 	return globalContextManager
 }
 
 // GetGlobalContextManager 获取全局上下文管理器
 func GetGlobalContextManager() *ContextManager {
+	globalContextManagerMu.Lock()
+	defer globalContextManagerMu.Unlock()
 	return globalContextManager
 }
 
 // ClearGlobalContextManager 清理全局上下文管理器（主要用于测试）
 func ClearGlobalContextManager() {
+	globalContextManagerMu.Lock()
+	defer globalContextManagerMu.Unlock()
 	globalContextManager = nil
 	logger.GetGlobalLogger().Info("全局上下文管理器已清理")
 }

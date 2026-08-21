@@ -276,12 +276,24 @@ func (cd *ConfigDiscovery) calculatePriority(baseName string, env EnvironmentTyp
 }
 
 // detectEnvironment 从文件名检测环境
+// 约定配置文件名形如 name-<env>（如 config-dev、application-prod），
+// 环境段为按分隔符切分后的最后一个 token，按完整相等匹配，
+// 避免 "co"-"colombia"、"at"-"austria" 等短前缀因子串包含而误命中。
 func (cd *ConfigDiscovery) detectEnvironment(baseName string) EnvironmentType {
 	lowerName := strings.ToLower(baseName)
 
+	// 按分隔符切分，取最后一个 token 作为环境段
+	tokens := strings.FieldsFunc(lowerName, func(r rune) bool {
+		return r == '-' || r == '_' || r == '.' || r == ' '
+	})
+	if len(tokens) == 0 {
+		return EnvDevelopment
+	}
+	last := tokens[len(tokens)-1]
+
 	for env, prefixes := range cd.EnvPrefixes {
 		for _, prefix := range prefixes {
-			if strings.Contains(lowerName, prefix) {
+			if last == prefix {
 				return env
 			}
 		}

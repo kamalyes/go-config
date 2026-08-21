@@ -267,8 +267,8 @@ server:
 	// 等待热重载
 	time.Sleep(1 * time.Second)
 
-	// 验证配置已更新
-	assert.Equal(t, 9090, config.Server.Port)
+	// 验证配置已更新（reloadConfig 创建新结构体替换，须读管理器权威配置）
+	assert.Equal(t, 9090, manager.GetConfig().(*AppConfig).Server.Port)
 }
 
 // TestIntegratedConfigManager_DefaultOptions 测试默认选项
@@ -465,3 +465,226 @@ server:
 	manager.Stop()
 	assert.False(t, manager.IsRunning())
 }
+
+// createTestManager 创建用于测试的集成配置管理器
+func createTestManager(t *testing.T) *IntegratedConfigManager {
+	t.Helper()
+	configContent := `
+server:
+  host: localhost
+  port: 8080
+`
+	configPath := createTestConfigFile(t, configContent)
+	config := &AppConfig{}
+	manager, err := NewIntegratedConfigManager(config, &IntegratedConfigOptions{
+		ConfigPath:  configPath,
+		Environment: EnvDevelopment,
+	})
+	require.NoError(t, err)
+	return manager
+}
+
+// --- GetConfigAs ---
+
+func TestIntegratedConfigManager_GetConfigAs_OK(t *testing.T) {
+	manager := createTestManager(t)
+	defer manager.Stop()
+
+	cfg, err := GetConfigAs[AppConfig](manager)
+	require.NoError(t, err)
+	require.NotNil(t, cfg)
+	assert.Equal(t, 8080, cfg.Server.Port)
+}
+
+func TestIntegratedConfigManager_GetConfigAs_Mismatch(t *testing.T) {
+	manager := createTestManager(t)
+	defer manager.Stop()
+
+	// 类型不匹配
+	cfg, err := GetConfigAs[ServerConfig](manager)
+	assert.Error(t, err)
+	assert.Nil(t, cfg)
+}
+
+// --- GetViper / GetContextManager ---
+
+func TestIntegratedConfigManager_GetViperAndContextManager(t *testing.T) {
+	manager := createTestManager(t)
+	defer manager.Stop()
+
+	assert.NotNil(t, manager.GetViper())
+	assert.NotNil(t, manager.GetContextManager())
+}
+
+// --- 回调注册/注销 ---
+
+func TestIntegratedConfigManager_RegisterUnregisterCallbacks(t *testing.T) {
+	manager := createTestManager(t)
+	defer manager.Stop()
+
+	// 配置回调
+	cfgCb := func(ctx context.Context, event CallbackEvent) error { return nil }
+	require.NoError(t, manager.RegisterConfigCallback(cfgCb, CallbackOptions{ID: "icm-cfg-cb"}))
+	assert.NoError(t, manager.UnregisterConfigCallback("icm-cfg-cb")) // 首次注销成功
+	// 重复注销返回错误
+	assert.Error(t, manager.UnregisterConfigCallback("icm-cfg-cb"))
+
+	// 环境回调
+	envCb := func(old, newEnv EnvironmentType) error { return nil }
+	require.NoError(t, manager.RegisterEnvironmentCallback("icm-env-cb", envCb, 1, false))
+	require.NoError(t, manager.UnregisterEnvironmentCallback("icm-env-cb"))
+	assert.Error(t, manager.UnregisterEnvironmentCallback("icm-env-cb"))
+}
+
+// --- ValidateConfig ---
+
+func TestIntegratedConfigManager_ValidateConfig_OK(t *testing.T) {
+	manager := createTestManager(t)
+	defer manager.Stop()
+
+	assert.NoError(t, manager.ValidateConfig())
+}
+
+func TestIntegratedConfigManager_ValidateConfig_Empty(t *testing.T) {
+	manager := createTestManager(t)
+	defer manager.Stop()
+
+	// 同包直接置空 config 触发 ErrConfigEmpty 分支
+	manager.mu.Lock()
+	origConfig := manager.config
+	manager.config = nil
+	manager.mu.Unlock()
+
+	assert.ErrorIs(t, manager.ValidateConfig(), ErrConfigEmpty)
+
+	// 恢复
+	manager.mu.Lock()
+	manager.config = origConfig
+	manager.mu.Unlock()
+}
+
+// --- GetConfigMetadata ---
+
+func TestIntegratedConfigManager_GetConfigMetadata(t *testing.T) {
+	manager := createTestManager(t)
+	defer manager.Stop()
+
+	meta := manager.GetConfigMetadata()
+	assert.NotNil(t, meta)
+	assert.Contains(t, meta, "config_path")
+	assert.Contains(t, meta, "environment")
+	assert.Contains(t, meta, "running")
+	assert.Contains(t, meta, "hot_reload_enabled")
+	assert.Contains(t, meta, "created_at")
+	assert.Contains(t, meta, "updated_at")
+	assert.False(t, meta["running"].(bool))
+}
+
+// --- MustStart ---
+
+func TestIntegratedConfigManager_MustStart_OK(t *testing.T) {
+	manager := createTestManager(t)
+	// 禁用热重载避免后台 goroutine
+	manager.hotReloadConfig.Enabled = false
+	assert.NotPanics(t, func() {
+		manager.MustStart(context.Background())
+	})
+	defer manager.Stop()
+}
+
+func TestIntegratedConfigManager_MustStart_Panic(t *testing.T) {
+	manager := createTestManager(t)
+	manager.hotReloadConfig.Enabled = false
+	require.NoError(t, manager.Start(context.Background()))
+	defer manager.Stop()
+
+	// 已运行再次 MustStart 应 panic
+	assert.Panics(t, func() {
+		manager.MustStart(context.Background())
+	})
+}
+
+// --- MustGetConfigAs ---
+
+func TestIntegratedConfigManager_MustGetConfigAs_OK(t *testing.T) {
+	manager := createTestManager(t)
+	defer manager.Stop()
+
+	cfg := MustGetConfigAs[AppConfig](manager)
+	require.NotNil(t, cfg)
+	assert.Equal(t, 8080, cfg.Server.Port)
+}
+
+func TestIntegratedConfigManager_MustGetConfigAs_Panic(t *testing.T) {
+	manager := createTestManager(t)
+	defer manager.Stop()
+
+	assert.Panics(t, func() {
+		MustGetConfigAs[ServerConfig](manager)
+	})
+}
+
+// --- CreateIntegratedManager ---
+
+func TestCreateIntegratedManager(t *testing.T) {
+	configContent := `
+server:
+  host: localhost
+  port: 9090
+`
+	configPath := createTestConfigFile(t, configContent)
+	config := &AppConfig{}
+
+	manager, err := CreateIntegratedManager(config, configPath, EnvDevelopment)
+	require.NoError(t, err)
+	require.NotNil(t, manager)
+	defer manager.Stop()
+	assert.Equal(t, 9090, config.Server.Port)
+}
+
+// --- onError 错误回调 ---
+
+func TestIntegratedConfigManager_OnError(t *testing.T) {
+	manager := createTestManager(t)
+	defer manager.Stop()
+
+	triggered := false
+	errCb := func(ctx context.Context, event CallbackEvent) error {
+		if event.Type == CallbackTypeError {
+			triggered = true
+		}
+		return nil
+	}
+	require.NoError(t, manager.RegisterConfigCallback(errCb, CallbackOptions{
+		ID:    "onerr-test-cb",
+		Types: []CallbackType{CallbackTypeError},
+	}))
+
+	// 直接触发错误事件以执行内部 onError 回调
+	errEvent := CreateErrorEvent("test_source", assertSimpleErr("boom"))
+	require.NoError(t, manager.GetHotReloader().TriggerCallbacks(context.Background(), errEvent))
+	assert.True(t, triggered)
+}
+
+// --- ScanAndDisplayConfigs ---
+
+func TestScanAndDisplayConfigs(t *testing.T) {
+	tmpDir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "config.yaml"), []byte("k: v"), 0644))
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "config-dev.yaml"), []byte("k: v"), 0644))
+
+	files, err := ScanAndDisplayConfigs(tmpDir, EnvDevelopment)
+	require.NoError(t, err)
+	assert.NotEmpty(t, files)
+}
+
+func TestScanAndDisplayConfigs_NotExist(t *testing.T) {
+	files, err := ScanAndDisplayConfigs("/non/existent/path/xyz", EnvDevelopment)
+	assert.Error(t, err)
+	assert.Nil(t, files)
+}
+
+// assertSimpleErr 简单 error 类型
+type assertSimpleErr string
+
+func (e assertSimpleErr) Error() string { return string(e) }
