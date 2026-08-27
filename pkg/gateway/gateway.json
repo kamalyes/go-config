@@ -1836,18 +1836,12 @@
       "slowLogThreshold": 1000
     },
     "security": {
-      "enableAuth": true,
-      "enableEncryption": false,
-      "enableRateLimit": true,
-      "maxMessageSize": 1024,
-      "allowedUserTypes": [
-        "customer",
-        "agent",
-        "admin"
-      ],
-      "blockedIps": [],
-      "whitelistIps": [],
-      "enableIpWhitelist": false,
+      "accessControl": {
+        "maxMessageSize": 1024,
+        "blockedIps": [],
+        "whitelistIps": [],
+        "enableIpWhitelist": false
+      },
       "messageEncryption": {
         "enabled": false,
         "algorithm": "AES-256-GCM",
@@ -1995,9 +1989,9 @@
       "enabled": true,
       "requireUserId": true,
       "requireUserType": true,
-      "tokenExpiration": 3600,
       "maxLoginAttempts": 5,
       "loginLockDuration": 300,
+      "redisKeyPrefix": "wsc:login_guard:",
       "missingUserIdMessage": "Missing required parameter: userid",
       "missingUserTypeMessage": "Missing required parameter: usertype",
       "missingBothMessage": "Missing required parameters: userid and usertype"

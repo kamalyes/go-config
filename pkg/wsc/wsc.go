@@ -828,14 +828,8 @@ type Performance struct {
 
 // Security 安全配置
 type Security struct {
-	EnableAuth        bool     `mapstructure:"enable-auth" yaml:"enable-auth" json:"enableAuth"`                        // 是否启用认证
-	EnableEncryption  bool     `mapstructure:"enable-encryption" yaml:"enable-encryption" json:"enableEncryption"`      // 是否启用加密
-	EnableRateLimit   bool     `mapstructure:"enable-rate-limit" yaml:"enable-rate-limit" json:"enableRateLimit"`       // 是否启用限流
-	MaxMessageSize    int      `mapstructure:"max-message-size" yaml:"max-message-size" json:"maxMessageSize"`          // 最大消息大小(KB)
-	AllowedUserTypes  []string `mapstructure:"allowed-user-types" yaml:"allowed-user-types" json:"allowedUserTypes"`    // 允许的用户类型
-	BlockedIPs        []string `mapstructure:"blocked-ips" yaml:"blocked-ips" json:"blockedIps"`                        // 黑名单IP
-	WhitelistIPs      []string `mapstructure:"whitelist-ips" yaml:"whitelist-ips" json:"whitelistIps"`                  // 白名单IP
-	EnableIPWhitelist bool     `mapstructure:"enable-ip-whitelist" yaml:"enable-ip-whitelist" json:"enableIpWhitelist"` // 是否启用IP白名单
+	// 访问控制配置（消息大小/用户类型白名单/IP 黑白名单）
+	AccessControl *AccessControl `mapstructure:"access-control" yaml:"access-control" json:"accessControl"` // 访问控制配置
 
 	// 消息加密配置
 	MessageEncryption *MessageEncryption `mapstructure:"message-encryption" yaml:"message-encryption" json:"messageEncryption"` // 消息加密配置
@@ -845,6 +839,15 @@ type Security struct {
 
 	// 连接 Token 配置（将 user_id/user_type/device_id 加密为单一 JWT token，避免明文暴露）
 	ConnectionToken *ConnectionToken `mapstructure:"connection-token" yaml:"connection-token" json:"connectionToken"` // 连接 Token 配置（可选启用，默认关闭向后兼容明文参数）
+}
+
+// AccessControl 访问控制配置
+// 连接握手期的静态校验：消息大小上限、IP 黑白名单
+type AccessControl struct {
+	MaxMessageSize    int      `mapstructure:"max-message-size" yaml:"max-message-size" json:"maxMessageSize"`          // 最大消息大小(KB)
+	BlockedIPs        []string `mapstructure:"blocked-ips" yaml:"blocked-ips" json:"blockedIps"`                        // 黑名单IP
+	WhitelistIPs      []string `mapstructure:"whitelist-ips" yaml:"whitelist-ips" json:"whitelistIps"`                  // 白名单IP
+	EnableIPWhitelist bool     `mapstructure:"enable-ip-whitelist" yaml:"enable-ip-whitelist" json:"enableIpWhitelist"` // 是否启用IP白名单
 }
 
 // ConnectionToken 连接 Token 配置
@@ -1435,10 +1438,10 @@ type ConnectionValidation struct {
 	RequireUserID   bool `mapstructure:"require-user-id" yaml:"require-user-id" json:"requireUserId"`       // 是否要求 UserID（默认: true）
 	RequireUserType bool `mapstructure:"require-user-type" yaml:"require-user-type" json:"requireUserType"` // 是否要求 UserType（默认: true）
 
-	// 连接鉴权与登录防爆破
-	TokenExpiration   int `mapstructure:"token-expiration" yaml:"token-expiration" json:"tokenExpiration"`         // Token过期时间(秒)
-	MaxLoginAttempts  int `mapstructure:"max-login-attempts" yaml:"max-login-attempts" json:"maxLoginAttempts"`    // 最大登录尝试次数
-	LoginLockDuration int `mapstructure:"login-lock-duration" yaml:"login-lock-duration" json:"loginLockDuration"` // 登录锁定时长(秒)
+	// 连接登录防爆破（按客户端 IP 计数鉴权失败，超限锁定；Token 过期以 JWT 自身 exp 为准，由签发端 expires-time 控制）
+	MaxLoginAttempts  int    `mapstructure:"max-login-attempts" yaml:"max-login-attempts" json:"maxLoginAttempts"`    // 最大登录尝试次数（超过则锁定该 IP）
+	LoginLockDuration int    `mapstructure:"login-lock-duration" yaml:"login-lock-duration" json:"loginLockDuration"` // 登录锁定时长(秒)
+	RedisKeyPrefix    string `mapstructure:"redis-key-prefix" yaml:"redis-key-prefix" json:"redisKeyPrefix"`          // Redis 键前缀（跨节点共享计数，默认 "wsc:login_guard:"）
 
 	// 错误消息模板
 	MissingUserIDMessage   string `mapstructure:"missing-user-id-message" yaml:"missing-user-id-message" json:"missingUserIdMessage"`       // 缺少 UserID 的错误消息
@@ -1461,10 +1464,9 @@ func (c *ConnectionValidation) GetMissingBothMessage() string {
 	return mathx.IfEmpty(c.MissingBothMessage, "Missing required parameters: userid and usertype")
 }
 
-// WithTokenExpiration 设置Token过期时间
-func (c *ConnectionValidation) WithTokenExpiration(expireSeconds int) *ConnectionValidation {
-	c.TokenExpiration = expireSeconds
-	return c
+// GetRedisKeyPrefix 获取登录防爆破 Redis 键前缀
+func (c *ConnectionValidation) GetRedisKeyPrefix() string {
+	return mathx.IfEmpty(c.RedisKeyPrefix, defaultLoginGuardKeyPrefix)
 }
 
 // WithLoginSecurity 设置登录防爆破配置
@@ -1575,8 +1577,9 @@ var (
 	defaultDLQKeyPrefix            = "wsc:dlq:"              // 死信队列键前缀
 
 	// 安全 / 限流 Redis 键前缀默认值
-	defaultConnTokenKeyPrefix = "wsc:conn_token:" // 连接 Token Redis 键前缀
-	defaultRateLimitKeyPrefix = "wsc:rate_limit:" // 消息风控 Redis 键前缀
+	defaultConnTokenKeyPrefix  = "wsc:conn_token:"  // 连接 Token Redis 键前缀
+	defaultRateLimitKeyPrefix  = "wsc:rate_limit:"  // 消息风控 Redis 键前缀
+	defaultLoginGuardKeyPrefix = "wsc:login_guard:" // 登录防爆破 Redis 键前缀
 )
 
 // Default 创建默认 WSC 配置
@@ -1688,15 +1691,19 @@ func DefaultPerformance() *Performance {
 // DefaultSecurity 默认安全配置
 func DefaultSecurity() *Security {
 	return &Security{
-		EnableAuth:        true,
-		EnableRateLimit:   true,
-		MaxMessageSize:    1024,
-		AllowedUserTypes:  []string{"customer", "agent", "admin"},
-		BlockedIPs:        []string{},
-		WhitelistIPs:      []string{},
+		AccessControl:     DefaultAccessControl(),
 		MessageEncryption: DefaultMessageEncryption(),
 		MessageRateLimit:  DefaultMessageRateLimit(),
 		ConnectionToken:   DefaultConnectionToken(),
+	}
+}
+
+// DefaultAccessControl 默认访问控制配置
+func DefaultAccessControl() *AccessControl {
+	return &AccessControl{
+		MaxMessageSize: 1024,
+		BlockedIPs:     []string{},
+		WhitelistIPs:   []string{},
 	}
 }
 
@@ -1792,9 +1799,9 @@ func DefaultConnectionValidation() *ConnectionValidation {
 		Enabled:                true,                                               // 默认启用连接验证
 		RequireUserID:          true,                                               // 默认要求 UserID
 		RequireUserType:        true,                                               // 默认要求 UserType
-		TokenExpiration:        3600,                                               // Token 过期时间(秒)
 		MaxLoginAttempts:       5,                                                  // 最大登录尝试次数
 		LoginLockDuration:      300,                                                // 登录锁定时长(秒)
+		RedisKeyPrefix:         defaultLoginGuardKeyPrefix,                         // 登录防爆破 Redis 键前缀
 		MissingUserIDMessage:   "Missing required parameter: userid",               // 缺少 UserID 的错误消息
 		MissingUserTypeMessage: "Missing required parameter: usertype",             // 缺少 UserType 的错误消息
 		MissingBothMessage:     "Missing required parameters: userid and usertype", // 同时缺少的错误消息
@@ -2483,51 +2490,6 @@ func (p *Performance) WithSlowLog(enabled bool, thresholdMs int) *Performance {
 	p.EnableSlowLog = enabled
 	p.SlowLogThreshold = thresholdMs
 	return p
-}
-
-// ========== Security 链式调用方法 ==========
-
-// WithAuth 设置认证配置
-func (s *Security) WithAuth(enabled bool) *Security {
-	s.EnableAuth = enabled
-	return s
-}
-
-// WithEncryption 设置加密配置
-func (s *Security) WithEncryption(enabled bool) *Security {
-	s.EnableEncryption = enabled
-	return s
-}
-
-// WithRateLimit 设置限流配置
-func (s *Security) WithRateLimit(enabled bool) *Security {
-	s.EnableRateLimit = enabled
-	return s
-}
-
-// WithMaxMessageSize 设置最大消息大小
-func (s *Security) WithMaxMessageSize(maxSizeKB int) *Security {
-	s.MaxMessageSize = maxSizeKB
-	return s
-}
-
-// WithAllowedUserTypes 设置允许的用户类型
-func (s *Security) WithAllowedUserTypes(userTypes []string) *Security {
-	s.AllowedUserTypes = userTypes
-	return s
-}
-
-// WithBlockedIPs 设置黑名单IP
-func (s *Security) WithBlockedIPs(ips []string) *Security {
-	s.BlockedIPs = ips
-	return s
-}
-
-// WithWhitelist 设置IP白名单
-func (s *Security) WithWhitelist(enabled bool, ips []string) *Security {
-	s.EnableIPWhitelist = enabled
-	s.WhitelistIPs = ips
-	return s
 }
 
 // ========== Database 链式调用方法 ==========

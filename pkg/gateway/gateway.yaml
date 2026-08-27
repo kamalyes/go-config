@@ -1558,17 +1558,11 @@ wsc:
         slow-log-threshold: 1000
     # 安全配置
     security:
-        enable-auth: true
-        enable-encryption: false
-        enable-rate-limit: true
-        max-message-size: 1024
-        allowed-user-types:
-            - customer
-            - agent
-            - admin
-        blocked-ips: []
-        whitelist-ips: []
-        enable-ip-whitelist: false
+        access-control:
+            max-message-size: 1024
+            blocked-ips: []
+            whitelist-ips: []
+            enable-ip-whitelist: false
         message-encryption:
             # 是否启用网关
             enabled: false
@@ -1724,9 +1718,9 @@ wsc:
         enabled: true
         require-user-id: true
         require-user-type: true
-        token-expiration: 3600
         max-login-attempts: 5
         login-lock-duration: 300
+        redis-key-prefix: 'wsc:login_guard:'
         missing-user-id-message: 'Missing required parameter: userid'
         missing-user-type-message: 'Missing required parameter: usertype'
         missing-both-message: 'Missing required parameters: userid and usertype'
