@@ -299,11 +299,6 @@ func TestConfigCompleteValidation(t *testing.T) {
 			assert.Equal(t, defaultCfg.WSC.Performance.MaxConnectionsPerNode, config.WSC.Performance.MaxConnectionsPerNode, "WSC.Performance.MaxConnectionsPerNode should match")
 			assert.Equal(t, defaultCfg.WSC.Performance.EnableMetrics, config.WSC.Performance.EnableMetrics, "WSC.Performance.EnableMetrics should match")
 
-			// 验证 WSC.Security 子结构
-			assert.Equal(t, defaultCfg.WSC.Security.EnableAuth, config.WSC.Security.EnableAuth, "WSC.Security.EnableAuth should match")
-			assert.Equal(t, defaultCfg.WSC.Security.EnableEncryption, config.WSC.Security.EnableEncryption, "WSC.Security.EnableEncryption should match")
-			assert.Equal(t, defaultCfg.WSC.Security.EnableRateLimit, config.WSC.Security.EnableRateLimit, "WSC.Security.EnableRateLimit should match")
-
 			// 验证 WSC.Database 子结构
 			assert.Equal(t, defaultCfg.WSC.Database.Enabled, config.WSC.Database.Enabled, "WSC.Database.Enabled should match")
 			assert.Equal(t, defaultCfg.WSC.Database.AutoMigrate, config.WSC.Database.AutoMigrate, "WSC.Database.AutoMigrate should match")

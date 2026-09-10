@@ -118,6 +118,9 @@ type WSC struct {
 	// === Hub 工作池配置 ===
 	WorkerPool *WorkerPoolConfig `mapstructure:"worker-pool" yaml:"worker-pool" json:"workerPool"` // Hub 工作池配置（消息/回调/记录/分布式分池）
 
+	// === 时间轮配置 ===
+	Timer *TimerConfig `mapstructure:"timer" yaml:"timer" json:"timer"` // 心跳/ACK 超时时间轮配置（tick 精度与分片数）
+
 	// === 路由缓存配置 ===
 	RouterCache *RouterCacheConfig `mapstructure:"router-cache" yaml:"router-cache" json:"routerCache"` // 分布式路由缓存配置
 
@@ -148,6 +151,9 @@ type WorkerPoolConfig struct {
 	DistributedWorkers int `mapstructure:"distributed-workers" yaml:"distributed-workers" json:"distributedWorkers"`
 	// DistributedQueueSize 跨节点消息队列大小（默认 2048）
 	DistributedQueueSize int `mapstructure:"distributed-queue-size" yaml:"distributed-queue-size" json:"distributedQueueSize"`
+	// IdleTimeout worker 空闲自动回收超时（默认 60s）
+	// 弹性池按队列积压扩容 worker，空闲超过该时长自动回收至保底数量
+	IdleTimeout time.Duration `mapstructure:"idle-timeout" yaml:"idle-timeout" json:"idleTimeout"`
 }
 
 // DefaultWorkerPoolConfig 默认 WorkerPool 配置
@@ -162,6 +168,50 @@ func DefaultWorkerPoolConfig() *WorkerPoolConfig {
 		RecordQueueSize:      2048,
 		DistributedWorkers:   32,
 		DistributedQueueSize: 2048,
+		IdleTimeout:          60 * time.Second,
+	}
+}
+
+// ============================================================================
+// TimerConfig — 时间轮配置
+// ============================================================================
+
+// TimerConfig 心跳/ACK 超时时间轮配置（基于 go-toolbox/syncx.HashedWheelTimer）
+// 默认值与库默认一致（10ms × 16 分片）；仅极端场景（十万级以上活跃任务、亚秒级精度）需要覆盖
+// 注意：分片是任务的存储地址（hash 定位），创建后不可动态调整，仅创建时生效
+type TimerConfig struct {
+	// TickInterval tick 间隔（默认 10ms）
+	// 心跳/ACK 超时均为秒级语义，无需 1ms 精度；tick 越小空转 CPU 越高（每分片每 tick 一次锁检查）
+	TickInterval time.Duration `mapstructure:"tick-interval" yaml:"tick-interval" json:"tickInterval"`
+	// ShardCount 分片数（默认 16，需为 2 的幂）
+	// 总 tick 频率 = ShardCount × (1s / TickInterval)，默认 16 × 100 = 1600 tick/s
+	ShardCount int `mapstructure:"shard-count" yaml:"shard-count" json:"shardCount"`
+}
+
+// DefaultTimerConfig 默认时间轮配置（与 go-toolbox 库默认对齐）
+func DefaultTimerConfig() *TimerConfig {
+	return &TimerConfig{
+		TickInterval: 10 * time.Millisecond,
+		ShardCount:   16,
+	}
+}
+
+// GetTimerOptions 转换为 go-toolbox 时间轮选项（供 go-wsc 创建 timer 时直接使用）
+// 非法值兜底为默认配置，保证构造出的时间轮始终可用
+func (c *TimerConfig) GetTimerOptions() []syncx.TimerOption {
+	if c == nil {
+		c = DefaultTimerConfig()
+	}
+	cfg := *c
+	if cfg.TickInterval <= 0 {
+		cfg.TickInterval = DefaultTimerConfig().TickInterval
+	}
+	if cfg.ShardCount <= 0 || cfg.ShardCount&(cfg.ShardCount-1) != 0 {
+		cfg.ShardCount = DefaultTimerConfig().ShardCount
+	}
+	return []syncx.TimerOption{
+		syncx.WithTimerTickInterval(cfg.TickInterval),
+		syncx.WithTimerShardCount(cfg.ShardCount),
 	}
 }
 

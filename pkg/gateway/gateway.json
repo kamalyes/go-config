@@ -2,7 +2,7 @@
 // 模块名称: gateway
 // 包名: gateway  
 // 描述: API网关模块
-// 生成时间: 2026-08-18 23:23:35
+// 生成时间: 2026-09-10 12:25:27
 // 注意: 此文件由配置生成器自动生成
 
 {
@@ -12,10 +12,10 @@
   "debug": true,
   "version": "v1.0.0",
   "environment": "dev",
-  "buildTime": "2026-08-18T23:23:35+08:00",
+  "buildTime": "2026-09-10T12:25:26+08:00",
   "buildUser": "kamalyes",
   "goVersion": "1.25.1",
-  "gitCommit": "3afdbe84534ce28d8547af6b7787ef8a",
+  "gitCommit": "ca8e054ae72b0274b895d325dd39610b",
   "gitBranch": "master",
   "gitTag": "v1.0.0",
   "json": {
@@ -1440,7 +1440,6 @@
       "port": 6060,
       "enableProfiles": {
         "cpu": true,
-        "memory": true,
         "goroutine": true,
         "block": false,
         "mutex": false,
@@ -1450,7 +1449,6 @@
         "trace": false
       },
       "sampling": {
-        "cpuRate": 100,
         "memoryRate": 524288,
         "blockRate": 1,
         "mutexFraction": 1
@@ -1459,20 +1457,7 @@
         "enabled": false,
         "authToken": "",
         "allowedIps": [],
-        "requireAuth": false,
-        "timeout": 30
-      },
-      "gateway": {
-        "enabled": false,
-        "devModeOnly": false,
-        "enableLogging": true,
-        "registerWebInterface": true
-      },
-      "webInterface": {
-        "enabled": true,
-        "title": "PProf Performance Analysis",
-        "description": "Go Performance Profiling Interface",
-        "showScenarios": true
+        "requireAuth": false
       }
     },
     "circuitBreaker": {
@@ -2133,8 +2118,10 @@
       "recordWorkers": 16,
       "recordQueueSize": 2048,
       "distributedWorkers": 32,
-      "distributedQueueSize": 2048
+      "distributedQueueSize": 2048,
+      "idleTimeout": 60000000000
     },
+    "timer": null,
     "routerCache": {
       "ttl": 300000000000,
       "maxLocalCacheSize": 50000,

@@ -25,8 +25,6 @@ type PProf struct {
 	EnableProfiles *ProfilesConfig `mapstructure:"enable-profiles" yaml:"enable-profiles" json:"enableProfiles"` // 启用的性能分析
 	Sampling       *SamplingConfig `mapstructure:"sampling" yaml:"sampling" json:"sampling"`                     // 采样配置
 	Authentication *AuthConfig     `mapstructure:"authentication" yaml:"authentication" json:"authentication"`   // 认证配置
-	Gateway        *GatewayConfig  `mapstructure:"gateway" yaml:"gateway" json:"gateway"`                        // Gateway特定配置
-	WebInterface   *WebConfig      `mapstructure:"web-interface" yaml:"web-interface" json:"webInterface"`       // Web界面配置
 }
 
 // AuthConfig 认证配置
@@ -35,29 +33,11 @@ type AuthConfig struct {
 	AuthToken   string   `mapstructure:"auth-token" yaml:"auth-token" json:"authToken"`       // 认证令牌
 	AllowedIPs  []string `mapstructure:"allowed-ips" yaml:"allowed-ips" json:"allowedIps"`    // 允许的IP列表
 	RequireAuth bool     `mapstructure:"require-auth" yaml:"require-auth" json:"requireAuth"` // 是否需要认证
-	Timeout     int      `mapstructure:"timeout" yaml:"timeout" json:"timeout"`               // 认证超时时间(秒)
-}
-
-// GatewayConfig Gateway特定配置
-type GatewayConfig struct {
-	Enabled              bool `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                            // 是否启用Gateway集成
-	DevModeOnly          bool `mapstructure:"dev-mode-only" yaml:"dev-mode-only" json:"devModeOnly"`                            // 仅在开发模式启用
-	EnableLogging        bool `mapstructure:"enable-logging" yaml:"enable-logging" json:"enableLogging"`                        // 是否启用日志
-	RegisterWebInterface bool `mapstructure:"register-web-interface" yaml:"register-web-interface" json:"registerWebInterface"` // 是否注册Web界面
-}
-
-// WebConfig Web界面配置
-type WebConfig struct {
-	Enabled       bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                     // 是否启用Web界面
-	Title         string `mapstructure:"title" yaml:"title" json:"title"`                           // Web界面标题
-	Description   string `mapstructure:"description" yaml:"description" json:"description"`         // 描述
-	ShowScenarios bool   `mapstructure:"show-scenarios" yaml:"show-scenarios" json:"showScenarios"` // 是否显示性能测试场景
 }
 
 // ProfilesConfig 性能分析配置
 type ProfilesConfig struct {
 	CPU          bool `mapstructure:"cpu" yaml:"cpu" json:"cpu"`                            // CPU性能分析
-	Memory       bool `mapstructure:"memory" yaml:"memory" json:"memory"`                   // 内存性能分析
 	Goroutine    bool `mapstructure:"goroutine" yaml:"goroutine" json:"goroutine"`          // 协程性能分析
 	Block        bool `mapstructure:"block" yaml:"block" json:"block"`                      // 阻塞性能分析
 	Mutex        bool `mapstructure:"mutex" yaml:"mutex" json:"mutex"`                      // 互斥锁性能分析
@@ -69,7 +49,6 @@ type ProfilesConfig struct {
 
 // SamplingConfig 采样配置
 type SamplingConfig struct {
-	CPURate       int `mapstructure:"cpu-rate" yaml:"cpu-rate" json:"cpuRate"`                   // CPU采样率(Hz)
 	MemoryRate    int `mapstructure:"memory-rate" yaml:"memory-rate" json:"memoryRate"`          // 内存采样率
 	BlockRate     int `mapstructure:"block-rate" yaml:"block-rate" json:"blockRate"`             // 阻塞采样率
 	MutexFraction int `mapstructure:"mutex-fraction" yaml:"mutex-fraction" json:"mutexFraction"` // 互斥锁采样比例
@@ -84,7 +63,6 @@ func Default() *PProf {
 		Port:       6060,
 		EnableProfiles: &ProfilesConfig{
 			CPU:          true,
-			Memory:       true,
 			Goroutine:    true,
 			Block:        false,
 			Mutex:        false,
@@ -94,7 +72,6 @@ func Default() *PProf {
 			Trace:        false,
 		},
 		Sampling: &SamplingConfig{
-			CPURate:       100,
 			MemoryRate:    512 * 1024, // 512KB
 			BlockRate:     1,
 			MutexFraction: 1,
@@ -104,19 +81,6 @@ func Default() *PProf {
 			AuthToken:   "",
 			AllowedIPs:  []string{},
 			RequireAuth: false,
-			Timeout:     30,
-		},
-		Gateway: &GatewayConfig{
-			Enabled:              false,
-			DevModeOnly:          false,
-			EnableLogging:        true,
-			RegisterWebInterface: true,
-		},
-		WebInterface: &WebConfig{
-			Enabled:       true,
-			Title:         "PProf Performance Analysis",
-			Description:   "Go Performance Profiling Interface",
-			ShowScenarios: true,
 		},
 	}
 }
@@ -173,12 +137,11 @@ func (c *PProf) WithPort(port int) *PProf {
 }
 
 // WithProfiles 设置启用的性能分析
-func (c *PProf) WithProfiles(cpu, memory, goroutine, block, mutex, heap, allocs, threadCreate, trace bool) *PProf {
+func (c *PProf) WithProfiles(cpu, goroutine, block, mutex, heap, allocs, threadCreate, trace bool) *PProf {
 	if c.EnableProfiles == nil {
 		c.EnableProfiles = &ProfilesConfig{}
 	}
 	c.EnableProfiles.CPU = cpu
-	c.EnableProfiles.Memory = memory
 	c.EnableProfiles.Goroutine = goroutine
 	c.EnableProfiles.Block = block
 	c.EnableProfiles.Mutex = mutex
@@ -190,11 +153,10 @@ func (c *PProf) WithProfiles(cpu, memory, goroutine, block, mutex, heap, allocs,
 }
 
 // WithSampling 设置采样配置
-func (c *PProf) WithSampling(cpuRate, memoryRate, blockRate, mutexFraction int) *PProf {
+func (c *PProf) WithSampling(memoryRate, blockRate, mutexFraction int) *PProf {
 	if c.Sampling == nil {
 		c.Sampling = &SamplingConfig{}
 	}
-	c.Sampling.CPURate = cpuRate
 	c.Sampling.MemoryRate = memoryRate
 	c.Sampling.BlockRate = blockRate
 	c.Sampling.MutexFraction = mutexFraction
@@ -207,15 +169,6 @@ func (c *PProf) EnableCPUProfile() *PProf {
 		c.EnableProfiles = &ProfilesConfig{}
 	}
 	c.EnableProfiles.CPU = true
-	return c
-}
-
-// EnableMemoryProfile 启用内存性能分析
-func (c *PProf) EnableMemoryProfile() *PProf {
-	if c.EnableProfiles == nil {
-		c.EnableProfiles = &ProfilesConfig{}
-	}
-	c.EnableProfiles.Memory = true
 	return c
 }
 
@@ -270,32 +223,7 @@ func (c *PProf) WithAllowedIPs(ips []string) *PProf {
 func (c *PProf) EnableForDevelopment() *PProf {
 	c.Enabled = true
 	return c.WithAuthToken("dev-debug-token").
-		WithAllowedIPs([]string{"127.0.0.1", "::1"}).
-		EnableGateway(true, true)
-}
-
-// EnableGateway 启用Gateway集成
-func (c *PProf) EnableGateway(enabled, devModeOnly bool) *PProf {
-	if c.Gateway == nil {
-		c.Gateway = &GatewayConfig{}
-	}
-	c.Gateway.Enabled = enabled
-	c.Gateway.DevModeOnly = devModeOnly
-	c.Gateway.EnableLogging = true
-	c.Gateway.RegisterWebInterface = true
-	return c
-}
-
-// WithWebInterface 配置Web界面
-func (c *PProf) WithWebInterface(enabled bool, title, description string) *PProf {
-	if c.WebInterface == nil {
-		c.WebInterface = &WebConfig{}
-	}
-	c.WebInterface.Enabled = enabled
-	c.WebInterface.Title = title
-	c.WebInterface.Description = description
-	c.WebInterface.ShowScenarios = true
-	return c
+		WithAllowedIPs([]string{"127.0.0.1", "::1"})
 }
 
 // Enable 启用PProf

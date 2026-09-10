@@ -11,8 +11,9 @@
 package pprof
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPProf_Default(t *testing.T) {
@@ -25,8 +26,6 @@ func TestPProf_Default(t *testing.T) {
 	assert.NotNil(t, config.EnableProfiles)
 	assert.NotNil(t, config.Sampling)
 	assert.NotNil(t, config.Authentication)
-	assert.NotNil(t, config.Gateway)
-	assert.NotNil(t, config.WebInterface)
 }
 
 func TestPProf_WithModuleName(t *testing.T) {
@@ -50,9 +49,8 @@ func TestPProf_WithPort(t *testing.T) {
 }
 
 func TestPProf_WithProfiles(t *testing.T) {
-	config := Default().WithProfiles(true, true, true, true, true, true, true, true, true)
+	config := Default().WithProfiles(true, true, true, true, true, true, true, true)
 	assert.True(t, config.EnableProfiles.CPU)
-	assert.True(t, config.EnableProfiles.Memory)
 	assert.True(t, config.EnableProfiles.Goroutine)
 	assert.True(t, config.EnableProfiles.Block)
 	assert.True(t, config.EnableProfiles.Mutex)
@@ -63,8 +61,7 @@ func TestPProf_WithProfiles(t *testing.T) {
 }
 
 func TestPProf_WithSampling(t *testing.T) {
-	config := Default().WithSampling(200, 1024*1024, 2, 2)
-	assert.Equal(t, 200, config.Sampling.CPURate)
+	config := Default().WithSampling(1024*1024, 2, 2)
 	assert.Equal(t, 1024*1024, config.Sampling.MemoryRate)
 	assert.Equal(t, 2, config.Sampling.BlockRate)
 	assert.Equal(t, 2, config.Sampling.MutexFraction)
@@ -76,14 +73,6 @@ func TestPProf_EnableCPUProfile(t *testing.T) {
 	config.EnableCPUProfile()
 	assert.True(t, config.EnableProfiles.CPU)
 }
-
-func TestPProf_EnableMemoryProfile(t *testing.T) {
-	config := Default()
-	config.EnableProfiles.Memory = false
-	config.EnableMemoryProfile()
-	assert.True(t, config.EnableProfiles.Memory)
-}
-
 func TestPProf_EnableGoroutineProfile(t *testing.T) {
 	config := Default()
 	config.EnableProfiles.Goroutine = false
@@ -120,24 +109,7 @@ func TestPProf_EnableForDevelopment(t *testing.T) {
 	config := Default().EnableForDevelopment()
 	assert.True(t, config.Enabled)
 	assert.Equal(t, "dev-debug-token", config.Authentication.AuthToken)
-	assert.True(t, config.Gateway.Enabled)
-	assert.True(t, config.Gateway.DevModeOnly)
-}
-
-func TestPProf_EnableGateway(t *testing.T) {
-	config := Default().EnableGateway(true, true)
-	assert.True(t, config.Gateway.Enabled)
-	assert.True(t, config.Gateway.DevModeOnly)
-	assert.True(t, config.Gateway.EnableLogging)
-	assert.True(t, config.Gateway.RegisterWebInterface)
-}
-
-func TestPProf_WithWebInterface(t *testing.T) {
-	config := Default().WithWebInterface(true, "Custom Title", "Custom Description")
-	assert.True(t, config.WebInterface.Enabled)
-	assert.Equal(t, "Custom Title", config.WebInterface.Title)
-	assert.Equal(t, "Custom Description", config.WebInterface.Description)
-	assert.True(t, config.WebInterface.ShowScenarios)
+	assert.Contains(t, config.Authentication.AllowedIPs, "127.0.0.1")
 }
 
 func TestPProf_Enable(t *testing.T) {
@@ -165,8 +137,7 @@ func TestPProf_Clone(t *testing.T) {
 		WithPort(9090).
 		WithAuthToken("test-token").
 		WithAllowedIPs([]string{"127.0.0.1"}).
-		EnableCPUProfile().
-		EnableMemoryProfile()
+		EnableCPUProfile()
 
 	cloned := original.Clone().(*PProf)
 
@@ -178,7 +149,6 @@ func TestPProf_Clone(t *testing.T) {
 
 	// 验证嵌套结构
 	assert.Equal(t, original.EnableProfiles.CPU, cloned.EnableProfiles.CPU)
-	assert.Equal(t, original.Sampling.CPURate, cloned.Sampling.CPURate)
 	assert.Equal(t, original.Authentication.AuthToken, cloned.Authentication.AuthToken)
 
 	// 验证切片独立性
@@ -224,26 +194,21 @@ func TestPProf_ChainedCalls(t *testing.T) {
 		WithPathPrefix("/chain/pprof").
 		WithPort(8888).
 		EnableCPUProfile().
-		EnableMemoryProfile().
 		EnableGoroutineProfile().
-		WithAuthToken("chain-token").
-		EnableGateway(true, false)
+		WithAuthToken("chain-token")
 
 	assert.Equal(t, "chain-pprof", config.ModuleName)
 	assert.True(t, config.Enabled)
 	assert.Equal(t, "/chain/pprof", config.PathPrefix)
 	assert.Equal(t, 8888, config.Port)
 	assert.True(t, config.EnableProfiles.CPU)
-	assert.True(t, config.EnableProfiles.Memory)
 	assert.True(t, config.EnableProfiles.Goroutine)
 	assert.Equal(t, "chain-token", config.Authentication.AuthToken)
-	assert.True(t, config.Gateway.Enabled)
 }
 
 func TestPProf_DefaultProfiles(t *testing.T) {
 	config := Default()
 	assert.True(t, config.EnableProfiles.CPU)
-	assert.True(t, config.EnableProfiles.Memory)
 	assert.True(t, config.EnableProfiles.Goroutine)
 	assert.False(t, config.EnableProfiles.Block)
 	assert.False(t, config.EnableProfiles.Mutex)
@@ -255,7 +220,6 @@ func TestPProf_DefaultProfiles(t *testing.T) {
 
 func TestPProf_DefaultSampling(t *testing.T) {
 	config := Default()
-	assert.Equal(t, 100, config.Sampling.CPURate)
 	assert.Equal(t, 512*1024, config.Sampling.MemoryRate)
 	assert.Equal(t, 1, config.Sampling.BlockRate)
 	assert.Equal(t, 1, config.Sampling.MutexFraction)

@@ -7,7 +7,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.4.0
 	github.com/kamalyes/go-argus v0.3.1
 	github.com/kamalyes/go-logger v0.6.1
-	github.com/kamalyes/go-toolbox v0.16.2
+	github.com/kamalyes/go-toolbox v0.16.3
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 )

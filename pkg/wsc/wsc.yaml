@@ -2,7 +2,7 @@
 # 模块名称: wsc
 # 包名: wsc  
 # 描述: WebSocket通信模块
-# 生成时间: 2026-08-18 23:23:35
+# 生成时间: 2026-09-10 12:25:27
 # 注意: 此文件由配置生成器自动生成
 
 # 是否启用
@@ -483,6 +483,10 @@ worker-pool:
     record-queue-size: 2048
     distributed-workers: 32
     distributed-queue-size: 2048
+    # 空闲超时
+    idle-timeout: 1m0s
+# 心跳/ACK 超时时间轮配置（tick 精度与分片数）
+timer: null
 # 分布式路由缓存配置
 router-cache:
     ttl: 5m0s
