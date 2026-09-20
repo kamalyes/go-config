@@ -12,11 +12,16 @@
 package cache
 
 import (
+	"runtime"
 	"time"
 
 	"github.com/kamalyes/go-config/internal"
 	"github.com/kamalyes/go-toolbox/pkg/syncx"
 )
+
+// defaultRedisPoolSize 默认连接池大小，跟随 go-redis 官方默认（10 × GOMAXPROCS）
+// 硬编码小值（如 10）会在高并发时导致连接池信号量排队，成为吞吐瓶颈
+var defaultRedisPoolSize = 10 * runtime.GOMAXPROCS(0)
 
 // Redis 结构体用于配置 Redis 相关参数（增强版配置）
 // 字段与 go-redis v9 UniversalOptions 对齐，通过 redis.go 映射到 UniversalOptions
@@ -135,7 +140,7 @@ func (r *Redis) Validate() error {
 		r.MaxRetries = 3
 	}
 	if r.PoolSize <= 0 {
-		r.PoolSize = 10
+		r.PoolSize = defaultRedisPoolSize
 	}
 	if r.MinIdleConns < 0 {
 		r.MinIdleConns = 0
@@ -181,7 +186,7 @@ func DefaultRedisConfig() Redis {
 		Password:              "redis123456",
 		DB:                    0,
 		MaxRetries:            3,
-		PoolSize:              10,
+		PoolSize:              defaultRedisPoolSize,
 		MinIdleConns:          0,
 		MaxIdleConns:          20,
 		MaxConnAge:            30 * time.Minute,
