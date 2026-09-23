@@ -2,7 +2,7 @@
 # 模块名称: nats
 # 包名: queue  
 # 描述: NATS消息队列
-# 生成时间: 2026-06-08 13:25:56
+# 生成时间: 2026-09-23 23:08:02
 # 注意: 此文件由配置生成器自动生成
 
 # 是否启用
@@ -17,20 +17,38 @@ username: ""
 password: ""
 # Token 鉴权（可选）
 token: ""
-# 是否启用 JetStream 持久化
-jet-stream: false
-# JetStream Stream 名称（启用 JetStream 时生效）
-stream-name: ""
-# 连接超时时间（秒）
+# 连接超时（秒），官方默认 2s
 connect-timeout: 10
-# 重连等待时间（秒）
+# 重连等待时间（秒），官方默认 2s
 reconnect-wait: 2
+# 重连抖动上限（秒，0=官方默认 100ms）
+reconnect-jitter: 0
+# 重连期间发布缓冲区上限（字节，0=官方默认 8MB）
+reconnect-buf-size: 0
 # 最大重连次数，-1 表示无限
 max-reconnects: 10
-# Subject 前缀（上层业务可基于此构造租户级 Subject）
-channel-prefix: ""
-# 当前节点标识（为空时由业务方自动生成），用于消息去重与来源过滤
-source: ""
+# 心跳 ping 间隔（秒，0=官方默认 120s）
+ping-interval: 0
+# 未回应 ping 上限（0=官方默认 2）
+max-pings-out: 0
+# Flush 等待超时（秒，0=官方默认 10s）
+flush-timeout: 0
+# Drain 排空超时（秒，0=官方默认 30s）
+drain-timeout: 0
+# 是否启用 JetStream 持久化
+jet-stream: false
+# 副本数（0=单副本；超出集群规模时建流报错）
+replicas: 1
+# 存储后端：file|memory（空=file）
+storage: file
+# 保留策略：limits|interest|workqueue（空=limits）
+retention: limits
+# 消息最大保留时长（秒，0=不限）
+max-age: 0
+# 流最大体积（字节，0=不限）
+max-bytes: 0
+# Publish 去重窗口（秒，0=官方默认 120s）
+duplicates-window: 0
 # 模块名称
 module-name: nats
 # 全局消费者 WorkerPool 大小（0 表示不初始化）

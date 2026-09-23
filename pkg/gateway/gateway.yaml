@@ -169,7 +169,7 @@ cache:
         db: 0
         max-retries: 3
         max-redirects: 0
-        pool-size: 10
+        pool-size: 80
         max-active-conns: 0
         min-idle-conns: 0
         max-idle-conns: 20
@@ -347,44 +347,6 @@ kafka:
     sync-es-topic: sync-es-topic
     # 模块名称
     module-name: kafka
-# 对象存储统一配置
-oss:
-    type: minio
-    # 是否启用网关
-    enabled: false
-    minio:
-        endpoint: localhost
-        access-key: minioadmin
-        secret-key: minioadmin
-        bucket: my-bucket
-        # 模块名称
-        module-name: minio
-        use-ssl: false
-    s3:
-        endpoint: https://s3.amazonaws.com
-        region: us-east-1
-        access-key: demo_access_key
-        secret-key: s3_secret_key
-        bucket-prefix: demo-bucket
-        session-token: ""
-        use-ssl: true
-        path-style: false
-        # 模块名称
-        module-name: s3
-    aliyun:
-        access-key: demo_access_key
-        secret-key: demo_secret_key
-        endpoint: oss-cn-hangzhou.aliyuncs.com
-        bucket: demo-bucket
-        region: oss-cn-hangzhou
-        replace-original-host: oss-cn-hangzhou.aliyuncs.com
-        replace-later-host: cdn.example.com
-        # 模块名称
-        module-name: aliyun-oss
-    boltdb:
-        path: ./data/storage.db
-        # 模块名称
-        module-name: boltdb
 # MQTT配置
 mqtt:
     endpoint: tcp://127.0.0.1:1883
@@ -412,13 +374,22 @@ nats:
     username: ""
     password: ""
     token: ""
-    jet-stream: false
-    stream-name: ""
     connect-timeout: 10
     reconnect-wait: 2
+    reconnect-jitter: 0
+    reconnect-buf-size: 0
     max-reconnects: 10
-    channel-prefix: ""
-    source: ""
+    ping-interval: 0
+    max-pings-out: 0
+    flush-timeout: 0
+    drain-timeout: 0
+    jet-stream: false
+    replicas: 1
+    storage: file
+    retention: limits
+    max-age: 0
+    max-bytes: 0
+    duplicates-window: 0
     # 模块名称
     module-name: nats
     worker-pool-size: 4
