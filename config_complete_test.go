@@ -242,16 +242,6 @@ func TestConfigCompleteValidation(t *testing.T) {
 			assert.Equal(t, defaultCfg.Kafka.Offset, config.Kafka.Offset, "Kafka.Offset should match")
 			assert.Equal(t, defaultCfg.Kafka.TryTimes, config.Kafka.TryTimes, "Kafka.TryTimes should match")
 
-			// 验证 OSS 嵌套结构
-			assert.Equal(t, defaultCfg.OSS.Type, config.OSS.Type, "OSS.Type should match")
-			assert.Equal(t, defaultCfg.OSS.Enabled, config.OSS.Enabled, "OSS.Enabled should match")
-
-			// 验证 OSS.Minio 子结构
-			assert.Equal(t, defaultCfg.OSS.Minio.Endpoint, config.OSS.Minio.Endpoint, "OSS.Minio.Endpoint should match")
-			assert.Equal(t, defaultCfg.OSS.Minio.AccessKey, config.OSS.Minio.AccessKey, "OSS.Minio.AccessKey should match")
-			assert.Equal(t, defaultCfg.OSS.Minio.UseSSL, config.OSS.Minio.UseSSL, "OSS.Minio.UseSSL should match")
-			assert.Equal(t, defaultCfg.OSS.Minio.Bucket, config.OSS.Minio.Bucket, "OSS.Minio.BucketName should match")
-
 			// 验证 CORS 嵌套结构
 			assert.Equal(t, defaultCfg.CORS.ModuleName, config.CORS.ModuleName, "CORS.ModuleName should match")
 			assert.Equal(t, defaultCfg.CORS.Enabled, config.CORS.Enabled, "CORS.Enabled should match")

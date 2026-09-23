@@ -27,7 +27,6 @@ import (
 	"github.com/kamalyes/go-config/pkg/kafka"
 	"github.com/kamalyes/go-config/pkg/middleware"
 	"github.com/kamalyes/go-config/pkg/monitoring"
-	"github.com/kamalyes/go-config/pkg/oss"
 	"github.com/kamalyes/go-config/pkg/queue"
 	"github.com/kamalyes/go-config/pkg/ratelimit"
 	"github.com/kamalyes/go-config/pkg/security"
@@ -64,7 +63,6 @@ type Gateway struct {
 	ClickHouse     *tsdb.ClickHouse             `mapstructure:"clickhouse" yaml:"clickhouse" json:"clickhouse"`               // ClickHouse数据库配置
 	Etcd           *etcd.Etcd                   `mapstructure:"etcd" yaml:"etcd" json:"etcd"`                                 // Etcd配置
 	Kafka          *kafka.Kafka                 `mapstructure:"kafka" yaml:"kafka" json:"kafka"`                              // Kafka配置
-	OSS            *oss.OSSConfig               `mapstructure:"oss" yaml:"oss" json:"oss"`                                    // 对象存储统一配置
 	Mqtt           *queue.Mqtt                  `mapstructure:"mqtt" yaml:"mqtt" json:"mqtt"`                                 // MQTT配置
 	Nats           *queue.Nats                  `mapstructure:"nats" yaml:"nats" json:"nats"`                                 // NATS配置
 	Elasticsearch  *elasticsearch.Elasticsearch `mapstructure:"elasticsearch" yaml:"elasticsearch" json:"elasticsearch"`      // Elasticsearch配置
@@ -107,7 +105,6 @@ func Default() *Gateway {
 		Database:       database.DefaultDatabaseConfig(),
 		Etcd:           etcd.Default(),
 		Kafka:          kafka.Default(),
-		OSS:            oss.DefaultOSSConfig(),
 		Mqtt:           queue.Default(),
 		Nats:           queue.DefaultNatsPtr(),
 		Elasticsearch:  elasticsearch.Default(),
@@ -211,11 +208,6 @@ func (c *Gateway) Validate() error {
 	}
 	if c.Nats != nil {
 		if err := c.Nats.Validate(); err != nil {
-			return err
-		}
-	}
-	if c.OSS != nil {
-		if err := c.OSS.Validate(); err != nil {
 			return err
 		}
 	}

@@ -19,20 +19,23 @@ import (
 
 func TestNats_Clone(t *testing.T) {
 	original := &Nats{
-		ModuleName:     "test-nats",
-		Enabled:        true,
-		URL:            "nats://localhost:4222",
-		Name:           "test-client",
-		Username:       "user",
-		Password:       "pass",
-		Token:          "",
-		JetStream:      true,
-		StreamName:     "TEST_STREAM",
-		ConnectTimeout: 5,
-		ReconnectWait:  1,
-		MaxReconnects:  20,
-		ChannelPrefix:  "casbin.policy",
-		Source:         "node-1",
+		ModuleName:       "test-nats",
+		Enabled:          true,
+		URL:              "nats://localhost:4222",
+		Name:             "test-client",
+		Username:         "user",
+		Password:         "pass",
+		Token:            "",
+		JetStream:        true,
+		Replicas:         3,
+		Storage:          NatsStorageFile,
+		Retention:        NatsRetentionLimits,
+		MaxAge:           3600,
+		MaxBytes:         1024,
+		DuplicatesWindow: 60,
+		ConnectTimeout:   5,
+		ReconnectWait:    1,
+		MaxReconnects:    20,
 	}
 
 	cloned := original.Clone().(*Nats)
@@ -42,9 +45,12 @@ func TestNats_Clone(t *testing.T) {
 	assert.Equal(t, original.URL, cloned.URL)
 	assert.Equal(t, original.Name, cloned.Name)
 	assert.Equal(t, original.JetStream, cloned.JetStream)
-	assert.Equal(t, original.StreamName, cloned.StreamName)
-	assert.Equal(t, original.ChannelPrefix, cloned.ChannelPrefix)
-	assert.Equal(t, original.Source, cloned.Source)
+	assert.Equal(t, original.Replicas, cloned.Replicas)
+	assert.Equal(t, original.Storage, cloned.Storage)
+	assert.Equal(t, original.Retention, cloned.Retention)
+	assert.Equal(t, original.MaxAge, cloned.MaxAge)
+	assert.Equal(t, original.MaxBytes, cloned.MaxBytes)
+	assert.Equal(t, original.DuplicatesWindow, cloned.DuplicatesWindow)
 
 	// 修改原始对象不应影响克隆对象
 	original.URL = "nats://other:4222"
@@ -68,17 +74,27 @@ func TestNats_Builders(t *testing.T) {
 		WithEnabled(true).
 		WithURL("nats://broker:4222").
 		WithJetStream(true).
-		WithStreamName("CASBIN_POLICY").
-		WithChannelPrefix("casbin.policy").
-		WithSource("node-xyz")
+		WithReplicas(3).
+		WithStorage(NatsStorageMemory).
+		WithRetention(NatsRetentionInterest).
+		WithMaxAge(7200).
+		WithMaxBytes(2048).
+		WithDuplicatesWindow(30).
+		WithPingInterval(30).
+		WithMaxPingsOut(5)
 
 	assert.Equal(t, "nats://broker:4222", cfg.URL)
 	assert.True(t, cfg.Enabled)
 	assert.True(t, cfg.IsEnabled())
 	assert.True(t, cfg.JetStream)
-	assert.Equal(t, "CASBIN_POLICY", cfg.StreamName)
-	assert.Equal(t, "casbin.policy", cfg.ChannelPrefix)
-	assert.Equal(t, "node-xyz", cfg.Source)
+	assert.Equal(t, 3, cfg.Replicas)
+	assert.Equal(t, NatsStorageMemory, cfg.Storage)
+	assert.Equal(t, NatsRetentionInterest, cfg.Retention)
+	assert.Equal(t, int64(7200), cfg.MaxAge)
+	assert.Equal(t, int64(2048), cfg.MaxBytes)
+	assert.Equal(t, int64(30), cfg.DuplicatesWindow)
+	assert.Equal(t, 30, cfg.PingInterval)
+	assert.Equal(t, 5, cfg.MaxPingsOut)
 }
 
 func TestNats_Validate(t *testing.T) {

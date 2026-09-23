@@ -57,7 +57,7 @@ func TestSmartConfigGeneratorGeneration(t *testing.T) {
 	generator := NewSmartConfigGenerator(tempDir)
 
 	// 只启用几个模块进行测试
-	err := generator.EnableOnlyModules("health", "redis", "monitoring")
+	err := generator.EnableOnlyModules("health", "jwt", "monitoring")
 	if err != nil {
 		t.Errorf("启用模块失败: %v", err)
 	}
@@ -74,9 +74,9 @@ func TestSmartConfigGeneratorGeneration(t *testing.T) {
 		t.Errorf("health.yaml 文件未生成")
 	}
 
-	redisYamlPath := filepath.Join(tempDir, "pkg", "redis", "redis.yaml")
-	if _, err := os.Stat(redisYamlPath); os.IsNotExist(err) {
-		t.Errorf("redis.yaml 文件未生成")
+	jwtYamlPath := filepath.Join(tempDir, "pkg", "jwt", "jwt.yaml")
+	if _, err := os.Stat(jwtYamlPath); os.IsNotExist(err) {
+		t.Errorf("jwt.yaml 文件未生成")
 	}
 
 	fmt.Println("配置文件生成测试通过")
@@ -231,7 +231,7 @@ func TestSmartConfigGeneratorPrintStatus(t *testing.T) {
 	generator := NewSmartConfigGenerator("./test_output")
 
 	// 启用部分模块
-	err := generator.EnableOnlyModules("health", "redis", "monitoring")
+	err := generator.EnableOnlyModules("health", "jwt", "monitoring")
 	if err != nil {
 		t.Errorf("启用模块失败: %v", err)
 	}
@@ -275,10 +275,10 @@ func main() {
 	}
 
 	fmt.Println("\n3. 启用部分模块并生成配置:")
-	if err := generator.EnableOnlyModules("health", "redis", "monitoring", "jwt"); err != nil {
+	if err := generator.EnableOnlyModules("health", "monitoring", "jwt", "banner"); err != nil {
 		fmt.Printf("启用模块失败: %v\n", err)
 	} else {
-		fmt.Println("已启用模块: health, redis, monitoring, jwt")
+		fmt.Println("已启用模块: health, monitoring, jwt, banner")
 
 		if err := generator.GenerateAllConfigs(); err != nil {
 			fmt.Printf("生成配置失败: %v\n", err)

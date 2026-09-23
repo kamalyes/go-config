@@ -29,14 +29,10 @@ import (
 	"github.com/kamalyes/go-config/pkg/banner"
 	"github.com/kamalyes/go-config/pkg/breaker"
 	"github.com/kamalyes/go-config/pkg/cache"
-	"github.com/kamalyes/go-config/pkg/captcha"
-	"github.com/kamalyes/go-config/pkg/consul"
 	"github.com/kamalyes/go-config/pkg/cors"
 	"github.com/kamalyes/go-config/pkg/database"
 	"github.com/kamalyes/go-config/pkg/elasticsearch"
-	"github.com/kamalyes/go-config/pkg/email"
 	"github.com/kamalyes/go-config/pkg/etcd"
-	"github.com/kamalyes/go-config/pkg/ftp"
 	"github.com/kamalyes/go-config/pkg/gateway"
 	"github.com/kamalyes/go-config/pkg/grafana"
 	"github.com/kamalyes/go-config/pkg/health"
@@ -49,29 +45,18 @@ import (
 	"github.com/kamalyes/go-config/pkg/metrics"
 	"github.com/kamalyes/go-config/pkg/middleware"
 	"github.com/kamalyes/go-config/pkg/monitoring"
-	"github.com/kamalyes/go-config/pkg/oss"
-	"github.com/kamalyes/go-config/pkg/pay"
 	"github.com/kamalyes/go-config/pkg/pprof"
 	"github.com/kamalyes/go-config/pkg/prometheus"
 	"github.com/kamalyes/go-config/pkg/queue"
 	"github.com/kamalyes/go-config/pkg/ratelimit"
 	"github.com/kamalyes/go-config/pkg/recovery"
-	"github.com/kamalyes/go-config/pkg/redis"
-	"github.com/kamalyes/go-config/pkg/restful"
-	"github.com/kamalyes/go-config/pkg/rpcclient"
-	"github.com/kamalyes/go-config/pkg/rpcserver"
 	"github.com/kamalyes/go-config/pkg/security"
 	"github.com/kamalyes/go-config/pkg/signature"
-	"github.com/kamalyes/go-config/pkg/sms"
 	"github.com/kamalyes/go-config/pkg/smtp"
-	"github.com/kamalyes/go-config/pkg/sts"
 	"github.com/kamalyes/go-config/pkg/swagger"
-	"github.com/kamalyes/go-config/pkg/timeout"
 	"github.com/kamalyes/go-config/pkg/tracing"
 	"github.com/kamalyes/go-config/pkg/tsdb"
 	"github.com/kamalyes/go-config/pkg/wsc"
-	"github.com/kamalyes/go-config/pkg/youzan"
-	"github.com/kamalyes/go-config/pkg/zap"
 	gologger "github.com/kamalyes/go-logger"
 	"gopkg.in/yaml.v3"
 )
@@ -156,8 +141,6 @@ func (sg *SmartConfigGenerator) registerAllModules() {
 		{Name: "banner", PackageName: "banner", DefaultFunc: func() interface{} { return banner.Default() }, OutputSubDir: "banner", Description: "Banner显示模块", Enabled: true},
 		{Name: "breaker", PackageName: "breaker", DefaultFunc: func() interface{} { return breaker.Default() }, OutputSubDir: "breaker", Description: "熔断器模块", Enabled: true},
 		{Name: "cache", PackageName: "cache", DefaultFunc: func() interface{} { return cache.Default() }, OutputSubDir: "cache", Description: "缓存模块", Enabled: true},
-		{Name: "captcha", PackageName: "captcha", DefaultFunc: func() interface{} { return captcha.Default() }, OutputSubDir: "captcha", Description: "验证码模块", Enabled: true},
-		{Name: "consul", PackageName: "consul", DefaultFunc: func() interface{} { return consul.Default() }, OutputSubDir: "consul", Description: "Consul服务发现模块", Enabled: true},
 		{Name: "cors", PackageName: "cors", DefaultFunc: func() interface{} { return cors.Default() }, OutputSubDir: "cors", Description: "CORS跨域模块", Enabled: true},
 		{Name: "database", PackageName: "database", DefaultFunc: func() interface{} { return database.DefaultDatabaseConfig() }, OutputSubDir: "database", Description: "数据库模块", Enabled: true},
 		{Name: "mysql", PackageName: "database", DefaultFunc: func() interface{} { return database.DefaultMySQL() }, OutputSubDir: "database", Description: "MySQL数据库", Enabled: true},
@@ -165,9 +148,7 @@ func (sg *SmartConfigGenerator) registerAllModules() {
 		{Name: "sqlite", PackageName: "database", DefaultFunc: func() interface{} { return database.DefaultSQLite() }, OutputSubDir: "database", Description: "SQLite数据库", Enabled: true},
 		{Name: "cockroachdb", PackageName: "database", DefaultFunc: func() interface{} { return database.DefaultCockroachDB() }, OutputSubDir: "database", Description: "Cockroachdb数据库", Enabled: true},
 		{Name: "elasticsearch", PackageName: "elasticsearch", DefaultFunc: func() interface{} { return elasticsearch.Default() }, OutputSubDir: "elasticsearch", Description: "Elasticsearch搜索引擎", Enabled: true},
-		{Name: "email", PackageName: "email", DefaultFunc: func() interface{} { return email.Default() }, OutputSubDir: "email", Description: "邮件发送模块", Enabled: true},
 		{Name: "etcd", PackageName: "etcd", DefaultFunc: func() interface{} { return etcd.Default() }, OutputSubDir: "etcd", Description: "Etcd分布式键值存储", Enabled: true},
-		{Name: "ftp", PackageName: "ftp", DefaultFunc: func() interface{} { return ftp.Default() }, OutputSubDir: "ftp", Description: "FTP文件传输模块", Enabled: true},
 		{Name: "gateway", PackageName: "gateway", DefaultFunc: func() interface{} { return gateway.Default() }, OutputSubDir: "gateway", Description: "API网关模块", Enabled: true},
 		{Name: "grafana", PackageName: "grafana", DefaultFunc: func() interface{} { return grafana.Default() }, OutputSubDir: "grafana", Description: "Grafana监控面板", Enabled: true},
 		{Name: "health", PackageName: "health", DefaultFunc: func() interface{} { return health.Default() }, OutputSubDir: "health", Description: "健康检查模块", Enabled: true},
@@ -179,31 +160,19 @@ func (sg *SmartConfigGenerator) registerAllModules() {
 		{Name: "metrics", PackageName: "metrics", DefaultFunc: func() interface{} { return metrics.Default() }, OutputSubDir: "metrics", Description: "指标收集模块", Enabled: true},
 		{Name: "middleware", PackageName: "middleware", DefaultFunc: func() interface{} { return middleware.Default() }, OutputSubDir: "middleware", Description: "中间件模块", Enabled: true},
 		{Name: "monitoring", PackageName: "monitoring", DefaultFunc: func() interface{} { return monitoring.Default() }, OutputSubDir: "monitoring", Description: "监控模块", Enabled: true},
-		{Name: "oss", PackageName: "oss", DefaultFunc: func() interface{} { return oss.DefaultOSSConfig() }, OutputSubDir: "oss", Description: "对象存储模块", Enabled: true},
-		{Name: "alipay", PackageName: "pay", DefaultFunc: func() interface{} { return pay.DefaultAliPay() }, OutputSubDir: "pay", Description: "支付宝支付", Enabled: true},
-		{Name: "wechatpay", PackageName: "pay", DefaultFunc: func() interface{} { return pay.DefaultWechatPay() }, OutputSubDir: "pay", Description: "微信支付", Enabled: true},
 		{Name: "pprof", PackageName: "pprof", DefaultFunc: func() interface{} { return pprof.Default() }, OutputSubDir: "pprof", Description: "性能分析模块", Enabled: true},
 		{Name: "prometheus", PackageName: "prometheus", DefaultFunc: func() interface{} { return prometheus.Default() }, OutputSubDir: "prometheus", Description: "Prometheus指标", Enabled: true},
 		{Name: "mqtt", PackageName: "queue", DefaultFunc: func() interface{} { return queue.Default() }, OutputSubDir: "queue", Description: "MQTT消息队列", Enabled: true},
 		{Name: "nats", PackageName: "queue", DefaultFunc: func() interface{} { return queue.DefaultNatsPtr() }, OutputSubDir: "queue", Description: "NATS消息队列", Enabled: true},
 		{Name: "ratelimit", PackageName: "ratelimit", DefaultFunc: func() interface{} { return ratelimit.Default() }, OutputSubDir: "ratelimit", Description: "限流模块", Enabled: true},
 		{Name: "recovery", PackageName: "recovery", DefaultFunc: func() interface{} { return recovery.Default() }, OutputSubDir: "recovery", Description: "错误恢复模块", Enabled: true},
-		{Name: "redis", PackageName: "redis", DefaultFunc: func() interface{} { return redis.NewRedis(&redis.Redis{}) }, OutputSubDir: "redis", Description: "Redis缓存", Enabled: true},
-		{Name: "restful", PackageName: "restful", DefaultFunc: func() interface{} { return restful.Default() }, OutputSubDir: "restful", Description: "RESTful API模块", Enabled: true},
-		{Name: "rpcclient", PackageName: "rpcclient", DefaultFunc: func() interface{} { return rpcclient.Default() }, OutputSubDir: "rpcclient", Description: "RPC客户端", Enabled: true},
-		{Name: "rpcserver", PackageName: "rpcserver", DefaultFunc: func() interface{} { return rpcserver.Default() }, OutputSubDir: "rpcserver", Description: "RPC服务端", Enabled: true},
 		{Name: "security", PackageName: "security", DefaultFunc: func() interface{} { return security.Default() }, OutputSubDir: "security", Description: "安全模块", Enabled: true},
 		{Name: "signature", PackageName: "signature", DefaultFunc: func() interface{} { return signature.Default() }, OutputSubDir: "signature", Description: "数字签名模块", Enabled: true},
-		{Name: "sms", PackageName: "sms", DefaultFunc: func() interface{} { return sms.DefaultAliyunSms() }, OutputSubDir: "sms", Description: "短信发送模块", Enabled: true},
 		{Name: "smtp", PackageName: "smtp", DefaultFunc: func() interface{} { return smtp.Default() }, OutputSubDir: "smtp", Description: "SMTP邮件模块", Enabled: true},
-		{Name: "sts", PackageName: "sts", DefaultFunc: func() interface{} { return sts.DefaultAliyunSts() }, OutputSubDir: "sts", Description: "STS临时凭证", Enabled: true},
 		{Name: "swagger", PackageName: "swagger", DefaultFunc: func() interface{} { return swagger.Default() }, OutputSubDir: "swagger", Description: "Swagger API文档", Enabled: true},
 		{Name: "clickhouse", PackageName: "tsdb", DefaultFunc: func() interface{} { return tsdb.DefaultClickHouse() }, OutputSubDir: "clickhouse", Description: "时间序列数据库模块", Enabled: true},
-		{Name: "timeout", PackageName: "timeout", DefaultFunc: func() interface{} { return timeout.Default() }, OutputSubDir: "timeout", Description: "超时控制模块", Enabled: true},
 		{Name: "tracing", PackageName: "tracing", DefaultFunc: func() interface{} { return tracing.Default() }, OutputSubDir: "tracing", Description: "链路追踪模块", Enabled: true},
 		{Name: "wsc", PackageName: "wsc", DefaultFunc: func() interface{} { return wsc.Default() }, OutputSubDir: "wsc", Description: "WebSocket通信模块", Enabled: true},
-		{Name: "youzan", PackageName: "youzan", DefaultFunc: func() interface{} { return youzan.Default() }, OutputSubDir: "youzan", Description: "有赞电商模块", Enabled: true},
-		{Name: "zap", PackageName: "zap", DefaultFunc: func() interface{} { return zap.Default() }, OutputSubDir: "zap", Description: "Zap日志模块", Enabled: true},
 		{Name: "jobs", PackageName: "jobs", DefaultFunc: func() interface{} { return jobs.Default() }, OutputSubDir: "jobs", Description: "任务调度模块", Enabled: true},
 	}
 
