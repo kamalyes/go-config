@@ -153,7 +153,6 @@ func TestResolveTokens_LegacyConfig(t *testing.T) {
 	cfg := DefaultConnectionToken()
 	cfg.Enabled = true
 	cfg.SigningKey = "legacy-secret"
-	cfg.Algorithm = "HS256"
 
 	tokens, defaultID, err := cfg.ResolveTokens()
 	if err != nil {
@@ -180,9 +179,9 @@ func TestResolveTokens_NewMultiApp(t *testing.T) {
 	cfg.Enabled = true
 	cfg.DefaultAppID = "default"
 	cfg.Tokens = map[string]*ConnectionTokenSet{
-		"default": {SigningKey: "default-secret", Algorithm: "HS256"},
-		"app-A":   {SigningKey: "appA-secret", Algorithm: "HS512"},
-		"app-B":   {SigningKey: "appB-secret", Algorithm: "HS256"},
+		"default": {SigningKey: "default-secret"},
+		"app-A":   {SigningKey: "appA-secret"},
+		"app-B":   {SigningKey: "appB-secret"},
 	}
 
 	tokens, defaultID, err := cfg.ResolveTokens()
@@ -209,7 +208,7 @@ func TestResolveTokens_BothLegacyAndTokens(t *testing.T) {
 	cfg.Enabled = true
 	cfg.SigningKey = "legacy-secret" // 旧字段
 	cfg.Tokens = map[string]*ConnectionTokenSet{
-		"default": {SigningKey: "new-secret", Algorithm: "HS256"},
+		"default": {SigningKey: "new-secret"},
 	}
 
 	tokens, _, err := cfg.ResolveTokens()
@@ -229,8 +228,8 @@ func TestValidateMultiAppID_EmptySigningKey(t *testing.T) {
 	cfg.Enabled = true
 	cfg.DefaultAppID = "default"
 	cfg.Tokens = map[string]*ConnectionTokenSet{
-		"default": {SigningKey: "valid", Algorithm: "HS256"},
-		"app-A":   {SigningKey: "", Algorithm: "HS256"}, // 空 key
+		"default": {SigningKey: "valid"},
+		"app-A":   {SigningKey: ""}, // 空 key
 	}
 
 	err := cfg.ValidateMultiAppID()
@@ -251,7 +250,7 @@ func TestValidateMultiAppID_DefaultMissing(t *testing.T) {
 	cfg.Enabled = true
 	cfg.DefaultAppID = "nonexistent"
 	cfg.Tokens = map[string]*ConnectionTokenSet{
-		"default": {SigningKey: "secret", Algorithm: "HS256"},
+		"default": {SigningKey: "secret"},
 	}
 
 	err := cfg.ValidateMultiAppID()
@@ -263,59 +262,22 @@ func TestValidateMultiAppID_DefaultMissing(t *testing.T) {
 	}
 }
 
-// TestValidateMultiAppID_DuplicateIssuerKey 跨 appid (Issuer,SigningKey) 重复报错
-func TestValidateMultiAppID_DuplicateIssuerKey(t *testing.T) {
+// TestValidateMultiAppID_DuplicateSigningKey 跨 appid SigningKey 重复报错
+func TestValidateMultiAppID_DuplicateSigningKey(t *testing.T) {
 	cfg := DefaultConnectionToken()
 	cfg.Enabled = true
 	cfg.DefaultAppID = "default"
 	cfg.Tokens = map[string]*ConnectionTokenSet{
-		"default": {SigningKey: "same-secret", Algorithm: "HS256", Issuer: "same-issuer"},
-		"app-A":   {SigningKey: "same-secret", Algorithm: "HS256", Issuer: "same-issuer"}, // 重复
+		"default": {SigningKey: "same-secret"},
+		"app-A":   {SigningKey: "same-secret"}, // 重复
 	}
 
 	err := cfg.ValidateMultiAppID()
 	if err == nil {
-		t.Fatal("expected error for duplicate issuer+key, got nil")
+		t.Fatal("expected error for duplicate signing-key, got nil")
 	}
-	if !strings.Contains(err.Error(), "duplicate (issuer, signing-key)") {
-		t.Errorf("error = %q, want contains 'duplicate (issuer, signing-key)'", err.Error())
-	}
-}
-
-// TestValidateMultiAppID_InvalidAlgorithm 非法 algorithm 报错
-func TestValidateMultiAppID_InvalidAlgorithm(t *testing.T) {
-	cfg := DefaultConnectionToken()
-	cfg.Enabled = true
-	cfg.DefaultAppID = "default"
-	cfg.Tokens = map[string]*ConnectionTokenSet{
-		"default": {SigningKey: "secret", Algorithm: "RS256"}, // 非法算法
-	}
-
-	err := cfg.ValidateMultiAppID()
-	if err == nil {
-		t.Fatal("expected error for invalid algorithm, got nil")
-	}
-	if !strings.Contains(err.Error(), "invalid algorithm") {
-		t.Errorf("error = %q, want contains 'invalid algorithm'", err.Error())
-	}
-}
-
-// TestValidateMultiAppID_DuplicateRedisPrefix 启用 Redis 时前缀重复报错
-func TestValidateMultiAppID_DuplicateRedisPrefix(t *testing.T) {
-	cfg := DefaultConnectionToken()
-	cfg.Enabled = true
-	cfg.DefaultAppID = "default"
-	cfg.Tokens = map[string]*ConnectionTokenSet{
-		"default": {SigningKey: "s1", Algorithm: "HS256", UseRedis: true, RedisKeyPrefix: "wsc:dup:"},
-		"app-A":   {SigningKey: "s2", Algorithm: "HS256", UseRedis: true, RedisKeyPrefix: "wsc:dup:"}, // 重复前缀
-	}
-
-	err := cfg.ValidateMultiAppID()
-	if err == nil {
-		t.Fatal("expected error for duplicate redis prefix, got nil")
-	}
-	if !strings.Contains(err.Error(), "duplicate redis-key-prefix") {
-		t.Errorf("error = %q, want contains 'duplicate redis-key-prefix'", err.Error())
+	if !strings.Contains(err.Error(), "duplicate signing-key") {
+		t.Errorf("error = %q, want contains 'duplicate signing-key'", err.Error())
 	}
 }
 
@@ -324,12 +286,7 @@ func TestConnectionTokenSet_Getters(t *testing.T) {
 	set := &ConnectionTokenSet{
 		AppID:          "app-X",
 		SigningKey:     "key-X",
-		Issuer:         "issuer-X",
-		Audience:       "aud-X",
-		Algorithm:      "HS384",
 		ExpiresTime:    30 * time.Minute,
-		UseRedis:       true,
-		RedisKeyPrefix: "wsc:appX:",
 		TokenSource:    "header",
 		TokenParamName: "x-token",
 	}
@@ -340,23 +297,8 @@ func TestConnectionTokenSet_Getters(t *testing.T) {
 	if set.GetSigningKey() != "key-X" {
 		t.Errorf("GetSigningKey = %q", set.GetSigningKey())
 	}
-	if set.GetIssuer() != "issuer-X" {
-		t.Errorf("GetIssuer = %q", set.GetIssuer())
-	}
-	if set.GetAudience() != "aud-X" {
-		t.Errorf("GetAudience = %q", set.GetAudience())
-	}
-	if set.GetAlgorithm() != "HS384" {
-		t.Errorf("GetAlgorithm = %q", set.GetAlgorithm())
-	}
 	if set.GetExpiresTime() != 30*time.Minute {
 		t.Errorf("GetExpiresTime = %v", set.GetExpiresTime())
-	}
-	if !set.IsRedisEnabled() {
-		t.Error("IsRedisEnabled = false, want true")
-	}
-	if set.GetRedisKeyPrefix() != "wsc:appX:" {
-		t.Errorf("GetRedisKeyPrefix = %q", set.GetRedisKeyPrefix())
 	}
 	if set.GetTokenSource() != "header" {
 		t.Errorf("GetTokenSource = %q", set.GetTokenSource())
@@ -370,9 +312,6 @@ func TestConnectionTokenSet_Getters(t *testing.T) {
 func TestConnectionTokenSet_Defaults(t *testing.T) {
 	set := &ConnectionTokenSet{AppID: "app-Y", SigningKey: "key-Y"}
 
-	if set.GetAlgorithm() != "HS256" {
-		t.Errorf("default Algorithm = %q, want HS256", set.GetAlgorithm())
-	}
 	if set.GetExpiresTime() != 5*time.Minute {
 		t.Errorf("default ExpiresTime = %v, want 5m", set.GetExpiresTime())
 	}
@@ -382,10 +321,6 @@ func TestConnectionTokenSet_Defaults(t *testing.T) {
 	if set.GetTokenParamName() != "token" {
 		t.Errorf("default TokenParamName = %q, want token", set.GetTokenParamName())
 	}
-	// 空前缀时按 appid 自动生成
-	if set.GetRedisKeyPrefix() != defaultConnTokenKeyPrefix+"app-Y:" {
-		t.Errorf("default RedisKeyPrefix = %q, want %s", set.GetRedisKeyPrefix(), defaultConnTokenKeyPrefix+"app-Y:")
-	}
 }
 
 // TestValidateMultiAppID_Disabled 未启用时不校验
@@ -393,7 +328,7 @@ func TestValidateMultiAppID_Disabled(t *testing.T) {
 	cfg := DefaultConnectionToken()
 	cfg.Enabled = false
 	cfg.Tokens = map[string]*ConnectionTokenSet{
-		"default": {SigningKey: "", Algorithm: "INVALID"}, // 非法配置
+		"default": {SigningKey: ""}, // 非法配置
 	}
 
 	err := cfg.ValidateMultiAppID()
@@ -408,7 +343,7 @@ func TestValidateMultiAppID_InvalidTokenSource(t *testing.T) {
 	cfg.Enabled = true
 	cfg.DefaultAppID = "default"
 	cfg.Tokens = map[string]*ConnectionTokenSet{
-		"default": {SigningKey: "secret", Algorithm: "HS256", TokenSource: "cookie"},
+		"default": {SigningKey: "secret", TokenSource: "cookie"},
 	}
 
 	err := cfg.ValidateMultiAppID()
@@ -425,7 +360,6 @@ func TestValidateMultiAppID_LegacyConfigPass(t *testing.T) {
 	cfg := DefaultConnectionToken()
 	cfg.Enabled = true
 	cfg.SigningKey = "legacy-secret"
-	cfg.Algorithm = "HS256"
 
 	if err := cfg.ValidateMultiAppID(); err != nil {
 		t.Errorf("legacy config should pass validation, got error: %v", err)

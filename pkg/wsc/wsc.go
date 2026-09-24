@@ -884,10 +884,7 @@ type Security struct {
 	// 消息加密配置
 	MessageEncryption *MessageEncryption `mapstructure:"message-encryption" yaml:"message-encryption" json:"messageEncryption"` // 消息加密配置
 
-	// 消息风控配置
-	MessageRateLimit *MessageRateLimit `mapstructure:"message-rate-limit" yaml:"message-rate-limit" json:"messageRateLimit"` // 消息风控配置
-
-	// 连接 Token 配置（将 user_id/user_type/device_id 加密为单一 JWT token，避免明文暴露）
+	// 连接 Token 配置（将 user_id/user_type/device_id 加密为单一 token，避免明文暴露）
 	ConnectionToken *ConnectionToken `mapstructure:"connection-token" yaml:"connection-token" json:"connectionToken"` // 连接 Token 配置（可选启用，默认关闭向后兼容明文参数）
 }
 
@@ -901,23 +898,16 @@ type AccessControl struct {
 }
 
 // ConnectionToken 连接 Token 配置
-// 启用后客户端通过单一 JWT token 参数连接，避免 user_id/user_type/device_id 明文暴露
-// 支持可选的 Redis 白名单校验，实现多节点共享会话状态与主动吊销能力
+// 启用后客户端通过单一 AES-256-GCM 加密 token 参数连接，避免 user_id/user_type/device_id 明文暴露
+// token 自包含（exp 随载荷加密，GCM 认证标签防篡改），无服务端会话状态
 type ConnectionToken struct {
 	Enabled        bool   `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                          // 是否启用连接 Token（默认 false，向后兼容明文参数方式）
 	TokenParamName string `mapstructure:"token-param-name" yaml:"token-param-name" json:"tokenParamName"` // Token 在请求中的参数名（默认 "token"）
 	TokenSource    string `mapstructure:"token-source" yaml:"token-source" json:"tokenSource"`            // Token 来源: query, header（默认 query）
 
-	// JWT 配置
-	SigningKey  string        `mapstructure:"signing-key" yaml:"signing-key" json:"signingKey"`    // JWT 签名密钥（HS256/HS384/HS512，生产环境必须配置）
-	Issuer      string        `mapstructure:"issuer" yaml:"issuer" json:"issuer"`                  // JWT 发行者（可选校验，留空则不校验）
-	Audience    string        `mapstructure:"audience" yaml:"audience" json:"audience"`            // JWT 接收者（可选校验，留空则不校验）
-	Algorithm   string        `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"`         // 签名算法: HS256, HS384, HS512（默认 HS256）
-	ExpiresTime time.Duration `mapstructure:"expires-time" yaml:"expires-time" json:"expiresTime"` // Token 默认过期时间（仅 Issue 时使用，验证时由 JWT 自身 exp 控制，默认 5m）
-
-	// Redis 分布式校验配置
-	UseRedis       bool   `mapstructure:"use-redis" yaml:"use-redis" json:"useRedis"`                     // 是否启用 Redis 白名单校验（多节点共享会话状态，支持主动吊销）
-	RedisKeyPrefix string `mapstructure:"redis-key-prefix" yaml:"redis-key-prefix" json:"redisKeyPrefix"` // Redis 键前缀（默认 "wsc:conn_token:"）
+	// 密钥与有效期（AES-256-GCM：密钥经 sha256(SigningKey) 派生为 32 字节）
+	SigningKey  string        `mapstructure:"signing-key" yaml:"signing-key" json:"signingKey"`    // 加密密钥派生源（生产环境必须配置，任意非空字符串）
+	ExpiresTime time.Duration `mapstructure:"expires-time" yaml:"expires-time" json:"expiresTime"` // Token 默认过期时间（仅 Issue 时使用，验证时由载荷加密的 exp 控制，默认 5m）
 
 	// 容错控制
 	AllowFallback bool `mapstructure:"allow-fallback" yaml:"allow-fallback" json:"allowFallback"` // Token 解析失败时是否回退到明文参数提取（默认 false，更安全）
@@ -943,39 +933,14 @@ func (c *ConnectionToken) GetSigningKey() string {
 	return c.SigningKey
 }
 
-// GetIssuer 获取发行者
-func (c *ConnectionToken) GetIssuer() string {
-	return c.Issuer
-}
-
-// GetAudience 获取接收者
-func (c *ConnectionToken) GetAudience() string {
-	return c.Audience
-}
-
-// GetAlgorithm 获取签名算法
-func (c *ConnectionToken) GetAlgorithm() string {
-	return mathx.IfEmpty(c.Algorithm, "HS256")
-}
-
 // GetExpiresTime 获取 Token 默认过期时间
 func (c *ConnectionToken) GetExpiresTime() time.Duration {
 	return mathx.IfNotZero(c.ExpiresTime, 5*time.Minute)
 }
 
-// GetRedisKeyPrefix 获取 Redis 键前缀
-func (c *ConnectionToken) GetRedisKeyPrefix() string {
-	return mathx.IfEmpty(c.RedisKeyPrefix, defaultConnTokenKeyPrefix)
-}
-
 // IsEnabled 检查是否启用
 func (c *ConnectionToken) IsEnabled() bool {
 	return c != nil && c.Enabled
-}
-
-// IsRedisEnabled 检查是否启用 Redis 白名单校验
-func (c *ConnectionToken) IsRedisEnabled() bool {
-	return c.IsEnabled() && c.UseRedis
 }
 
 // WithEnabled 设置启用状态
@@ -990,21 +955,9 @@ func (c *ConnectionToken) WithSigningKey(key string) *ConnectionToken {
 	return c
 }
 
-// WithAlgorithm 设置签名算法
-func (c *ConnectionToken) WithAlgorithm(algorithm string) *ConnectionToken {
-	c.Algorithm = algorithm
-	return c
-}
-
 // WithExpiresTime 设置过期时间
 func (c *ConnectionToken) WithExpiresTime(d time.Duration) *ConnectionToken {
 	c.ExpiresTime = d
-	return c
-}
-
-// WithUseRedis 设置是否使用 Redis 白名单
-func (c *ConnectionToken) WithUseRedis(useRedis bool) *ConnectionToken {
-	c.UseRedis = useRedis
 	return c
 }
 
@@ -1025,28 +978,16 @@ func (c *ConnectionToken) WithAllowFallback(allow bool) *ConnectionToken {
 // 多 appid 连接 Token 配置（多租户隔离）
 // ============================================================================
 
-// 支持的签名算法白名单
-var validTokenAlgorithms = map[string]struct{}{
-	"HS256": {},
-	"HS384": {},
-	"HS512": {},
-}
-
 // 默认 appid（旧配置自动包装时使用）
 const defaultTokenAppID = "__default_app__"
 
 // ConnectionTokenSet 单个 appid 的连接 Token 配置
-// 每个 appid 拥有独立的签名密钥、算法、Issuer/Audience、Redis 白名单前缀
+// 每个 appid 拥有独立的加密密钥与有效期；鉴权时按密钥遍历解密，命中即归属该 appid
 // 字段与 ConnectionToken 顶层旧字段一一对应，便于 ResolveTokens 包装
 type ConnectionTokenSet struct {
 	AppID          string        `mapstructure:"-" yaml:"-" json:"-"`                                            // 由 map key 回填，不参与序列化
-	SigningKey     string        `mapstructure:"signing-key" yaml:"signing-key" json:"signingKey"`               // JWT 签名密钥（必填）
-	Issuer         string        `mapstructure:"issuer" yaml:"issuer" json:"issuer"`                             // JWT 发行者（可选校验）
-	Audience       string        `mapstructure:"audience" yaml:"audience" json:"audience"`                       // JWT 接收者（可选校验）
-	Algorithm      string        `mapstructure:"algorithm" yaml:"algorithm" json:"algorithm"`                    // 签名算法: HS256, HS384, HS512
+	SigningKey     string        `mapstructure:"signing-key" yaml:"signing-key" json:"signingKey"`               // AES-256-GCM 密钥派生源（sha256 派生 32 字节，必填）
 	ExpiresTime    time.Duration `mapstructure:"expires-time" yaml:"expires-time" json:"expiresTime"`            // Token 默认过期时间
-	UseRedis       bool          `mapstructure:"use-redis" yaml:"use-redis" json:"useRedis"`                     // 是否启用 Redis 白名单
-	RedisKeyPrefix string        `mapstructure:"redis-key-prefix" yaml:"redis-key-prefix" json:"redisKeyPrefix"` // Redis 键前缀（每 appid 独立）
 	TokenSource    string        `mapstructure:"token-source" yaml:"token-source" json:"tokenSource"`            // Token 来源: query, header
 	TokenParamName string        `mapstructure:"token-param-name" yaml:"token-param-name" json:"tokenParamName"` // Token 参数名
 }
@@ -1058,9 +999,6 @@ func (s *ConnectionTokenSet) Validate() error {
 	}
 	if s.SigningKey == "" {
 		return fmt.Errorf("connection token set signing-key is required (app_id=%q)", s.AppID)
-	}
-	if _, ok := validTokenAlgorithms[s.GetAlgorithm()]; !ok {
-		return fmt.Errorf("connection token set invalid algorithm %q, must be one of HS256/HS384/HS512 (app_id=%q)", s.Algorithm, s.AppID)
 	}
 	if s.GetExpiresTime() <= 0 {
 		return fmt.Errorf("connection token set expires-time must be positive (app_id=%q)", s.AppID)
@@ -1084,49 +1022,12 @@ func (s *ConnectionTokenSet) GetSigningKey() string {
 	return s.SigningKey
 }
 
-// GetIssuer 获取发行者
-func (s *ConnectionTokenSet) GetIssuer() string {
-	if s == nil {
-		return ""
-	}
-	return s.Issuer
-}
-
-// GetAudience 获取接收者
-func (s *ConnectionTokenSet) GetAudience() string {
-	if s == nil {
-		return ""
-	}
-	return s.Audience
-}
-
-// GetAlgorithm 获取签名算法（默认 HS256）
-func (s *ConnectionTokenSet) GetAlgorithm() string {
-	if s == nil {
-		return "HS256"
-	}
-	return mathx.IfEmpty(s.Algorithm, "HS256")
-}
-
-// GetExpiresTime 获取过期时间（默认 5m）
+// GetExpiresTime 获取 Token 默认过期时间
 func (s *ConnectionTokenSet) GetExpiresTime() time.Duration {
 	if s == nil {
 		return 5 * time.Minute
 	}
 	return mathx.IfNotZero(s.ExpiresTime, 5*time.Minute)
-}
-
-// IsRedisEnabled 是否启用 Redis 白名单
-func (s *ConnectionTokenSet) IsRedisEnabled() bool {
-	return s != nil && s.UseRedis
-}
-
-// GetRedisKeyPrefix 获取 Redis 键前缀（空前缀时按 appid 自动生成）
-func (s *ConnectionTokenSet) GetRedisKeyPrefix() string {
-	if s == nil {
-		return defaultConnTokenKeyPrefix
-	}
-	return mathx.IfEmpty(s.RedisKeyPrefix, defaultConnTokenKeyPrefix+s.AppID+":")
 }
 
 // GetTokenSource 获取 Token 来源（默认 query）
@@ -1151,12 +1052,7 @@ func (c *ConnectionToken) toLegacySet() *ConnectionTokenSet {
 	return &ConnectionTokenSet{
 		AppID:          defaultTokenAppID,
 		SigningKey:     c.SigningKey,
-		Issuer:         c.Issuer,
-		Audience:       c.Audience,
-		Algorithm:      c.GetAlgorithm(),
 		ExpiresTime:    c.GetExpiresTime(),
-		UseRedis:       c.UseRedis,
-		RedisKeyPrefix: c.GetRedisKeyPrefix(),
 		TokenSource:    c.GetTokenSource(),
 		TokenParamName: c.GetTokenParamName(),
 	}
@@ -1214,8 +1110,7 @@ func (c *ConnectionToken) ResolveTokens() (map[string]*ConnectionTokenSet, strin
 //  1. 每套 set 自身 Validate 通过
 //  2. DefaultAppID 非空且存在于 tokens map
 //  3. 跨 appid 的 (Issuer, SigningKey) 二元组不重复（防止误用同一密钥签不同 appid）
-//  4. 启用 Redis 时 RedisKeyPrefix 每套独立
-//  5. TokenSource ∈ {query, header}
+//  4. TokenSource ∈ {query, header}
 func (c *ConnectionToken) ValidateMultiAppID() error {
 	if c == nil {
 		return fmt.Errorf("connection token config is nil")
@@ -1233,8 +1128,7 @@ func (c *ConnectionToken) ValidateMultiAppID() error {
 		return fmt.Errorf("default-app-id %q not found in tokens", defaultID)
 	}
 
-	seenIssuerKey := make(map[string]string, len(tokens)) // "issuer|key" → appID
-	seenRedisPrefix := make(map[string]string, len(tokens))
+	seenSigningKey := make(map[string]string, len(tokens)) // SigningKey → appID
 
 	for appID, set := range tokens {
 		if err := set.Validate(); err != nil {
@@ -1247,21 +1141,11 @@ func (c *ConnectionToken) ValidateMultiAppID() error {
 			return fmt.Errorf("connection token set invalid token-source %q, must be query or header (app_id=%q)", src, appID)
 		}
 
-		// (Issuer, SigningKey) 唯一性
-		ikKey := set.Issuer + "|" + set.SigningKey
-		if prev, ok := seenIssuerKey[ikKey]; ok {
-			return fmt.Errorf("duplicate (issuer, signing-key) between app_id=%q and app_id=%q", prev, appID)
+		// SigningKey 唯一性
+		if prev, ok := seenSigningKey[set.SigningKey]; ok {
+			return fmt.Errorf("duplicate signing-key between app_id=%q and app_id=%q", prev, appID)
 		}
-		seenIssuerKey[ikKey] = appID
-
-		// Redis 前缀唯一性（仅启用 Redis 的 set 参与校验）
-		if set.IsRedisEnabled() {
-			prefix := set.GetRedisKeyPrefix()
-			if prev, ok := seenRedisPrefix[prefix]; ok {
-				return fmt.Errorf("duplicate redis-key-prefix %q between app_id=%q and app_id=%q", prefix, prev, appID)
-			}
-			seenRedisPrefix[prefix] = appID
-		}
+		seenSigningKey[set.SigningKey] = appID
 	}
 
 	return nil
@@ -1277,35 +1161,6 @@ type MessageEncryption struct {
 	Compress        bool   `mapstructure:"compress" yaml:"compress" json:"compress"`                          // 加密前是否压缩数据
 	EncryptPrefix   string `mapstructure:"encrypt-prefix" yaml:"encrypt-prefix" json:"encryptPrefix"`         // 加密数据前缀标识
 	BackupKeys      int    `mapstructure:"backup-keys" yaml:"backup-keys" json:"backupKeys"`                  // 保留的备份密钥数量
-}
-
-// MessageRateLimit 消息风控配置
-type MessageRateLimit struct {
-	Enabled          bool          `mapstructure:"enabled" yaml:"enabled" json:"enabled"`                                // 是否启用消息风控
-	Window           time.Duration `mapstructure:"window" yaml:"window" json:"window"`                                   // 时间窗口
-	MaxMessages      int           `mapstructure:"max-messages" yaml:"max-messages" json:"maxMessages"`                  // 窗口内最大消息数
-	AlertThreshold   int           `mapstructure:"alert-threshold" yaml:"alert-threshold" json:"alertThreshold"`         // 预警阈值(百分比)
-	BlockDuration    time.Duration `mapstructure:"block-duration" yaml:"block-duration" json:"blockDuration"`            // 封禁时长
-	UseRedis         bool          `mapstructure:"use-redis" yaml:"use-redis" json:"useRedis"`                           // 是否使用Redis存储
-	RedisKeyPrefix   string        `mapstructure:"redis-key-prefix" yaml:"redis-key-prefix" json:"redisKeyPrefix"`       // Redis键前缀
-	EnableEmailAlert bool          `mapstructure:"enable-email-alert" yaml:"enable-email-alert" json:"enableEmailAlert"` // 是否启用邮件预警
-	EmailAlertConfig *EmailAlert   `mapstructure:"email-alert" yaml:"email-alert" json:"emailAlert"`                     // 邮件预警配置
-}
-
-// EmailAlert 邮件预警配置
-type EmailAlert struct {
-	SMTPHost      string   `mapstructure:"smtp-host" yaml:"smtp-host" json:"smtpHost"`                // SMTP服务器地址
-	SMTPPort      int      `mapstructure:"smtp-port" yaml:"smtp-port" json:"smtpPort"`                // SMTP端口
-	Username      string   `mapstructure:"username" yaml:"username" json:"username"`                  // SMTP用户名
-	Password      string   `mapstructure:"password" yaml:"password" json:"password"`                  // SMTP密码
-	From          string   `mapstructure:"from" yaml:"from" json:"from"`                              // 发件人地址
-	To            []string `mapstructure:"to" yaml:"to" json:"to"`                                    // 收件人列表
-	EnableTLS     bool     `mapstructure:"enable-tls" yaml:"enable-tls" json:"enableTls"`             // 是否启用TLS
-	SubjectAlert  string   `mapstructure:"subject-alert" yaml:"subject-alert" json:"subjectAlert"`    // 预警邮件主题
-	SubjectBlock  string   `mapstructure:"subject-block" yaml:"subject-block" json:"subjectBlock"`    // 封禁邮件主题
-	TemplateAlert string   `mapstructure:"template-alert" yaml:"template-alert" json:"templateAlert"` // 预警邮件HTML模板
-	TemplateBlock string   `mapstructure:"template-block" yaml:"template-block" json:"templateBlock"` // 封禁邮件HTML模板
-	AppName       string   `mapstructure:"app-name" yaml:"app-name" json:"appName"`                   // 应用名称
 }
 
 // ClientAttributes 客户端属性提取配置
@@ -1488,11 +1343,6 @@ type ConnectionValidation struct {
 	RequireUserID   bool `mapstructure:"require-user-id" yaml:"require-user-id" json:"requireUserId"`       // 是否要求 UserID（默认: true）
 	RequireUserType bool `mapstructure:"require-user-type" yaml:"require-user-type" json:"requireUserType"` // 是否要求 UserType（默认: true）
 
-	// 连接登录防爆破（按客户端 IP 计数鉴权失败，超限锁定；Token 过期以 JWT 自身 exp 为准，由签发端 expires-time 控制）
-	MaxLoginAttempts  int    `mapstructure:"max-login-attempts" yaml:"max-login-attempts" json:"maxLoginAttempts"`    // 最大登录尝试次数（超过则锁定该 IP）
-	LoginLockDuration int    `mapstructure:"login-lock-duration" yaml:"login-lock-duration" json:"loginLockDuration"` // 登录锁定时长(秒)
-	RedisKeyPrefix    string `mapstructure:"redis-key-prefix" yaml:"redis-key-prefix" json:"redisKeyPrefix"`          // Redis 键前缀（跨节点共享计数，默认 "wsc:login_guard:"）
-
 	// 错误消息模板
 	MissingUserIDMessage   string `mapstructure:"missing-user-id-message" yaml:"missing-user-id-message" json:"missingUserIdMessage"`       // 缺少 UserID 的错误消息
 	MissingUserTypeMessage string `mapstructure:"missing-user-type-message" yaml:"missing-user-type-message" json:"missingUserTypeMessage"` // 缺少 UserType 的错误消息
@@ -1512,18 +1362,6 @@ func (c *ConnectionValidation) GetMissingUserTypeMessage() string {
 // GetMissingBothMessage 获取同时缺少的错误消息
 func (c *ConnectionValidation) GetMissingBothMessage() string {
 	return mathx.IfEmpty(c.MissingBothMessage, "Missing required parameters: userid and usertype")
-}
-
-// GetRedisKeyPrefix 获取登录防爆破 Redis 键前缀
-func (c *ConnectionValidation) GetRedisKeyPrefix() string {
-	return mathx.IfEmpty(c.RedisKeyPrefix, defaultLoginGuardKeyPrefix)
-}
-
-// WithLoginSecurity 设置登录防爆破配置
-func (c *ConnectionValidation) WithLoginSecurity(maxAttempts int, lockDurationSeconds int) *ConnectionValidation {
-	c.MaxLoginAttempts = maxAttempts
-	c.LoginLockDuration = lockDurationSeconds
-	return c
 }
 
 // ValidateConnection 验证连接参数
@@ -1625,11 +1463,6 @@ var (
 	defaultGroupKeyPrefix          = "wsc:group:"            // 群组键前缀
 	defaultOfflineMessageKeyPrefix = "wsc:offline_messages:" // 离线消息键前缀
 	defaultDLQKeyPrefix            = "wsc:dlq:"              // 死信队列键前缀
-
-	// 安全 / 限流 Redis 键前缀默认值
-	defaultConnTokenKeyPrefix  = "wsc:conn_token:"  // 连接 Token Redis 键前缀
-	defaultRateLimitKeyPrefix  = "wsc:rate_limit:"  // 消息风控 Redis 键前缀
-	defaultLoginGuardKeyPrefix = "wsc:login_guard:" // 登录防爆破 Redis 键前缀
 )
 
 // Default 创建默认 WSC 配置
@@ -1743,7 +1576,6 @@ func DefaultSecurity() *Security {
 	return &Security{
 		AccessControl:     DefaultAccessControl(),
 		MessageEncryption: DefaultMessageEncryption(),
-		MessageRateLimit:  DefaultMessageRateLimit(),
 		ConnectionToken:   DefaultConnectionToken(),
 	}
 }
@@ -1760,13 +1592,10 @@ func DefaultAccessControl() *AccessControl {
 // DefaultConnectionToken 默认连接 Token 配置（默认关闭，向后兼容明文参数）
 func DefaultConnectionToken() *ConnectionToken {
 	return &ConnectionToken{
-		Enabled:        false, // 默认关闭，启用后客户端通过单一 JWT token 连接
+		Enabled:        false, // 默认关闭，启用后客户端通过单一 token 连接
 		TokenParamName: "token",
 		TokenSource:    "query",
-		Algorithm:      "HS256",
 		ExpiresTime:    5 * time.Minute,
-		UseRedis:       false,
-		RedisKeyPrefix: defaultConnTokenKeyPrefix,
 		AllowFallback:  false,
 	}
 }
@@ -1849,9 +1678,6 @@ func DefaultConnectionValidation() *ConnectionValidation {
 		Enabled:                true,                                               // 默认启用连接验证
 		RequireUserID:          true,                                               // 默认要求 UserID
 		RequireUserType:        true,                                               // 默认要求 UserType
-		MaxLoginAttempts:       5,                                                  // 最大登录尝试次数
-		LoginLockDuration:      300,                                                // 登录锁定时长(秒)
-		RedisKeyPrefix:         defaultLoginGuardKeyPrefix,                         // 登录防爆破 Redis 键前缀
 		MissingUserIDMessage:   "Missing required parameter: userid",               // 缺少 UserID 的错误消息
 		MissingUserTypeMessage: "Missing required parameter: usertype",             // 缺少 UserType 的错误消息
 		MissingBothMessage:     "Missing required parameters: userid and usertype", // 同时缺少的错误消息
@@ -1870,140 +1696,6 @@ func DefaultMessageEncryption() *MessageEncryption {
 		EncryptPrefix:   "ENC:",
 		BackupKeys:      3,
 	}
-}
-
-// DefaultMessageRateLimit 默认消息风控配置
-func DefaultMessageRateLimit() *MessageRateLimit {
-	return &MessageRateLimit{
-		Enabled:          true,
-		Window:           time.Minute,
-		MaxMessages:      100,
-		AlertThreshold:   80,
-		BlockDuration:    5 * time.Minute,
-		UseRedis:         true,
-		RedisKeyPrefix:   defaultRateLimitKeyPrefix,
-		EnableEmailAlert: false,
-		EmailAlertConfig: DefaultEmailAlert(),
-	}
-}
-
-// DefaultEmailAlert 默认邮件预警配置
-func DefaultEmailAlert() *EmailAlert {
-	return &EmailAlert{
-		SMTPHost:      "",
-		SMTPPort:      587,
-		Username:      "",
-		Password:      "",
-		From:          "",
-		To:            []string{},
-		EnableTLS:     true,
-		SubjectAlert:  "[WebSocket风控预警] 用户消息频率异常",
-		SubjectBlock:  "[WebSocket风控封禁] 用户已被封禁",
-		TemplateAlert: defaultAlertEmailTemplate(),
-		TemplateBlock: defaultBlockEmailTemplate(),
-		AppName:       "WebSocket消息系统",
-	}
-}
-
-// defaultAlertEmailTemplate 默认预警邮件模板
-func defaultAlertEmailTemplate() string {
-	return `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #ff9800; color: white; padding: 20px; border-radius: 5px 5px 0 0; }
-        .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }
-        .info-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }
-        .info-table td:first-child { font-weight: bold; width: 150px; }
-        .footer { background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #666; }
-        .warning { background: #fff3cd; border-left: 4px solid #ff9800; padding: 12px; margin: 15px 0; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h2>⚠️ 消息频率预警 - {{.AppName}}</h2>
-        </div>
-        <div class="content">
-            <div class="warning">
-                <strong>用户消息发送频率达到预警阈值，请关注该用户行为</strong>
-            </div>
-            <table class="info-table">
-                <tr><td>用户ID</td><td>{{.UserID}}</td></tr>
-                <tr><td>用户类型</td><td>{{.UserType}}</td></tr>
-                <tr><td>当前分钟消息数</td><td><strong style="color: #ff9800; font-size: 18px;">{{.MinuteCount}} 条</strong></td></tr>
-                <tr><td>当前小时消息数</td><td><strong style="color: #ff9800; font-size: 18px;">{{.HourCount}} 条</strong></td></tr>
-                <tr><td>触发时间</td><td>{{.TriggerTime}}</td></tr>
-            </table>
-            <p><strong>建议操作：</strong></p>
-            <ul>
-                <li>立即检查该用户的消息内容</li>
-                <li>确认是否为恶意刷屏行为</li>
-                <li>必要时联系用户或执行封禁操作</li>
-            </ul>
-        </div>
-        <div class="footer">
-            <p>此邮件由 {{.AppName}} 自动发送，请勿直接回复</p>
-            <p>Generated at {{.GenerateTime}}</p>
-        </div>
-    </div>
-</body>
-</html>`
-}
-
-// defaultBlockEmailTemplate 默认封禁邮件模板
-func defaultBlockEmailTemplate() string {
-	return `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #f44336; color: white; padding: 20px; border-radius: 5px 5px 0 0; }
-        .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }
-        .info-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }
-        .info-table td:first-child { font-weight: bold; width: 150px; }
-        .footer { background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #666; }
-        .warning { background: #ffebee; border-left: 4px solid #f44336; padding: 12px; margin: 15px 0; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h2>🚫 用户已被封禁 - {{.AppName}}</h2>
-        </div>
-        <div class="content">
-            <div class="warning">
-                <strong>用户消息发送频率超过限制，已被临时封禁</strong>
-            </div>
-            <table class="info-table">
-                <tr><td>用户ID</td><td>{{.UserID}}</td></tr>
-                <tr><td>用户类型</td><td>{{.UserType}}</td></tr>
-                <tr><td>当前分钟消息数</td><td><strong style="color: #f44336; font-size: 18px;">{{.MinuteCount}} 条</strong></td></tr>
-                <tr><td>当前小时消息数</td><td><strong style="color: #f44336; font-size: 18px;">{{.HourCount}} 条</strong></td></tr>
-                <tr><td>封禁时间</td><td>{{.TriggerTime}}</td></tr>
-            </table>
-            <p><strong>紧急处理：</strong></p>
-            <ul>
-                <li>立即审查该用户的所有消息内容</li>
-                <li>评估是否需要永久封禁</li>
-                <li>通知相关运维人员</li>
-                <li>记录异常行为日志</li>
-            </ul>
-        </div>
-        <div class="footer">
-            <p>此邮件由 {{.AppName}} 自动发送，请勿直接回复</p>
-            <p>Generated at {{.GenerateTime}}</p>
-        </div>
-    </div>
-</body>
-</html>`
 }
 
 // DefaultLogging 创建默认日志配置
