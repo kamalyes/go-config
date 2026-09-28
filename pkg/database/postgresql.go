@@ -51,6 +51,7 @@ func (p *PostgreSQL) GetPassword() string                { return p.Password }
 func (p *PostgreSQL) GetConfig() string                  { return p.Config }
 func (p *PostgreSQL) GetModuleName() string              { return p.ModuleName }
 func (p *PostgreSQL) GetSlowThreshold() int              { return p.SlowThreshold }
+func (p *PostgreSQL) GetLogLevel() string                { return p.LogLevel }
 func (p *PostgreSQL) GetIgnoreRecordNotFoundError() bool { return p.IgnoreRecordNotFoundError }
 func (p *PostgreSQL) GetSkipDefaultTransaction() bool    { return p.SkipDefaultTransaction }
 func (p *PostgreSQL) GetPrepareStmt() bool               { return p.PrepareStmt }

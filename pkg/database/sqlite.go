@@ -48,6 +48,7 @@ func (s *SQLite) GetPassword() string                { return "" }       // SQLi
 func (s *SQLite) GetConfig() string                  { return s.Config }
 func (s *SQLite) GetModuleName() string              { return s.ModuleName }
 func (s *SQLite) GetSlowThreshold() int              { return s.SlowThreshold }
+func (s *SQLite) GetLogLevel() string                { return s.LogLevel }
 func (s *SQLite) GetIgnoreRecordNotFoundError() bool { return s.IgnoreRecordNotFoundError }
 func (s *SQLite) GetSkipDefaultTransaction() bool    { return s.SkipDefaultTransaction }
 func (s *SQLite) GetPrepareStmt() bool               { return s.PrepareStmt }

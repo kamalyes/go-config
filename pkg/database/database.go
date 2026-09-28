@@ -59,6 +59,9 @@ type DatabaseProvider interface {
 	// GetSlowThreshold 获取慢查询阈值（毫秒）
 	GetSlowThreshold() int
 
+	// GetLogLevel 获取SQL日志等级（silent/error/warn/info，gorm logger 消费）
+	GetLogLevel() string
+
 	// GetIgnoreRecordNotFoundError 获取是否忽略RecordNotFound错误
 	GetIgnoreRecordNotFoundError() bool
 

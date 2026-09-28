@@ -259,6 +259,7 @@ type BatcherConfig struct {
 	MessageStats    *BatcherParams `mapstructure:"message-stats" yaml:"message-stats" json:"messageStats"`          // 消息统计批量更新（广播939人=1次事务）
 	ObserverNotify  *BatcherParams `mapstructure:"observer-notify" yaml:"observer-notify" json:"observerNotify"`    // 观察者通知批量处理
 	ClusterDispatch *BatcherParams `mapstructure:"cluster-dispatch" yaml:"cluster-dispatch" json:"clusterDispatch"` // 跨节点分发批量处理
+	ErrorStats      *BatcherParams `mapstructure:"error-stats" yaml:"error-stats" json:"errorStats"`                // 连接错误统计批量更新（断连风暴=1次事务）
 }
 
 // DefaultBatcherConfig 默认批量处理器配置
@@ -270,6 +271,7 @@ func DefaultBatcherConfig() *BatcherConfig {
 		MessageStats:    &BatcherParams{QueueSize: 8192, BatchSize: 500, FlushInterval: 2 * time.Second},
 		ObserverNotify:  &BatcherParams{QueueSize: 4096, BatchSize: 100, FlushInterval: 50 * time.Millisecond},
 		ClusterDispatch: &BatcherParams{QueueSize: 4096, BatchSize: 100, FlushInterval: 50 * time.Millisecond},
+		ErrorStats:      &BatcherParams{QueueSize: 2048, BatchSize: 200, FlushInterval: 2 * time.Second},
 	}
 }
 
@@ -326,6 +328,14 @@ func (b *BatcherConfig) GetClusterDispatchParams() BatcherParams {
 		return *defaultBatcher.ClusterDispatch
 	}
 	return resolveParams(b.ClusterDispatch, *defaultBatcher.ClusterDispatch)
+}
+
+// GetErrorStatsParams 获取连接错误统计参数（nil/零值时返回默认值）
+func (b *BatcherConfig) GetErrorStatsParams() BatcherParams {
+	if b == nil {
+		return *defaultBatcher.ErrorStats
+	}
+	return resolveParams(b.ErrorStats, *defaultBatcher.ErrorStats)
 }
 
 // RedisRepository Redis仓库配置

@@ -51,6 +51,7 @@ func (m *MySQL) GetPassword() string                { return m.Password }
 func (m *MySQL) GetConfig() string                  { return m.Config }
 func (m *MySQL) GetModuleName() string              { return m.ModuleName }
 func (m *MySQL) GetSlowThreshold() int              { return m.SlowThreshold }
+func (m *MySQL) GetLogLevel() string                { return m.LogLevel }
 func (m *MySQL) GetIgnoreRecordNotFoundError() bool { return m.IgnoreRecordNotFoundError }
 func (m *MySQL) GetSkipDefaultTransaction() bool    { return m.SkipDefaultTransaction }
 func (m *MySQL) GetPrepareStmt() bool               { return m.PrepareStmt }

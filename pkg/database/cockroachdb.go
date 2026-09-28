@@ -49,6 +49,7 @@ func (c *CockroachDB) GetPassword() string                { return c.Password }
 func (c *CockroachDB) GetConfig() string                  { return c.Config }
 func (c *CockroachDB) GetModuleName() string              { return c.ModuleName }
 func (c *CockroachDB) GetSlowThreshold() int              { return c.SlowThreshold }
+func (c *CockroachDB) GetLogLevel() string                { return c.LogLevel }
 func (c *CockroachDB) GetIgnoreRecordNotFoundError() bool { return c.IgnoreRecordNotFoundError }
 func (c *CockroachDB) GetSkipDefaultTransaction() bool    { return c.SkipDefaultTransaction }
 func (c *CockroachDB) GetPrepareStmt() bool               { return c.PrepareStmt }
