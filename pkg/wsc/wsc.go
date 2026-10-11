@@ -129,6 +129,9 @@ type WSC struct {
 
 	// === 消息聚合器配置 ===
 	Aggregator *AggregatorConfig `mapstructure:"aggregator" yaml:"aggregator" json:"aggregator"` // 消息聚合器配置（弹幕等可聚合档群组消息 N 条合 1 条数组帧）
+
+	// === 消息总线配置 ===
+	MessageBroker *MessageBrokerConfig `mapstructure:"message-broker" yaml:"message-broker" json:"messageBroker"` // 消息总线配置（MQ 入口与内部传输统一通道，禁用即直调模式）
 }
 
 // ============================================================================
@@ -1564,6 +1567,7 @@ func Default() *WSC {
 		RouterCache:                DefaultRouterCacheConfig(),
 		Batcher:                    DefaultBatcherConfig(),
 		Aggregator:                 DefaultAggregatorConfig(),
+		MessageBroker:              DefaultMessageBrokerConfig(),
 		SSEPath:                    "/sse",
 	}
 }

@@ -445,5 +445,16 @@
       "batchSize": 100,
       "flushInterval": 50000000
     }
+  },
+  "messageBroker": {
+    "enabled": false,
+    "driver": "nats",
+    "topicPrefix": "wsc",
+    "group": "wsc-deliver",
+    "shardCount": 64,
+    "consumer": {
+      "batchSize": 256,
+      "maxAckPending": 1024
+    }
   }
 }

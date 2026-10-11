@@ -403,3 +403,54 @@ func TestDefaultAggregatorConfig(t *testing.T) {
 	assert.NotNil(t, wsc.Aggregator, "Default() 应装配聚合器配置节")
 	assert.Equal(t, cfg, wsc.Aggregator, "默认节拍/窗口尺寸/群组上限与常量同源")
 }
+
+// TestDefaultMessageBrokerConfig 验证默认消息总线配置与 Default() 装配（默认禁用=直调模式）
+func TestDefaultMessageBrokerConfig(t *testing.T) {
+	cfg := DefaultMessageBrokerConfig()
+	assert.False(t, cfg.Enabled, "默认禁用，broker 域零初始化")
+	assert.Equal(t, BrokerDriverNats, cfg.Driver)
+	assert.Equal(t, "wsc", cfg.TopicPrefix)
+	assert.Equal(t, "wsc-deliver", cfg.Group)
+	assert.Equal(t, 64, cfg.ShardCount)
+	assert.Equal(t, 256, cfg.Consumer.BatchSize)
+	assert.Equal(t, 1024, cfg.Consumer.MaxAckPending)
+	assert.False(t, cfg.IsEnabled(), "Enabled=false 时 IsEnabled 必须为 false（直调模式）")
+
+	wsc := Default()
+	assert.NotNil(t, wsc.MessageBroker, "Default() 应装配消息总线配置节")
+	assert.Equal(t, cfg, wsc.MessageBroker, "默认编排参数与常量同源")
+}
+
+// TestMessageBrokerConfig_IsEnabled 驱动与开关组合判定（nil 安全）
+func TestMessageBrokerConfig_IsEnabled(t *testing.T) {
+	var nilCfg *MessageBrokerConfig
+	assert.False(t, nilCfg.IsEnabled(), "nil 配置视为禁用")
+	assert.False(t, nilCfg.IsNats(), "nil 配置非 NATS 驱动")
+	assert.Equal(t, 64, nilCfg.ResolveShardCount(), "nil 配置分片数走默认")
+
+	enabled := DefaultMessageBrokerConfig().WithEnabled(true)
+	assert.True(t, enabled.IsEnabled(), "开关+驱动齐备即启用")
+	assert.True(t, enabled.IsNats())
+
+	assert.False(t, DefaultMessageBrokerConfig().WithEnabled(true).WithDriver("").IsEnabled(), "驱动为空视为禁用")
+	assert.True(t, DefaultMessageBrokerConfig().WithDriver(BrokerDriverMemory).WithEnabled(true).IsEnabled(), "memory 驱动可启用（契约测试）")
+	assert.False(t, DefaultMessageBrokerConfig().WithDriver(BrokerDriverMemory).IsNats(), "memory 驱动非 NATS")
+}
+
+// TestMessageBrokerConfig_Resolve 兜底参数解析（零值防御）
+func TestMessageBrokerConfig_Resolve(t *testing.T) {
+	cfg := &MessageBrokerConfig{ShardCount: 0, Consumer: &BrokerConsumerParams{}}
+	assert.Equal(t, 64, cfg.ResolveShardCount(), "零分片数走默认")
+
+	resolved := cfg.ResolveConsumer()
+	assert.Equal(t, 256, resolved.BatchSize, "零批量上限走默认")
+	assert.Equal(t, 1024, resolved.MaxAckPending, "零在途上限走默认")
+
+	cfg.WithShardCount(128).WithConsumer(&BrokerConsumerParams{BatchSize: 512, MaxAckPending: 2048})
+	assert.Equal(t, 128, cfg.ResolveShardCount())
+	assert.Equal(t, 512, cfg.ResolveConsumer().BatchSize)
+	assert.Equal(t, 2048, cfg.ResolveConsumer().MaxAckPending)
+
+	var nilConsumer *MessageBrokerConfig
+	assert.NotNil(t, nilConsumer.ResolveConsumer(), "nil 配置消费参数走默认")
+}

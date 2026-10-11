@@ -437,3 +437,23 @@ batcher:
         queue-size: 4096
         batch-size: 100
         flush-interval: 50ms
+# 消息总线配置（MQ 入口与内部传输统一通道，禁用即直调模式）
+message-broker:
+    # 总开关（false = 直调模式，broker 域零初始化零开销）
+    enabled: false
+    # 驱动：nats | memory（memory 用于契约测试与本地开发）
+    driver: nats
+    # topic 前缀（wsc.{app}.deliver / .broadcast / .x）
+    topic-prefix: wsc
+    # consumer group（广播语义自动按 nodeID 派生独立 group）
+    group: wsc-deliver
+    # JetStream deliver 分片数（顺序并行度，分片内串行保序）
+    shard-count: 64
+    # 消费端批量拉取参数
+    consumer:
+        # 单次批量拉取上限（摊薄 RTT）
+        batch-size: 256
+        # 在途未 ack 上限（背压闸门，超限暂停拉取）
+        max-ack-pending: 1024
+    # NATS 连接与 JetStream 流级参数不在本段——归属 queue.Nats 模块（单一事实源），
+    # 宿主装配期取用并传给 natsadapter.BuildConn 建连注入
