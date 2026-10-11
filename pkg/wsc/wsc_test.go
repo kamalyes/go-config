@@ -391,3 +391,15 @@ func TestResolveTokens_NilSetInTokens(t *testing.T) {
 		t.Errorf("error = %q, want contains 'is nil'", err.Error())
 	}
 }
+
+// TestDefaultAggregatorConfig 验证默认消息聚合器配置与 Default() 装配
+func TestDefaultAggregatorConfig(t *testing.T) {
+	cfg := DefaultAggregatorConfig()
+	assert.Equal(t, 500*time.Millisecond, cfg.DrainInterval)
+	assert.Equal(t, 64, cfg.BatchSize)
+	assert.Equal(t, 65536, cfg.MaxGroups)
+
+	wsc := Default()
+	assert.NotNil(t, wsc.Aggregator, "Default() 应装配聚合器配置节")
+	assert.Equal(t, cfg, wsc.Aggregator, "默认节拍/窗口尺寸/群组上限与常量同源")
+}
