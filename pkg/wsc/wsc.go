@@ -126,6 +126,9 @@ type WSC struct {
 
 	// === 批量处理器配置 ===
 	Batcher *BatcherConfig `mapstructure:"batcher" yaml:"batcher" json:"batcher"` // 批量处理器配置（队列/批次/flush 间隔）
+
+	// === 消息聚合器配置 ===
+	Aggregator *AggregatorConfig `mapstructure:"aggregator" yaml:"aggregator" json:"aggregator"` // 消息聚合器配置（弹幕等可聚合档群组消息 N 条合 1 条数组帧）
 }
 
 // ============================================================================
@@ -277,6 +280,31 @@ func DefaultBatcherConfig() *BatcherConfig {
 
 // defaultBatcher 默认参数缓存（仅供 getter 兜底，init 一次后只读）
 var defaultBatcher = DefaultBatcherConfig()
+
+// ============================================================================
+// AggregatorConfig — 消息聚合器配置
+// ============================================================================
+
+// AggregatorConfig 消息聚合器配置
+// 可聚合档群组消息（弹幕/跑马灯/滚动通知等容忍百毫秒延迟的全保留合并流）的窗口攒批参数：
+// drain 节拍决定每连接帧率（帧率 = 1/DrainInterval），BatchSize 决定单窗口数据量上限（超限直通降级单发）
+type AggregatorConfig struct {
+	// DrainInterval drain 窗口节拍（默认 500ms）：每窗口 Flush 一次全部群组，产出每群组一条数组帧；窗口越小端到端延迟越低、合帧率越低
+	DrainInterval time.Duration `mapstructure:"drain-interval" yaml:"drain-interval" json:"drainInterval"`
+	// BatchSize 单群组窗口攒批上限（默认 64 条）：超限新消息直通降级单发；弹幕洪峰场景按 峰值消息速率 × DrainInterval 估算上调
+	BatchSize int `mapstructure:"batch-size" yaml:"batch-size" json:"batchSize"`
+	// MaxGroups 并发活跃群组数上限（默认 65536）：防群组风暴（恶意/爬虫建群）内存膨胀；空群组在 Flush 换出空批时惰性删除，上限仅约束同时有在途消息的群组数
+	MaxGroups int `mapstructure:"max-groups" yaml:"max-groups" json:"maxGroups"`
+}
+
+// DefaultAggregatorConfig 默认消息聚合器配置
+func DefaultAggregatorConfig() *AggregatorConfig {
+	return &AggregatorConfig{
+		DrainInterval: 500 * time.Millisecond,
+		BatchSize:     64,
+		MaxGroups:     65536,
+	}
+}
 
 // resolveParams 解析 batcher 参数，nil 或零值时使用默认值
 func resolveParams(p *BatcherParams, def BatcherParams) BatcherParams {
@@ -1535,6 +1563,7 @@ func Default() *WSC {
 		WorkerPool:                 DefaultWorkerPoolConfig(),
 		RouterCache:                DefaultRouterCacheConfig(),
 		Batcher:                    DefaultBatcherConfig(),
+		Aggregator:                 DefaultAggregatorConfig(),
 		SSEPath:                    "/sse",
 	}
 }
@@ -2344,5 +2373,11 @@ func (c *WSC) WithClientCapacity(capacity *ClientCapacity) *WSC {
 // WithBatcher 设置批量处理器配置
 func (c *WSC) WithBatcher(batcher *BatcherConfig) *WSC {
 	c.Batcher = batcher
+	return c
+}
+
+// WithAggregator 设置消息聚合器配置
+func (c *WSC) WithAggregator(aggregator *AggregatorConfig) *WSC {
+	c.Aggregator = aggregator
 	return c
 }
