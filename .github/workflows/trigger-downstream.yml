@@ -51,7 +51,6 @@ jobs:
     strategy:
       matrix:
         repo:
-          - kamalyes/go-i18n
           - kamalyes/go-swagger
           - kamalyes/go-wsc
     steps:
