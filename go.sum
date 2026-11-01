@@ -8,8 +8,8 @@ github.com/go-viper/mapstructure/v2 v2.4.0 h1:EBsztssimR/CONLSZZ04E8qAkxNYq4Qp9L
 github.com/go-viper/mapstructure/v2 v2.4.0/go.mod h1:oJDH3BJKyqBA2TXFhDsKDGDTlndYOZ6rGS0BRZIxGhM=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
-github.com/kamalyes/go-argus v0.5.0 h1:gW04oPbISdJilb42rDEjJi9FAPv0hFbfOQHJ/EDTHRY=
-github.com/kamalyes/go-argus v0.5.0/go.mod h1:dG5ttCh6wVn1u5qq4NEvoFtibgQ5Bj3PT8rw7HKX8c0=
+github.com/kamalyes/go-argus v0.5.1 h1:BwPmT5nuN12Z3GbpRvTXg8C1kupJyXurDTssuSIfUa4=
+github.com/kamalyes/go-argus v0.5.1/go.mod h1:dG5ttCh6wVn1u5qq4NEvoFtibgQ5Bj3PT8rw7HKX8c0=
 github.com/kamalyes/go-logger v0.8.0 h1:0RnMc3K39UfZWh6Fs5O2UkzQ8Lp6Ip/oQRxofSJ2p8s=
 github.com/kamalyes/go-logger v0.8.0/go.mod h1:oesQGZo1gU8o5ECWdmNqqomi1F1XnpLMZYbgVJbB/pA=
 github.com/kamalyes/go-toolbox v0.18.1 h1:MrkD1oGluyL8QUH64O8QYPCZGQN/jxHwF8XkpEebbEU=
