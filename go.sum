@@ -12,8 +12,8 @@ github.com/kamalyes/go-argus v0.5.1 h1:BwPmT5nuN12Z3GbpRvTXg8C1kupJyXurDTssuSIfU
 github.com/kamalyes/go-argus v0.5.1/go.mod h1:dG5ttCh6wVn1u5qq4NEvoFtibgQ5Bj3PT8rw7HKX8c0=
 github.com/kamalyes/go-logger v0.9.0 h1:9npARyHUMvc9c8gOk+NaCzR7YxXhUap4ofUvSSKOZlw=
 github.com/kamalyes/go-logger v0.9.0/go.mod h1:7FUeJovCldqfYeY/teE0bBYGnfLvpndVbQYvK1HsCmk=
-github.com/kamalyes/go-toolbox v0.19.1 h1:xN+IQrle+xBbwLgoN0zeJqZZBDntgbt74XTLyb4OVqg=
-github.com/kamalyes/go-toolbox v0.19.1/go.mod h1:o2gEuotgBUXf6zG9XkWpNp0QNuIwiQLAX/sb9AME+Ws=
+github.com/kamalyes/go-toolbox v0.19.2 h1:ixNL60HmCAKTnRfOH8IBCgI+5rtBxGzEItLf4leAgEM=
+github.com/kamalyes/go-toolbox v0.19.2/go.mod h1:o2gEuotgBUXf6zG9XkWpNp0QNuIwiQLAX/sb9AME+Ws=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
