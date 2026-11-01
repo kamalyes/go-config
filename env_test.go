@@ -12,6 +12,7 @@ package goconfig
 
 import (
 	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -476,4 +477,44 @@ func TestDefaultEnvironmentFuncs(t *testing.T) {
 	defVal := DefaultEnvironment()
 	assert.Equal(t, DefaultEnv, defVal.Value)
 	assert.NotZero(t, defVal.CheckFrequency)
+}
+
+// TestContextKeyConcurrentAccess SetContextKey 与 GetEnvironment 并发不得有数据竞争
+// 回归场景：GetEnvironment 裸读包级 envContextKey，而 SetContextKey 加锁写它
+// hotReloadManager 的事件循环在后台 goroutine 里调 GetEnvironment，
+// 应用只要在运行期调过一次 SetContextKey 就会撞上，CI 的 macos-15 分片实测到过
+// 这个用例必须配 -race 跑才有意义，不加 -race 时它只验证不 panic
+//
+// [EN] SetContextKey and GetEnvironment must not race
+// Regression: GetEnvironment read the package-level envContextKey unguarded while
+// SetContextKey wrote it under a mutex
+// hotReloadManager's event loop calls GetEnvironment from a background goroutine, so
+// one runtime SetContextKey call is enough to trip it, as the macos-15 CI shard showed
+// This test is only meaningful under -race; without it, it merely asserts no panic
+func TestContextKeyConcurrentAccess(t *testing.T) {
+	original := GetContextKey()
+	t.Cleanup(func() {
+		SetContextKey(&ContextKeyOptions{Key: original, Value: DefaultEnv})
+	})
+
+	const rounds = 50
+	var wg sync.WaitGroup
+	for i := 0; i < rounds; i++ {
+		wg.Add(3)
+		go func() {
+			defer wg.Done()
+			SetContextKey(&ContextKeyOptions{Key: original, Value: DefaultEnv})
+		}()
+		go func() {
+			defer wg.Done()
+			_ = GetEnvironment()
+		}()
+		go func() {
+			defer wg.Done()
+			_ = GetContextKey()
+		}()
+	}
+	wg.Wait()
+
+	assert.Equal(t, original, GetContextKey(), "并发访问后上下文键应保持不变")
 }

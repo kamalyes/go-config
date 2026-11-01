@@ -421,7 +421,7 @@ func NewEnvironment() *Environment {
 		registeredEnvs: []EnvironmentType{Dev, Sit, Fat, Uat, Prod}, // 默认注册的环境类型
 		callbacks:      make(map[string]*EnvironmentCallbackInfo),   // 初始化回调映射
 	}
-	if err := setEnv(envContextKey, envInstance.Value); err != nil {
+	if err := setEnv(GetContextKey(), envInstance.Value); err != nil {
 		logger.GetGlobalLogger().FatalKV("初始化环境失败", "error", err)
 	}
 
@@ -694,11 +694,23 @@ func (e *Environment) StopWatch() {
 }
 
 // GetEnvironment 从上下文中获取环境变量并解析为正确的环境类型
+// 上下文键经 GetContextKey 一次性取出再复用，不直接读 envContextKey：
+// SetContextKey 是加锁写的，这里裸读会与它构成数据竞争
+// hotReloadManager 的事件循环在后台 goroutine 里调本函数，调用方只要在运行期
+// 调过一次 SetContextKey 就会触发，-race 下已实测到
+//
+// [EN] The context key is read once through GetContextKey rather than touching
+// envContextKey directly: SetContextKey writes it under a mutex, so an unguarded
+// read here races with it
+// hotReloadManager's event loop calls this from a background goroutine, so any
+// runtime call to SetContextKey trips it, as observed under -race
 func GetEnvironment() EnvironmentType {
+	contextKey := GetContextKey()
+
 	// 尝试获取环境变量
-	currentOsEnv, err := getEnv(envContextKey)
+	currentOsEnv, err := getEnv(contextKey)
 	if err != nil {
-		logger.GetGlobalLogger().ErrorKV("获取环境变量失败", "key", envContextKey, "error", err)
+		logger.GetGlobalLogger().ErrorKV("获取环境变量失败", "key", contextKey, "error", err)
 		return DefaultEnv
 	}
 
@@ -708,7 +720,7 @@ func GetEnvironment() EnvironmentType {
 	}
 
 	// 如果检测失败，返回原始值
-	logger.GetGlobalLogger().WarnKV("环境变量无法映射到已知环境类型，使用原始值", "key", envContextKey, "value", currentOsEnv)
+	logger.GetGlobalLogger().WarnKV("环境变量无法映射到已知环境类型，使用原始值", "key", contextKey, "value", currentOsEnv)
 	return currentOsEnv
 }
 
@@ -731,14 +743,21 @@ func getEnv(key ContextKey) (EnvironmentType, error) {
 }
 
 // ClearEnv 清除环境变量并等待锁
+// 上下文键在取 e.mu 之前先读出来：与 SetEnvironment 同一个理由，
+// contextKeyMutex 嵌在 e.mu 里会造成锁顺序倒置
+//
+// [EN] The context key is read before acquiring e.mu, for the same reason as in
+// SetEnvironment: nesting contextKeyMutex inside e.mu inverts the lock order
 func (e *Environment) ClearEnv() {
+	contextKey := GetContextKey()
+
 	e.mu.Lock()         // 获取写锁
 	defer e.mu.Unlock() // 确保在函数结束时释放锁
 
-	if err := os.Unsetenv(envContextKey.String()); err != nil {
-		logger.GetGlobalLogger().ErrorKV("清除环境变量失败", "key", envContextKey.String(), "error", err)
+	if err := os.Unsetenv(contextKey.String()); err != nil {
+		logger.GetGlobalLogger().ErrorKV("清除环境变量失败", "key", contextKey.String(), "error", err)
 	} else {
-		logger.GetGlobalLogger().DebugKV("环境变量已清除", "key", envContextKey.String())
+		logger.GetGlobalLogger().DebugKV("环境变量已清除", "key", contextKey.String())
 	}
 }
 
