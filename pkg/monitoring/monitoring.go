@@ -41,7 +41,7 @@ type Metrics struct {
 	EnableOpenMetrics bool           `mapstructure:"enable-open-metrics" yaml:"enable-open-metrics" json:"enableOpenMetrics"` // 是否启用 OpenMetrics 格式
 	CustomMetrics     []CustomMetric `mapstructure:"custom-metrics" yaml:"custom-metrics" json:"customMetrics"`               // 自定义指标
 	StaticPaths       []string       `mapstructure:"static-paths" yaml:"static-paths" json:"staticPaths"`                     // 静态路径列表（不进行路径规范化）
-	Endpoint          string         `mapstructure:"_" yaml:"-" json:"_"`                                                     // 指标端点（自动计算）
+	Endpoint          string         `mapstructure:"-" yaml:"-" json:"-"`                                                     // 指标端点（自动计算）
 }
 
 // CustomMetric 自定义指标配置

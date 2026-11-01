@@ -109,7 +109,7 @@ type HTTPServer struct {
 // TLS TLS配置
 type TLS struct {
 	CertFile            string         `mapstructure:"cert-file" yaml:"cert-file" json:"certFile"`                                    // 证书文件路径
-	KeyFile             string         `mapstructure:"key-file" yaml:"key-file" json:"keyFile"`                                        // 私钥文件路径
+	KeyFile             string         `mapstructure:"key-file" yaml:"key-file" json:"keyFile"`                                       // 私钥文件路径
 	CAFile              string         `mapstructure:"ca-file" yaml:"ca-file" json:"caFile"`                                          // CA文件路径
 	MinVersion          TLSVersion     `mapstructure:"min-version" yaml:"min-version" json:"minVersion"`                              // 最小TLS版本
 	PreferServerCiphers bool           `mapstructure:"prefer-server-ciphers" yaml:"prefer-server-ciphers" json:"preferServerCiphers"` // 优先使用服务器密码套件
@@ -322,11 +322,11 @@ func (h *HTTPServer) WithHTTP2Config(maxStreams uint32, windowSize, connWindowSi
 // Listener 命名监听器配置，用于在同一进程中启动多个 HTTP 监听端口
 // 典型场景：Ops 内网端口 + Tenant 公网端口
 type Listener struct {
-	Name     string `mapstructure:"name" yaml:"name" json:"name"`           // 监听器名称（如 "ops", "tenant"）
-	Host     string `mapstructure:"host" yaml:"host" json:"host"`           // 主机地址
-	Port     int    `mapstructure:"port" yaml:"port" json:"port"`           // 端口
-	Network  string `mapstructure:"network" yaml:"network" json:"network"`  // 网络类型: tcp, tcp4, tcp6
-	Endpoint string `mapstructure:"-" yaml:"-" json:""`                     // 完整端点地址（自动计算）
+	Name     string `mapstructure:"name" yaml:"name" json:"name"`          // 监听器名称（如 "ops", "tenant"）
+	Host     string `mapstructure:"host" yaml:"host" json:"host"`          // 主机地址
+	Port     int    `mapstructure:"port" yaml:"port" json:"port"`          // 端口
+	Network  string `mapstructure:"network" yaml:"network" json:"network"` // 网络类型: tcp, tcp4, tcp6
+	Endpoint string `mapstructure:"-" yaml:"-" json:""`                    // 完整端点地址（自动计算）
 }
 
 // DefaultListener 创建默认监听器配置

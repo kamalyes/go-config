@@ -530,44 +530,57 @@ func (sg *SmartConfigGenerator) extractDetailedComment(field reflect.StructField
 	return strings.Join(parts, " | ")
 }
 
+// camelSplitRe 把驼峰命名切成可读片段
+//
+// 提到包级：原先写在 generateDetailedComment 里，每次调用都要重新编译一遍正则，
+// 而正则是常量、编译结果完全可复用
+// [EN] Hoisted to package level: it used to be compiled on every call to
+// generateDetailedComment even though the pattern is constant and the compiled form is reusable
+var camelSplitRe = regexp.MustCompile("([a-z0-9])([A-Z])")
+
+// fieldDescriptionMap 字段名到中文描述的固定映射
+//
+// 提到包级：原先是函数内的 map 字面量，每次调用都要重建一张二十多项的 map
+// [EN] Hoisted to package level: it used to be a map literal rebuilt on every call
+var fieldDescriptionMap = map[string]string{
+
+	"modulename":    "模块标识名称",
+	"module-name":   "模块标识名称",
+	"name":          "服务名称",
+	"enabled":       "是否启用该功能",
+	"debug":         "是否启用调试模式",
+	"version":       "版本号",
+	"environment":   "运行环境 (dev/test/prod)",
+	"host":          "主机地址",
+	"port":          "端口号",
+	"timeout":       "超时时间",
+	"password":      "密码",
+	"username":      "用户名",
+	"endpoint":      "服务端点地址",
+	"database":      "数据库名称",
+	"maxretries":    "最大重试次数",
+	"max-retries":   "最大重试次数",
+	"idletimeout":   "空闲超时时间",
+	"idle-timeout":  "空闲超时时间",
+	"readtimeout":   "读取超时时间",
+	"read-timeout":  "读取超时时间",
+	"writetimeout":  "写入超时时间",
+	"write-timeout": "写入超时时间",
+	"poolsize":      "连接池大小",
+	"pool-size":     "连接池大小",
+}
+
 // generateDetailedComment 生成详细注释(包含类型信息)
 func (sg *SmartConfigGenerator) generateDetailedComment(fieldName string, fieldType reflect.Type) string {
 	// 将驼峰命名转换为可读文本
-	re := regexp.MustCompile("([a-z0-9])([A-Z])")
-	readable := re.ReplaceAllString(fieldName, "${1} ${2}")
+	readable := camelSplitRe.ReplaceAllString(fieldName, "${1} ${2}")
 	readable = strings.ToLower(readable)
 
 	// 特殊字段名称映射
-	fieldDescriptions := map[string]string{
-		"modulename":    "模块标识名称",
-		"module-name":   "模块标识名称",
-		"name":          "服务名称",
-		"enabled":       "是否启用该功能",
-		"debug":         "是否启用调试模式",
-		"version":       "版本号",
-		"environment":   "运行环境 (dev/test/prod)",
-		"host":          "主机地址",
-		"port":          "端口号",
-		"timeout":       "超时时间",
-		"password":      "密码",
-		"username":      "用户名",
-		"endpoint":      "服务端点地址",
-		"database":      "数据库名称",
-		"maxretries":    "最大重试次数",
-		"max-retries":   "最大重试次数",
-		"idletimeout":   "空闲超时时间",
-		"idle-timeout":  "空闲超时时间",
-		"readtimeout":   "读取超时时间",
-		"read-timeout":  "读取超时时间",
-		"writetimeout":  "写入超时时间",
-		"write-timeout": "写入超时时间",
-		"poolsize":      "连接池大小",
-		"pool-size":     "连接池大小",
-	}
 
 	// 检查是否有预定义的描述
 	key := strings.ToLower(strings.ReplaceAll(fieldName, "-", ""))
-	if desc, exists := fieldDescriptions[key]; exists {
+	if desc, exists := fieldDescriptionMap[key]; exists {
 		readable = desc
 	}
 

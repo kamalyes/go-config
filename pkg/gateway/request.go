@@ -73,6 +73,22 @@ type RequestContext struct {
 }
 
 // DefaultRequestContext 创建默认请求上下文提取配置
+// DefaultRequestContext 的 header 来源 Key 一律写成 HTTP 规范形式（X-User-Id 而非 X-User-ID）
+//
+// 这不是风格偏好，是分配开销：Header.Get 内部会对 key 调 CanonicalMIMEHeaderKey，
+// key 本来就是规范形式时直接返回、不分配；不是的话每次查找都要现算并分配一个新字符串
+// 两种写法的查找结果完全一样（都归一到 X-User-Id），所以这是纯粹的削减
+//
+// 实测：提取器修好重复解析之后，canonicalMIMEHeaderKey 占了剩余分配的 100%，
+// 把这些 key 写成规范形式后 header 路径降到零分配
+//
+// 新增 header 来源时请照规范形式写：连字符分段、每段仅首字母大写
+//
+// [EN] Header source keys are written in canonical HTTP form (X-User-Id, not X-User-ID). This is
+// not a style preference but an allocation: Header.Get canonicalizes the key on every lookup and
+// returns it untouched only when it is already canonical. Both spellings resolve to the same
+// header, so this is a pure saving -- after the repeated-parsing fix, canonicalMIMEHeaderKey
+// accounted for all remaining allocations on the header path
 func DefaultRequestContext() *RequestContext {
 	return &RequestContext{
 		AuthorizationSources: []common.AttributeSource{
@@ -115,7 +131,7 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeCookie, Key: "trace_id"},
 		},
 		RealIPSources: []common.AttributeSource{
-			{Type: common.SourceTypeHeader, Key: "X-Real-IP"},
+			{Type: common.SourceTypeHeader, Key: "X-Real-Ip"},
 		},
 		ForwardedForSources: []common.AttributeSource{
 			{Type: common.SourceTypeHeader, Key: "X-Forwarded-For"},
@@ -128,13 +144,13 @@ func DefaultRequestContext() *RequestContext {
 		},
 
 		ClientIDSources: []common.AttributeSource{
-			{Type: common.SourceTypeHeader, Key: "X-Client-ID"},
+			{Type: common.SourceTypeHeader, Key: "X-Client-Id"},
 			{Type: common.SourceTypeQuery, Key: "client_id"},
 			{Type: common.SourceTypeQuery, Key: "clientId"},
 			{Type: common.SourceTypeCookie, Key: "client_id"},
 		},
 		UserIDSources: []common.AttributeSource{
-			{Type: common.SourceTypeHeader, Key: "X-User-ID"},
+			{Type: common.SourceTypeHeader, Key: "X-User-Id"},
 			{Type: common.SourceTypeQuery, Key: "user_id"},
 			{Type: common.SourceTypeQuery, Key: "userId"},
 			{Type: common.SourceTypeCookie, Key: "user_id"},
@@ -146,7 +162,7 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeCookie, Key: "user_type"},
 		},
 		TenantIDSources: []common.AttributeSource{
-			{Type: common.SourceTypeHeader, Key: "X-Tenant-ID"},
+			{Type: common.SourceTypeHeader, Key: "X-Tenant-Id"},
 			{Type: common.SourceTypeQuery, Key: "tenant_id"},
 			{Type: common.SourceTypeQuery, Key: "tenantId"},
 			{Type: common.SourceTypeCookie, Key: "tenant_id"},
@@ -158,7 +174,7 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeCookie, Key: "tenant_code"},
 		},
 		SessionIDSources: []common.AttributeSource{
-			{Type: common.SourceTypeHeader, Key: "X-Session-ID"},
+			{Type: common.SourceTypeHeader, Key: "X-Session-Id"},
 			{Type: common.SourceTypeQuery, Key: "session_id"},
 			{Type: common.SourceTypeQuery, Key: "sessionId"},
 			{Type: common.SourceTypeCookie, Key: "session_id"},
@@ -169,7 +185,7 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeCookie, Key: "timezone"},
 		},
 		IDSources: []common.AttributeSource{
-			{Type: common.SourceTypeHeader, Key: "X-ID"},
+			{Type: common.SourceTypeHeader, Key: "X-Id"},
 			{Type: common.SourceTypeQuery, Key: "id"},
 			{Type: common.SourceTypeCookie, Key: "id"},
 		},
@@ -185,7 +201,7 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeCookie, Key: "role_code"},
 		},
 		AgentLineIDSources: []common.AttributeSource{
-			{Type: common.SourceTypeHeader, Key: "X-Agent-Line-ID"},
+			{Type: common.SourceTypeHeader, Key: "X-Agent-Line-Id"},
 			{Type: common.SourceTypeQuery, Key: "agent_line_id"},
 			{Type: common.SourceTypeQuery, Key: "agentLineId"},
 			{Type: common.SourceTypeCookie, Key: "agent_line_id"},
@@ -205,7 +221,7 @@ func DefaultRequestContext() *RequestContext {
 
 		DeviceIDSources: []common.AttributeSource{
 			{Type: common.SourceTypeHeader, Key: "X-Device-Id"},
-			{Type: common.SourceTypeHeader, Key: "X-Device-ID"},
+			{Type: common.SourceTypeHeader, Key: "X-Device-Id"},
 			{Type: common.SourceTypeQuery, Key: "device_id"},
 			{Type: common.SourceTypeQuery, Key: "deviceId"},
 			{Type: common.SourceTypeCookie, Key: "device_id"},
@@ -240,7 +256,7 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeCookie, Key: "platform_code"},
 		},
 		RegionIDSources: []common.AttributeSource{
-			{Type: common.SourceTypeHeader, Key: "X-Region-ID"},
+			{Type: common.SourceTypeHeader, Key: "X-Region-Id"},
 			{Type: common.SourceTypeQuery, Key: "region_id"},
 			{Type: common.SourceTypeQuery, Key: "regionId"},
 			{Type: common.SourceTypeCookie, Key: "region_id"},
@@ -276,7 +292,7 @@ func DefaultRequestContext() *RequestContext {
 			{Type: common.SourceTypeHeader, Key: "Origin"},
 		},
 		CSRFTokenSources: []common.AttributeSource{
-			{Type: common.SourceTypeHeader, Key: "X-CSRF-Token"},
+			{Type: common.SourceTypeHeader, Key: "X-Csrf-Token"},
 		},
 	}
 }
@@ -463,11 +479,17 @@ func (c *RequestContext) Validate() error {
 		c.CSRFTokenSources,
 	}
 
+	// 这里按下标遍历，而 group 与 c.XxxSources 共享底层数组，所以 NormalizeKey 的改动
+	// 会落到真正的配置上。Validate 是 Gateway.Validate 必经之路，等于加载后钩子
+	// [EN] Iterating by index over slices that share their backing array with the config fields,
+	// so NormalizeKey's change lands on the real configuration. Validate is on Gateway.Validate's
+	// path and therefore acts as the after-load hook
 	for _, group := range sourceGroups {
 		for i := range group {
 			if err := group[i].Validate(); err != nil {
 				return err
 			}
+			group[i].NormalizeKey()
 		}
 	}
 

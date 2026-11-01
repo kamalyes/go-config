@@ -404,6 +404,20 @@ func TestEnvironment_SetEnvironment_TriggersCallback(t *testing.T) {
 	env := NewEnvironment()
 	defer env.StopWatch()
 
+	// 基线要设在注册回调**之前**
+	//
+	// 原先的顺序是先注册再设基线，而设基线这一步本身就可能是一次真实变更：
+	// 全局环境的初值取决于先前跑过哪些测试，-shuffle=on 下并不固定。
+	// 一旦初值不是 development，SetEnvironment(EnvDevelopment) 就会触发回调，
+	// 于是回调里 newEnv 收到的是 development 而非 production，断言判红
+	// 实测：单独跑通过，整包 shuffle 种子 1 与 3 下失败
+	//
+	// [EN] The baseline must be set before the callback is registered. Doing it after meant the
+	// baseline assignment could itself be a real change -- the global environment's initial value
+	// depends on which tests ran earlier, which is not fixed under -shuffle -- and the callback
+	// then saw development instead of production
+	env.SetEnvironment(EnvDevelopment)
+
 	triggered := false
 	require.NoError(t, env.RegisterCallback("trigger-cb", func(old, newEnv EnvironmentType) error {
 		triggered = true
@@ -412,8 +426,6 @@ func TestEnvironment_SetEnvironment_TriggersCallback(t *testing.T) {
 		return nil
 	}, 1, false))
 
-	// 先设一个已知值，再变更以触发回调
-	env.SetEnvironment(EnvDevelopment)
 	env.SetEnvironment(EnvProduction)
 	assert.True(t, triggered)
 }

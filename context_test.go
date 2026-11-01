@@ -88,6 +88,16 @@ func TestContextKeyHelper_NewContextWithDeadline(t *testing.T) {
 	// 初始化全局上下文管理器
 	env := NewEnvironment()
 	defer env.StopWatch()
+	// 先清再建：InitializeContextManager 在全局管理器已存在时**什么都不做**
+	// （内部是 if globalContextManager == nil 才新建），于是本测试新建的 env 会被忽略，
+	// ctx 携带的是前一个测试留下的环境，断言环境身份时就判红
+	// 各测试虽然都有 defer ClearGlobalContextManager()，但那只清自己的尾、防不住前任没清
+	// 实测：整包 -shuffle=13 时 TestContextKeyHelper_IsEnvironment 失败
+	//
+	// [EN] Clear before initializing: InitializeContextManager is a no-op when a global manager
+	// already exists, so this test's env would be ignored and the context would carry whatever a
+	// previous test left behind. Each test's deferred clear only cleans up after itself
+	ClearGlobalContextManager()
 	InitializeContextManager(env, nil)
 	defer ClearGlobalContextManager()
 
@@ -104,6 +114,9 @@ func TestContextKeyHelper_NewContextWithDeadline(t *testing.T) {
 func TestContextKeyHelper_NewContextWithTimeout_OK(t *testing.T) {
 	env := NewEnvironment()
 	defer env.StopWatch()
+	// 先清再建，理由同 TestContextKeyHelper_NewContextWithDeadline
+	// [EN] Cleared first, for the reason spelled out in the first test that does this
+	ClearGlobalContextManager()
 	InitializeContextManager(env, nil)
 	defer ClearGlobalContextManager()
 
@@ -126,6 +139,9 @@ func TestContextKeyHelper_MustGetConfig_Panic(t *testing.T) {
 func TestContextKeyHelper_MustGetConfig_OK(t *testing.T) {
 	env := NewEnvironment()
 	defer env.StopWatch()
+	// 先清再建，理由同 TestContextKeyHelper_NewContextWithDeadline
+	// [EN] Cleared first, for the reason spelled out in the first test that does this
+	ClearGlobalContextManager()
 	InitializeContextManager(env, nil)
 	defer ClearGlobalContextManager()
 
@@ -146,6 +162,9 @@ func TestContextKeyHelper_MustGetEnvironment_Panic(t *testing.T) {
 func TestContextKeyHelper_MustGetEnvironment_OK(t *testing.T) {
 	env := NewEnvironment()
 	defer env.StopWatch()
+	// 先清再建，理由同 TestContextKeyHelper_NewContextWithDeadline
+	// [EN] Cleared first, for the reason spelled out in the first test that does this
+	ClearGlobalContextManager()
 	InitializeContextManager(env, nil)
 	defer ClearGlobalContextManager()
 
@@ -158,6 +177,9 @@ func TestContextKeyHelper_MustGetEnvironment_OK(t *testing.T) {
 func TestContextKeyHelper_IsEnvironment(t *testing.T) {
 	env := NewEnvironment()
 	defer env.StopWatch()
+	// 先清再建，理由同 TestContextKeyHelper_NewContextWithDeadline
+	// [EN] Cleared first, for the reason spelled out in the first test that does this
+	ClearGlobalContextManager()
 	InitializeContextManager(env, nil)
 	defer ClearGlobalContextManager()
 

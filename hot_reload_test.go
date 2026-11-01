@@ -357,6 +357,9 @@ func TestContextHelpers(t *testing.T) {
 	// 验证环境被正确设置
 	assert.Equal(t, EnvDevelopment, testEnv.Value, "环境应该是development")
 
+	// 先清再建，理由同 TestContextKeyHelper_NewContextWithDeadline
+	// [EN] Cleared first, for the reason spelled out in the first test that does this
+	ClearGlobalContextManager()
 	InitializeContextManager(testEnv, nil)
 
 	// 测试上下文辅助工具

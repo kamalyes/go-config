@@ -21,13 +21,13 @@ import (
 // TwoLevel 二级缓存配置
 type TwoLevel struct {
 	ModuleName       string        `mapstructure:"module-name" yaml:"module-name" json:"moduleName"`                   // 模块名
-	L1Type           CacheType     `mapstructure:"l1_type" yaml:"l1-type" json:"l1_type"`                              // L1缓存类型
-	L2Type           CacheType     `mapstructure:"l2_type" yaml:"l2-type" json:"l2_type"`                              // L2缓存类型
-	L1TTL            time.Duration `mapstructure:"l1_ttl" yaml:"l1-ttl" json:"l1_ttl"`                                 // L1缓存TTL
-	L2TTL            time.Duration `mapstructure:"l2_ttl" yaml:"l2-ttl" json:"l2_ttl"`                                 // L2缓存TTL
+	L1Type           CacheType     `mapstructure:"l1-type" yaml:"l1-type" json:"l1Type"`                               // L1缓存类型
+	L2Type           CacheType     `mapstructure:"l2-type" yaml:"l2-type" json:"l2Type"`                               // L2缓存类型
+	L1TTL            time.Duration `mapstructure:"l1-ttl" yaml:"l1-ttl" json:"l1Ttl"`                                  // L1缓存TTL
+	L2TTL            time.Duration `mapstructure:"l2-ttl" yaml:"l2-ttl" json:"l2Ttl"`                                  // L2缓存TTL
 	SyncStrategy     string        `mapstructure:"sync-strategy" yaml:"sync-strategy" json:"syncStrategy"`             // 同步策略: write_through, write_back, write_around
-	L1Size           int           `mapstructure:"l1_size" yaml:"l1-size" json:"l1_size"`                              // L1缓存大小
-	L2Size           int           `mapstructure:"l2_size" yaml:"l2-size" json:"l2_size"`                              // L2缓存大小
+	L1Size           int           `mapstructure:"l1-size" yaml:"l1-size" json:"l1Size"`                               // L1缓存大小
+	L2Size           int           `mapstructure:"l2-size" yaml:"l2-size" json:"l2Size"`                               // L2缓存大小
 	PromoteThreshold int           `mapstructure:"promote-threshold" yaml:"promote-threshold" json:"promoteThreshold"` // 提升阈值
 }
 

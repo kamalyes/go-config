@@ -39,13 +39,11 @@
 - **动态切换** - 运行时动态切换环境并触发回调
 - **自定义注册** - `RegisterEnvPrefixes` 支持注册自定义环境类型与别名
 
-### 📦 丰富的配置模块（49 个）
+### 📦 配置模块（35 个）
 
 | 分类 | 配置模块 | 说明 |
 | ------ | --------- | ------ |
 | **🌐 网关与服务** | Gateway | 网关统一配置（含 HTTP/gRPC 服务） |
-| | RESTful | RESTful API 配置 |
-| | RPC Client / RPC Server | RPC 客户端和服务端配置 |
 | **💾 数据存储** | Database | 数据库统一配置（MySQL、PostgreSQL、SQLite） |
 | | Redis | Redis 缓存配置 |
 | | Cache | 多级缓存配置（Memory、Expiring、Ristretto、Sharded、TwoLevel） |
@@ -57,7 +55,6 @@
 | | JWT | JWT 认证配置 |
 | | RateLimit | 限流配置 |
 | | Recovery | 恢复中间件配置 |
-| | Timeout | 超时配置 |
 | | Middleware | 中间件统一配置 |
 | **📊 监控运维** | Health | 健康检查配置 |
 | | Metrics | 指标收集配置 |
@@ -70,26 +67,17 @@
 | | Alerting | 告警配置 |
 | **📨 消息队列** | Kafka | Kafka 配置 |
 | | Queue | 消息队列统一配置 |
-| **🗄️ 对象存储** | OSS | 对象存储统一配置（阿里云、MinIO、S3、BoltDB） |
-| **🔗 第三方服务** | Pay | 支付宝、微信支付配置 |
-| | SMS | 阿里云短信配置 |
-| | Email / SMTP | 邮件配置 |
-| | Youzan | 有赞平台配置 |
-| | STS | 阿里云 STS 配置 |
-| **⚙️ 其他功能** | Logging / Zap | 日志配置 |
+| | SMTP | 邮件发送配置 |
+| **⚙️ 其他功能** | Logging | 日志配置 |
 | | I18n | 国际化配置 |
 | | Security | 安全配置 |
 | | Signature | 签名配置 |
-| | Captcha | 验证码配置 |
 | | Banner | 启动横幅配置 |
 | | Swagger | API 文档配置 |
 | | Jobs | 定时任务配置 |
 | | WSC | WebSocket 通信配置 |
 | | Breaker | 熔断器配置 |
-| | Consul | Consul 配置 |
-| | FTP | FTP 配置 |
 | | Common | 公共基础配置 |
-
 ### 🎨 开发体验
 
 - **链式 API** - 泛型构建器 `NewConfigBuilder[T]` 优雅的链式调用
@@ -97,6 +85,141 @@
 - **类型安全** - 泛型支持，编译时类型检查
 - **上下文集成** - 配置信息自动注入到 `context.Context`，通过 `ContextKeyHelper` 从上下文获取
 - **统一错误处理** - 分类错误（`errors.go`）支持错误分类、严重程度、回调
+
+## ⚠️ 用之前先知道这几条
+
+这几条都是实际踩过或实测过的，不是风格建议。
+
+### 配置键一律用连字符
+
+`mapstructure` 的键名**必须**写成连字符形式（`module-name`、`l1-type`），不要用下划线。
+仓库里 1200 多个键有 764 处连字符，这是约定，而初次加载的反序列化**不做** kebab↔snake 转换。
+
+违反的代价是静默的。本库曾有 6 个字段把 `mapstructure` 写成 `l1_type` 而 `yaml` tag 写
+`l1-type`，于是仓库自带的示例配置里那几行**从来没生效过**：
+
+```yaml
+# 配置里写 l1-type，而 tag 是 l1_type
+l1-type: memory      # -> 字段保持零值，没有任何报错
+l1_type: memory      # -> 才是当时唯一生效的写法
+```
+
+新增字段时让 `mapstructure` / `yaml` 两个 tag 完全一致，`json` 用驼峰。
+
+### 初次加载与热重载的键名匹配规则不同
+
+这是上一条之所以危险的放大器：
+
+| 路径 | 用的反序列化 | 是否做 kebab→snake |
+|------|-------------|-------------------|
+| 初次加载 | 裸 `viper.Unmarshal` | **不做** |
+| 热重载 | `UnmarshalWithFlexibleNaming` | **做** |
+
+所以一个键名风格不匹配的字段，会在**启动时是空的、热重载之后突然有值**。实测：
+
+```text
+配置里写 l1-type / l2-type：
+  初次加载   tag=l1_type 收到 ""        tag=l2-type 收到 "redis"
+  热重载     tag=l1_type 收到 "memory"  tag=l2-type 收到 "redis"
+```
+
+只要遵守上一条（两个 tag 一致、一律连字符），两条路径的行为就一致。
+
+### 环境变量注入：目前不支持
+
+配置值**不能**从环境变量注入。host、password 这类都得写在配置文件里。实测三种常见预期：
+
+```text
+① YAML 里写 ${DB_HOST} 占位符   -> host="${DB_HOST}"   原样字面量，不展开
+② 只设环境变量 HOST / PASSWORD  -> host="file-host"    环境变量完全无效
+③ 手动开 viper.AutomaticEnv()   -> host="env-host"     生效
+                                   password=""         但仍取不到
+```
+
+第 ③ 条是关键：`AutomaticEnv()` 只解析 viper **已经知道**的键。配置文件里没出现过的
+`password`，即使设了环境变量也取不到——而那恰好是密码最需要的场景（不写进文件）。
+所以"打开 AutomaticEnv 就行"是不够的，还要配合 `SetDefault` 或 `BindEnv` 逐键注册。
+
+环境变量目前只用来**选环境**（`GO_ENV=production` 之类），不用来注入配置值。
+
+### 多实例配置：只有两处支持
+
+想配 `master` / `slave1` / `slave2`，或多个 Kafka 集群，目前**配不出来**。
+
+| 配置 | 多实例 | 形式 |
+|------|--------|------|
+| `gateway.GRPC.Clients` | ✅ | `map[string]*GRPCClient`，key 为服务名 |
+| `wsc.Tokens` | ✅ | `map[string]*ConnectionTokenSet`，key 为 appid |
+| 数据库 / Kafka / NATS / Redis / ClickHouse / Elasticsearch / Etcd / MQTT / SMTP | ❌ | 单实例 |
+
+数据库的容器按**驱动类型**分键（`mysql` / `postgresql` / `sqlite` / `cockroachdb`），
+每个驱动一个实例，不是按实例名分键。
+
+支持多实例的那两处用的是「map key 回填」模式：实例名不写在字段里，而是加载后从 map key
+回填到一个 `mapstructure:"-"` 的字段上。新增多实例配置时照这个模式写。
+
+### 衍生字段用 AfterLoad / Validate 计算
+
+不从配置文件读、而是算出来的字段（如拼好的 `Endpoint`），tag 写 `mapstructure:"-" yaml:"-" json:"-"`，
+在 `AfterLoad()`（`internal.CallAfterLoad` 调用）或 `Validate()` 里计算。
+
+注意是 `"-"` 不是 `"_"`：写成 `"_"` 的话这个字段仍然可以被配置里一个叫 `_` 的键覆盖掉。
+
+---
+
+## ⚡ 请求属性提取与性能
+
+`common.ExtractAttribute(r, sources)` 按来源清单顺序取第一个非空值，来源可以是 header、
+query 或 cookie。
+
+### 取多个属性时用 AttributeExtractor
+
+标准库的 `r.URL.Query()` 与 `r.Cookie(name)` **每次调用都重新解析**。一个属性一次
+`ExtractAttribute` 的用法下，同一个查询串会被解析几十遍——网关默认配置有 43 个 query 来源、
+25 个 cookie 来源，分布在 28 个属性的清单里。
+
+所以取多个属性时，建一个请求级的提取器共用：
+
+```go
+// 推荐：一次请求建一个，查询串与 Cookie 头各只解析一次
+e := common.NewAttributeExtractor(r)
+traceID := e.Extract(cfg.TraceIDSources)
+userID  := e.Extract(cfg.UserIDSources)
+tenantID := e.Extract(cfg.TenantIDSources)
+
+// 只取一个属性时，这样就够了
+traceID := common.ExtractAttribute(r, cfg.TraceIDSources)
+```
+
+两者语义完全一致。提取器是请求级的，不加锁，不要跨 goroutine 共享。
+
+实测（按真实默认配置取齐 28 个属性，Apple M4，基准见 `pkg/gateway/request_bench_test.go`）：
+
+| 请求形态 | 一个属性一次调用 | 复用提取器 | 提速 |
+|---------|----------------|-----------|------|
+| 属性都不存在 | 644 ns / 0 allocs | 649 ns / 0 allocs | — |
+| 从 header 命中 | 885 ns / 0 allocs | 778 ns / 0 allocs | 1.14x |
+| **带查询串** | 9617 ns / 200 allocs | **1210 ns / 8 allocs** | **7.95x** |
+| 带 Cookie 头 | 3024 ns / 28 allocs | 1278 ns / 7 allocs | 2.37x |
+| 混合 | 6160 ns / 116 allocs | 1594 ns / 9 allocs | 3.86x |
+
+`query` 形态剩下的 8 次分配全部来自那唯一一次 `url.ParseQuery`——构建 `url.Values` 必须付的，
+是当前语义下的地板。
+
+### header 来源的 Key 写规范形式
+
+`AttributeSource` 里 header 来源的 Key 请写 HTTP 规范形式：`X-User-Id`，不要写 `X-User-ID`。
+
+两种拼法的查找结果完全一样，但 `Header.Get` 每次都会对 key 调 `CanonicalMIMEHeaderKey`——
+key 本来就规范时原样返回、不分配；不规范则每次查找都要现算并分配一个新字符串。
+
+默认配置里的 Key 已经是规范形式。用户自己在 YAML 里写 `x-user-id` 也没关系：
+`RequestContext.Validate()` 会在加载后归一化一次，之后的查找同样零分配
+（实测 111 ns / 3 allocs → 49 ns / 0 allocs）。
+
+query 与 cookie 的键名**大小写敏感**，不会被归一化。
+
+---
 
 ## 🚀 快速开始
 
