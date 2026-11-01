@@ -1,0 +1,33 @@
+# shedder模块配置文件
+# 模块名称: shedder
+# 包名: shedder  
+# 描述: 自适应降载模块
+# 生成时间: 2026-11-01 01:30:03
+# 注意: 此文件由配置生成器自动生成
+
+# 模块名称
+module-name: shedder
+# 是否启用降载
+enabled: false
+# CPU 使用率阈值，千分比 0-1000
+cpu-threshold: 900
+# 硬并发上限，0 表示不限
+max-concurrency: 0
+# 响应时间滑窗总长度，毫秒
+window-ms: 5000
+# 滑窗桶数
+window-buckets: 50
+# 降载冷却时长，毫秒
+cooldown-ms: 1000
+# 滑窗无样本时的兜底响应时间，毫秒
+min-rt-ms: 1000
+# 飞行请求数 EWMA 平滑系数，取值 (0,1)
+flying-beta: 0.9
+# 排除的路径（前缀匹配）
+exclude-paths:
+    - /health
+    - /healthz
+    - /readyz
+    - /livez
+    - /metrics
+    - /debug

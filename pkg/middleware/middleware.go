@@ -20,6 +20,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/metrics"
 	"github.com/kamalyes/go-config/pkg/pprof"
 	"github.com/kamalyes/go-config/pkg/recovery"
+	"github.com/kamalyes/go-config/pkg/shedder"
 	"github.com/kamalyes/go-config/pkg/signature"
 	"github.com/kamalyes/go-config/pkg/tracing"
 	"github.com/kamalyes/go-toolbox/pkg/syncx"
@@ -36,6 +37,7 @@ type Middleware struct {
 	I18N           *i18n.I18N              `mapstructure:"i18n" yaml:"i18n" json:"i18n"`                                 // 国际化中间件
 	PProf          *pprof.PProf            `mapstructure:"pprof" yaml:"pprof" json:"pprof"`                              // PProf中间件
 	CircuitBreaker *breaker.CircuitBreaker `mapstructure:"circuit-breaker" yaml:"circuit-breaker" json:"circuitBreaker"` // 断路器配置
+	Shedder        *shedder.Shedder        `mapstructure:"shedder" yaml:"shedder" json:"shedder"`                        // 自适应降载配置
 	Alerting       *alerting.Alerting      `mapstructure:"alerting" yaml:"alerting" json:"alerting"`                     // 告警配置
 	Signature      *signature.Signature    `mapstructure:"signature" yaml:"signature" json:"signature"`                  // 签名验证中间件
 }
@@ -52,6 +54,7 @@ func Default() *Middleware {
 		I18N:           i18n.Default(),
 		PProf:          pprof.Default(),
 		CircuitBreaker: breaker.Default(),
+		Shedder:        shedder.Default(),
 		Alerting:       alerting.Default(),
 		Signature:      signature.Default(),
 	}
@@ -219,6 +222,20 @@ func (m *Middleware) WithSignature(signature *signature.Signature) *Middleware {
 func (m *Middleware) EnableCircuitBreaker() *Middleware {
 	if m.CircuitBreaker != nil {
 		m.CircuitBreaker.Enable()
+	}
+	return m
+}
+
+// WithShedder 设置自适应降载配置
+func (m *Middleware) WithShedder(shedder *shedder.Shedder) *Middleware {
+	m.Shedder = shedder
+	return m
+}
+
+// EnableShedder 启用自适应降载
+func (m *Middleware) EnableShedder() *Middleware {
+	if m.Shedder != nil {
+		m.Shedder.Enable()
 	}
 	return m
 }

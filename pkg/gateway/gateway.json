@@ -1450,6 +1450,25 @@
         "/debug"
       ]
     },
+    "shedder": {
+      "moduleName": "shedder",
+      "enabled": false,
+      "cpuThreshold": 900,
+      "maxConcurrency": 0,
+      "windowMs": 5000,
+      "windowBuckets": 50,
+      "cooldownMs": 1000,
+      "minRtMs": 1000,
+      "flyingBeta": 0.9,
+      "excludePaths": [
+        "/health",
+        "/healthz",
+        "/readyz",
+        "/livez",
+        "/metrics",
+        "/debug"
+      ]
+    },
     "alerting": {
       "moduleName": "alerting",
       "enabled": false,

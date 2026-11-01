@@ -1,0 +1,26 @@
+// shedder模块配置文件
+// 模块名称: shedder
+// 包名: shedder  
+// 描述: 自适应降载模块
+// 生成时间: 2026-11-01 01:30:03
+// 注意: 此文件由配置生成器自动生成
+
+{
+  "moduleName": "shedder",
+  "enabled": false,
+  "cpuThreshold": 900,
+  "maxConcurrency": 0,
+  "windowMs": 5000,
+  "windowBuckets": 50,
+  "cooldownMs": 1000,
+  "minRtMs": 1000,
+  "flyingBeta": 0.9,
+  "excludePaths": [
+    "/health",
+    "/healthz",
+    "/readyz",
+    "/livez",
+    "/metrics",
+    "/debug"
+  ]
+}

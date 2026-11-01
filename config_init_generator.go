@@ -51,6 +51,7 @@ import (
 	"github.com/kamalyes/go-config/pkg/ratelimit"
 	"github.com/kamalyes/go-config/pkg/recovery"
 	"github.com/kamalyes/go-config/pkg/security"
+	"github.com/kamalyes/go-config/pkg/shedder"
 	"github.com/kamalyes/go-config/pkg/signature"
 	"github.com/kamalyes/go-config/pkg/smtp"
 	"github.com/kamalyes/go-config/pkg/swagger"
@@ -167,6 +168,7 @@ func (sg *SmartConfigGenerator) registerAllModules() {
 		{Name: "ratelimit", PackageName: "ratelimit", DefaultFunc: func() interface{} { return ratelimit.Default() }, OutputSubDir: "ratelimit", Description: "限流模块", Enabled: true},
 		{Name: "recovery", PackageName: "recovery", DefaultFunc: func() interface{} { return recovery.Default() }, OutputSubDir: "recovery", Description: "错误恢复模块", Enabled: true},
 		{Name: "security", PackageName: "security", DefaultFunc: func() interface{} { return security.Default() }, OutputSubDir: "security", Description: "安全模块", Enabled: true},
+		{Name: "shedder", PackageName: "shedder", DefaultFunc: func() interface{} { return shedder.Default() }, OutputSubDir: "shedder", Description: "自适应降载模块", Enabled: true},
 		{Name: "signature", PackageName: "signature", DefaultFunc: func() interface{} { return signature.Default() }, OutputSubDir: "signature", Description: "数字签名模块", Enabled: true},
 		{Name: "smtp", PackageName: "smtp", DefaultFunc: func() interface{} { return smtp.Default() }, OutputSubDir: "smtp", Description: "SMTP邮件模块", Enabled: true},
 		{Name: "swagger", PackageName: "swagger", DefaultFunc: func() interface{} { return swagger.Default() }, OutputSubDir: "swagger", Description: "Swagger API文档", Enabled: true},

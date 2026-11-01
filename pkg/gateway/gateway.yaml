@@ -1175,6 +1175,25 @@ middleware:
             - /health
             - /metrics
             - /debug
+    shedder:
+        # 模块名称
+        module-name: shedder
+        # 是否启用网关
+        enabled: false
+        cpu-threshold: 900
+        max-concurrency: 0
+        window-ms: 5000
+        window-buckets: 50
+        cooldown-ms: 1000
+        min-rt-ms: 1000
+        flying-beta: 0.9
+        exclude-paths:
+            - /health
+            - /healthz
+            - /readyz
+            - /livez
+            - /metrics
+            - /debug
     alerting:
         # 模块名称
         module-name: alerting

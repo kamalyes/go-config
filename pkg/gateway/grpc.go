@@ -71,6 +71,8 @@ type GRPCClient struct {
 	RetryTimes            int              `mapstructure:"retry-times" yaml:"retry-times" json:"retryTimes"`                                      // 重试次数
 	EnableLoadBalance     bool             `mapstructure:"enable-load-balance" yaml:"enable-load-balance" json:"enableLoadBalance"`               // 是否启用负载均衡
 	LoadBalancePolicy     string           `mapstructure:"load-balance-policy" yaml:"load-balance-policy" json:"loadBalancePolicy"`               // 负载均衡策略
+	EnableBreaker         bool             `mapstructure:"enable-breaker" yaml:"enable-breaker" json:"enableBreaker"`                             // 是否启用客户端熔断（默认关闭，未启用时拦截器不入链）
+	BreakerKeyMode        string           `mapstructure:"breaker-key-mode" yaml:"breaker-key-mode" json:"breakerKeyMode"`                        // 客户端熔断键粒度 (target_method / target / method)，非法值由使用方回落默认
 	EnableTLS             bool             `mapstructure:"enable-tls" yaml:"enable-tls" json:"enableTls"`                                         // 是否启用TLS
 	TLSCertFile           string           `mapstructure:"tls-cert-file" yaml:"tls-cert-file" json:"tlsCertFile"`                                 // TLS证书文件
 	TLSKeyFile            string           `mapstructure:"tls-key-file" yaml:"tls-key-file" json:"tlsKeyFile"`                                    // TLS密钥文件
@@ -146,6 +148,8 @@ func DefaultGRPCClient(serviceName string, endpoints []string) *GRPCClient {
 		RetryTimes:            3,
 		EnableLoadBalance:     true,
 		LoadBalancePolicy:     "round_robin",
+		EnableBreaker:         false,           // 默认关闭：客户端熔断阈值要按下游实际情况调，默认开启等于替使用方做决定
+		BreakerKeyMode:        "target_method", // 故障隔离到方法级：只按 method 会让不同下游互相牵连，只按 target 会让一个慢方法打死整个下游
 		EnableTLS:             false,
 		InitialWindowSize:     1 << 20, // 1MB 初始窗口（HTTP/2 多路复用优化）
 		InitialConnWindowSize: 1 << 21, // 2MB 连接窗口（HTTP/2 多路复用优化）
@@ -352,6 +356,23 @@ func (g *GRPCClient) WithRetry(retryTimes int) *GRPCClient {
 func (g *GRPCClient) EnableLoadBalancing(policy string) *GRPCClient {
 	g.EnableLoadBalance = true
 	g.LoadBalancePolicy = policy
+	return g
+}
+
+// EnableClientBreaker 启用客户端熔断
+// keyMode 为空时保留当前值（默认 target_method），合法值 target_method / target / method
+// 本包只存字符串，合法性校验留给使用方：go-config 不能依赖 go-rpc-gateway（会成环）
+func (g *GRPCClient) EnableClientBreaker(keyMode string) *GRPCClient {
+	g.EnableBreaker = true
+	if keyMode != "" {
+		g.BreakerKeyMode = keyMode
+	}
+	return g
+}
+
+// DisableClientBreaker 禁用客户端熔断
+func (g *GRPCClient) DisableClientBreaker() *GRPCClient {
+	g.EnableBreaker = false
 	return g
 }
 
