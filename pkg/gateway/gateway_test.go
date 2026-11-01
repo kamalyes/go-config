@@ -382,6 +382,57 @@ func TestGRPCClient_Clone(t *testing.T) {
 	assert.NotEqual(t, original.Endpoints[0], cloned.Endpoints[0])
 }
 
+// TestGRPCClient_DefaultBreakerFields 测试客户端熔断字段的默认值
+func TestGRPCClient_DefaultBreakerFields(t *testing.T) {
+	client := DefaultGRPCClient("test-service", []string{"localhost:50051"})
+
+	// 客户端熔断必须默认关闭：阈值要按下游实际情况调，默认开启等于替使用方做决定
+	assert.False(t, client.EnableBreaker)
+	// 取值必须与 go-rpc-gateway 侧 ClientBreakerKeyMode 的常量字面量逐字一致（下划线，非短横线），
+	// 否则解析时会落到 default 分支被静默改写，配置文件里写的值等于没生效
+	// 这里只能断言字面量：go-config 不能依赖 go-rpc-gateway（会成环）
+	assert.Equal(t, "target_method", client.BreakerKeyMode)
+}
+
+// TestGRPCClient_EnableDisableClientBreaker 测试客户端熔断的链式开关
+func TestGRPCClient_EnableDisableClientBreaker(t *testing.T) {
+	client := DefaultGRPCClient("test-service", []string{"localhost:50051"})
+
+	// keyMode 为空时保留当前值
+	client.EnableClientBreaker("")
+	assert.True(t, client.EnableBreaker)
+	assert.Equal(t, "target_method", client.BreakerKeyMode)
+
+	// 显式指定 keyMode
+	client.EnableClientBreaker("target")
+	assert.True(t, client.EnableBreaker)
+	assert.Equal(t, "target", client.BreakerKeyMode)
+
+	// 禁用只改开关，不动 keyMode
+	client.DisableClientBreaker()
+	assert.False(t, client.EnableBreaker)
+	assert.Equal(t, "target", client.BreakerKeyMode)
+
+	// 链式调用返回自身
+	assert.Same(t, client, client.EnableClientBreaker("method"))
+}
+
+// TestGRPCClient_CloneBreakerFields 测试客户端熔断字段参与克隆
+func TestGRPCClient_CloneBreakerFields(t *testing.T) {
+	original := DefaultGRPCClient("test-service", []string{"localhost:50051"}).
+		EnableClientBreaker("method")
+
+	cloned := original.Clone()
+	assert.Equal(t, original.EnableBreaker, cloned.EnableBreaker)
+	assert.Equal(t, original.BreakerKeyMode, cloned.BreakerKeyMode)
+
+	// 修改原始对象不应影响克隆对象
+	original.DisableClientBreaker()
+	original.BreakerKeyMode = "target"
+	assert.True(t, cloned.EnableBreaker)
+	assert.Equal(t, "method", cloned.BreakerKeyMode)
+}
+
 // TestExtensions_SetAndGet 测试设置和获取扩展配置
 func TestExtensions_SetAndGet(t *testing.T) {
 	gw := Default()
